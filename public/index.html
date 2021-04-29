@@ -1,0 +1,105 @@
+<html>
+
+<head>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <script src="https://kit.fontawesome.com/1515315868.js" crossorigin="anonymous"></script>
+  <title>Mock Server</title>
+  <link rel="stylesheet" href="./style.css">
+  <script>
+    function onLoadHandler() {
+      document.getElementById("resource-iframe").contentWindow.document.body.style.color = "#b9b8b8";
+      document.getElementById("resource-iframe").contentWindow.document.body.style.fontSize = "18px";
+      document.getElementById("loader").style.display = "none";
+      setIframeHeader();
+    }
+
+    function setIframeHeader() {
+      const iframesource = document.getElementById("resource-iframe").src;
+      const iframeHeader = document.getElementById("iframe-header");
+      const anchorHeader = iframeHeader.getElementsByTagName("a");
+
+      anchorHeader[0].href = iframesource;
+      anchorHeader[0].innerText = iframesource;
+    }
+  </script>
+</head>
+
+<body>
+  <header class="top-header">
+    <div class="container">
+      <nav>
+        <ul>
+          <li class="title">
+            Mock Server
+          </li>
+          <li>
+            <a href="https://github.com/R35007/Mock-Server">
+              <i class="fab fa-github-alt"></i>GitHub
+            </a>
+          </li>
+          <li>
+            <a href="https://r35007.github.io/Siva_Profile/">
+              <i class="fas fa-user"></i>My Profile
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <h2>Congrats!</h1>
+        <p>
+          You're successfully running Mock Server Server
+        </p>
+
+        <div id="resources-container">
+          <header>
+            <h2>
+              <a href="#resources-container">Resources</a>
+              <span id="routes-count"></span>
+            </h2>
+            <div>
+              <input type="search" id="search" class="search" oninput="filterRoutes()"
+                placeholder="Search resources here" />
+              <i class="fas fa-search" onclick="filterRoutes()"></i>
+            </div>
+          </header>
+          <div class="resources-wrapper">
+            <div id="resources-list">
+            </div>
+            <div id="noresources" style="display: none"> No resources found</div>
+            <div id="iframe-wrapper">
+              <div id="loader" class="loader-05" style="display : none"></div>
+              <div id="iframe-header"><a style="text-decoration:none" target="_blank"></a>
+              </div>
+              <iframe id="resource-iframe" src="" onload="onLoadHandler()"></iframe>
+            </div>
+          </div>
+        </div>
+
+        <p>
+          To access and modify resources, you can use any HTTP method:
+        </p>
+        <p>
+          <code>GET</code>
+          <code>POST</code>
+          <code>PUT</code>
+          <code>PATCH</code>
+          <code>DELETE</code>
+          <code>OPTIONS</code>
+        </p>
+
+        <h2>Documentation</h1>
+          <p>
+            <a href="https://github.com/R35007/Mock-Server/blob/master/README.md">
+              README
+            </a>
+          </p>
+    </div>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+
+</html>

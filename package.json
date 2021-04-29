@@ -1,0 +1,62 @@
+{
+  "name": "@r35007/mock-server",
+  "version": "1.0.3",
+  "description": "Customize Your Own Local Mock Server",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "node dist/index.js",
+    "mock-server": "node dist/mock-server.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "public"
+  ],
+  "keywords": [
+    "JSON",
+    "REST",
+    "API",
+    "prototyping",
+    "mock",
+    "mocking",
+    "test",
+    "testing",
+    "rest",
+    "data",
+    "dummy",
+    "sandbox",
+    "server",
+    "fake",
+    "response",
+    "db",
+    "local"
+  ],
+  "bin": {
+    "mock-server": "dist/mock-server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/R35007/Mock-Server"
+  },
+  "homepage": "https://github.com/R35007/Mock-Server",
+  "author": {
+    "name": "Sivaraman",
+    "email": "sendmsg2siva@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chalk": "^4.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "lodash": "^4.17.21",
+    "path-to-regexp": "^6.2.0"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/express": "^4.17.11",
+    "@types/lodash": "^4.14.168",
+    "@types/path-to-regexp": "^1.7.0"
+  }
+}

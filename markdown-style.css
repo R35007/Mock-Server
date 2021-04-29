@@ -1,0 +1,126 @@
+:root {
+  --color: rgb(149, 0, 168);
+  --rgba: 149, 0, 168;
+  --primary: rgba(var(--rgba));
+  --primary-bg-light: rgba(var(--rgba), 0.07);
+  --secondary: rgba(var(--rgba), 0.2);
+}
+
+body {
+  font-size: 15px;
+  color: #333;
+  background: #fff;
+  font-family: Helvetica, Arial, "PingFang SC", "Microsoft YaHei", "WenQuanYi Micro Hei", "tohoma,sans-serif";
+  margin: 0;
+  padding: 20px 10%;
+}
+
+h1 {
+  font-size: 2.2em;
+  font-weight: 700;
+  line-height: 1.1;
+  padding-top: 16px;
+  margin-bottom: 4px;
+}
+
+h2 {
+  font-size: 1.4em;
+  margin: 40px 10px 20px 0;
+  padding-left: 9px;
+  border-left: 6px solid var(--primary);
+  font-weight: 700;
+  padding: 5px 10px;
+  line-height: 1.4;
+}
+
+h3 {
+  background-color: var(--primary-bg-light);
+  border-left: 3px solid var(--primary);
+  margin: 10px 0 5px;
+  padding: 3px 10px;
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+h4 {
+  display: inline-block;
+  background-color: var(--secondary);
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 1.4;
+  margin: 10px 0 5px;
+  padding: 3px 5px;
+  border-radius: 4px;
+}
+
+a {
+  color: var(--primary) !important;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:focus,
+a:active,
+a:hover,
+a {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+h1:first-child > a:empty:after {
+  content: "\25B2";
+}
+
+h1:first-child > a:empty {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: white !important;
+  text-decoration: none;
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+  display: inline-block;
+  border-radius: 50px;
+  font-size: 20px;
+  line-height: unset;
+  background-color: #000;
+  z-index: 10;
+  margin: 0;
+  padding: 5px 10px;
+  opacity: 0.4;
+  transition: 0.2s all ease-in;
+}
+
+h1:first-child > a:empty:hover {
+  opacity: 0.8;
+}
+
+code {
+  color: var(--primary);
+  background-color: var(--primary-bg-light);
+  border-radius: 4px;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 90%;
+}
+
+pre,
+div {
+  background-color: #000 !important;
+  border-radius: 4px !important;
+}
+
+li {
+  margin-top: 0.5em;
+}
+
+table thead {
+  background-color: #dbdbdb;
+}
+
+table tr:nth-child(even) {
+  background-color: #f0f0f0;
+}
