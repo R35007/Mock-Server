@@ -71,10 +71,9 @@ Create a `routes.json` file with mock data.
 ```jsonc
 {
   "/hello": {
-    "mock": "hello World",
-  },
-};
-
+    "mock": "hello World"
+  }
+}
 ```
 
 Start Mock Server
@@ -348,7 +347,7 @@ Now in server.js
 
 ```js
 const { MockServer } = require("@r35007/mock-server");
-new MockServer("./routes.json", undefined, middlewares.js).launchServer();
+new MockServer("./routes.json", undefined, "./middlewares.js").launchServer();
 // Here in the undefined place it uses the default configs.
 ```
 
