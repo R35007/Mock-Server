@@ -3,18 +3,17 @@ import * as fs from "fs";
 import * as _ from "lodash";
 import * as path from "path";
 import { compile, match, MatchResult } from 'path-to-regexp';
-import { default_Config, default_Globals, default_Injectors, default_Middlewares, default_Routes } from "./defaults";
+import { default_Config, default_Injectors, default_Middlewares, default_Routes } from "./defaults";
 import {
-  Config, FileDetails, Globals, InjectorConfig, Injectors,
+  Config, FileDetails, InjectorConfig, Injectors,
   KeyValString, Middlewares, RouteConfig, Routes, UserConfig,
-  UserGlobals, UserInjectors, UserMiddlewares, UserRoutes, User_Config, User_Middlewares
+  UserInjectors, UserMiddlewares, UserRoutes, User_Config
 } from "./model";
 
 export class Validators {
 
   _routes: Routes = default_Routes;
   _config: Config = default_Config;
-  _globals: Globals = default_Globals;
   _injectors: Injectors = default_Injectors;
   _middlewares: Middlewares = default_Middlewares;
 
@@ -29,18 +28,17 @@ export class Validators {
 
     try {
 
-      const userConfig: User_Config = _.isString(config) ? this.isFileExist(config)
-        ? this.getJSON(config) as User_Config : {} : config as User_Config;
+      const userConfig: User_Config = this.#requireData(config) as User_Config;
 
-      const { port, rootPath, baseUrl, proxy, excludeRoutes, staticUrl } = default_Config;
+      const { port, rootPath, baseUrl, routeRewrite: pathRewrite, excludeRoutes, staticUrl } = default_Config;
       const valid_Config = <Config>{};
 
       valid_Config.port = userConfig.port || port;
+      valid_Config.baseUrl = userConfig.baseUrl ? this.getValidRoutePath(userConfig.baseUrl) : baseUrl;
       valid_Config.rootPath = userConfig.rootPath && this.isDirectoryExist(userConfig.rootPath) ? userConfig.rootPath : rootPath;
       valid_Config.staticUrl = userConfig.staticUrl && this.isDirectoryExist(userConfig.staticUrl) ? this.parseUrl(userConfig.staticUrl) : staticUrl;
-      valid_Config.proxy = userConfig.proxy ? this.getValidProxy(userConfig.proxy) : proxy;
+      valid_Config.routeRewrite = userConfig.routeRewrite ? this.getValidPathRewrite(userConfig.routeRewrite) : pathRewrite;
       valid_Config.excludeRoutes = userConfig.excludeRoutes ? this.getValidRoutePaths(userConfig.excludeRoutes) : excludeRoutes;
-      valid_Config.baseUrl = userConfig.baseUrl ? this.getValidRoutePath(userConfig.baseUrl) : baseUrl;
       valid_Config.throwError = userConfig.throwError == true;
       valid_Config.reverseRouteOrder = userConfig.reverseRouteOrder == true;
 
@@ -53,30 +51,14 @@ export class Validators {
     }
   };
 
-  getValidGlobals = (globals: UserGlobals): Globals => {
-
-    if (_.isEmpty(globals)) return default_Globals;
-
-    try {
-      const userGlobals: User_Config = _.isString(globals) ? this.isFileExist(globals)
-        ? this.getJSON(globals) as User_Config : {} : globals as User_Config
-      return { ...default_Globals, ...userGlobals };
-    } catch (err) {
-      this._isValidated = false;
-      console.error('getValidGlobals : ' + chalk.red(err.message));
-      if (this._config.throwError) throw new Error(err);
-      return default_Globals;
-    }
-
-  };
-
   getValidInjectors = (injectors: UserInjectors): Injectors => {
 
     if (_.isEmpty(injectors)) return default_Injectors;
 
     try {
-      const userInjectors: Injectors = _.isString(injectors) ? this.isPathExist(injectors)
-        ? this.getJSON(injectors) as Injectors : {} : injectors as Injectors;
+
+      const userInjectors: Injectors = this.#requireData(injectors) as Injectors;
+
       const flattenedInjectors = this.#flattenRoutes(userInjectors);
       return { ...default_Injectors, ...flattenedInjectors };
     } catch (err) {
@@ -87,14 +69,18 @@ export class Validators {
     }
   };
 
-  getValidMiddlewares = (middleawres: UserMiddlewares): Middlewares => {
+  getValidMiddlewares = (middlewares: UserMiddlewares): Middlewares => {
 
-    if (_.isEmpty(middleawres)) return default_Middlewares;
+    if (_.isEmpty(middlewares)) return default_Middlewares;
 
     try {
-      const userMiddlewares: User_Middlewares = _.isString(middleawres) ? this.isFileExist(middleawres)
-        ? require(this.parseUrl(middleawres)) as User_Middlewares : {} : middleawres as User_Middlewares
-      return { ...default_Middlewares, ...userMiddlewares };
+      const userMiddlewares: Middlewares = this.#requireData(middlewares) as Middlewares;
+
+      const valid_middlewares = Object.keys(userMiddlewares)
+        .filter(um => _.isFunction(userMiddlewares[um]))
+        .reduce((result, um) => ({ ...result, [um]: userMiddlewares[um] }), {})
+
+      return { ...default_Middlewares, ...valid_middlewares };
     } catch (err) {
       this._isValidated = false;
       console.error('getValidMiddlewares : ' + chalk.red(err.message));
@@ -108,15 +94,14 @@ export class Validators {
     if (_.isEmpty(routes)) return default_Routes;
 
     try {
-      const userRoutes: Routes = _.isString(routes) ? this.isPathExist(routes)
-        ? this.getJSON(routes) as Routes : {} : routes as Routes;
+      const userRoutes: Routes = this.#requireData(routes) as Routes;
 
       const flattenedRoutes = this.#flattenRoutes(userRoutes);
 
       const routesWithInjectors = this.#mergeRoutesWithInjectors(flattenedRoutes);
-      const proxyedRoutes = this.#getProxyedRoutes(routesWithInjectors);
+      const finalRoutes = this.#getRewrittenPath(routesWithInjectors);
 
-      const excludedRouteEntries = Object.entries(proxyedRoutes)
+      const excludedRouteEntries = Object.entries(finalRoutes)
         .filter(([routePath]) => !this._config.excludeRoutes.includes(routePath));
 
       const valid_routes = this._config.reverseRouteOrder
@@ -132,7 +117,18 @@ export class Validators {
     }
   };
 
-  getValidProxy = (proxy: KeyValString): KeyValString => {
+  #requireData = (data: any): object => {
+    if (_.isString(data) && this.isFileExist(data)) {
+      const parsedUrl = this.parseUrl(data)
+      delete require.cache[parsedUrl];
+      return path.extname(parsedUrl) === '.js' ? require(parsedUrl) : this.getJSON(data);
+    } else if (_.isPlainObject(data)) {
+      return data
+    }
+    return {}
+  }
+
+  getValidPathRewrite = (proxy: KeyValString): KeyValString => {
     const valid_Proxy_Entries = Object.entries(proxy).map(([key, data]: [string, string]) => {
       return [this.getValidRoutePath(key), this.getValidRoutePath(data)]
     });
@@ -152,13 +148,10 @@ export class Validators {
   };
 
   getValidRoutePath = (route: string): string => {
-    const baseUrl = _.get(this, "config.baseUrl", "");
     const routeStr = route.trim();
     const addedSlashAtFirst = routeStr.startsWith("/") ? routeStr : "/" + routeStr;
     const removedSlashAtLast = addedSlashAtFirst.endsWith("/") ? addedSlashAtFirst.slice(0, -1) : addedSlashAtFirst;
-    const withBaseUrl = !_.isEmpty(baseUrl) && !removedSlashAtLast.startsWith(baseUrl) ? baseUrl + removedSlashAtLast : removedSlashAtLast;
-    const validRoute = withBaseUrl.replace("//", "/");
-    return validRoute;
+    return removedSlashAtLast;
   };
 
   getJSON = (directoryPath: string = "./", excludeFolders: string[] = [], recursive: boolean = true): object => {
@@ -207,7 +200,7 @@ export class Validators {
   };
 
   parseUrl = (relativeUrl: string): string => {
-    const rootPath = _.get(this, "config.rootPath", default_Config.rootPath);
+    const rootPath = _.get(this, "_config.rootPath", default_Config.rootPath);
     const parsedUrl = decodeURIComponent(path.resolve(rootPath, _.toString(relativeUrl)));
     return parsedUrl;
   };
@@ -217,11 +210,15 @@ export class Validators {
   }
 
   isDirectoryExist = (value: string): boolean => {
-    return this.isPathExist(value) && fs.statSync(this.parseUrl(value)).isDirectory();
+    const isPathExist = this.isPathExist(value);
+    const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+    return isPathExist && isDirectory;
   };
 
   isFileExist = (value: string): boolean => {
-    return this.isPathExist(value) && !fs.statSync(this.parseUrl(value)).isDirectory();
+    const isPathExist = this.isPathExist(value);
+    const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+    return isPathExist && !isDirectory;
   };
 
   #getFileDetail = (filePath: string): FileDetails[] => {
@@ -236,11 +233,13 @@ export class Validators {
     Object.entries(this._injectors).forEach(([routePath, injectorRouteConfig]) => {
       const matched = match(routePath);
       const matchedRoutes = Object.keys(routes).filter(matched);
+      const injectorsMiddlewares = injectorRouteConfig.middlewares?.length ? injectorRouteConfig.middlewares : [];
       if (injectorRouteConfig.override) {
         matchedRoutes.forEach(r => {
           injectedRoutes[r] = {
             ...routes[r],
-            ...injectorRouteConfig
+            ...injectorRouteConfig,
+            middlewares: this.#mergeMiddlewares(injectorsMiddlewares, routes, r)
           }
         })
       } else {
@@ -256,25 +255,34 @@ export class Validators {
     return { ...routes, ...injectedRoutes };
   }
 
-  #getProxyedRoutes = (routes: Routes): Routes => {
-    const proxyedRoutes = {} as Routes;
+  #mergeMiddlewares = (injectorsMiddlewares: string[], routes: Routes, routePath: string): string[] => {
+    return injectorsMiddlewares.reduce((result, im) => {
+      if (im === "...") {
+        return [...result, ...routes[routePath].middlewares || []]
+      }
+      return [...result, im]
+    }, []).filter(Boolean)
+  }
 
-    Object.entries(this._config.proxy).forEach(([routePath, proxyPath]) => {
+  #getRewrittenPath = (routes: Routes): Routes => {
+    const rewrittenRoutes = {} as Routes;
+
+    Object.entries(this._config.routeRewrite).forEach(([routePath, pathRewrite]) => {
       const matched = match(routePath);
-      const toPath = compile(proxyPath);
+      const toPath = compile(pathRewrite);
       const matchedRoutes = Object.keys(routes).filter(matched);
       matchedRoutes.forEach(mr => {
         try {
-          const proxyedPath = toPath((matched(mr) as MatchResult).params);
-          proxyedRoutes[proxyedPath] = routes[mr];
+          const paramsAttachedRoute = toPath((matched(mr) as MatchResult).params);
+          rewrittenRoutes[paramsAttachedRoute] = routes[mr];
         } catch (error) {
-          proxyedRoutes[proxyPath] = routes[mr];
+          rewrittenRoutes[pathRewrite] = routes[mr];
         }
       })
 
     })
 
-    return { ...routes, ...proxyedRoutes }
+    return { ...routes, ...rewrittenRoutes }
   }
 
   #flattenRoutes = <T>(object: T): T => {

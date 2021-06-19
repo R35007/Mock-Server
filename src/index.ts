@@ -1,16 +1,19 @@
 import chalk from "chalk";
 import cors from "cors";
 import express from "express";
+import { Server } from "http";
 import * as _ from "lodash";
+import * as fs from "fs";
 import * as path from "path";
+import { match } from 'path-to-regexp';
 import { GettersSetters } from './getters-setters';
 import {
+  ExpressMiddleware,
   HAR,
   HarEntry,
   RouteConfig,
   Routes,
   UserConfig,
-  UserGlobals,
   UserInjectors,
   UserMiddlewares, UserRoutes
 } from "./model";
@@ -20,12 +23,10 @@ export class MockServer extends GettersSetters {
   constructor(
     routes?: UserRoutes,
     config?: UserConfig,
-    injectors?: UserInjectors,
-    globals?: UserGlobals,
-    middlewares?: UserMiddlewares
+    middlewares?: UserMiddlewares,
+    injectors?: UserInjectors
   ) {
-    super(routes, config, injectors, globals, middlewares);
-    console.log("\n" + chalk.blue("/{^_^}/ Hi!"));
+    super(routes, config, middlewares, injectors);
   }
 
   launchServer = async () => {
@@ -33,10 +34,9 @@ export class MockServer extends GettersSetters {
       if (!this.isValidated) throw new Error("Please fix the Data error before Launching Server");
       if (this._isServerLaunched) return;
       this.createExpressApp();
-      await this.startServer();
       this.loadResources();
       this.createDefaultRoutes();
-      console.log("\n" + chalk.gray("watching...") + "\n");
+      await this.startServer();
       this._isServerLaunched = true;
     } catch (err) {
       console.error('launchServer : ' + chalk.red(err.message));
@@ -44,8 +44,8 @@ export class MockServer extends GettersSetters {
     }
   };
 
-  createExpressApp = () => {
-    if (this._isExpressAppCreated) return;
+  createExpressApp = (): express.Application | undefined => {
+    if (this._isExpressAppCreated) return this._app;
     try {
       this._app = express();
       if (this._app) {
@@ -57,28 +57,32 @@ export class MockServer extends GettersSetters {
         this._app.use(cors({ origin: true, credentials: true }));
         this._app.set("json spaces", 2);
         this._isExpressAppCreated = true;
+        return this._app;
       }
     } catch (err) {
       console.error('createExpressApp : ' + chalk.red(err.message));
       this._isExpressAppCreated = false;
       if (this._config.throwError) throw new Error(err.message)
+      return undefined;
     }
   };
 
-  startServer = (port: number = this._config.port): Promise<Boolean> => {
+  startServer = (port: number = this._config.port): Promise<Server | Error> => {
     if (!this._app) this.createExpressApp();
-    if (this._isServerStarted) return Promise.resolve(true);
+    if (this._isServerStarted) return Promise.resolve(this._server!);
     console.log("\n" + chalk.gray("Starting Server..."));
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      this._router && this._app?.use(this._config.baseUrl, this._router);
       this._server = this._app?.listen(port, () => {
         console.log(chalk.green.bold("Mock Server Started"));
+        console.log(chalk.gray("watching...") + "\n");
         this._isServerStarted = true;
-        resolve(true);
+        resolve(this._server!);
       }).on("error", (err) => {
         console.error('startServer : ' + chalk.red(err.message));
         this._isServerStarted = false;
-        resolve(false);
+        reject(err);
         if (this._config.throwError) throw new Error(err.message);
       });
     })
@@ -108,15 +112,8 @@ export class MockServer extends GettersSetters {
 
       console.log("\n" + chalk.gray("Loading Resources..."));
 
-      Object.entries(this._routes).forEach(
-        (routes) => {
-          this._app?.all(routes[0], [
-            this._initialMiddlewareWrapper(...routes),
-            this._userMiddlewareWrapper(),
-            this._finalMiddleware,
-          ]);
-        }
-      )
+      this._router = express.Router();
+      Object.entries(this._routes).forEach(routes => this.createRoute(...routes))
       this._isResourcesLoaded = true;
 
       console.log(chalk.gray("Done. Resources Loaded."));
@@ -126,51 +123,90 @@ export class MockServer extends GettersSetters {
     }
   };
 
+  createRoute = (routePath: string, routeConfig: RouteConfig = {}) => {
+    if (!this._availableRoutes.includes(routePath)) {
+      this._availableRoutes.push(routePath);
+      const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
+      this._router?.all(routePath, middlewareList)
+    };
+  }
+
+  #getMiddlewareList = (routePath: string, routeConfig: RouteConfig) => {
+    const userMiddlewares = (routeConfig.middlewares || [])
+      .filter(m => _.isFunction(this._middlewares?.[m]))
+      .map(m => this._middlewares?.[m]);
+
+    const middlewareList: ExpressMiddleware[] = [this._initialMiddlewareWrapper(routePath, routeConfig)];
+    userMiddlewares.length && middlewareList.push(...userMiddlewares);
+    middlewareList.push(this._finalMiddleware);
+
+    return middlewareList;
+  }
+
   createDefaultRoutes = () => {
     if (!this._app) this.createExpressApp();
     if (this._isDefaultsCreated) return;
-    const HOME = "/",
+    const HOME = "/home",
       ROUTES = "/routes",
-      GLOBALS = "/globals",
+      STORE = "/store",
       ROUTELIST = "/routesList";
     const defaultRoutes: string[] = [];
 
-    const availableRoutes = Object.keys(this._routes);
+    this._availableRoutes.map(r => this._config.baseUrl === '/' ? r : this._config.baseUrl + r);
 
-    if (availableRoutes.indexOf(HOME) < 0) {
+    if (this._availableRoutes.indexOf(HOME) < 0) {
       defaultRoutes.push(HOME);
-      this._app?.use(express.static(path.join(__dirname, "../public")));
+      this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
     }
-    if (availableRoutes.indexOf(ROUTES) < 0) {
+    if (this._availableRoutes.indexOf(ROUTES) < 0) {
       defaultRoutes.push(ROUTES);
+      this._availableRoutes.push(ROUTES);
       this._app?.all(ROUTES, (_req, res) => {
         res.send(this._routes);
       });
     }
-    if (availableRoutes.indexOf(GLOBALS) < 0) {
-      defaultRoutes.push(GLOBALS);
-      this._app?.all(GLOBALS, (_req, res) => {
-        res.send(this._globals);
+    if (this._availableRoutes.indexOf(STORE) < 0) {
+      defaultRoutes.push(STORE);
+      this._availableRoutes.push(STORE);
+      this._app?.all(STORE, (_req, res) => {
+        res.send(this.getStore());
       });
     }
-    if (availableRoutes.indexOf(ROUTELIST) < 0) {
+    if (this._availableRoutes.indexOf(ROUTELIST) < 0) {
       defaultRoutes.push(ROUTELIST);
+      this._availableRoutes.push(ROUTELIST);
       this._app?.all(ROUTELIST, (_req, res) => {
-        res.send(availableRoutes);
+        res.send(this._availableRoutes);
       });
     }
     this.#defaultRoutesLog(defaultRoutes, this._config.port);
     this._isDefaultsCreated = true;
   };
 
+  resetServer = () => {
+    this._isServerLaunched = false;
+    this._isServerStarted = false;
+    this._isResourcesLoaded = false;
+    this._isDefaultsCreated = false;
+    this._isExpressAppCreated = false;
+
+    this._app = undefined;
+    this._server = undefined;
+    this._router = undefined;
+  };
+
   transformHar = (
-    harData: HAR = <HAR>{},
+    harData: HAR | string = <HAR>{},
+    config: { routesToLoop?: string[], routesToGroup?: string[] } = {},
     entryCallback?: (entry: object, statusCode: number, routePath: string, response: any) => Routes,
     finalCallback?: (generatedMock: Routes) => Routes
   ): Routes => {
     try {
-      const entries: HarEntry[] = harData?.log?.entries || [];
-
+      const { routesToLoop = [], routesToGroup = [] } = config;
+      const har = _.isString(harData)
+        ? JSON.parse(fs.readFileSync(this.parseUrl(harData), "utf-8"))
+        : harData;
+      const entries: HarEntry[] = har?.log?.entries || [];
       const generatedMock: Routes = {};
 
       entries.forEach((entry: HarEntry) => {
@@ -199,9 +235,11 @@ export class MockServer extends GettersSetters {
 
         const [uRoutePath, uRouteConfig] = Object.entries(uRoutes)[0] || []
 
-        this.#setLoopedMock(generatedMock, uRoutePath, uRouteConfig);
+        this.#setLoopedMock(generatedMock, routesToLoop, uRoutePath, uRouteConfig);
 
       });
+
+      routesToGroup.length && this.#setGroupMock(generatedMock, routesToGroup);
 
       if (_.isFunction(finalCallback)) {
         return finalCallback(generatedMock);
@@ -215,25 +253,12 @@ export class MockServer extends GettersSetters {
     }
   };
 
-  resetServer = () => {
-    this._isServerLaunched = false;
-    this._isServerStarted = false;
-    this._isResourcesLoaded = false;
-    this._isDefaultsCreated = false;
-    this._isExpressAppCreated = false;
-
-    this._app = undefined;
-    this._server = undefined;
-  };
-
-  #setLoopedMock = (generatedMock: Routes, uroutePath: string, routeConfig: RouteConfig) => {
+  #setLoopedMock = (generatedMock: Routes, routesToLoop: string[], uroutePath: string, routeConfig: RouteConfig) => {
     const routePath = this.getValidRoutePaths(uroutePath).join(',');
-    if (!generatedMock[routePath]) {
-      generatedMock[routePath] = routeConfig
-    } else {
+    if (generatedMock[routePath] && (routesToLoop[0] === '*' || routesToLoop.includes(routePath))) {
       const mockValue = generatedMock[routePath].mock;
 
-      if (generatedMock[routePath].middleware === "loopMock") {
+      if (generatedMock[routePath].middlewares?.[0] === "loopMock") {
         generatedMock[routePath].mock?.push(routeConfig.mock);
       } else {
         generatedMock[routePath] = {
@@ -241,10 +266,29 @@ export class MockServer extends GettersSetters {
             mockValue,
             routeConfig.mock || routeConfig
           ],
-          middleware: "loopMock"
+          middlewares: ["loopMock"]
         }
       }
+    } else {
+      generatedMock[routePath] = routeConfig;
     }
+  }
+
+  #setGroupMock = (generatedMock: Routes, routesToGroup: string[]) => {
+    routesToGroup.forEach(routeToMatch => {
+      const matched = match(routeToMatch);
+      const matchedRoutes = Object.keys(generatedMock).filter(matched);
+      matchedRoutes.length && (generatedMock[routeToMatch] = {
+        mock: {},
+        middlewares: ["groupMock"],
+      })
+      matchedRoutes.forEach(mr => this.#groupTogether(generatedMock, mr, routeToMatch))
+    })
+  }
+
+  #groupTogether = (generatedMock: Routes, matchedRoute: string, routeToMatch: string) => {
+    generatedMock[routeToMatch].mock[matchedRoute] = generatedMock[matchedRoute].mock;
+    delete generatedMock[matchedRoute];
   }
 
   #defaultRoutesLog = (defaultRoutes: string[], port: number) => {

@@ -4,8 +4,7 @@ import * as express from "express";
 export type UserRoutes = string | Routes;
 export type UserConfig = string | User_Config | Config;
 export type UserInjectors = string | Injectors;
-export type UserGlobals = string | Globals;
-export type UserMiddlewares = string | User_Middlewares | Middlewares;
+export type UserMiddlewares = string | User_Middlewares;
 export type defaultMiddlewaresName = 'loopMock' | 'groupMock' | 'crudMock';
 
 
@@ -16,10 +15,10 @@ export type Routes = {
 export type RouteConfig = {
   statusCode?: number;
   delay?: number;
-  initialMock?: string | UrlRequestConfig;
+  fetch?: string | AxiosRequestConfig;
   mock?: any;
-  alternateMock?: string | UrlRequestConfig;
-  middleware?: defaultMiddlewaresName | string;
+  mockFirst?: boolean;
+  middlewares?: Array<defaultMiddlewaresName | string>;
 }
 
 export type User_Config = {
@@ -27,7 +26,7 @@ export type User_Config = {
   rootPath?: string;
   baseUrl?: string;
   staticUrl?: string;
-  proxy?: KeyValString;
+  routeRewrite?: KeyValString;
   excludeRoutes?: string[];
   reverseRouteOrder?: boolean;
   throwError?: boolean;
@@ -38,7 +37,7 @@ export type Config = {
   rootPath: string;
   baseUrl: string;
   staticUrl: string;
-  proxy: KeyValString;
+  routeRewrite: KeyValString;
   excludeRoutes: string[];
   reverseRouteOrder: boolean;
   throwError: boolean;
@@ -53,43 +52,35 @@ export type InjectorConfig = RouteConfig & {
   [key: string]: any
 }
 
-export type Globals = {
-  [key: string]: any;
-}
+export type ExpressMiddleware = (req: express.Request,
+  res: express.Response,
+  next: express.NextFunction) => void | Promise<void>
 
 export type User_Middlewares = {
-  [key: string]: Middleware;
+  [x: string]: ExpressMiddleware;
 }
 
 export type Middlewares = {
-  loopMock: Middleware;
-  groupMock: Middleware;
-  crudMock: Middleware;
+  loopMock: ExpressMiddleware;
+  groupMock: ExpressMiddleware;
+  crudMock: ExpressMiddleware;
 } & User_Middlewares
-
-export type UrlRequestConfig = AxiosRequestConfig & { isFile?: boolean }
 
 
 export type KeyValString = {
   [key: string]: string;
 }
 
-export type MiddlewareParams = {
-  req: express.Request;
-  res: express.Response;
-  next: express.NextFunction;
-  data: any;
-  globals: Globals;
-  locals: Locals;
-}
-
-export type Middleware = (params: MiddlewareParams) => void;
-
-export type Locals = InjectorConfig & {
+export interface Locals extends InjectorConfig {
   routePath: string;
-  initialMockData: any;
+  fetch: AxiosRequestConfig,
+  fetchData?: any;
+  fetchError?: any;
   data: any;
-  alternateMockData: any;
+  store: {
+    get: (key?: string) => any;
+    set: (key: string, value: any) => void;
+  }
 }
 
 export type HAR = {
@@ -127,6 +118,5 @@ export type GetData = {
   routes: Routes;
   config: Config;
   injectors: Injectors;
-  globals: Globals;
-  middlewares: User_Middlewares;
+  middlewares: Middlewares;
 }

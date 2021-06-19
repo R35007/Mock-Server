@@ -38,27 +38,24 @@ function setIframe(e, route) {
   document.getElementById("resource-iframe").src = route;
 }
 
-function ResourceItem(name) {
+function ResourceItem(route) {
   return `
   <li>
-    <a onclick="setIframe(this,'${name}')">${name}</a>
+    <a onclick="setIframe(this,'${route}')">${route}</a>
   </li>
 `;
 }
 
 function ResourceList(routesList) {
-  const defaultRoutes = ["/routes", "/globals", "/routesList"].filter(
-    (r) => routesList.indexOf(r) < 0
-  );
   document.getElementById("resource-iframe").src = routesList[0];
 
-  const availableRoutes = [...routesList, ...defaultRoutes];
+  const availableRoutes = [...routesList];
   availableRoutesCount = availableRoutes.length;
   filteredRoutesCount = availableRoutes.length;
   setRoutesCount(availableRoutesCount, filteredRoutesCount);
   return `
   <ul id="resources-list">
-    ${availableRoutes.map((name) => ResourceItem(name)).join("")}
+    ${availableRoutes.map((route) => ResourceItem(route)).join("")}
   </ul>
 `;
 }
@@ -91,11 +88,10 @@ function ResourcesBlock(routesList) {
 }
 
 window
-  .fetch("routesList")
+  .fetch(window.location.href.replace("/home", "") + "routesList")
   .then((response) => response.json())
   .then(
     (routesList) =>
-      (document.getElementById("resources-list").innerHTML += ResourcesBlock(
-        routesList
-      ))
+      (document.getElementById("resources-list").innerHTML +=
+        ResourcesBlock(routesList))
   );

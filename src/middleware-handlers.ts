@@ -1,14 +1,14 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import chalk from "chalk";
 import express from "express";
 import * as fs from "fs";
 import * as _ from "lodash";
 import * as path from "path";
-import { Locals, MiddlewareParams, RouteConfig, UrlRequestConfig } from "./model";
+import { Locals, RouteConfig } from "./model";
 import { Validators } from "./validators";
 
 const AxiosRequestConfig: string[] = [
-  "url",
+  "headers",
   "method",
   "baseURL",
   "params",
@@ -31,7 +31,20 @@ const AxiosRequestConfig: string[] = [
   "decompress"
 ]
 
+const AxiosHeadersConfig: string[] = [
+  "Content-Type",
+  "Content-Disposition",
+  "X-REQUEST-TYPE",
+  "Content-Length",
+  "Accept-Language",
+  "Accept",
+  "Authorization"
+]
+
 export class MiddlewareHandlers extends Validators {
+
+  _store = {};
+
   constructor() {
     super();
   }
@@ -40,15 +53,18 @@ export class MiddlewareHandlers extends Validators {
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
       try {
         res.locals = { routePath, ...routeConfig };
+        res.locals.store = {
+          get: this.getStore,
+          set: this.setStore
+        }
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
-          if (!(routeConfig?.initialMock || routeConfig?.mock || routeConfig?.alternateMock)) {
+          if (!(routeConfig?.fetch || routeConfig?.mock)) {
             res.locals.data = routeConfig;
           } else {
-            const { initialMockData, alternateMockData } = await this.#getInitialAndAlternateMockData(req, routePath, routeConfig);
-            res.locals.initialMockData = initialMockData;
-            res.locals.alternateMockData = alternateMockData;
-            res.locals.data = initialMockData || routeConfig.mock || alternateMockData;
+            res.locals.data = routeConfig.mockFirst
+              ? routeConfig.mock ?? await this.#getDataFromUrl(res, req, routeConfig)
+              : await this.#getDataFromUrl(res, req, routeConfig) ?? routeConfig.mock
           }
           setTimeout(() => {
             next();
@@ -61,31 +77,20 @@ export class MiddlewareHandlers extends Validators {
     };
   };
 
-  protected _userMiddlewareWrapper = () => {
-    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      try {
-        const params: MiddlewareParams = { req, res, next, data: res.locals.data, globals: this._globals, locals: <Locals>res.locals };
-        const userMiddleware = this._middlewares?.[res.locals.middleware];
-        _.isFunction(userMiddleware) ? userMiddleware(params) : next();
-      } catch (err) {
-        console.error("\n userMiddlewareWrapper : " + chalk.red(err.message));
-        res.send(err);
-      }
-    };
-  };
-
-  protected _finalMiddleware = (_req: express.Request, res: express.Response) => {
+  protected _finalMiddleware = async (_req: express.Request, res: express.Response) => {
     try {
-      const { data, statusCode, initialMock, initialMockData, alternateMock, alternateMockData } = <Locals>res.locals;
+      const { data, statusCode, fetch, fetchData, fetchError } = <Locals>res.locals;
       if (!res.headersSent) {
         if (statusCode && statusCode >= 100 && statusCode < 600) res.statusCode = statusCode;
 
-        if (this.#isValidFileMockUrl(initialMockData, initialMock)) {
-          res.sendFile(this.parseUrl((initialMock as UrlRequestConfig).url as string));
-        } else if (!data && this.#isValidFileMockUrl(alternateMockData, alternateMock)) {
-          res.sendFile(this.parseUrl((alternateMock as UrlRequestConfig).url as string));
+        if (this.#isValidFileMockUrl(fetch, fetchData)) {
+          res.sendFile(this.parseUrl(fetch.url!));
         } else {
-          typeof data === "object" ? res.jsonp(data) : res.send(data);
+          data
+            ? typeof data === "object"
+              ? res.jsonp(data)
+              : res.send(data)
+            : res.send(data ?? (fetchError || ''));
         }
       }
     } catch (err) {
@@ -94,61 +99,99 @@ export class MiddlewareHandlers extends Validators {
     }
   };
 
-  #isValidFileMockUrl = (mockData: any, iamock: any): boolean => {
-    return !mockData && !_.isString(iamock) && iamock?.isFile && iamock?.url && this.isFileExist(iamock?.url)
+  getStore = (key?: string) => {
+    return key ? this._store[key] : this._store;
   }
 
-  #getInitialAndAlternateMockData = async (req: express.Request, routePath: string, routeConfig: RouteConfig): Promise<{ initialMockData: any; alternateMockData: any }> => {
-    const initialMockData = routeConfig.initialMock ? await this.#getMockFromUrl(req, routePath, routeConfig.initialMock) : false;
-    const alternateMockData = !(initialMockData || routeConfig.mock) && routeConfig.alternateMock
-      ? await this.#getMockFromUrl(req, routePath, routeConfig.alternateMock)
-      : false;
-    return { initialMockData, alternateMockData }
+  setStore = (key: string, value: any) => {
+    return this._store[key] = value;
   }
 
-  #getMockFromUrl = async (req: express.Request, routePath: string, mockUrl: string | UrlRequestConfig): Promise<any> => {
+  #isValidFileMockUrl = (fetch: any, fetchData: any): boolean => {
+    return _.isEmpty(fetchData)
+      && !_.isEmpty(fetch)
+      && _.isString(fetch?.url)
+      && this.isFileExist(fetch?.url);
+  }
 
-    if (!mockUrl) return false;
+  #getDataFromUrl = async (res: express.Response, req: express.Request, routeConfig: RouteConfig): Promise<any> => {
+    const dataFromUrl = await this.#fetchData(res, req, routeConfig);
+    res.locals.fetchData = dataFromUrl;
+    return dataFromUrl
+  }
+
+  #fetchData = async (res: express.Response, req: express.Request, routeConfig: RouteConfig): Promise<any> => {
+
+    const fetch = _.isString(routeConfig.fetch)
+      ? { url: routeConfig.fetch, headers: { proxy: true } }
+      : _.isPlainObject(routeConfig.fetch)
+        ? routeConfig.fetch
+        : undefined;
+
+    res.locals.fetch = fetch;
+
+    if (!fetch) return undefined;
+
 
     try {
-      if (!_.isString(mockUrl)) {
-        if (mockUrl.isFile && mockUrl.url) {
-          const parsedUrl = this.parseUrl(mockUrl.url);
-          if (!this.isFileExist(parsedUrl)) return false;
-          const fileExtension = path.extname(parsedUrl);
+      const parsedUrl = this.parseUrl(fetch.url || '');
+      if (this.isFileExist(parsedUrl)) {
+        const fileExtension = path.extname(parsedUrl);
 
-          if (fileExtension === ".json") {
-            return JSON.parse(fs.readFileSync(parsedUrl, "utf8"));
-          } else if (fileExtension === ".txt") {
-            return fs.readFileSync(parsedUrl, "utf8");
-          }
-          return false;
+        if (fileExtension === ".json") {
+          return JSON.parse(fs.readFileSync(parsedUrl, "utf8"));
+        } else if (fileExtension === ".txt") {
+          return fs.readFileSync(parsedUrl, "utf8");
         }
+        return undefined;
+      } else if (fetch.url?.includes("http")) {
+        const request = this.#getValidReq(req, fetch);
+        console.log("Making url request : ", request);
+
+        return (await axios(request)).data;
       }
-      const request = this.#getValidReq(req, routePath, mockUrl)
-      return (await axios(request)).data;
+
+      return undefined;
     } catch (err) {
+      res.locals.fetchError = err;
       console.error('getMockFromUrl : ' + chalk.red(err.message));
-      return false;
+      return undefined;
     }
   }
 
-  #getValidReq = (req: express.Request, routePath, mockUrl: string | UrlRequestConfig): UrlRequestConfig => {
-    const replacedPath = _.isString(mockUrl)
-      ? mockUrl.replace(':routePath', routePath.substring(1))
-      : mockUrl.url?.replace(':routePath', routePath.substring(1));
-    const mockUrlReqConfig = _.isString(mockUrl) ? {} : mockUrl;
+  #getValidReq = (req: express.Request, fetch: AxiosRequestConfig): AxiosRequestConfig => {
+    const replacedPath = fetch.url?.replace(':routePath', req.path);
     const axiosReq = _.fromPairs(Object.entries(req).filter(([key]) => AxiosRequestConfig.includes(key)));
-    return {
-      ...axiosReq,
-      ...mockUrlReqConfig,
-      url: replacedPath
-    } as UrlRequestConfig
+
+    // removes unwanted headers
+    Object.keys(axiosReq.headers).forEach(h => {
+      if (!AxiosHeadersConfig.includes(h)) {
+        delete axiosReq.headers[h];
+      }
+    })
+
+    if (fetch.headers?.proxy) {
+      return {
+        ...axiosReq,
+        data: req.body,
+        url: replacedPath
+      } as AxiosRequestConfig
+    }
+
+    const fetchEntries = Object.entries(fetch).map(([key, val]) => {
+      if (val === '$' + key) {
+        const reqVal = key === 'data' ? axiosReq["body"] : axiosReq[key]
+        return [key, reqVal]
+      };
+      return [key, val]
+    })
+
+    return { ..._.fromPairs(fetchEntries), url: replacedPath }
   }
 
   #redirectIfMissingParams = (req: express.Request, res: express.Response): boolean => {
     const params: object = req.params;
-    const windowUrl = req.path;
+    const windowUrl = this._config.baseUrl === '/' ? req.path : this._config.baseUrl + req.path;
     const hasParams = Object.keys(params).filter((k) => params[k] !== `:${k}`);
     if (Object.keys(params).length > 0 && hasParams.length === 0) {
       const dummyUrl = Object.keys(params).reduce((res, key) => {

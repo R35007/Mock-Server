@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "1.0.3",
+  "version": "2.0.2",
   "description": "Customize Your Own Local Mock Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

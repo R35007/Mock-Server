@@ -1,23 +1,40 @@
-# Mock Server[](#mock-server) [![](https://badge.fury.io/js/mock-server.svg)](http://badge.fury.io/js/mock-server)
+# Mock Server[](#mock-server) [![](https://img.shields.io/npm/v/@r35007/mock-server?label=npm)](https://img.shields.io/npm/v/@r35007/mock-server?label=npm) [![](https://img.shields.io/npm/l/@r35007/mock-server?color=blue)](https://img.shields.io/npm/l/@r35007/mock-server?color=blue) [![](https://img.shields.io/npm/types/@r35007/mock-server)](https://img.shields.io/npm/types/@r35007/mock-server)
 
 Get a full REST API with **zero coding** in **less than 30 seconds** (seriously)
 
 Created with <3 for front-end developers who need a quick back-end for prototyping and mocking.
+Now also available as a VSCodeExtension `thinker.mock-server`.
 
 ## Table of contents
 
 - [Getting started](#getting-started)
 - [Advantages](#advantages)
-- [How To Use](#how-to-use)
-  - [Route Config](#route-config)
-  - [Default Middlewares](#default-middlewares)
-    - [loopMock](#loopmock)
-    - [groupMock](#groupmock)
-    - [curdMock](#curdmock)
-  - [User Middleware](#user-middleware)
-  - [Injectors](#injectors)
-  - [Globals](#globals)
-  - [Config](#config)
+- [Using JS Module](#using-js-module)
+- [Route Config](#route-config)
+  - [Set Delay Response](#set-delay-response)
+  - [Set Custom StatusCode](#set-custom-statuscode)
+  - [Fetch Data From URL](#fetch-data-from-url)
+    - [Fetch File](#fetch-file)
+    - [Custom Fetch Options](#custom-fetch-options)
+    - [Use Fetch as Proxy](#use-fetch-as-proxy)
+  - [Custom Mock](#custom-mock)
+  - [Add Middlewares](#add-middlewares)
+- [Default Middlewares](#default-middlewares)
+  - [loopMock](#loopmock)
+  - [groupMock](#groupmock)
+  - [crudMock](#crudmock)
+- [Injectors](#injectors)
+  - [Inject Route Configs](#inject-route-configs)
+  - [Override Existing Route Configs](#override-existing-route-configs)
+  - [Common Route Configs](#common-route-configs)
+- [Store Data](#store-data)
+- [Config](#config)
+  - [Alternative Port](#config)
+  - [Static File Server](#config)
+  - [Add Base Route](#config)
+  - [Set RootPath to fetch Files](#config)
+  - [Route Rewriter](#config)
+  - [Exclude Unwanted Routes](#config)
 - [Default Routes](#default-routes)
 - [API](#api)
   - [MockServer](#mockserver)
@@ -27,9 +44,11 @@ Created with <3 for front-end developers who need a quick back-end for prototypi
   - [stopServer](#stopserver)
   - [resetServer](#resetserver)
   - [loadResources](#loadresources)
+  - [createRoute](#createroute)
   - [createDefaultRoutes](#createdefaultroutes)
   - [setData](#setdata)
   - [Get Data](#get-data)
+  - [Store](#store)
   - [Variables](#variables)
   - [Validators](#validators)
   - [Path Check](#path-check)
@@ -47,15 +66,9 @@ Install Mock Server
 npm install -g @r35007/mock-server
 ```
 
-install nodemon for watching changes
+Create a `routes.json` file with mock data.
 
-```sh
-npm install -g nodemon
-```
-
-Create a `mock.json` file
-
-```json
+```jsonc
 {
   "/hello": {
     "mock": "hello World",
@@ -64,13 +77,11 @@ Create a `mock.json` file
 
 ```
 
-Now to run the file go to terminal and type the following
+Start Mock Server
 
 ```sh
 mock-server ./mock.json
 ```
-
-The above command runs the file and starts the local server.
 
 Now if you go to [http://localhost:3000/hello](http://localhost:3000/hello), you'll get
 
@@ -87,79 +98,298 @@ Hello World
 - The return response can be manipulated or overridden for a specific route by a middleware method.
 - proxy routes can be used
 
-## How To Use
+## Using JS Module
 
-### **Route Config**
+First install nodemon for watching changes
 
-You could also delay the response of your request.
+```sh
+npm install -g nodemon
+```
+
+Create `server.js` File
+
+```js
+const { MockServer } = require("@r35007/mock-server"); // use import if using ES6 module
+
+// see Route Config for more configuration
+const routes = {
+  "/route/1": {
+    mock: {
+      data: "data 1",
+    },
+    middlewares: ["log"], // picks middleware from the middlewares object
+  },
+  "/route/2": {
+    mock: {
+      data: "data 2",
+    },
+  },
+};
+
+const middlewares = {
+  log: (req, res, next) => {
+    console.log(new Date()), next();
+  }, // logs time
+};
+
+const injectors = {
+  "/route/2": {
+    delay: 3000, //injects delay 3 second to route/2
+  },
+};
+
+const config = {
+  port: 4000, // runs localhost in this port
+};
+
+const mockServer = new MockServer(routes, config, middlewares, injectors);
+// Note: routes, config, middlewares, injectors - These can also be given as a url
+// For example: const mockServer = new MockServer("./routes.json", "./config.json" ...);
+
+mockServer.launchServer(); // Starts the Mock Server.
+```
+
+Now go to terminal and type the following command to start the Mock Server.
+
+```sh
+nodemon server.js
+```
+
+## **Route Config**
+
+Create a routes.json file. Pay attention to start every route with /.
 For Example:
 
-routes.json
+`routes.json`
 
-```json
+```jsonc
 {
-  "routeName, routeName2": {
+  "/routeName, /routeName2": {
+    // two routes shares the same config and mock data
     "delay": 2000, // in milliseconds
     "statusCode": 200, // in number between 100 to 600
-    "middleware": "loopMock", // method name to be called
-    /* 
-      You must provide a valid Url in `initialMock` attribute. It fetches the data and gives as a response.
-      If this fetch call fails, it returns the `mock` data.
-      If the `mock` data is not provided then it tries to fetch the data from te `alternateMock` url.
-    */
-    "initialMock": "https://jsonplaceholder.typicode.com/todos/1",
-    "mock": [
-      {
-        "name": "foo"
-      },
-      {
-        "name": "bar"
-      }
-    ],
-    "alternateMock": {
-      "url": "./myFile.json",
-      "isFile": true
+    "middlewares": ["loopMock"], // middlewares to be called
+    "fetch": "./myFile.json", // this path will be relative to `config.rootPath`
+    "mock": [{ "name": "foo" }, { "name": "bar" }],
+    "mockFirst": false // If True it sends mock data first before fetch
+  },
+  "/routeName3": {
+    "name": "foo",
+    "age": "bar",
+    "description": "Note: If `fetch` or `mock` is not available then it sends this whole object as a response."
+  }
+}
+```
+
+Note : `fetch` can be either `string` type or `AxiosRouteConfig` type.
+see [Fetch Data From URL](#fetch-data-from-url) for more configuration.
+
+### **Set Delay Response**
+
+`delay` helps you to set a custom delay to your routes.
+Note : The delay yo set must be in milliseconds and of type number
+
+```jsonc
+{
+  "/user/1": {
+    "mock": {
+      "id": 1,
+      "name": "Leanne Graham",
+      "username": "Bret",
+      "email": "Sincere@april.biz"
+    },
+    "delay": 3000
+  }
+}
+```
+
+The above `/user/1` route returns the response in a delay of 3 seconds.
+
+### **Set Custom StatusCode**
+
+`statusCode` helps you set a custom statusCode to your routes.
+It must be of type number and between 100 to 600.
+
+```jsonc
+{
+  "/user/1": {
+    "mock": {
+      "id": 1,
+      "name": "Leanne Graham",
+      "username": "Bret",
+      "email": "Sincere@april.biz"
+    },
+    "statusCode": 500
+  }
+}
+```
+
+The above `/user/1` route returns the response with a `500` statusCode
+
+### **Fetch Data From URL**
+
+`fetch` helps you get data from url.
+The url can either be a http server or a local file server.
+
+#### **Fetch File**
+
+Give a absolute or a relative path to fetch any file and get as a response.
+Note: The given relative path will be relative to `config.rootPath`.
+
+```jsonc
+{
+  "/banner": {
+    "fetch": "./assets/banner.jpg"
+  }
+}
+```
+
+#### **Custom Fetch Options**
+
+You can also give a fetch as a axios request object with custom options.
+
+```jsonc
+{
+  "/customUsers/:id": {
+    "fetch": {
+      "url": "https://jsonplaceholder.typicode.com/users",
+      "params": "$params", // pass params from `customUsers/:id` route
+      "method": "GET"
     }
   }
 }
 ```
 
-Note : `initialMock` and `alternateMock` can be either `string` type or `AxiosRouteConfig` type. Set `isFile` to be true to fetch the file from the given url.
+Note: The to pass any options from the route set the option value as `$<option Name>`
 
-### **Default Middlewares**
+#### **Use Fetch as Proxy**
+
+By directly giving a url it acts like a proxy.
+It sends all the options like prams, query params, headers, data etc.. from the mock route
+
+```jsonc
+{
+  "/customComments/:id?": {
+    "fetch": "https://jsonplaceholder.typicode.com/comments"
+  },
+  "/posts": {
+    "fetch": "https://jsonplaceholder.typicode.com/:routePath" // will become https://jsonplaceholder.typicode.com/posts
+  }
+}
+```
+
+Note: `/:routePath` will prepends the route to the url.
+
+Now you could use any routing provided by the `"https://jsonplaceholder.typicode.com/posts"`..
+For example: You could use the following.
+`http://localhost:3000/customComments`
+`http://localhost:3000/customComments/1`
+`http://localhost:3000/customComments?postId=1`
+
+### **Custom Mock**
+
+By default the Mock Server try's to fetch the data from `fetch` url.
+If it fails then it tries to get it from `mock`.
+
+Set `mockFirst` to true to get the mock first.
+If the mock is not available then it tries a to get data from `fetch` url.
+
+```jsonc
+{
+  "/customComments/:id?": {
+    "fetch": "https://jsonplaceholder.typicode.com/comments",
+    "mock": [
+      { "id": 1, "username": "foo" },
+      { "id": 2, "username": "bar" }
+    ],
+    "mockFirst": true
+  }
+}
+```
+
+### **Add Middlewares**
+
+You can add n number of middlewares to a route which helps you to manipulate or log the data.
+First Create a `middlewares.js` file.
+
+```js
+exports.log = (req, res, next) => {
+  console.log(new Date());
+  // make sure you always call next() method when you don't sent any response using res.send().
+  next();
+};
+exports.wrapper = (req, res, next) => {
+  const wrapperResponse = {
+    message: "Successful",
+    result: res.local.data,
+  };
+  res.send(wrapperResponse);
+};
+```
+
+`routes.json`
+
+```jsonc
+{
+  "/posts/:id": {
+    "fetch": "https://jsonplaceholder.typicode.com/posts",
+    "middlewares": ["log", "wrapper"] // give the name of the middlewares which are available in the middlewares.js
+  },
+  "/comment": {
+    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/1" },
+    "middlewares": ["log"]
+  }
+}
+```
+
+Note: A middleware must be available at the name of the middlewares given in `routes.json`
+
+Now in server.js
+
+```js
+const { MockServer } = require("@r35007/mock-server");
+new MockServer("./routes.json", undefined, middlewares.js).launchServer();
+// Here in the undefined place it uses the default configs.
+```
+
+Now when you go to `http://localhost:3000/posts/1`, you can see the new data og in console and also wrap's the response with the object.
+
+But When you go to `http://localhost:3000/comment`, you can only see the date log and will not be wrapped with the object.
+
+## **Default Middlewares**
 
 We also provide a two default middlewares.
 
-#### **loopMock**
+### **loopMock**
 
 setting middleware to loopMock helps to send you a looped response one after the other in the mock array for each url hit.
 
 example:
 
-```json
+```jsonc
 {
-  "routeName": {
-    "middleware": "loopMock", // method name to be called
-    "mock": ["response", "response2]
+  "/loopMock": {
+    "middlewares": ["loopMock"], // method name to be called
+    "mock": ["response1", "response2]
   }
 }
 ```
 
-Now go and hit `http://localhost:3000/routeName`. For the first hit you get `response1` as a response and for the second hit you get `response2` as a response and its loops through each element in the mock array for each url hit.
+Now go and hit `http://localhost:3000/loopMock`. For the first hit you get `response1` as a response and for the second hit you get `response2` as a response and its loops through each element in the mock array for each url hit.
 
-#### **groupMock**
+### **groupMock**
 
 setting middleware to groupMock helps to send you a response that matched the route path from the mock
 
 example:
 
-```json
+```jsonc
 {
-  "name/:id": {
-    "middleware": "groupMock", // method name to be called
+  "/name/:id": {
+    "middlewares": ["groupMock"], // method name to be called
     "mock": {
-      "name/1": "name1",
-      "name/2": "name2"
+      "/name/1": "name1",
+      "/name/2": "name2"
     }
   }
 }
@@ -169,17 +399,16 @@ Now go and hit `http://localhost:3000/name/1`, you get `name1` as a response.
 Now go and hit `http://localhost:3000/name/2`, you get `name2` as a response.
 Now go and hit `http://localhost:3000/name/3`, since id `3` is not available it send you `name1` as a response.
 
-#### **crudMock**
+### **crudMock**
 
 This middleware handles all the crud operations of the given mock.
 Note : the mock must of type Array of objects and must contain a unique value of attribute `id`. Following are the operations performed by this method.
 
 routes.json
 
-```json
+```jsonc
 {
-  "posts/:id?": {
-    "initialMock": "https://jsonplaceholder.typicode.com/posts",
+  "/posts/:id?": {
     "mock": [
       {
         "userId": 1,
@@ -194,19 +423,19 @@ routes.json
         "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor"
       }
     ],
-    "middleware": "crudMock"
+    "middlewares": ["crudMock"]
   }
 }
 ```
 
-api.http
+`api.http`
 
-```txt
-### // returns all posts data
+```http
+###
 
 GET http://localhost:3000/posts
 
-### // returns all posts data that has userId equals 1
+### // returns posts data that has userId equals 1
 
 GET http://localhost:3000/posts?userId=1
 
@@ -259,232 +488,193 @@ DELETE http://localhost:3000/posts/5
 
 ```
 
-### **User Middleware**
-
-You could also have your own custom middlewares.
-example:
-middlewares.js
-
-```js
-exports.customMiddleware = ({ req, res, next, data, globals, locals }) => {
-  res.send("custom middleware");
-};
-
-exports.log = ({ req, res, next, data, globals, locals }) => {
-  console.log(req.path); // logs the route path
-  next();
-};
-```
-
-routes.json
-
-```json
-{
-  "route1": {
-    "middleware": "customMiddleware", // the middleware must be available in the middleware.js file
-    "mock": "dummy"
-  },
-  "route2": {
-    "middleware": "log",
-    "mock": "Please check the terminal log"
-  }
-}
-```
-
-```sh
-mock-server ./routes.json ./config.json ./injectors.json ./globals.json ./middlewares.js
-```
-
-### **Injectors**
+## **Injectors**
 
 Injectors helps to inject a Route Configs explicitly.
 This also helps to provide a common route configs.
 Injector uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp) pattern recognition to set config for multiple routes.
 
+### **Inject Route Configs**
+
+Here we are explicitly injecting `delay`, `middlewares`, `statusCode` to the `/posts` route.
+You can any route configs to a specific or to a group of routes using Injectors.
+
 example :
 
-middlewares.js
+`routes.json`
 
-```js
-exports.customLog = ({ req, next }) => {
-  console.log(req.path);
-  next(); // If not sending any response please call `next()` method.
-};
+```jsonc
+{
+  "/posts": {
+    "fetch": { "url": "https://jsonplaceholder.typicode.com/posts" }
+  },
+  "/comments/1": {
+    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/1" },
+    "middlewares": ["crudMock", "log"]
+  },
+  "/comments/2": {
+    "delay": 3000,
+    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/2" }
+  },
+  "/comments/3": {
+    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/3" }
+  }
+}
 ```
 
-injectors.json
+`injectors.json`
 
-```json
+```jsonc
 {
-  "route/:id"{
+  "/posts": {
     "delay": 2000,
-    "override": true // If true it overrides the existing delay property
+    "middlewares": ["log", "counter", "crudMock"],
+    "StatusCode": 300
   },
-  "(.*)":{ // (.*) matches every route path. Helps to provide a common route configs
-    "middleware":"customLog"
+  "/comments/:id?": {
+    "delay": 2000, // since /comments/2 already has a delay of 3 seconds it will ot be replaced with 2 seconds delay
+    "middlewares": ["log"] // injects middlewares to /comments/2, /comments/3 routes excepts /comments/1
   }
 }
 ```
 
-routes.json
+### **Override Existing Route Configs**
 
-```json
+Setting `override` flag to true helps to override the existing config of that route.
+
+For example :
+
+`injectors.json`
+
+```jsonc
 {
-  "route/1": {
-    "delay": 5000, // will be overridden by the injector
-    "mock": "foo"
+  "/comments/1": {
+    "override": true,
+    "middlewares": ["...", "timer"] // here /comments/1 route will have ["crudMock", "log", "timer"]
   },
-  "route/2": {
-    "mock": "bar"
-  },
-  "route/1/2": {
-    "mock": "bro"
+  "/comments/2": {
+    "override": true,
+    "delay": 2000 // Now /comments/2 will have a delay of 2 seconds
   }
 }
 ```
 
-```sh
-mock-server ./routes.json ./config.json ./injectors.json ./globals.json ./middlewares.js
-```
+Note: Use `["..."]` If you want to add the existing middlewares in line when overriding.
+Make sure the middlewares are available in the `middlewares.js` in the given middlewares name.
 
-from the above code `route/1` and `route/2` has delay of 2 seconds and all routes has a middleware mapped to `customLog`
+### **Common Route Configs**
 
-### **Globals**
+Using wildcards you can set a common route configs to all the routes.
+`/(.*)` - matches all the routes.
 
-Using **Globals** you could store any value in the `globals` object and can be shared across any routes.
-This also helps to manipulate the response in many ways. Lets see a simple count Example :
+For example :
 
-routes.json
+`injectors.json`
 
-```json
+```jsonc
 {
-  "/count": {
-    "middleware": "countIncrement"
+  "/posts": {
+    "delay": 2000 // will be overridden by the below route match configs.
+  },
+  "/(.*)": {
+    "override": true,
+    "middlewares": ["log", "..."],
+    "statusCode": 200,
+    "delay": 1000
+  },
+  "/comments/1": {
+    "delay": 0, // Here only this route will not have a delay of 1 second
+    "override": true
   }
 }
 ```
 
-globals.json
+Now all the Routes will have a delay of 1 second, `"log"` middleware is appended to all routes and `statusCode` will be 200.
+Make sure you give `(.*)` at the end of the `injectors.json` object to set route configs to all the routes.
 
-```json
-{
-  "/count": 5 // count starts from five
-}
-```
+## **Store Data**
 
-middleware.js
+Using `res.locals.store` you could store any value and can be shared across any routes.
+This also helps to manipulate the response in many ways. Lets see a simple counter Example :
+
+`server.js`
 
 ```js
-exports.countIncrement: ({ req, res, globals }) => {
-    globals[req.path].count++;
-    res.send(globals[req.path].count);
+const { MockServer } = require("@r35007/mock-server");
+
+const routes = {
+  "/counter": {
+    middleware: ["countIncrement"],
   },
+};
+
+const middlewares = {
+  countIncrement: (req, res) => {
+    let count = res.locals.store.get(req.path);
+    res.locals.store.set(req.path, count++);
+    res.send(count);
+  },
+};
+
+const mockServer = new MockServer(routes, undefined, middlewares);
+mockServer.setStore("count", 5); // storing initial value before start.
+
+mockServer.launchServer();
 ```
 
 ```sh
-mock-server ./routes.json ./config.json ./injectors.json ./globals.json ./middlewares.js
+nodemon server.js
 ```
 
 From the above the count increases on each hit of the endpoint.
 
-### **Config**
+## **Config**
 
 you can provide your own config by passing the config object in the `MockServer` constructor. For Example :
 
-`default config` :
+`server.js` :
 
-```json
-{
-  "port": 3000, // by default mock will be launched at this port. http://localhost:3000/
-  "rootPath": "./", // all paths will be relative to this path. Please provide a absolute path here.
-  "baseUrl": "", // all routes will be prefixed with the given baseUrl.
-  "staticUrl": "", // Please provide a folder path. This will be hosted locally and all files will be statically accessed
-  "proxy": {}, // example { "route/:id" : "newroute/:id" } - all routes that matches the pattern `route/:id` will be renamed to `newroute/:id`
-  "excludeRoutes": [], // example [ "route/:id"] - all routes that matched this pattern will be excluded
-  "reverseRouteOrder": false, // If true routes will be generated in reverse order
-  "throwError": false // If True will throw an error instead of console log, if something went wrong
-}
+```js
+// These are default config. You can provide your custom config as well.
+
+const config = {
+  port: 3000, // by default mock will be launched at this port. http://localhost:3000/
+  rootPath: "./", // all paths will be relative to this path. Please provide a absolute path here.
+  baseUrl: "/", // all routes will be prefixed with the given baseUrl.
+  staticUrl: "", // Please provide a folder path. This will be hosted locally and all files will be statically accessed
+  routeRewrite: {}, // example { "route/:id" : "newroute/:id" } - all routes that matches the pattern `route/:id` will be renamed to `newroute/:id`
+  excludeRoutes: [], // example [ "route/:id"] - all routes that matched this pattern will be excluded
+  reverseRouteOrder: false, // If true routes will be generated in reverse order
+  throwError: false, // If True will throw an error instead of console log, if something went wrong
+};
+
+new MockServer("./routes.json", config).launchServer();
 ```
 
 ## Default Routes
 
-- `Home` - [http://localhost:3000](http://localhost:3000)
+- `Home` - [http://localhost:3000/home](http://localhost:3000/home)
 - `Routes` - [http://localhost:3000/routes](http://localhost:3000/routes)
-- `Globals` - [http://localhost:3000/globals](http://localhost:3000/globals)
+- `Store` - [http://localhost:3000/store](http://localhost:3000/store)
 - `Routes List` - [http://localhost:3000/routesList](http://localhost:3000/routesList)
-
-The routes and port can be overridden in the `routes.json`
 
 ## API
 
 ### **MockServer**
 
-This is a constructor to initialize the routes, config, globals, Injectors, middlewares
-
-middlewares.js
-
-```js
-exports.logTime = ({ next }) => {
-  console.log(new Date());
-  next();
-};
-
-exports.counter = ({ req, globals, res }) => {
-  const path = req.path;
-  globals[path] += 1;
-
-  res.send(globals[path]);
-};
-```
-
-routes.js
+This is a constructor to initialize the routes, config, middlewares, Injectors.
 
 ```js
 const { MockServer } = require("@r35007/mock-server");
-const middlewares = require("./middlewares.js");
-
-const routes = {
-  "/hello": {
-    mock: "Hello World",
-    middleware: "logTime",
-  },
-  "/counter": {
-    middleware: "counter",
-  },
-};
-
-const config = {
-  port: 4000,
-};
-
-const globals = {
-  "/counter": 0,
-};
-
-const Injectors = {
-  "/hello": {
-    delay: 2000,
-  },
-};
-
 const mockServer = new MockServer(
-  routes,
-  config,
-  injectors,
-  globals,
-  middlewares
-);
-mockServer.launchServer(); // starts the mock server.
-
-// You can also prove the path in initializer.
-// Note: the middleware must be in .js extension
-new MockServer(
   "./routes.json",
   "./config.json",
-  "./injectors.json",
-  "./globals.json",
-  "./middlewares.js"
+  "./middlewares.js",
+  "./injectors.json"
 ).launcherServer();
+mockServer.launchServer(); // starts the mock server.
+
+// Note: the middlewares must be in .js extension
 ```
 
 **`Params`**
@@ -493,9 +683,8 @@ new MockServer(
 | ----------- | --------------- | -------- | ------------------------------------------------------- |
 | routes      | string / object | No       | This object generates the local rest api.               |
 | config      | string / object | No       | This object sets the port, common middleware and delay  |
-| injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
-| globals     | string / object | No       | This object helps to store the global values            |
 | middlewares | string / object | No       | Here you initialize the needed custom middlewares       |
+| injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
 
 ### **launchServer**
 
@@ -510,7 +699,7 @@ mockServer.launchServer();
 Returns the instance of the express.Application - helps set any external routes or middleware.
 
 ```js
-mockServer.createExpressApp();
+const app = mockServer.createExpressApp();
 ```
 
 ### **startServer**
@@ -518,7 +707,7 @@ mockServer.createExpressApp();
 Returns a Promise of `Server`. - helps to start the app server externally
 
 ```js
-mockServer.startServer();
+const server = await mockServer.startServer(3000); // port is optional param
 ```
 
 ### **stopServer**
@@ -526,7 +715,7 @@ mockServer.startServer();
 Returns a Promise of Boolean. - helps to stop the app server externally
 
 ```js
-mockServer.stopServer();
+const isStopped = await mockServer.stopServer();
 ```
 
 ### **resetServer**
@@ -539,11 +728,22 @@ mockServer.resetServer();
 
 ### **loadResources**
 
-Returns a Promise of Routes results - the success and failure status of the generated routes
-
 ```js
 mockServer.loadResources();
 ```
+
+### **createRoute**
+
+```js
+mockServer.createRoute(routePath, routeConfig);
+```
+
+**`Params`**
+
+| Name        | Type   | Required | Default | Description             |
+| ----------- | ------ | -------- | ------- | ----------------------- |
+| routePath   | string | YES      |         | Your custom Route Path  |
+| routeConfig | object | NO       | {}      | Set your Mock data here |
 
 ### **createDefaultRoutes**
 
@@ -555,17 +755,16 @@ mockServer.createDefaultRoutes();
 
 ### **setData**
 
-set the routes, config, injectors, globals.
+set the routes, config, middlewares, injectors
 
 ```js
-mockServer.setData(routes, config, injectors, globals, middlewares);
+mockServer.setData(routes, config, middlewares, injectors);
 
 //or
 
 mockServer.setRoutes(routes);
 mockServer.setConfig(config);
 mockServer.setInjectors(injectors);
-mockServer.setGlobals(globals);
 mockServer.setMiddlewares(middlewares);
 ```
 
@@ -575,10 +774,10 @@ The same as the [MockServer](#mockserver)
 
 ### **Get Data**
 
-returns the valid Routes, config, globals, injectors, middlewares
+returns the valid Routes, config, injectors, middlewares
 
 ```js
-let { routes, config, injectors, globals, middlewares } = mockServer.data; // returns current valid data of the Mock server.
+let { routes, config, injectors, middlewares } = mockServer.data; // returns current valid data of the Mock server.
 
 // or
 
@@ -588,6 +787,13 @@ injectors = mockServer.injectors;
 middlewares = mockServer.middlewares;
 ```
 
+### **Store**
+
+```js
+mockServer.setStore(key, value);
+mockServer.getStore(key); // If Key not provided then it return the whole store object.
+```
+
 ### **Variables**
 
 Other useful variables.
@@ -595,6 +801,8 @@ Other useful variables.
 ```js
 const app = mockServer.app;
 const server = mockServer.server;
+const router = mockServer.router;
+const availableRoutes = mockServer.availableRoutes;
 
 const isServerLaunched = mockServer.isServerLaunched;
 const isExpressAppCreated = mockServer.isExpressAppCreated;
@@ -609,12 +817,10 @@ These methods returns a valid data.
 
 ```js
 const valid_config = mockServer.getValidConfig(config);
-const valid_globals = mockServer.getValidGlobals(globals);
 const valid_injectors = mockServer.getValidInjectors(injectors);
 const valid_routes = mockServer.getValidRoutes(routes);
 const valid_middlewares = mockServer.getValidRoutes(middlewares);
 
-const valid_proxy = mockServer.getValidProxy(proxy);
 const valid_routePaths = mockServer.getValidRoutePaths(routePaths); // returns list of valid routePath
 const valid_routePath = mockServer.getValidRoutePath(routePath); // returns valid routePath
 ```
@@ -647,10 +853,12 @@ const localhostData = require("./localhost.json");
 
 const mockServer = new MockServer();
 const mock = mockServer.transformHar(
-  localhostData,
-  (entry, route, response) => {
+  "./localhost.har",
+  {routesToLoop:["*"], routesToGroup:["posts/:id"]}
+  (entry, statusCode, route, response) => {
     return { [route]: response };
-  }
+  },
+  (generatedMock) => generatedMock
 );
 mockServer.setData(mock);
 mockServer.launchServer();
@@ -658,40 +866,12 @@ mockServer.launchServer();
 
 **`Params`**
 
-| Name     | Type     | Required | Default   | Description                                         |
-| -------- | -------- | -------- | --------- | --------------------------------------------------- |
-| harData  | object   | No       | {}        | This object generates the local rest api.           |
-| callback | Function | No       | undefined | This method is called on each entry of the har data |
-
-### **getMockJSON**
-
-return the current routes in a json format
-
-```js
-const mock = mockServer.getMockJSON();
-```
-
-### **getMatchedRoutesList**
-
-Helps to get list of all exact and pattern Matched routes
-
-```js
-const {MockServer} = require("@r35007/mock-server");
-const mockServer = new MockServer()
-const data = {
-  "parent/1":"data 1",
-  "parent/2":"data 2",
-  "parent/1/1":"data 1/1",
-  "parent/3":"data 3",
-  "parent/1/2":"data 1/2",
-}
-
-matchList = {
-  exactMatch:["parent/1/1"]
-  patternMatch:["parent/:child"]
-}
-const routes = mockServer.getMatchedRoutesList(data, matchList);
-```
+| Name          | Type          | Required | Default   | Description                                              |
+| ------------- | ------------- | -------- | --------- | -------------------------------------------------------- |
+| harData       | object/string | No       | {}        | This object generates the local rest api.                |
+| config        | object        | No       | {}        | Here you can give list of routesToLoop and routesToGroup |
+| entryCallback | Function      | No       | undefined | This method is called on each entry of the har data      |
+| finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock    |
 
 ### **getJSON**
 

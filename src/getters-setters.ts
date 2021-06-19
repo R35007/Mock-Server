@@ -1,16 +1,18 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 import express from "express";
 import { Server } from "http";
 import { MiddlewareHandlers } from './middleware-handlers';
 import {
-  GetData, UserConfig, UserGlobals,
+  GetData, UserConfig,
   UserInjectors, UserMiddlewares, UserRoutes
 } from './model';
 
 export class GettersSetters extends MiddlewareHandlers {
 
   protected _app: express.Application | undefined;
+  protected _router: express.Router | undefined;
   protected _server: Server | undefined;
+  protected _availableRoutes: string[];
 
   protected _isServerLaunched = false;
   protected _isExpressAppCreated = false;
@@ -20,31 +22,30 @@ export class GettersSetters extends MiddlewareHandlers {
 
   constructor(routes?: UserRoutes,
     config?: UserConfig,
-    injectors?: UserInjectors,
-    globals?: UserGlobals,
-    middlewares?: UserMiddlewares) {
+    middlewares?: UserMiddlewares,
+    injectors?: UserInjectors) {
     super();
 
-    if (routes || config || injectors || globals || middlewares) {
-      this.setData(routes, config, injectors, globals, middlewares);
+    console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
+
+    if (routes || config || middlewares || injectors) {
+      this.setData(routes, config, middlewares, injectors);
     }
   }
 
-  setData(
+  async setData(
     routes: UserRoutes = this._routes,
     config: UserConfig = this._config,
-    injectors: UserInjectors = this._injectors,
-    globals: UserGlobals = this._globals,
     middlewares: UserMiddlewares = this._middlewares,
+    injectors: UserInjectors = this._injectors
   ) {
     console.log("\n" + chalk.gray("Loading Data..."));
 
     this._isValidated = true;
 
     this.setConfig(config);
-    this.setGlobals(globals);
-    this.setInjectors(injectors);
     this.setMiddlewares(middlewares);
+    this.setInjectors(injectors);
     this.setRoutes(routes);
 
     console.log(chalk.gray("Done."));
@@ -55,7 +56,6 @@ export class GettersSetters extends MiddlewareHandlers {
       routes: this._routes,
       config: this._config,
       injectors: this._injectors,
-      globals: this._globals,
       middlewares: this._middlewares
     } as GetData;
   };
@@ -64,11 +64,6 @@ export class GettersSetters extends MiddlewareHandlers {
     this._config = this.getValidConfig(config);
   }
   get config() { return this._config };
-
-  setGlobals(globals: UserGlobals) {
-    this._globals = this.getValidGlobals(globals);
-  }
-  get globals() { return this._globals };
 
   setInjectors(injectors: UserInjectors) {
     this._injectors = this.getValidInjectors(injectors);
@@ -88,6 +83,8 @@ export class GettersSetters extends MiddlewareHandlers {
 
   get app() { return this._app };
   get server() { return this._server }
+  get router() { return this._router }
+  get availableRoutes() { return this._availableRoutes }
 
   get isServerLaunched() { return this._isServerLaunched }
   get isExpressAppCreated() { return this._isExpressAppCreated }

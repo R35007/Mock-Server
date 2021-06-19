@@ -1,74 +1,77 @@
 import _ from 'lodash';
 import { CURD } from './crud';
-import { Config, Globals, Injectors, Middlewares, Routes } from "./model";
+import { Config, Injectors, Middlewares, Routes } from "./model";
 
 export const default_Routes: Routes = {};
 
 export const default_Config: Config = {
   port: 3000,
   rootPath: "./",
-  baseUrl: "",
+  baseUrl: "/",
   staticUrl: "",
-  proxy: {},
+  routeRewrite: {},
   excludeRoutes: [],
   reverseRouteOrder: false,
   throwError: false
 };
 
-export const default_Globals: Globals = {};
-
 export const default_Injectors: Injectors = {};
 
 export const default_Middlewares: Middlewares = {
-  loopMock: ({ data, res, globals, locals, next }) => {
-    const path = locals.routePath;
+  loopMock: (req, res, next) => {
+    const path = req.path;
 
-    if (!Array.isArray(data)) {
-      console.error("To use this method the data must be of type Array");
+    if (!Array.isArray(res.locals.data)) {
+      console.error("To use loopMock method the data must be of type Array");
       next();
+      return;
     }
 
-    if (!globals[path] || !globals[path]?.length) {
-      globals[path] = [...data];
+    if (!(res.locals.store.get(path) && res.locals.store.get(path).length)) {
+      res.locals.store.set(path, [...res.locals.data])
     }
 
-    res.send(globals[path].shift());
+    res.send(res.locals.store.get(path).shift());
   },
-  groupMock: ({ data, res, locals, next }) => {
-    const path = locals.routePath;
+  groupMock: (req, res, next) => {
+    const path = req.path;
 
-    if (!_.isPlainObject(data)) {
-      console.error("To use this method the data must be of type objects");
+    if (!_.isPlainObject(res.locals.data)) {
+      console.error("To use groupMock method the data must be of type objects");
       next();
+      return;
     }
 
-    res.send(data[path] || data[Object.keys(data)[0]])
+    res.send(res.locals.data[path] || res.locals.data[Object.keys(res.locals.data)[0]])
   },
-  crudMock: ({ req, res, data, globals, locals, next }) => {
+  crudMock: (req, res, next) => {
 
-    const path = locals.routePath;
+    const path = req.path;
     const method = req.method;
 
 
-    if (!(_.isArray(data) && data.every(d => _.isPlainObject(d)))) {
-      console.error("To use this method the data must be of type Array of objects");
+    if (!(_.isArray(res.locals.data) && res.locals.data.every(d => _.isPlainObject(d)))) {
+      console.error("To use crudMock method the data must be of type Array of objects");
       next();
+      return;
     }
 
-    if (!globals[path]) globals[path] = [...data];
+    const store = res.locals.store;
+
+    if (!store.get(path)) store.set(path, [...res.locals.data]);
 
     if (method?.toLowerCase() === 'get') {
-      res.send(CURD.find(req, globals[path]));
+      res.send(CURD.find(req, store.get(path)));
       return;
     } else if (method?.toLowerCase() === 'put') {
-      res.send(CURD.updateData(req, globals[path]))
+      res.send(CURD.updateData(req, store.get(path)))
       return;
     } else if (method?.toLowerCase() === 'post') {
-      globals[path] = CURD.addData(req, globals[path])
+      store.set(path, CURD.addData(req, store.get(path)));
     } if (method?.toLowerCase() === 'delete') {
-      globals[path] = CURD.removeData(req, globals[path])
+      store.set(path, CURD.removeData(req, store.get(path)));
     }
 
-    res.send(globals[path]);
+    res.send(store.get(path));
   }
 };

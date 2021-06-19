@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { MockServer } from ".";
 
 var path = require("path");
-const [_node, _mockserver, routePath, configPath, injectorsPath, globalsPath, middlewaresPath] = process.argv;
+const [_node, _mockserver, routePath, configPath, injectorsPath, middlewaresPath] = process.argv;
 
 
 try {
@@ -17,12 +17,11 @@ try {
 
   const routes = parseUrl(routePath);
   const config = parseUrl(configPath);
-  const globals = parseUrl(injectorsPath);
-  const injectors = parseUrl(globalsPath);
+  const injectors = parseUrl(injectorsPath);
   const middlewares = parseUrl(middlewaresPath);
 
 
-  const mockServer = new MockServer(routes, config, globals, injectors, middlewares);
+  const mockServer = new MockServer(routes, config, middlewares, injectors);
   mockServer.launchServer();
 } catch (err) {
   console.error("\n" + chalk.red(err.message) + "\n");
