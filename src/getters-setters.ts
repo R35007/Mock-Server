@@ -12,7 +12,7 @@ export class GettersSetters extends MiddlewareHandlers {
   protected _app: express.Application | undefined;
   protected _router: express.Router | undefined;
   protected _server: Server | undefined;
-  protected _availableRoutes: string[];
+  protected _availableRoutes: string[] = [];
 
   protected _isServerLaunched = false;
   protected _isExpressAppCreated = false;
