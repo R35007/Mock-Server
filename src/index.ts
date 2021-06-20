@@ -17,6 +17,7 @@ import {
   UserInjectors,
   UserMiddlewares, UserRoutes
 } from "./model";
+import { default_Config, default_Injectors, default_Middlewares, default_Routes } from './defaults';
 
 export class MockServer extends GettersSetters {
 
@@ -125,7 +126,7 @@ export class MockServer extends GettersSetters {
 
   createRoute = (routePath: string, routeConfig: RouteConfig = {}) => {
     if (!this._availableRoutes.includes(routePath)) {
-      this._availableRoutes.push(routePath);
+      this._availableRoutes.push(this._config.baseUrl === '/' ? routePath : this._config.baseUrl + routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
       this._router?.all(routePath, middlewareList)
     };
@@ -152,12 +153,19 @@ export class MockServer extends GettersSetters {
       ROUTELIST = "/routesList";
     const defaultRoutes: string[] = [];
 
-    this._availableRoutes.map(r => this._config.baseUrl === '/' ? r : this._config.baseUrl + r);
+    if (this._availableRoutes.indexOf(ROUTELIST) < 0) {
+      defaultRoutes.push(ROUTELIST);
+      this._availableRoutes.push(ROUTELIST);
+      this._app?.all(ROUTELIST, (_req, res) => {
+        res.send(this._availableRoutes);
+      });
 
-    if (this._availableRoutes.indexOf(HOME) < 0) {
-      defaultRoutes.push(HOME);
-      this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
+      if (this._availableRoutes.indexOf(HOME) < 0) {
+        defaultRoutes.push(HOME);
+        this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
+      }
     }
+
     if (this._availableRoutes.indexOf(ROUTES) < 0) {
       defaultRoutes.push(ROUTES);
       this._availableRoutes.push(ROUTES);
@@ -172,13 +180,7 @@ export class MockServer extends GettersSetters {
         res.send(this.getStore());
       });
     }
-    if (this._availableRoutes.indexOf(ROUTELIST) < 0) {
-      defaultRoutes.push(ROUTELIST);
-      this._availableRoutes.push(ROUTELIST);
-      this._app?.all(ROUTELIST, (_req, res) => {
-        res.send(this._availableRoutes);
-      });
-    }
+    
     this.#defaultRoutesLog(defaultRoutes, this._config.port);
     this._isDefaultsCreated = true;
   };
@@ -193,6 +195,13 @@ export class MockServer extends GettersSetters {
     this._app = undefined;
     this._server = undefined;
     this._router = undefined;
+    this._availableRoutes = [];
+
+    this._routes = default_Routes;
+    this._config = default_Config;
+    this._middlewares = default_Middlewares;
+    this._injectors = default_Injectors;
+    this._store = {};
   };
 
   transformHar = (

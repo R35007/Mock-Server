@@ -841,7 +841,9 @@ This also helps to manipulate the response in many ways. Lets see a simple count
 <h3 id="store"><strong>Store</strong></h3>
 
 <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">setStore</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>
-<span class="nx">mockServer</span><span class="p">.</span><span class="nx">getStore</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span> <span class="c1">// If Key not provided then it return the whole store object.</span>
+<code><span class="kd">const</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getStore</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span> <span class="c1">// If Key not provided then it return the whole store object.</span>
+<span class="nx">mockServer</span><span class="p">.</span><span class="nx">removeStore</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span> <span class="c1">// removes the key in the store.</span>
+<span class="nx">mockServer</span><span class="p">.</span><span class="nx">clearStore</span><span class="p">(</span><span class="p">);</span> <span class="c1">// clears all keys in the store.</span>
 </code></pre></div></div>
 
 <h3 id="variables"><strong>Variables</strong></h3>

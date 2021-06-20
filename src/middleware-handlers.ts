@@ -55,7 +55,9 @@ export class MiddlewareHandlers extends Validators {
         res.locals = { routePath, ...routeConfig };
         res.locals.store = {
           get: this.getStore,
-          set: this.setStore
+          set: this.setStore,
+          clear: this.clearStore,
+          remove: this.removeStore,
         }
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
@@ -105,6 +107,14 @@ export class MiddlewareHandlers extends Validators {
 
   setStore = (key: string, value: any) => {
     return this._store[key] = value;
+  }
+
+  removeStore = (key?: string) => {
+    key && this._store[key] && delete this._store[key];
+  }
+
+  clearStore = () => {
+    this._store = {};
   }
 
   #isValidFileMockUrl = (fetch: any, fetchData: any): boolean => {

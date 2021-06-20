@@ -790,7 +790,9 @@ middlewares = mockServer.middlewares;
 
 ```js
 mockServer.setStore(key, value);
-mockServer.getStore(key); // If Key not provided then it return the whole store object.
+const value = mockServer.getStore(key); // If Key not provided then it return the whole store object.
+mockServer.removeStore(key); // removes the key in the store.
+mockServer.clearStore(); // removes all keys in the store.
 ```
 
 ### **Variables**

@@ -80,6 +80,8 @@ export interface Locals extends InjectorConfig {
   store: {
     get: (key?: string) => any;
     set: (key: string, value: any) => void;
+    remove: (key: string) => void;
+    clear: () => void;
   }
 }
 

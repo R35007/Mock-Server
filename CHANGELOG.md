@@ -1,3 +1,8 @@
+# v2.0.6
+
+- added `res.locals.store.remove("")` && `res.locals.store.clear()`
+- Bug fix.
+
 # v2.0.5
 
 - Bug fix.
