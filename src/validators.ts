@@ -206,19 +206,31 @@ export class Validators {
   };
 
   isPathExist = (value: string): boolean => {
-    return _.isString(value) && fs.existsSync(this.parseUrl(value));
+    try {
+      return _.isString(value) && fs.existsSync(this.parseUrl(value));
+    } catch (err) {
+      return false
+    }
   }
 
   isDirectoryExist = (value: string): boolean => {
-    const isPathExist = this.isPathExist(value);
-    const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
-    return isPathExist && isDirectory;
+    try {
+      const isPathExist = this.isPathExist(value);
+      const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+      return isPathExist && isDirectory;
+    } catch (err) {
+      return false
+    }
   };
 
   isFileExist = (value: string): boolean => {
-    const isPathExist = this.isPathExist(value);
-    const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
-    return isPathExist && !isDirectory;
+    try {
+      const isPathExist = this.isPathExist(value);
+      const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+      return isPathExist && !isDirectory;
+    } catch (err) {
+      return false
+    }
   };
 
   #getFileDetail = (filePath: string): FileDetails[] => {
