@@ -1,3 +1,6 @@
+# v2.0.7
+
+- Now we can also send empty string as a response.
 # v2.0.6
 
 - added `res.locals.store.remove("")` && `res.locals.store.clear()`

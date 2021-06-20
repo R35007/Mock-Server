@@ -61,7 +61,7 @@ export class MiddlewareHandlers extends Validators {
         }
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
-          if (!(routeConfig?.fetch || routeConfig?.mock)) {
+          if (!(routeConfig?.fetch !== undefined || routeConfig?.mock !== undefined)) {
             res.locals.data = routeConfig;
           } else {
             res.locals.data = routeConfig.mockFirst
@@ -88,11 +88,13 @@ export class MiddlewareHandlers extends Validators {
         if (this.#isValidFileMockUrl(fetch, fetchData)) {
           res.sendFile(this.parseUrl(fetch.url!));
         } else {
-          data
-            ? typeof data === "object"
+          if (data !== undefined) {
+            typeof data === "object"
               ? res.jsonp(data)
               : res.send(data)
-            : res.send(data ?? (fetchError || ''));
+          } else {
+            res.send(fetchError || '')
+          }
         }
       }
     } catch (err) {
@@ -118,7 +120,7 @@ export class MiddlewareHandlers extends Validators {
   }
 
   #isValidFileMockUrl = (fetch: any, fetchData: any): boolean => {
-    return _.isEmpty(fetchData)
+    return fetchData===undefined
       && !_.isEmpty(fetch)
       && _.isString(fetch?.url)
       && this.isFileExist(fetch?.url);
