@@ -52,7 +52,7 @@ export class MiddlewareHandlers extends Validators {
   protected _initialMiddlewareWrapper = (routePath: string, routeConfig: RouteConfig) => {
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
       try {
-        res.locals = { routePath, ...routeConfig };
+        res.locals = JSON.parse(JSON.stringify({ routePath, ...routeConfig }));
         res.locals.store = {
           get: this.getStore,
           set: this.setStore,
@@ -62,11 +62,23 @@ export class MiddlewareHandlers extends Validators {
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
           if (!(routeConfig?.fetch !== undefined || routeConfig?.mock !== undefined)) {
-            res.locals.data = routeConfig;
+            res.locals.data = JSON.parse(JSON.stringify(routeConfig));
           } else {
-            res.locals.data = routeConfig.mockFirst
-              ? routeConfig.mock ?? await this.#getDataFromUrl(res, req, routeConfig)
-              : await this.#getDataFromUrl(res, req, routeConfig) ?? routeConfig.mock
+            if (routeConfig.mockFirst) {
+              if (routeConfig.mock !== undefined) {
+                res.locals.data = JSON.parse(JSON.stringify(routeConfig.mock));
+              } else {
+                res.locals.data = await this.#getDataFromUrl(res, req, routeConfig);
+              }
+            } else {
+              const fetchData = await this.#getDataFromUrl(res, req, routeConfig);
+              if (fetchData !== undefined) {
+                res.locals.data = fetchData;
+              } else {
+                res.locals.data = routeConfig.mock !== undefined
+                  ? JSON.parse(JSON.stringify(routeConfig.mock)) : undefined;
+              }
+            }
           }
           setTimeout(() => {
             next();
@@ -81,11 +93,11 @@ export class MiddlewareHandlers extends Validators {
 
   protected _finalMiddleware = async (_req: express.Request, res: express.Response) => {
     try {
-      const { data, statusCode, fetch, fetchData, fetchError } = <Locals>res.locals;
+      const { data, statusCode, fetch, fetchError } = <Locals>res.locals;
       if (!res.headersSent) {
-        if (statusCode && statusCode >= 100 && statusCode < 600) res.statusCode = statusCode;
+        if (statusCode && statusCode >= 100 && statusCode < 600) res.status(statusCode);
 
-        if (this.#isValidFileMockUrl(fetch, fetchData)) {
+        if (this.#isValidFileMockUrl(res.locals as Locals)) {
           res.sendFile(this.parseUrl(fetch.url!));
         } else {
           if (data !== undefined) {
@@ -119,10 +131,9 @@ export class MiddlewareHandlers extends Validators {
     this._store = {};
   }
 
-  #isValidFileMockUrl = (fetch: any, fetchData: any): boolean => {
-    return fetchData===undefined
-      && !_.isEmpty(fetch)
-      && _.isString(fetch?.url)
+  #isValidFileMockUrl = ({ mockFirst, data, fetchData, fetch }: Locals): boolean => {
+    return (!mockFirst || (mockFirst && data === undefined))
+      && fetchData === undefined
       && this.isFileExist(fetch?.url);
   }
 

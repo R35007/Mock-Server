@@ -205,7 +205,7 @@ export class Validators {
     return parsedUrl;
   };
 
-  isPathExist = (value: string): boolean => {
+  isPathExist = (value?: string): boolean => {
     try {
       return _.isString(value) && fs.existsSync(this.parseUrl(value));
     } catch (err) {
@@ -213,20 +213,22 @@ export class Validators {
     }
   }
 
-  isDirectoryExist = (value: string): boolean => {
+  isDirectoryExist = (value?: string): boolean => {
     try {
+      if (value?.length) return false;
       const isPathExist = this.isPathExist(value);
-      const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+      const isDirectory = isPathExist && fs.statSync(this.parseUrl(value!)).isDirectory();
       return isPathExist && isDirectory;
     } catch (err) {
       return false
     }
   };
 
-  isFileExist = (value: string): boolean => {
+  isFileExist = (value?: string): boolean => {
     try {
+      if (value?.length) return false;
       const isPathExist = this.isPathExist(value);
-      const isDirectory = fs.statSync(this.parseUrl(value)).isDirectory();
+      const isDirectory = isPathExist && fs.statSync(this.parseUrl(value!)).isDirectory();
       return isPathExist && !isDirectory;
     } catch (err) {
       return false

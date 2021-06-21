@@ -31,7 +31,8 @@ export const default_Middlewares: Middlewares = {
       res.locals.store.set(path, [...res.locals.data])
     }
 
-    res.send(res.locals.store.get(path).shift());
+    res.locals.data = res.locals.store.get(path).shift();
+    next();
   },
   groupMock: (req, res, next) => {
     const path = req.path;
@@ -42,7 +43,8 @@ export const default_Middlewares: Middlewares = {
       return;
     }
 
-    res.send(res.locals.data[path] || res.locals.data[Object.keys(res.locals.data)[0]])
+    res.locals.data = res.locals.data[path] || res.locals.data[Object.keys(res.locals.data)[0]];
+    next();
   },
   crudMock: (req, res, next) => {
 
@@ -61,17 +63,19 @@ export const default_Middlewares: Middlewares = {
     if (!store.get(path)) store.set(path, [...res.locals.data]);
 
     if (method?.toLowerCase() === 'get') {
-      res.send(CURD.find(req, store.get(path)));
+      res.locals.data = CURD.find(req, store.get(path));
+      next();
       return;
     } else if (method?.toLowerCase() === 'put') {
-      res.send(CURD.updateData(req, store.get(path)))
+      res.locals.data = CURD.updateData(req, store.get(path));
+      next();
       return;
     } else if (method?.toLowerCase() === 'post') {
       store.set(path, CURD.addData(req, store.get(path)));
     } if (method?.toLowerCase() === 'delete') {
       store.set(path, CURD.removeData(req, store.get(path)));
     }
-
-    res.send(store.get(path));
+    res.locals.data = store.get(path);
+    next();
   }
 };
