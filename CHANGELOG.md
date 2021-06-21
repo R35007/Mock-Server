@@ -1,13 +1,6 @@
-# v2.0.9
+# v2.0.7,v2.0.8,v2.0.9,v2.0.10
 
 - Bug Fix.
-
-# v2.0.8
-
-- Bug Fix.
-
-# v2.0.7
-
 - Now we can also send empty string as a response.
 
 # v2.0.6
@@ -15,23 +8,11 @@
 - added `res.locals.store.remove("")` && `res.locals.store.clear()`
 - Bug fix.
 
-# v2.0.5
+# v2.0.3,v2.0.4,v2.0.5
 
 - Bug fix.
 
-# v2.0.4
-
-- Bug fix.
-
-# v2.0.3
-
-- Bug fix.
-
-# v2.0.2
-
-- Added badges to Readme.
-
-# v2.0.1
+# v2.0.1,v2.0.2
 
 - Readme Update.
 

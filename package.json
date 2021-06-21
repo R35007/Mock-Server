@@ -1,10 +1,9 @@
 {
   "name": "@r35007/mock-server",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "Customize Your Own Local Mock Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "start": "node dist/index.js",
     "mock-server": "node dist/mock-server.js"
