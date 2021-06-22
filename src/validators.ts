@@ -3,11 +3,11 @@ import * as fs from "fs";
 import * as _ from "lodash";
 import * as path from "path";
 import { compile, match, MatchResult } from 'path-to-regexp';
-import { default_Config, default_Injectors, default_Middlewares, default_Routes } from "./defaults";
+import { default_Config, default_Injectors, default_Middlewares, default_Routes, default_Store } from "./defaults";
 import {
   Config, FileDetails, InjectorConfig, Injectors,
   KeyValString, Middlewares, RouteConfig, Routes, UserConfig,
-  UserInjectors, UserMiddlewares, UserRoutes, User_Config
+  UserInjectors, UserMiddlewares, UserRoutes, UserStore, User_Config
 } from "./model";
 
 export class Validators {
@@ -16,6 +16,7 @@ export class Validators {
   _config: Config = default_Config;
   _injectors: Injectors = default_Injectors;
   _middlewares: Middlewares = default_Middlewares;
+  _store: object = default_Store;
 
   _isValidated = true;
 
@@ -114,6 +115,21 @@ export class Validators {
       console.error('getValidRoutes : ' + chalk.red(err.message));
       if (this._config.throwError) throw new Error(err);
       return default_Routes;
+    }
+  };
+
+  getValidStore = (store: UserStore): Object => {
+    if (_.isEmpty(store)) return default_Store;
+
+    try {
+      const userStore: Object = this.#requireData(store) as Object;
+
+      return { ...default_Store, ...userStore };
+    } catch (err) {
+      this._isValidated = false;
+      console.error('getValidStore : ' + chalk.red(err.message));
+      if (this._config.throwError) throw new Error(err);
+      return default_Store;
     }
   };
 

@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { CURD } from './crud';
-import { Config, Injectors, Middlewares, Routes } from "./model";
+import { Config, Injectors, Locals, Middlewares, Routes } from "./model";
 
 export const default_Routes: Routes = {};
+export const default_Store: Object = {};
 
 export const default_Config: Config = {
   port: 3000,
@@ -20,62 +21,72 @@ export const default_Injectors: Injectors = {};
 export const default_Middlewares: Middlewares = {
   loopMock: (req, res, next) => {
     const path = req.path;
+    const locals = res.locals as Locals;
 
-    if (!Array.isArray(res.locals.data)) {
+    if (!Array.isArray(locals.data)) {
       console.error("To use loopMock method the data must be of type Array");
       next();
       return;
     }
 
-    if (!(res.locals.store.get(path) && res.locals.store.get(path).length)) {
-      res.locals.store.set(path, [...res.locals.data])
+    if (!(locals.store[path] && locals.store[path].length)) {
+      locals.store[path] = JSON.parse(JSON.stringify(locals.data));
     }
 
-    res.locals.data = res.locals.store.get(path).shift();
+    locals.data = locals.store[path].shift();
     next();
   },
   groupMock: (req, res, next) => {
     const path = req.path;
+    const locals = res.locals as Locals;
 
-    if (!_.isPlainObject(res.locals.data)) {
+    if (!_.isPlainObject(locals.data)) {
       console.error("To use groupMock method the data must be of type objects");
       next();
       return;
     }
 
-    res.locals.data = res.locals.data[path] || res.locals.data[Object.keys(res.locals.data)[0]];
+    locals.data = locals.data[path] || locals.data[Object.keys(locals.data)[0]];
     next();
   },
   crudMock: (req, res, next) => {
 
     const path = req.path;
     const method = req.method;
+    const locals = res.locals as Locals;
 
-
-    if (!(_.isArray(res.locals.data) && res.locals.data.every(d => _.isPlainObject(d)))) {
+    if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
       console.error("To use crudMock method the data must be of type Array of objects");
       next();
       return;
     }
 
-    const store = res.locals.store;
+    const store = locals.store;
 
-    if (!store.get(path)) store.set(path, [...res.locals.data]);
+    if (!store[path]) store[path] = JSON.parse(JSON.stringify(locals.data));
 
     if (method?.toLowerCase() === 'get') {
-      res.locals.data = CURD.find(req, store.get(path));
+      locals.data = CURD.find(req, store[path]);
       next();
       return;
     } else if (method?.toLowerCase() === 'put') {
-      res.locals.data = CURD.updateData(req, store.get(path));
+      locals.data = CURD.updateData(req, store[path]);
       next();
       return;
     } else if (method?.toLowerCase() === 'post') {
-      store.set(path, CURD.addData(req, store.get(path)));
+      store[path] = CURD.addData(req, store[path]);
     } if (method?.toLowerCase() === 'delete') {
-      store.set(path, CURD.removeData(req, store.get(path)));
+      store[path] = CURD.removeData(req, store[path]);
     }
-    res.locals.data = store.get(path);
+    locals.data = store[path];
+    next();
+  },
+  fetchOnce: (_req, res, next) => {
+    const locals = res.locals as Locals;
+    if (!locals.routeConfig.mockFirst && locals.fetchData) {
+      locals.routeConfig.mockFirst = true;
+      locals.routeConfig.mock = locals.fetchData;
+    }
     next();
   }
 };

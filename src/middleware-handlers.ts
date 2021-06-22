@@ -43,22 +43,21 @@ const AxiosHeadersConfig: string[] = [
 
 export class MiddlewareHandlers extends Validators {
 
-  _store = {};
 
   constructor() {
     super();
   }
 
-  protected _initialMiddlewareWrapper = (routePath: string, routeConfig: RouteConfig) => {
+  protected _initialMiddlewareWrapper = (routePath: string) => {
     return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
       try {
-        res.locals = JSON.parse(JSON.stringify({ routePath, ...routeConfig }));
-        res.locals.store = {
-          get: this.getStore,
-          set: this.setStore,
-          clear: this.clearStore,
-          remove: this.removeStore,
-        }
+        const routeConfig = _.isPlainObject(this._routes[routePath]) ? this._routes[routePath] : { mock: "" };
+        const locals = res.locals as Locals
+
+        locals.routePath = routePath;
+        locals.routeConfig = routeConfig;
+        locals.store = _.isPlainObject(this._store) ? this._store : {}
+
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
           if (!(routeConfig?.fetch !== undefined || routeConfig?.mock !== undefined)) {
@@ -66,9 +65,9 @@ export class MiddlewareHandlers extends Validators {
           } else {
             if (routeConfig.mockFirst) {
               if (routeConfig.mock !== undefined) {
-                res.locals.data = JSON.parse(JSON.stringify(routeConfig.mock));
+                locals.data = JSON.parse(JSON.stringify(routeConfig.mock));
               } else {
-                res.locals.data = await this.#getDataFromUrl(res, req, routeConfig);
+                locals.data = await this.#getDataFromUrl(res, req, routeConfig);
               }
             } else {
               const fetchData = await this.#getDataFromUrl(res, req, routeConfig);
@@ -93,7 +92,7 @@ export class MiddlewareHandlers extends Validators {
 
   protected _finalMiddleware = async (_req: express.Request, res: express.Response) => {
     try {
-      const { data, statusCode, fetch, fetchError } = <Locals>res.locals;
+      const { data, routeConfig: { statusCode }, fetch, fetchError } = <Locals>res.locals;
       if (!res.headersSent) {
         if (statusCode && statusCode >= 100 && statusCode < 600) res.status(statusCode);
 
@@ -115,23 +114,7 @@ export class MiddlewareHandlers extends Validators {
     }
   };
 
-  getStore = (key?: string) => {
-    return key ? this._store[key] : this._store;
-  }
-
-  setStore = (key: string, value: any) => {
-    return this._store[key] = value;
-  }
-
-  removeStore = (key?: string) => {
-    key && this._store[key] && delete this._store[key];
-  }
-
-  clearStore = () => {
-    this._store = {};
-  }
-
-  #isValidFileMockUrl = ({ mockFirst, data, fetchData, fetch }: Locals): boolean => {
+  #isValidFileMockUrl = ({ routeConfig: { mockFirst }, data, fetchData, fetch }: Locals): boolean => {
     return (!mockFirst || (mockFirst && data === undefined))
       && fetchData === undefined
       && this.isFileExist(fetch?.url);

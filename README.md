@@ -23,11 +23,14 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [loopMock](#loopmock)
   - [groupMock](#groupmock)
   - [crudMock](#crudmock)
+  - [fetchOnce](#fetchonce)
 - [Injectors](#injectors)
   - [Inject Route Configs](#inject-route-configs)
   - [Override Existing Route Configs](#override-existing-route-configs)
   - [Common Route Configs](#common-route-configs)
 - [Store Data](#store-data)
+- [Locals](#locals)
+  - [Dynamic Route Config](#dynamic-route-config)
 - [Config](#config)
   - [Alternative Port](#config)
   - [Static File Server](#config)
@@ -48,7 +51,6 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [createDefaultRoutes](#createdefaultroutes)
   - [setData](#setdata)
   - [Get Data](#get-data)
-  - [Store](#store)
   - [Variables](#variables)
   - [Validators](#validators)
   - [Path Check](#path-check)
@@ -487,6 +489,23 @@ DELETE http://localhost:3000/posts/5
 
 ```
 
+### **fetchOnce**
+
+This middleware helps to fetch data only once and cache it for next time.
+
+routes.json
+
+```jsonc
+{
+  "/posts/:id?": {
+    "fetch": "https://jsonplaceholder.typicode.com/posts",
+    "middlewares": ["fetchOnce"]
+  }
+}
+```
+
+Here the it gets the data from the url at first and returns a existing fetchData for every other hit.
+
 ## **Injectors**
 
 Injectors helps to inject a Route Configs explicitly.
@@ -615,9 +634,17 @@ const middlewares = {
   },
 };
 
-const mockServer = new MockServer(routes, undefined, middlewares);
-mockServer.setStore("count", 5); // storing initial value before start.
+const store = {
+  count: 5,
+};
 
+const mockServer = new MockServer(
+  routes,
+  undefined,
+  middlewares,
+  undefined,
+  store
+);
 mockServer.launchServer();
 ```
 
@@ -626,6 +653,51 @@ nodemon server.js
 ```
 
 From the above the count increases on each hit of the endpoint.
+
+## **Locals**
+
+`res.locals` helps to access the current route config, fetchData, store etc..
+Here are the available optons in `res.locals`
+
+```ts
+interface Locals {
+  routePath: string;
+  routeConfig: {
+    statusCode?: number;
+    delay?: number;
+    fetch?: string | AxiosRequestConfig;
+    mock?: any;
+    mockFirst?: boolean;
+    middlewares?: Array<defaultMiddlewaresName | string>;
+  };
+  fetch: AxiosRequestConfig;
+  fetchData?: any;
+  fetchError?: any;
+  data: any;
+  store: object;
+}
+```
+
+### **Dynamic Route Config**
+
+RouteConfigs are mutatable. Means we can able to modify the routeConfigs in runtime using middleware.
+For Example:
+
+`middlewares.js`
+
+```js
+exports.fetchOnce = (_req, res, next) =>{
+  const locals = res.locals as Locals;
+  const routeConfig = locals.routeConfig as RouteConfig; // return the current route's config.
+  if (!routeConfig.mockFirst && locals.fetchData) {
+    routeConfig.mockFirst = true;
+    routeConfig.mock = locals.fetchData;
+  }
+  next();
+}
+```
+
+The above middleware helps to fetch the data from url only once and saves the response as a mock for the next api hit.
 
 ## **Config**
 
@@ -754,17 +826,18 @@ mockServer.createDefaultRoutes();
 
 ### **setData**
 
-set the routes, config, middlewares, injectors
+set the routes, config, middlewares, injectors, store
 
 ```js
-mockServer.setData(routes, config, middlewares, injectors);
+mockServer.setData(routes, config, middlewares, injectors, store);
 
 //or
 
 mockServer.setRoutes(routes);
 mockServer.setConfig(config);
-mockServer.setInjectors(injectors);
 mockServer.setMiddlewares(middlewares);
+mockServer.setInjectors(injectors);
+mockServer.setStore(store);
 ```
 
 **`Params`**
@@ -776,23 +849,15 @@ The same as the [MockServer](#mockserver)
 returns the valid Routes, config, injectors, middlewares
 
 ```js
-let { routes, config, injectors, middlewares } = mockServer.data; // returns current valid data of the Mock server.
+let { routes, config, injectors, middlewares, store } = mockServer.data; // returns current valid data of the Mock server.
 
 // or
 
-routes = mockServer.routes;
-config = mockServer.config;
-injectors = mockServer.injectors;
-middlewares = mockServer.middlewares;
-```
-
-### **Store**
-
-```js
-mockServer.setStore(key, value);
-const value = mockServer.getStore(key); // If Key not provided then it return the whole store object.
-mockServer.removeStore(key); // removes the key in the store.
-mockServer.clearStore(); // removes all keys in the store.
+const routes = mockServer.routes;
+const config = mockServer.config;
+const middlewares = mockServer.middlewares;
+const injectors = mockServer.injectors;
+const store = mockServer.store;
 ```
 
 ### **Variables**

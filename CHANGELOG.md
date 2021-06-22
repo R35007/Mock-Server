@@ -1,3 +1,15 @@
+# v2.1.0
+
+- removed 
+  - `res.locals.store.get`
+  - `res.locals.store.set`
+  - `res.locals.store.clear`
+  - `res.locals.store.remove`
+- added
+  - `res.locals.store` - now you can directly assign values to store.
+  - Dynamic routConfig - Now the routeConfigs are mutable - means you can change the routeConfig inside a middleware using `res.locals.routeConfig`
+  - `fetchOnce` - predefined midleware. Helps to get fetchData only once and returns the existing fetchData for every other api hit.
+
 # v2.0.7,v2.0.8,v2.0.9,v2.0.10
 
 - Bug Fix.

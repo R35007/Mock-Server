@@ -3,7 +3,7 @@ import express from "express";
 import { Server } from "http";
 import { MiddlewareHandlers } from './middleware-handlers';
 import {
-  GetData, UserConfig,
+  GetData, UserConfig, UserStore,
   UserInjectors, UserMiddlewares, UserRoutes
 } from './model';
 
@@ -23,12 +23,13 @@ export class GettersSetters extends MiddlewareHandlers {
   constructor(routes?: UserRoutes,
     config?: UserConfig,
     middlewares?: UserMiddlewares,
-    injectors?: UserInjectors) {
+    injectors?: UserInjectors,
+    store?: UserStore) {
     super();
 
     console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
 
-    if (routes || config || middlewares || injectors) {
+    if (routes || config || middlewares || injectors || store) {
       this.setData(routes, config, middlewares, injectors);
     }
   }
@@ -37,7 +38,8 @@ export class GettersSetters extends MiddlewareHandlers {
     routes: UserRoutes = this._routes,
     config: UserConfig = this._config,
     middlewares: UserMiddlewares = this._middlewares,
-    injectors: UserInjectors = this._injectors
+    injectors: UserInjectors = this._injectors,
+    store: UserStore = this._store
   ) {
     console.log("\n" + chalk.gray("Loading Data..."));
 
@@ -47,6 +49,7 @@ export class GettersSetters extends MiddlewareHandlers {
     this.setMiddlewares(middlewares);
     this.setInjectors(injectors);
     this.setRoutes(routes);
+    this.setStore(store);
 
     console.log(chalk.gray("Done."));
   };
@@ -79,6 +82,11 @@ export class GettersSetters extends MiddlewareHandlers {
     this._routes = this.getValidRoutes(routes);
   }
   get routes() { return this._routes };
+
+  setStore(store: UserStore) {
+    this._store = this.getValidStore(store);
+  }
+  get store() { return this._store };
 
 
   get app() { return this._app };

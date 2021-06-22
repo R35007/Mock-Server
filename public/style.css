@@ -11,8 +11,12 @@ body {
   letter-spacing: 0;
 }
 
+.top-header .container{
+  padding: 0.5rem;
+}
+
 .container {
-  max-width: 1160px;
+  max-width: 90%;
   margin: auto;
   padding: 1rem;
 }

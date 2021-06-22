@@ -47,8 +47,6 @@ function ResourceItem(route) {
 }
 
 function ResourceList(routesList) {
-  document.getElementById("resource-iframe").src = routesList[0];
-
   const availableRoutes = [...routesList];
   availableRoutesCount = availableRoutes.length;
   filteredRoutesCount = availableRoutes.length;
@@ -88,7 +86,7 @@ function ResourcesBlock(routesList) {
 }
 
 window
-  .fetch(window.location.href.replace("/home", "") + "routesList")
+  .fetch(window.location.href.replace(/home.*/gi, "") + "routesList")
   .then((response) => response.json())
   .then(
     (routesList) =>

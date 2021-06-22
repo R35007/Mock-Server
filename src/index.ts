@@ -15,7 +15,9 @@ import {
   Routes,
   UserConfig,
   UserInjectors,
-  UserMiddlewares, UserRoutes
+  UserMiddlewares, 
+  UserRoutes,
+  UserStore
 } from "./model";
 import { default_Config, default_Injectors, default_Middlewares, default_Routes } from './defaults';
 
@@ -25,9 +27,10 @@ export class MockServer extends GettersSetters {
     routes?: UserRoutes,
     config?: UserConfig,
     middlewares?: UserMiddlewares,
-    injectors?: UserInjectors
+    injectors?: UserInjectors,
+    store?: UserStore
   ) {
-    super(routes, config, middlewares, injectors);
+    super(routes, config, middlewares, injectors, store);
   }
 
   launchServer = async () => {
@@ -137,7 +140,7 @@ export class MockServer extends GettersSetters {
       .filter(m => _.isFunction(this._middlewares?.[m]))
       .map(m => this._middlewares?.[m]);
 
-    const middlewareList: ExpressMiddleware[] = [this._initialMiddlewareWrapper(routePath, routeConfig)];
+    const middlewareList: ExpressMiddleware[] = [this._initialMiddlewareWrapper(routePath)];
     userMiddlewares.length && middlewareList.push(...userMiddlewares);
     middlewareList.push(this._finalMiddleware);
 
@@ -154,7 +157,6 @@ export class MockServer extends GettersSetters {
     const defaultRoutes: string[] = [];
 
     if (this._availableRoutes.indexOf(ROUTELIST) < 0) {
-      defaultRoutes.push(ROUTELIST);
       this._availableRoutes.push(ROUTELIST);
       this._app?.all(ROUTELIST, (_req, res) => {
         res.send(this._availableRoutes);
@@ -164,6 +166,7 @@ export class MockServer extends GettersSetters {
         defaultRoutes.push(HOME);
         this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
       }
+      defaultRoutes.push(ROUTELIST);
     }
 
     if (this._availableRoutes.indexOf(ROUTES) < 0) {
@@ -177,10 +180,10 @@ export class MockServer extends GettersSetters {
       defaultRoutes.push(STORE);
       this._availableRoutes.push(STORE);
       this._app?.all(STORE, (_req, res) => {
-        res.send(this.getStore());
+        res.send(this._store);
       });
     }
-    
+
     this.#defaultRoutesLog(defaultRoutes, this._config.port);
     this._isDefaultsCreated = true;
   };

@@ -5,7 +5,8 @@ export type UserRoutes = string | Routes;
 export type UserConfig = string | User_Config | Config;
 export type UserInjectors = string | Injectors;
 export type UserMiddlewares = string | User_Middlewares;
-export type defaultMiddlewaresName = 'loopMock' | 'groupMock' | 'crudMock';
+export type UserStore = string | Object;
+export type defaultMiddlewaresName = 'loopMock' | 'groupMock' | 'crudMock' | 'fetchOnce';
 
 
 export type Routes = {
@@ -49,7 +50,6 @@ export type Injectors = {
 
 export type InjectorConfig = RouteConfig & {
   override?: boolean;
-  [key: string]: any
 }
 
 export type ExpressMiddleware = (req: express.Request,
@@ -64,6 +64,7 @@ export type Middlewares = {
   loopMock: ExpressMiddleware;
   groupMock: ExpressMiddleware;
   crudMock: ExpressMiddleware;
+  fetchOnce: ExpressMiddleware;
 } & User_Middlewares
 
 
@@ -71,18 +72,14 @@ export type KeyValString = {
   [key: string]: string;
 }
 
-export interface Locals extends InjectorConfig {
+export interface Locals {
   routePath: string;
+  routeConfig: InjectorConfig
   fetch: AxiosRequestConfig,
   fetchData?: any;
   fetchError?: any;
   data: any;
-  store: {
-    get: (key?: string) => any;
-    set: (key: string, value: any) => void;
-    remove: (key: string) => void;
-    clear: () => void;
-  }
+  store: object
 }
 
 export type HAR = {
