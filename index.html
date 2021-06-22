@@ -1,0 +1,1123 @@
+
+<!DOCTYPE htc1>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mock Server</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <header id="mock-server">
+      <div class="wrapper">
+          <h1><a class="header-link" href="https://github.com/R35007/Mock-Server">Mock Server</a><a href="#mock-server"></a> <a href="https://img.shields.io/npm/v/@r35007/mock-server?label=npm"><img src="https://img.shields.io/npm/v/@r35007/mock-server?label=npm" alt="" /></a> <a href="https://img.shields.io/npm/l/@r35007/mock-server?color=blue"><img src="https://img.shields.io/npm/l/@r35007/mock-server?color=blue" alt="" /></a> <a href="https://img.shields.io/npm/types/@r35007/mock-server"><img src="https://img.shields.io/npm/types/@r35007/mock-server" alt="" /></a></h1>
+  
+          <p>Get a full REST API with <strong>zero coding</strong> in <strong>less than 30 seconds</strong> (seriously)</p>
+          
+          <p style="margin: 0;">Created with &lt;3 for front-end developers who need a quick back-end for prototyping and mocking.<br/>
+          Now also available as a VSCodeExtension <a href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server"><code class="language-plaintext highlighter-rouge">thinker.mock-server</code></a>.</p>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+        <section>
+          <h2 id="table-of-contents">Table of contents</h2>
+          
+          <ul>
+            <li><a href="#getting-started">Getting started</a></li>
+            <li><a href="#advantages">Advantages</a></li>
+            <li><a href="#using-js-module">Using JS Module</a></li>
+            <li><a href="#route-config">Route Config</a>
+              <ul>
+                <li><a href="#set-delay-response">Set Delay Response</a></li>
+                <li><a href="#set-custom-statuscode">Set Custom StatusCode</a></li>
+                <li><a href="#fetch-data-from-url">Fetch Data From URL</a>
+                  <ul>
+                    <li><a href="#fetch-file">Fetch File</a></li>
+                    <li><a href="#custom-fetch-options">Custom Fetch Options</a></li>
+                    <li><a href="#use-fetch-as-proxy">Use Fetch as Proxy</a></li>
+                  </ul>
+                </li>
+                <li><a href="#custom-mock">Custom Mock</a></li>
+                <li><a href="#add-middlewares">Add Middlewares</a></li>
+              </ul>
+            </li>
+            <li><a href="#default-middlewares">Default Middlewares</a>
+              <ul>
+                <li><a href="#loopmock">loopMock</a></li>
+                <li><a href="#groupmock">groupMock</a></li>
+                <li><a href="#crudmock">crudMock</a></li>
+                <li><a href="#fetchonce">fetchOnce</a></li>
+              </ul>
+            </li>
+            <li><a href="#injectors">Injectors</a>
+              <ul>
+                <li><a href="#inject-route-configs">Inject Route Configs</a></li>
+                <li><a href="#override-existing-route-configs">Override Existing Route Configs</a></li>
+                <li><a href="#common-route-configs">Common Route Configs</a></li>
+              </ul>
+            </li>
+            <li><a href="#store-data">Store Data</a></li>
+            <li><a href="#locals">Locals</a>
+              <ul>
+                <li><a href="#dynamic-route-config">Dynamic Route Config</a></li>
+              </ul>
+            </li>
+            <li><a href="#config">Config</a>
+              <ul>
+                <li><a href="#config">Alternative Port</a></li>
+                <li><a href="#config">Static File Server</a></li>
+                <li><a href="#config">Add Base Route</a></li>
+                <li><a href="#config">Set RootPath to fetch Files</a></li>
+                <li><a href="#config">Route Rewriter</a></li>
+                <li><a href="#config">Exclude Unwanted Routes</a></li>
+              </ul>
+            </li>
+            <li><a href="#default-routes">Default Routes</a></li>
+            <li><a href="#api">API</a>
+              <ul>
+                <li><a href="#mockserver">MockServer</a></li>
+                <li><a href="#launchserver">launchServer</a></li>
+                <li><a href="#createexpressapp">createExpressApp</a></li>
+                <li><a href="#startserver">startServer</a></li>
+                <li><a href="#stopserver">stopServer</a></li>
+                <li><a href="#resetserver">resetServer</a></li>
+                <li><a href="#loadresources">loadResources</a></li>
+                <li><a href="#createroute">createRoute</a></li>
+                <li><a href="#createdefaultroutes">createDefaultRoutes</a></li>
+                <li><a href="#setdata">setData</a></li>
+                <li><a href="#get-data">Get Data</a></li>
+                <li><a href="#variables">Variables</a></li>
+                <li><a href="#validators">Validators</a></li>
+                <li><a href="#path-check">Path Check</a></li>
+                <li><a href="#transformhar">transformHar</a></li>
+                <li><a href="#getjson">getJSON</a></li>
+                <li><a href="#getfileslist">getFilesList</a></li>
+              </ul>
+            </li>
+            <li><a href="#author">Author</a></li>
+            <li><a href="#license">License</a></li>
+          </ul>
+    <h2 id="getting-started">Getting started</h2>
+    
+    <p>Install Mock Server</p>
+    
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install</span> <span class="nt">-g</span> @r35007/mock-server</code></pre></div></div>
+    
+    <p>Create a <code class="language-plaintext highlighter-rouge">routes.json</code> file with mock data.</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/hello"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hello World"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+</pre></div></div>
+    
+    <p>Start Mock Server</p>
+    
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mock-server ./mock.json</code></pre></div></div>
+    
+    <p>Now if you go to <a href="http://localhost:3000/hello">http://localhost:3000/hello</a>, you’ll get</p>
+    
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello World</code></pre></div></div>
+    
+    <h2 id="advantages">Advantages</h2>
+    
+    <ul>
+      <li>A single response can be point to multiple route paths.</li>
+      <li>Any file can be send as a response. (json, image, txt, etc..)</li>
+      <li>Can set any value to globals and can be accessed at any point of time which also helps to share data between routes.</li>
+      <li>The mock data can be maintained in different json files and urls which helps to organize your mock data</li>
+      <li>The return response can be manipulated or overridden for a specific route by a middleware method.</li>
+      <li>proxy routes can be used</li>
+    </ul>
+    
+    <h2 id="using-js-module">Using JS Module</h2>
+    
+    <p>First install nodemon for watching changes</p>
+    
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install</span> <span class="nt">-g</span> nodemon</code></pre></div></div>
+    
+    <p>Create <code class="language-plaintext highlighter-rouge">server.js</code> File</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span> <span class="c1">// use import if using ES6 module</span>
+
+<span class="c1">// see Route Config for more configuration</span>
+<span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="p">{</span>
+<span class="dl">"</span><span class="s2">/route/1</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+  <span class="na">mock</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">data</span><span class="p">:</span> <span class="dl">"</span><span class="s2">data 1</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">middlewares</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">log</span><span class="dl">"</span><span class="p">],</span> <span class="c1">// picks middleware from the middlewares object</span>
+<span class="p">},</span>
+<span class="dl">"</span><span class="s2">/route/2</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+  <span class="na">mock</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">data</span><span class="p">:</span> <span class="dl">"</span><span class="s2">data 2</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">},</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">middlewares</span> <span class="o">=</span> <span class="p">{</span>
+<span class="na">log</span><span class="p">:</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()),</span> <span class="nx">next</span><span class="p">();</span>
+<span class="p">},</span> <span class="c1">// logs time</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">injectors</span> <span class="o">=</span> <span class="p">{</span>
+<span class="dl">"</span><span class="s2">/route/2</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+  <span class="na">delay</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span> <span class="c1">//injects delay 3 second to route/2</span>
+<span class="p">},</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">config</span> <span class="o">=</span> <span class="p">{</span>
+<span class="na">port</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span> <span class="c1">// runs localhost in this port</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">mockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MockServer</span><span class="p">(</span><span class="nx">routes</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">middlewares</span><span class="p">,</span> <span class="nx">injectors</span><span class="p">);</span>
+<span class="c1">// Note: routes, config, middlewares, injectors - These can also be given as a url</span>
+<span class="c1">// For example: const mockServer = new MockServer("./routes.json", "./config.json" ...);</span>
+
+<span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span> <span class="c1">// Starts the Mock Server.</span></code>
+  </pre></div></div>
+    
+    <p>Now go to terminal and type the following command to start the Mock Server.</p>
+    
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nodemon server.js</code></pre></div></div>
+    
+    <h2 id="route-config"><strong>Route Config</strong></h2>
+    
+    <p>Create a routes.json file. Pay attention to start every route with /.
+    For Example:</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">routes.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/routeName, /routeName2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c1">// two routes shares the same config and mock data</span><span class="w">
+    </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"> </span><span class="c1">// in milliseconds</span><span class="w">
+    </span><span class="nl">"statusCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="c1">// in number between 100 to 600</span><span class="w">
+    </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"loopMock"</span><span class="p">],</span><span class="w"> </span><span class="c1">// middlewares to be called</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./myFile.json"</span><span class="p">,</span><span class="w"> </span><span class="c1">// this path will be relative to `config.rootPath`</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"foo"</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span><span class="w"> </span><span class="p">}],</span><span class="w">
+    </span><span class="nl">"mockFirst"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="c1">// If True it sends mock data first before fetch</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"/routeName3"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"foo"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"age"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Note: If `fetch` or `mock` is not available then it sends this whole object as a response."</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code>
+  </pre></div></div>
+    
+    <p>Note : <code class="language-plaintext highlighter-rouge">fetch</code> can be either <code class="language-plaintext highlighter-rouge">string</code> type or <code class="language-plaintext highlighter-rouge">AxiosRouteConfig</code> type.
+    see <a href="#fetch-data-from-url">Fetch Data From URL</a> for more configuration.</p>
+    
+    <h3 id="set-delay-response"><strong>Set Delay Response</strong></h3>
+    
+    <p><code class="language-plaintext highlighter-rouge">delay</code> helps you to set a custom delay to your routes.
+    Note : The delay yo set must be in milliseconds and of type number</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/user/1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Leanne Graham"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bret"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sincere@april.biz"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <p>The above <code class="language-plaintext highlighter-rouge">/user/1</code> route returns the response in a delay of 3 seconds.</p>
+    
+    <h3 id="set-custom-statuscode"><strong>Set Custom StatusCode</strong></h3>
+    
+    <p><code class="language-plaintext highlighter-rouge">statusCode</code> helps you set a custom statusCode to your routes.
+    It must be of type number and between 100 to 600.</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/user/1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Leanne Graham"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bret"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sincere@april.biz"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"statusCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code></pre>
+  </div></div>
+    
+    <p>The above <code class="language-plaintext highlighter-rouge">/user/1</code> route returns the response with a <code class="language-plaintext highlighter-rouge">500</code> statusCode</p>
+    
+    <h3 id="fetch-data-from-url"><strong>Fetch Data From URL</strong></h3>
+    
+    <p><code class="language-plaintext highlighter-rouge">fetch</code> helps you get data from url.
+    The url can either be a http server or a local file server.</p>
+    
+    <h4 id="fetch-file"><strong>Fetch File</strong></h4>
+    
+    <p>Give a absolute or a relative path to fetch any file and get as a response.
+    Note: The given relative path will be relative to <code class="language-plaintext highlighter-rouge">config.rootPath</code>.</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/banner"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./assets/banner.jpg"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <h4 id="custom-fetch-options"><strong>Custom Fetch Options</strong></h4>
+    
+    <p>You can also give a fetch as a axios request object with custom options.</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/customUsers/:id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/users"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"params"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$params"</span><span class="p">,</span><span class="w"> </span><span class="c1">// pass params from `customUsers/:id` route</span><span class="w">
+      </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <p>Note: The to pass any options from the route set the option value as <code class="language-plaintext highlighter-rouge">$&lt;option Name&gt;</code></p>
+    
+    <h4 id="use-fetch-as-proxy"><strong>Use Fetch as Proxy</strong></h4>
+    
+    <p>By directly giving a url it acts like a proxy.
+    It sends all the options like prams, query params, headers, data etc.. from the mock route</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/customComments/:id?"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"/posts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/:routePath"</span><span class="w"> </span><span class="c1">// will become https://jsonplaceholder.typicode.com/posts</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <p>Note: <code class="language-plaintext highlighter-rouge">/:routePath</code> will prepends the route to the url.</p>
+    
+    <p>Now you could use any routing provided by the <code class="language-plaintext highlighter-rouge">"https://jsonplaceholder.typicode.com/posts"</code>..
+    For example: You could use the following.
+    <code class="language-plaintext highlighter-rouge">http://localhost:3000/customComments</code>
+    <code class="language-plaintext highlighter-rouge">http://localhost:3000/customComments/1</code>
+    <code class="language-plaintext highlighter-rouge">http://localhost:3000/customComments?postId=1</code></p>
+    
+    <h3 id="custom-mock"><strong>Custom Mock</strong></h3>
+    
+    <p>By default the Mock Server try’s to fetch the data from <code class="language-plaintext highlighter-rouge">fetch</code> url.
+    If it fails then it tries to get it from <code class="language-plaintext highlighter-rouge">mock</code>.</p>
+    
+    <p>Set <code class="language-plaintext highlighter-rouge">mockFirst</code> to true to get the mock first.
+    If the mock is not available then it tries a to get data from <code class="language-plaintext highlighter-rouge">fetch</code> url.</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/customComments/:id?"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"foo"</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"mockFirst"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <h3 id="add-middlewares"><strong>Add Middlewares</strong></h3>
+    
+    <p>You can add n number of middlewares to a route which helps you to manipulate or log the data.
+    First Create a <code class="language-plaintext highlighter-rouge">middlewares.js</code> file.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">exports</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">());</span>
+      <span class="c1">// make sure you always call next() method when you don't sent any response using res.send().</span>
+      <span class="nx">next</span><span class="p">();</span>
+    <span class="p">};</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">wrapper</span> <span class="o">=</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">wrapperResponse</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Successful</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">result</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">local</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+  <span class="p">};</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">wrapperResponse</span><span class="p">);</span>
+<span class="p">};</span></code>
+  </pre></div></div>
+    
+    <p><code class="language-plaintext highlighter-rouge">routes.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/posts/:id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/posts"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"log"</span><span class="p">,</span><span class="w"> </span><span class="s2">"wrapper"</span><span class="p">]</span><span class="w"> </span><span class="c1">// give the name of the middlewares which are available in the middlewares.js</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"/comment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments/1"</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"log"</span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w"></span></code>
+  </pre></div></div>
+    
+    <p>Note: A middleware must be available at the name of the middlewares given in <code class="language-plaintext highlighter-rouge">routes.json</code></p>
+    
+    <p>Now in server.js</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">new</span> <span class="nx">MockServer</span><span class="p">(</span><span class="dl">"</span><span class="s2">./routes.json</span><span class="dl">"</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="dl">"</span><span class="s2">./middlewares.js</span><span class="dl">"</span><span class="p">).</span><span class="nx">launchServer</span><span class="p">();</span>
+    <span class="c1">// Here in the undefined place it uses the default configs.</span></code></pre></div></div>
+    
+    <p>Now when you go to <code class="language-plaintext highlighter-rouge">http://localhost:3000/posts/1</code>, you can see the new data og in console and also wrap’s the response with the object.</p>
+    
+    <p>But When you go to <code class="language-plaintext highlighter-rouge">http://localhost:3000/comment</code>, you can only see the date log and will not be wrapped with the object.</p>
+    
+    <h2 id="default-middlewares"><strong>Default Middlewares</strong></h2>
+    
+    <p>We also provide a two default middlewares.</p>
+    
+    <h3 id="loopmock"><strong>loopMock</strong></h3>
+    
+    <p>setting middleware to loopMock helps to send you a looped response one after the other in the mock array for each url hit.</p>
+    
+    <p>example:</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight">
+<code><span class="p">{</span><span class="w">
+  </span><span class="nl">"/loopMock"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"loopMock"</span><span class="p">],</span><span class="w"> </span><span class="c1">// method name to be called</span><span class="w">
+    </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response1"</span><span class="p">,</span><span class="w"> </span><span class="s2">"response2]
+  }
+}</span></code>
+  </pre></div></div>
+    
+    <p>Now go and hit <code class="language-plaintext highlighter-rouge">http://localhost:3000/loopMock</code>. For the first hit you get <code class="language-plaintext highlighter-rouge">response1</code> as a response and for the second hit you get <code class="language-plaintext highlighter-rouge">response2</code> as a response and its loops through each element in the mock array for each url hit.</p>
+    
+    <h3 id="groupmock"><strong>groupMock</strong></h3>
+    
+    <p>setting middleware to groupMock helps to send you a response that matched the route path from the mock</p>
+    
+    <p>example:</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/name/:id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"groupMock"</span><span class="p">],</span><span class="w"> </span><span class="c1">// method name to be called</span><span class="w">
+        </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"/name/1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name1"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"/name/2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name2"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p>Now go and hit <code class="language-plaintext highlighter-rouge">http://localhost:3000/name/1</code>, you get <code class="language-plaintext highlighter-rouge">name1</code> as a response.
+    Now go and hit <code class="language-plaintext highlighter-rouge">http://localhost:3000/name/2</code>, you get <code class="language-plaintext highlighter-rouge">name2</code> as a response.
+    Now go and hit <code class="language-plaintext highlighter-rouge">http://localhost:3000/name/3</code>, since id <code class="language-plaintext highlighter-rouge">3</code> is not available it send you <code class="language-plaintext highlighter-rouge">name1</code> as a response.</p>
+    
+    <h3 id="crudmock"><strong>crudMock</strong></h3>
+    
+    <p>This middleware handles all the crud operations of the given mock.
+    Note : the mock must of type Array of objects and must contain a unique value of attribute <code class="language-plaintext highlighter-rouge">id</code>. Following are the operations performed by this method.</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">routes.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/posts/:id?"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"mock"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"userId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sunt aut facere repellat provident o"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quia et suscipit</span><span class="se">\n</span><span class="s2">suscipit recusandae "</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"userId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qui est esse"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"est rerum tempore vitae</span><span class="se">\n</span><span class="s2">sequi sint nihil reprehenderit dolor"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"crudMock"</span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p><code class="language-plaintext highlighter-rouge">api.http</code></p>
+    
+    
+  <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span>
+    ###
+
+    <span class="z">GET</span> http://localhost:3000/posts
+    
+    ### <span class="c1">// returns posts data that has userId equals 1</span>
+    
+    <span class="z">GET</span> http://localhost:3000/posts?userId=1
+    
+    
+    ### <span class="c1">// returns only post that has id equals 1</span>
+    
+    <span class="z">GET</span> http://localhost:3000/posts/1
+    
+    ###
+    
+    <span class="z">POST</span> http://localhost:3000/posts
+    <span class="nl">content-type</span>: application/json
+    
+    {
+      <span class="nl">"userId"</span>: <span class="mi">2</span>,
+      <span class="nl">"title"</span>: <span class="s2">"Galactic Star"</span>
+    }
+    
+    ### <span class="c1">// Note : `id` must not be provided. It will be auto generated</span>
+    
+    <span class="z">POST</span> http://localhost:3000/posts
+    <span class="nl">content-type</span>: <span class="s2">application/json</span>
+    
+    [
+      {
+        <span class="nl">"userId"</span>: <span class="mi">2</span>,
+        <span class="nl">"title"</span>: <span class="s2">"Star wars"</span>
+      },
+      {
+        <span class="nl">"userId"</span>: <span class="mi">3</span>,
+        <span class="nl">"title"</span>: <span class="s2">"Avengers"</span>
+      }
+    ]
+    
+    ###
+    
+    <span class="z">PUT</span> http://localhost:3000/posts
+    <span class="nl">content-type</span>: <span class="s2">application/json</span>
+    
+    {
+      <span class="nl">"userId"</span>: <span class="mi">2</span>,
+      <span class="nl">"id"</span>: <span class="mi">1</span>,
+      <span class="nl">"title"</span>: <span class="s2">"Updated title"</span>
+    }
+    
+    ### <span class="c1">// delete only post that has id equals 1</span>
+    
+    <span class="z">DELETE</span> http://localhost:3000/posts/5
+    
+    </span></code></pre></div></div>
+    
+    <h3 id="fetchonce"><strong>fetchOnce</strong></h3>
+    
+    <p>This middleware helps to fetch data only once and cache it for next time.</p>
+    
+    <p>routes.json</p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/posts/:id?"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/posts"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"fetchOnce"</span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p>Here the it gets the data from the url at first and returns a existing fetchData for every other hit.</p>
+    
+    <h2 id="injectors"><strong>Injectors</strong></h2>
+    
+    <p>Injectors helps to inject a Route Configs explicitly.
+    This also helps to provide a common route configs.
+    Injector uses <a href="https://github.com/pillarjs/path-to-regexp"><code class="language-plaintext highlighter-rouge">path-to-regexp</code></a> pattern recognition to set config for multiple routes.</p>
+    
+    <h3 id="inject-route-configs"><strong>Inject Route Configs</strong></h3>
+    
+    <p>Here we are explicitly injecting <code class="language-plaintext highlighter-rouge">delay</code>, <code class="language-plaintext highlighter-rouge">middlewares</code>, <code class="language-plaintext highlighter-rouge">statusCode</code> to the <code class="language-plaintext highlighter-rouge">/posts</code> route.
+    You can any route configs to a specific or to a group of routes using Injectors.</p>
+    
+    <p>example :</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">routes.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/posts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/posts"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments/1"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"crudMock"</span><span class="p">,</span><span class="w"> </span><span class="s2">"log"</span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments/2"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/3"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"fetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://jsonplaceholder.typicode.com/comments/3"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p><code class="language-plaintext highlighter-rouge">injectors.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/posts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"log"</span><span class="p">,</span><span class="w"> </span><span class="s2">"counter"</span><span class="p">,</span><span class="w"> </span><span class="s2">"crudMock"</span><span class="p">],</span><span class="w">
+        </span><span class="nl">"StatusCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/:id?"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"> </span><span class="c1">// since /comments/2 already has a delay of 3 seconds it will ot be replaced with 2 seconds delay</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"log"</span><span class="p">]</span><span class="w"> </span><span class="c1">// injects middlewares to /comments/2, /comments/3 routes excepts /comments/1</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <h3 id="override-existing-route-configs"><strong>Override Existing Route Configs</strong></h3>
+    
+    <p>Setting <code class="language-plaintext highlighter-rouge">override</code> flag to true helps to override the existing config of that route.</p>
+    
+    <p>For example :</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">injectors.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/comments/1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"override"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"..."</span><span class="p">,</span><span class="w"> </span><span class="s2">"timer"</span><span class="p">]</span><span class="w"> </span><span class="c1">// here /comments/1 route will have ["crudMock", "log", "timer"]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"override"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="w"> </span><span class="c1">// Now /comments/2 will have a delay of 2 seconds</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p>Note: Use <code class="language-plaintext highlighter-rouge">["..."]</code> If you want to add the existing middlewares in line when overriding.
+    Make sure the middlewares are available in the <code class="language-plaintext highlighter-rouge">middlewares.js</code> in the given middlewares name.</p>
+    
+    <h3 id="common-route-configs"><strong>Common Route Configs</strong></h3>
+    
+    <p>Using wildcards you can set a common route configs to all the routes.
+    <code class="language-plaintext highlighter-rouge">/(.*)</code> - matches all the routes.</p>
+    
+    <p>For example :</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">injectors.json</code></p>
+    
+    <div class="language-jsonc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+      </span><span class="nl">"/posts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="w"> </span><span class="c1">// will be overridden by the below route match configs.</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/(.*)"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"override"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"log"</span><span class="p">,</span><span class="w"> </span><span class="s2">"..."</span><span class="p">],</span><span class="w">
+        </span><span class="nl">"statusCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"/comments/1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// Here only this route will not have a delay of 1 second</span><span class="w">
+        </span><span class="nl">"override"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span></code></pre></div></div>
+    
+    <p>Now all the Routes will have a delay of 1 second, <code class="language-plaintext highlighter-rouge">"log"</code> middleware is appended to all routes and <code class="language-plaintext highlighter-rouge">statusCode</code> will be 200.
+    Make sure you give <code class="language-plaintext highlighter-rouge">(.*)</code> at the end of the <code class="language-plaintext highlighter-rouge">injectors.json</code> object to set route configs to all the routes.</p>
+    
+    <h2 id="store-data"><strong>Store Data</strong></h2>
+    
+    <p>Using <code class="language-plaintext highlighter-rouge">res.locals.store</code> you could store any value and can be shared across any routes.
+    This also helps to manipulate the response in many ways. Lets see a simple counter Example :</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">server.js</code></p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span>
+    
+    <span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="dl">"</span><span class="s2">/counter</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">middleware</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">countIncrement</span><span class="dl">"</span><span class="p">],</span>
+      <span class="p">},</span>
+    <span class="p">};</span>
+    
+    <span class="kd">const</span> <span class="nx">middlewares</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">countIncrement</span><span class="p">:</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="nx">count</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">path</span><span class="p">);</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="kd">set</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">path</span><span class="p">,</span> <span class="nx">count</span><span class="o">++</span><span class="p">);</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">count</span><span class="p">);</span>
+      <span class="p">},</span>
+    <span class="p">};</span>
+    
+    <span class="kd">const</span> <span class="nx">store</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">count</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">};</span>
+    
+    <span class="kd">const</span> <span class="nx">mockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MockServer</span><span class="p">(</span>
+      <span class="nx">routes</span><span class="p">,</span>
+      <span class="kc">undefined</span><span class="p">,</span>
+      <span class="nx">middlewares</span><span class="p">,</span>
+      <span class="kc">undefined</span><span class="p">,</span>
+      <span class="nx">store</span>
+    <span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nodemon server.js</code></pre></div></div>
+    
+    <p>From the above the count increases on each hit of the endpoint.</p>
+    
+    <h2 id="locals"><strong>Locals</strong></h2>
+    
+    <p><code class="language-plaintext highlighter-rouge">res.locals</code> helps to access the current route config, fetchData, store etc..
+    Here are the available optons in <code class="language-plaintext highlighter-rouge">res.locals</code></p>
+    
+    <div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Locals</span> <span class="p">{</span>
+      <span class="nl">routePath</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+      <span class="nl">routeConfig</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nl">statusCode</span><span class="p">?:</span> <span class="kr">number</span><span class="p">;</span>
+        <span class="nl">delay</span><span class="p">?:</span> <span class="kr">number</span><span class="p">;</span>
+        <span class="nl">fetch</span><span class="p">?:</span> <span class="kr">string</span> <span class="o">|</span> <span class="kr">AxiosRequestConfig</span><span class="p">;</span>
+        <span class="nl">mock</span><span class="p">?:</span> <span class="kr">any</span><span class="p">;</span>
+        <span class="nl">mockFirst</span><span class="p">?:</span> <span class="kr">boolean</span><span class="p">;</span>
+        <span class="nl">middlewares</span><span class="p">?:</span> <span class="kr">Array</span><span class="o">&lt;</span><span class="kr">defaultMiddlewaresName</span> <span class="o">|</span> <span class="kr">string</span><span class="o">&gt;</span><span class="p">;</span>
+      <span class="p">};</span>
+      <span class="nl">fetch</span><span class="p">:</span> <span class="kr">AxiosRequestConfig</span><span class="p">;</span>
+      <span class="nl">fetchData</span><span class="p">?:</span> <span class="kr">any</span><span class="p">;</span>
+      <span class="nl">fetchError</span><span class="p">?:</span> <span class="kr">any</span><span class="p">;</span>
+      <span class="nl">data</span><span class="p">:</span> <span class="kr">any</span><span class="p">;</span>
+      <span class="nl">store</span><span class="p">:</span> <span class="kr">object</span><span class="p">;</span>
+    <span class="p">}</span></code></pre></div></div>
+    
+    <h3 id="dynamic-route-config"><strong>Dynamic Route Config</strong></h3>
+    
+    <p>RouteConfigs are mutatable. Means we can able to modify the routeConfigs in runtime using middleware.
+    For Example:</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">middlewares.js</code></p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">exports</span><span class="p">.</span><span class="nx">fetchOnce</span> <span class="o">=</span> <span class="p">(</span><span class="nx">_req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span><span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">locals</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span> <span class="k">as</span> <span class="nx">Locals</span><span class="p">;</span>
+      <span class="kd">const</span> <span class="nx">routeConfig</span> <span class="o">=</span> <span class="nx">locals</span><span class="p">.</span><span class="nx">routeConfig</span> <span class="k">as</span> <span class="nx">RouteConfig</span><span class="p">;</span> <span class="c1">// return the current route's config.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">routeConfig</span><span class="p">.</span><span class="nx">mockFirst</span> <span class="o">&amp;&amp;</span> <span class="nx">locals</span><span class="p">.</span><span class="nx">fetchData</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">routeConfig</span><span class="p">.</span><span class="nx">mockFirst</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="nx">routeConfig</span><span class="p">.</span><span class="nx">mock</span> <span class="o">=</span> <span class="nx">locals</span><span class="p">.</span><span class="nx">fetchData</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="nx">next</span><span class="p">();</span>
+    <span class="p">}</span></code></pre></div></div>
+    
+    <p>The above middleware helps to fetch the data from url only once and saves the response as a mock for the next api hit.</p>
+    
+    <h2 id="config"><strong>Config</strong></h2>
+    
+    <p>you can provide your own config by passing the config object in the <code class="language-plaintext highlighter-rouge">MockServer</code> constructor. For Example :</p>
+    
+    <p><code class="language-plaintext highlighter-rouge">server.js</code> :</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// These are default config. You can provide your custom config as well.</span>
+    
+    <span class="kd">const</span> <span class="nx">config</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">port</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span> <span class="c1">// by default mock will be launched at this port. http://localhost:3000/</span>
+      <span class="na">rootPath</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// all paths will be relative to this path. Please provide a absolute path here.</span>
+      <span class="na">baseUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// all routes will be prefixed with the given baseUrl.</span>
+      <span class="na">staticUrl</span><span class="p">:</span> <span class="dl">""</span><span class="p">,</span> <span class="c1">// Please provide a folder path. This will be hosted locally and all files will be statically accessed</span>
+      <span class="na">routeRewrite</span><span class="p">:</span> <span class="p">{},</span> <span class="c1">// example { "route/:id" : "newroute/:id" } - all routes that matches the pattern `route/:id` will be renamed to `newroute/:id`</span>
+      <span class="na">excludeRoutes</span><span class="p">:</span> <span class="p">[],</span> <span class="c1">// example [ "route/:id"] - all routes that matched this pattern will be excluded</span>
+      <span class="na">reverseRouteOrder</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="c1">// If true routes will be generated in reverse order</span>
+      <span class="na">throwError</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="c1">// If True will throw an error instead of console log, if something went wrong</span>
+    <span class="p">};</span>
+    
+    <span class="k">new</span> <span class="nx">MockServer</span><span class="p">(</span><span class="dl">"</span><span class="s2">./routes.json</span><span class="dl">"</span><span class="p">,</span> <span class="nx">config</span><span class="p">).</span><span class="nx">launchServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <h2 id="default-routes">Default Routes</h2>
+    
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">Home</code> - <a href="http://localhost:3000/home">http://localhost:3000/home</a></li>
+      <li><code class="language-plaintext highlighter-rouge">Routes</code> - <a href="http://localhost:3000/routes">http://localhost:3000/routes</a></li>
+      <li><code class="language-plaintext highlighter-rouge">Store</code> - <a href="http://localhost:3000/store">http://localhost:3000/store</a></li>
+      <li><code class="language-plaintext highlighter-rouge">Routes List</code> - <a href="http://localhost:3000/routesList">http://localhost:3000/routesList</a></li>
+    </ul>
+    
+    <h2 id="api">API</h2>
+    
+    <h3 id="mockserver"><strong>MockServer</strong></h3>
+    
+    <p>This is a constructor to initialize the routes, config, middlewares, Injectors.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">mockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MockServer</span><span class="p">(</span>
+      <span class="dl">"</span><span class="s2">./routes.json</span><span class="dl">"</span><span class="p">,</span>
+      <span class="dl">"</span><span class="s2">./config.json</span><span class="dl">"</span><span class="p">,</span>
+      <span class="dl">"</span><span class="s2">./middlewares.js</span><span class="dl">"</span><span class="p">,</span>
+      <span class="dl">"</span><span class="s2">./injectors.json</span><span class="dl">"</span>
+    <span class="p">).</span><span class="nx">launcherServer</span><span class="p">();</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span> <span class="c1">// starts the mock server.</span>
+    
+    <span class="c1">// Note: the middlewares must be in .js extension</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>routes</td>
+          <td>string / object</td>
+          <td>No</td>
+          <td>This object generates the local rest api.</td>
+        </tr>
+        <tr>
+          <td>config</td>
+          <td>string / object</td>
+          <td>No</td>
+          <td>This object sets the port, common middleware and delay</td>
+        </tr>
+        <tr>
+          <td>middlewares</td>
+          <td>string / object</td>
+          <td>No</td>
+          <td>Here you initialize the needed custom middlewares</td>
+        </tr>
+        <tr>
+          <td>injectors</td>
+          <td>string / object</td>
+          <td>No</td>
+          <td>Helps to inject a route configs for the existing routes</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h3 id="launchserver"><strong>launchServer</strong></h3>
+    
+    <p>It validates all the params in the MockServer, loads the resources and starts the server.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="createexpressapp"><strong>createExpressApp</strong></h3>
+    
+    <p>Returns the instance of the express.Application - helps set any external routes or middleware.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">createExpressApp</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="startserver"><strong>startServer</strong></h3>
+    
+    <p>Returns a Promise of <code class="language-plaintext highlighter-rouge">Server</code>. - helps to start the app server externally</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">startServer</span><span class="p">(</span><span class="mi">3000</span><span class="p">);</span> <span class="c1">// port is optional param</span></code></pre></div></div>
+    
+    <h3 id="stopserver"><strong>stopServer</strong></h3>
+    
+    <p>Returns a Promise of Boolean. - helps to stop the app server externally</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">isStopped</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">stopServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="resetserver"><strong>resetServer</strong></h3>
+    
+    <p>Clears out all values and resets the server for a fresh start</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">resetServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="loadresources"><strong>loadResources</strong></h3>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">loadResources</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="createroute"><strong>createRoute</strong></h3>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">createRoute</span><span class="p">(</span><span class="nx">routePath</span><span class="p">,</span> <span class="nx">routeConfig</span><span class="p">);</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>routePath</td>
+          <td>string</td>
+          <td>YES</td>
+          <td> </td>
+          <td>Your custom Route Path</td>
+        </tr>
+        <tr>
+          <td>routeConfig</td>
+          <td>object</td>
+          <td>NO</td>
+          <td>{}</td>
+          <td>Set your Mock data here</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h3 id="createdefaultroutes"><strong>createDefaultRoutes</strong></h3>
+    
+    <p>Create a default home and routes list api</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">createDefaultRoutes</span><span class="p">();</span></code></pre></div></div>
+    
+    <h3 id="setdata"><strong>setData</strong></h3>
+    
+    <p>set the routes, config, middlewares, injectors, store</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mockServer</span><span class="p">.</span><span class="nx">setData</span><span class="p">(</span><span class="nx">routes</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">middlewares</span><span class="p">,</span> <span class="nx">injectors</span><span class="p">,</span> <span class="nx">store</span><span class="p">);</span>
+    
+    <span class="c1">//or</span>
+    
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setRoutes</span><span class="p">(</span><span class="nx">routes</span><span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setMiddlewares</span><span class="p">(</span><span class="nx">middlewares</span><span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setInjectors</span><span class="p">(</span><span class="nx">injectors</span><span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setStore</span><span class="p">(</span><span class="nx">store</span><span class="p">);</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <p>The same as the <a href="#mockserver">MockServer</a></p>
+    
+    <h3 id="get-data"><strong>Get Data</strong></h3>
+    
+    <p>returns the valid Routes, config, injectors, middlewares, store</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="p">{</span> <span class="nx">routes</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">injectors</span><span class="p">,</span> <span class="nx">middlewares</span><span class="p">,</span> <span class="nx">store</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span> <span class="c1">// returns current valid data of the Mock server.</span>
+    
+    <span class="c1">// or</span>
+    
+    <span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">routes</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">config</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">config</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">middlewares</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">injectors</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">injectors</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">store</span><span class="p">;</span></code></pre></div></div>
+    
+    <h3 id="variables"><strong>Variables</strong></h3>
+    
+    <p>Other useful variables.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+    <code><span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">app</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">server</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">router</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">availableRoutes</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">availableRoutes</span><span class="p">;</span>
+    
+    <span class="kd">const</span> <span class="nx">isServerLaunched</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isServerLaunched</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">isExpressAppCreated</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isExpressAppCreated</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">isServerStarted</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isServerStarted</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">isResourcesLoaded</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isResourcesLoaded</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">isDefaultsCreated</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isDefaultsCreated</span><span class="p">;</span></code></pre></div></div>
+    
+    <h3 id="validators"><strong>Validators</strong></h3>
+    
+    <p>These methods returns a valid data.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+    <code><span class="kd">const</span> <span class="nx">valid_config</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">valid_injectors</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidInjectors</span><span class="p">(</span><span class="nx">injectors</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">valid_routes</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutes</span><span class="p">(</span><span class="nx">routes</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">valid_middlewares</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutes</span><span class="p">(</span><span class="nx">middlewares</span><span class="p">);</span>
+    
+    <span class="kd">const</span> <span class="nx">valid_routePaths</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutePaths</span><span class="p">(</span><span class="nx">routePaths</span><span class="p">);</span> <span class="c1">// returns list of valid routePath</span>
+    <span class="kd">const</span> <span class="nx">valid_routePath</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutePath</span><span class="p">(</span><span class="nx">routePath</span><span class="p">);</span> <span class="c1">// returns valid routePath</span>
+    <span class="kd">const</span> <span class="nx">valid_store</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidStore</span><span class="p">(</span><span class="nx">store</span><span class="p">);</span> <span class="c1">// returns valid store</span></code></pre></div></div>
+    
+    <h3 id="path-check"><strong>Path Check</strong></h3>
+    
+    <p>These other useful methods.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+    <code><span class="kd">const</span> <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">parseUrl</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span> <span class="c1">// returns a valid path.</span>
+    <span class="kd">const</span> <span class="nx">isPathExist</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isPathExist</span><span class="p">(</span><span class="nx">path</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">isDirectoryExist</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isDirectoryExist</span><span class="p">(</span><span class="nx">path</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">isFileExist</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">isFileExist</span><span class="p">(</span><span class="nx">path</span><span class="p">);</span></code></pre></div></div>
+    
+    <h3 id="transformhar"><strong>transformHar</strong></h3>
+    
+    <p>The HTTP Archive format, or HAR, is a JSON-formatted archive file format for logging of a web browser’s interaction with a site. The common extension for these files is .har. <a href="https://en.wikipedia.org/wiki/HAR_(file_format)">Wikipedia</a>.</p>
+    
+    <p>Using this now it is very much simpler to mock your prod data in ease. Follow the steps to mock your prod Data.</p>
+    
+    <p>Step 1 : Open Chrome and developer tools<br/>
+    Step 2 : Start the network listening and run your app which you like to mock the data<br/>
+    Step 3 : Click the export HAR download icon and save it as a <code class="language-plaintext highlighter-rouge">localhost.json</code>.<br/>
+    Step 4 : Now do the following code in index.js</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+    <code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">localhostData</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">./localhost.json</span><span class="dl">"</span><span class="p">);</span>
+    
+    <span class="kd">const</span> <span class="nx">mockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MockServer</span><span class="p">();</span>
+    <span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">transformHar</span><span class="p">(</span>
+      <span class="dl">"</span><span class="s2">./localhost.har</span><span class="dl">"</span><span class="p">,</span>
+      <span class="p">{</span><span class="na">routesToLoop</span><span class="p">:[</span><span class="dl">"</span><span class="s2">*</span><span class="dl">"</span><span class="p">],</span> <span class="na">routesToGroup</span><span class="p">:[</span><span class="dl">"</span><span class="s2">posts/:id</span><span class="dl">"</span><span class="p">]}</span>
+      <span class="p">(</span><span class="nx">entry</span><span class="p">,</span> <span class="nx">statusCode</span><span class="p">,</span> <span class="nx">route</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="p">[</span><span class="nx">route</span><span class="p">]:</span> <span class="nx">response</span> <span class="p">};</span>
+      <span class="p">},</span>
+      <span class="p">(</span><span class="nx">generatedMock</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">generatedMock</span>
+    <span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>harData</td>
+          <td>object/string</td>
+          <td>No</td>
+          <td>{}</td>
+          <td>This object generates the local rest api.</td>
+        </tr>
+        <tr>
+          <td>config</td>
+          <td>object</td>
+          <td>No</td>
+          <td>{}</td>
+          <td>Here you can give list of routesToLoop and routesToGroup</td>
+        </tr>
+        <tr>
+          <td>entryCallback</td>
+          <td>Function</td>
+          <td>No</td>
+          <td>undefined</td>
+          <td>This method is called on each entry of the har data</td>
+        </tr>
+        <tr>
+          <td>finalCallback</td>
+          <td>Function</td>
+          <td>No</td>
+          <td>undefined</td>
+          <td>This method is at the end of the final generated mock</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h3 id="getjson"><strong>getJSON</strong></h3>
+    
+    <p>return all the json files data to a combined json data from the given path</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span><span class="nx">directoryPath</span><span class="p">,</span> <span class="nx">excludeFolders</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>directoryPath</td>
+          <td>string</td>
+          <td>NO</td>
+          <td>”./”</td>
+          <td>Provide the filepath or the directory path</td>
+        </tr>
+        <tr>
+          <td>excludeFolders</td>
+          <td>object</td>
+          <td>No</td>
+          <td>[]</td>
+          <td>list of path or filename to exclude from requiring json files</td>
+        </tr>
+        <tr>
+          <td>recursive</td>
+          <td>boolean</td>
+          <td>No</td>
+          <td>true</td>
+          <td>If true, it search’s for all nested folder</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h3 id="getfileslist"><strong>getFilesList</strong></h3>
+    
+    <p>returns the list of all fileName, extension and its path from the given folder.</p>
+    
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getFilesList</span><span class="p">(</span><span class="nx">directoryPath</span><span class="p">,</span> <span class="nx">excludeFolders</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span></code></pre></div></div>
+    
+    <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>directoryPath</td>
+          <td>string</td>
+          <td>NO</td>
+          <td>”./”</td>
+          <td>Provide the filepath or the directory path</td>
+        </tr>
+        <tr>
+          <td>excludeFolders</td>
+          <td>object</td>
+          <td>No</td>
+          <td>[]</td>
+          <td>list of path or filename to exclude from requiring json files</td>
+        </tr>
+        <tr>
+          <td>recursive</td>
+          <td>boolean</td>
+          <td>No</td>
+          <td>true</td>
+          <td>If true, it search’s for all nested folder</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h2 id="author">Author</h2>
+    
+    <p><strong>Sivaraman</strong> - <a href="sendmsg2siva.siva@gmail.com">sendmsg2siva.siva@gmail.com</a></p>
+    
+    <ul>
+      <li><em>Website</em> - <a href="https://r35007.github.io/Siva_Profile/">https://r35007.github.io/Siva_Profile/</a></li>
+      <li><em>Portfolio</em> - <a href="https://r35007.github.io/Siva_Profile/portfolio">https://r35007.github.io/Siva_Profile/portfolio</a></li>
+      <li><em>GitHub</em> - <a href="https://github.com/R35007/Mock-Server">https://github.com/R35007/Mock-Server</a></li>
+    </ul>
+    
+    <h2 id="license">License</h2>
+    
+    <p>MIT</p>
+    
+    
+          </section>
+      </div>
+    </main>
+  </body>
+</html>
