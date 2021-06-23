@@ -563,3 +563,7 @@ pre.highlight code {
   color: #eaeaea;
   font-size: 1rem;
 }
+
+#table-of-contents-list ul{
+  margin-bottom: 0;
+}
