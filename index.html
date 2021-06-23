@@ -893,7 +893,7 @@
     
     <h3 id="get-data"><strong>Get Data</strong></h3>
     
-    <p>returns the valid Routes, config, injectors, middlewares, store</p>
+    <p>returns the valid Routes, config, middlewares, injectors, store</p>
     
     <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="p">{</span> <span class="nx">routes</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">injectors</span><span class="p">,</span> <span class="nx">middlewares</span><span class="p">,</span> <span class="nx">store</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span> <span class="c1">// returns current valid data of the Mock server.</span>
     
@@ -926,14 +926,14 @@
     <p>These methods returns a valid data.</p>
     
     <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
+      <span class="kd">const</span> <span class="nx">valid_routes</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutes</span><span class="p">(</span><span class="nx">routes</span><span class="p">);</span>
     <code><span class="kd">const</span> <span class="nx">valid_config</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">);</span>
-    <span class="kd">const</span> <span class="nx">valid_injectors</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidInjectors</span><span class="p">(</span><span class="nx">injectors</span><span class="p">);</span>
-    <span class="kd">const</span> <span class="nx">valid_routes</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutes</span><span class="p">(</span><span class="nx">routes</span><span class="p">);</span>
-    <span class="kd">const</span> <span class="nx">valid_middlewares</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutes</span><span class="p">(</span><span class="nx">middlewares</span><span class="p">);</span>
+      <span class="kd">const</span> <span class="nx">valid_middlewares</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidMiddlewares</span><span class="p">(</span><span class="nx">middlewares</span><span class="p">);</span>
+      <span class="kd">const</span> <span class="nx">valid_injectors</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidInjectors</span><span class="p">(</span><span class="nx">injectors</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">valid_store</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidStore</span><span class="p">(</span><span class="nx">store</span><span class="p">);</span> <span class="c1">// returns valid store</span></code></pre></div></div>
     
     <span class="kd">const</span> <span class="nx">valid_routePaths</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutePaths</span><span class="p">(</span><span class="nx">routePaths</span><span class="p">);</span> <span class="c1">// returns list of valid routePath</span>
     <span class="kd">const</span> <span class="nx">valid_routePath</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidRoutePath</span><span class="p">(</span><span class="nx">routePath</span><span class="p">);</span> <span class="c1">// returns valid routePath</span>
-    <span class="kd">const</span> <span class="nx">valid_store</span> <span class="o">=</span> <span class="nx">mockServer</span><span class="p">.</span><span class="nx">getValidStore</span><span class="p">(</span><span class="nx">store</span><span class="p">);</span> <span class="c1">// returns valid store</span></code></pre></div></div>
     
     <h3 id="path-check"><strong>Path Check</strong></h3>
     
@@ -969,6 +969,7 @@
       <span class="p">},</span>
       <span class="p">(</span><span class="nx">generatedMock</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">generatedMock</span>
     <span class="p">);</span>
+    <span class="nx">mockServer</span><span class="p">.</span><span class="nx">setData</span><span class="p">(mock);</span>
     <span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span></code></pre></div></div>
     
     <p><strong><code class="language-plaintext highlighter-rouge">Params</code></strong></p>

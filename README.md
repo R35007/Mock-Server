@@ -846,10 +846,10 @@ The same as the [MockServer](#mockserver)
 
 ### **Get Data**
 
-returns the valid Routes, config, injectors, middlewares
+returns the valid Routes, config, middlewares, injectors, store
 
 ```js
-let { routes, config, injectors, middlewares, store } = mockServer.data; // returns current valid data of the Mock server.
+let { routes, config, middlewares, injectors, store } = mockServer.data; // returns current valid data of the Mock server.
 
 // or
 
@@ -882,10 +882,11 @@ const isDefaultsCreated = mockServer.isDefaultsCreated;
 These methods returns a valid data.
 
 ```js
-const valid_config = mockServer.getValidConfig(config);
-const valid_injectors = mockServer.getValidInjectors(injectors);
-const valid_routes = mockServer.getValidRoutes(routes);
-const valid_middlewares = mockServer.getValidRoutes(middlewares);
+const routes = mockServer.getValidRoutes(routes);
+const config = mockServer.getValidConfig(config);
+const middlewares = mockServer.getValidMiddlewares(middlewares);
+const injectors = mockServer.getValidInjectors(injectors);
+const store = mockServer.getValidStore(store);
 
 const valid_routePaths = mockServer.getValidRoutePaths(routePaths); // returns list of valid routePath
 const valid_routePath = mockServer.getValidRoutePath(routePath); // returns valid routePath
