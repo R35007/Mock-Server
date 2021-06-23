@@ -60,7 +60,7 @@ export class MiddlewareHandlers extends Validators {
 
         const canProceed = this.#redirectIfMissingParams(req, res);
         if (canProceed) {
-          if (!(routeConfig?.fetch !== undefined || routeConfig?.mock !== undefined)) {
+          if (routeConfig.fetch === undefined && routeConfig.mock === undefined) {
             res.locals.data = JSON.parse(JSON.stringify(routeConfig));
           } else {
             if (routeConfig.mockFirst) {

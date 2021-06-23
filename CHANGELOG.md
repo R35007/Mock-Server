@@ -1,6 +1,10 @@
+# v2.1.1
+
+- Bug Fix
+
 # v2.1.0
 
-- removed 
+- removed
   - `res.locals.store.get`
   - `res.locals.store.set`
   - `res.locals.store.clear`

@@ -99,7 +99,8 @@ export class Validators {
 
       const flattenedRoutes = this.#flattenRoutes(userRoutes);
 
-      const routesWithInjectors = this.#mergeRoutesWithInjectors(flattenedRoutes);
+      const construct_valid_routes = this.#formValidRoutes(flattenedRoutes);
+      const routesWithInjectors = this.#mergeRoutesWithInjectors(construct_valid_routes);
       const finalRoutes = this.#getRewrittenPath(routesWithInjectors);
 
       const excludedRouteEntries = Object.entries(finalRoutes)
@@ -327,6 +328,16 @@ export class Validators {
     })
 
     return flattenedRoutes;
+  }
+
+  #formValidRoutes = (routes: Routes): Routes => {
+    const valiedRouteEntries = Object.entries(routes).map(([routePath, routeConfig]) => {
+      if (routeConfig.fetch === undefined && routeConfig.mock === undefined) {
+        return [routePath, { mock: routeConfig }]
+      }
+      return [routePath, routeConfig]
+    })
+    return _.fromPairs(valiedRouteEntries)
   }
 
 }
