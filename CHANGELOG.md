@@ -1,6 +1,6 @@
-# v2.2.1
+# v2.2.2
 
-- Readme updae
+- Readme update
 
 # v2.2.0
 

@@ -567,3 +567,7 @@ pre.highlight code {
 #table-of-contents-list ul{
   margin-bottom: 0;
 }
+
+.img{
+  box-shadow: 0 0 10px black;
+}
