@@ -751,10 +751,10 @@ new MockServer("./routes.json", config).launchServer();
 ## Default Routes
 
 - `Home` - [http://localhost:3000/home](http://localhost:3000/home)
-- `Routes` - [http://localhost:3000/routes](http://localhost:3000/routes)
-- `Store` - [http://localhost:3000/store](http://localhost:3000/store)
-- `Config` - [http://localhost:3000/config](http://localhost:3000/config)
 - `Routes List` - [http://localhost:3000/routesList](http://localhost:3000/routesList)
+- `Routes` - [http://localhost:3000/routes](http://localhost:3000/routes)
+- `Config` - [http://localhost:3000/config](http://localhost:3000/config)
+- `Store` - [http://localhost:3000/store](http://localhost:3000/store)
 
 ## API
 
