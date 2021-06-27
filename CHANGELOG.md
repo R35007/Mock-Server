@@ -1,3 +1,7 @@
+# v2.2.1
+
+- Readme updae
+
 # v2.2.0
 
 - added
@@ -19,7 +23,10 @@
       routeConfig: RouteConfig,
       pathToRegexp: pathToRegexp
     ) => Routes,
-    finalCallback?: (generatedMock: Routes, pathToRegexp: pathToRegexp) => Routes
+    finalCallback?: (
+      generatedMock: Routes,
+      pathToRegexp: pathToRegexp
+    ) => Routes
   ) => Routes;
   ```
 

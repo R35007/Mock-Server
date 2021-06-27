@@ -893,7 +893,7 @@ Other useful variables.
 const app = mockServer.app;
 const server = mockServer.server;
 const router = mockServer.router;
-const routesInfo = mockServer.routesInfo;
+const routesList = mockServer.routesList;
 
 const isServerLaunched = mockServer.isServerLaunched;
 const isExpressAppCreated = mockServer.isExpressAppCreated;
@@ -972,6 +972,13 @@ returns routes string from the given pattern route to match
 ```js
 const matchedList = mockserver.getRouteMatchList("/posts/:id");
 ```
+
+**`Params`**
+
+| Name         | Type   | Required | Default | Description                                         |
+| ------------ | ------ | -------- | ------- | --------------------------------------------------- |
+| routeToMatch | string | YES      |         | Give the route pattern to match.                    |
+| routes       | object | No       | routes  | Give the routes object to compare the route Pattern |
 
 ### **getJSON**
 
