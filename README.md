@@ -169,6 +169,7 @@ For Example:
 {
   "/routeName, /routeName2": {
     // two routes shares the same config and mock data
+    "methods": ["GET"], // Specify Request. If Empty run with all requests
     "delay": 2000, // in milliseconds
     "statusCode": 200, // in number between 100 to 600
     "middlewares": ["loopMock"], // middlewares to be called
@@ -687,6 +688,7 @@ Here are the available optons in `res.locals`
 interface Locals {
   routePath: string;
   routeConfig: {
+    metods?: string[];
     statusCode?: number;
     delay?: number;
     fetch?: string | AxiosRequestConfig;

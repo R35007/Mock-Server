@@ -195,6 +195,7 @@
 <code><span class="p">{</span><span class="w">
   </span><span class="nl">"/routeName, /routeName2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="c1">// two routes shares the same config and mock data</span><span class="w">
+    </span><span class="nl">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"GET"</span><span class="p">],</span><span class="w"> <span class="c1">// Specify Request. If Empty run with all requests</span>
     </span><span class="nl">"delay"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"> </span><span class="c1">// in milliseconds</span><span class="w">
     </span><span class="nl">"statusCode"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="c1">// in number between 100 to 600</span><span class="w">
     </span><span class="nl">"middlewares"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"loopMock"</span><span class="p">],</span><span class="w"> </span><span class="c1">// middlewares to be called</span><span class="w">
@@ -694,6 +695,7 @@
 <code><span class="kr">interface</span> <span class="nx">Locals</span> <span class="p">{</span>
   <span class="nl">routePath</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
   <span class="nl">routeConfig</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nl">methods</span><span class="p">?:</span> <span class="kr">string[]</span><span class="p">;</span>
     <span class="nl">statusCode</span><span class="p">?:</span> <span class="kr">number</span><span class="p">;</span>
     <span class="nl">delay</span><span class="p">?:</span> <span class="kr">number</span><span class="p">;</span>
     <span class="nl">fetch</span><span class="p">?:</span> <span class="kr">string</span> <span class="o">|</span> <span class="kr">AxiosRequestConfig</span><span class="p">;</span>
