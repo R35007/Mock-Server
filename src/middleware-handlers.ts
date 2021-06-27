@@ -197,7 +197,7 @@ export class MiddlewareHandlers extends Validators {
 
   #redirectIfMissingParams = (req: express.Request, res: express.Response): boolean => {
     const params: object = req.params;
-    const windowUrl = this._config.baseUrl === '/' ? req.path : this._config.baseUrl + req.path;
+    const windowUrl = this._config.baseUrl + req.path;
     const hasParams = Object.keys(params).filter((k) => params[k] !== `:${k}`);
     if (Object.keys(params).length > 0 && hasParams.length === 0) {
       const dummyUrl = Object.keys(params).reduce((res, key) => {

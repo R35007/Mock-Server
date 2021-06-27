@@ -1,25 +1,27 @@
 import chalk from "chalk";
 import cors from "cors";
 import express from "express";
+import * as fs from "fs";
 import { Server } from "http";
 import * as _ from "lodash";
-import * as fs from "fs";
 import * as path from "path";
-import { match } from 'path-to-regexp';
+import pathToRegexp, { match } from 'path-to-regexp';
+import { default_Config, default_Injectors, default_Middlewares, default_Routes } from './defaults';
 import { GettersSetters } from './getters-setters';
 import {
   ExpressMiddleware,
   HAR,
   HarEntry,
+  KeyValString,
+  Methods,
   RouteConfig,
   Routes,
   UserConfig,
   UserInjectors,
-  UserMiddlewares, 
+  UserMiddlewares,
   UserRoutes,
   UserStore
 } from "./model";
-import { default_Config, default_Injectors, default_Middlewares, default_Routes } from './defaults';
 
 export class MockServer extends GettersSetters {
 
@@ -128,11 +130,23 @@ export class MockServer extends GettersSetters {
   };
 
   createRoute = (routePath: string, routeConfig: RouteConfig = {}) => {
-    if (!this._availableRoutes.includes(routePath)) {
-      this._availableRoutes.push(this._config.baseUrl === '/' ? routePath : this._config.baseUrl + routePath);
+    if (!this._routesList.includes(this.config.baseUrl + routePath)) {
+      this._routesList.push(this.config.baseUrl + routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
-      this._router?.all(routePath, middlewareList)
+      this.#setRouterByMethod(routePath, middlewareList, routeConfig.methods);
     };
+  }
+
+  #setRouterByMethod = (routePath: string, middlewareList: ExpressMiddleware[], methods: Methods[] = ["ALL"]) => {
+    let valid_methods = methods.filter(m =>
+      ["GET", "POST", "PUT", "PATCH",
+        "DELETE", "OPTIONS", "HEAD", "ALL"].includes(m.toUpperCase()))
+
+    valid_methods = valid_methods.length ? valid_methods : ["ALL"];
+
+    valid_methods.forEach((method: any) => {
+      this._router?.[method.toLowerCase()](routePath, middlewareList)
+    })
   }
 
   #getMiddlewareList = (routePath: string, routeConfig: RouteConfig) => {
@@ -151,35 +165,49 @@ export class MockServer extends GettersSetters {
     if (!this._app) this.createExpressApp();
     if (this._isDefaultsCreated) return;
     const HOME = "/home",
+      ROUTELIST = "/routesList",
       ROUTES = "/routes",
-      STORE = "/store",
-      ROUTELIST = "/routesList";
+      CONFIG = "/config",
+      STORE = "/store";
     const defaultRoutes: string[] = [];
 
-    if (this._availableRoutes.indexOf(ROUTELIST) < 0) {
-      this._availableRoutes.push(ROUTELIST);
-      this._app?.all(ROUTELIST, (_req, res) => {
-        res.send(this._availableRoutes);
-      });
-
-      if (this._availableRoutes.indexOf(HOME) < 0) {
-        defaultRoutes.push(HOME);
-        this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
-      }
-      defaultRoutes.push(ROUTELIST);
+    if (!this._routesList.includes("/")) {
+      this.app?.get("/",(_req, res) => res.redirect(HOME))
     }
 
-    if (this._availableRoutes.indexOf(ROUTES) < 0) {
+    if (!this._routesList.includes(HOME)) {
+      defaultRoutes.push(HOME);
+      this._app?.use(HOME, express.static(path.join(__dirname, "../public")));
+    }
+
+    if (!this._routesList.includes(ROUTELIST)) {
+      defaultRoutes.push(ROUTELIST);
+      this._routesList.push(ROUTELIST);
+      this._app?.get(ROUTELIST, (_req, res) => {
+        res.send(this._routesList);
+      });
+    }
+
+    if (!this._routesList.includes(ROUTES)) {
       defaultRoutes.push(ROUTES);
-      this._availableRoutes.push(ROUTES);
-      this._app?.all(ROUTES, (_req, res) => {
+      this._routesList.push(ROUTES);
+      this._app?.get(ROUTES, (_req, res) => {
         res.send(this._routes);
       });
     }
-    if (this._availableRoutes.indexOf(STORE) < 0) {
+
+    if (!this._routesList.includes(CONFIG)) {
+      defaultRoutes.push(CONFIG);
+      this._routesList.push(CONFIG);
+      this._app?.get(CONFIG, (_req, res) => {
+        res.send(this._config);
+      });
+    }
+
+    if (!this._routesList.includes(STORE)) {
       defaultRoutes.push(STORE);
-      this._availableRoutes.push(STORE);
-      this._app?.all(STORE, (_req, res) => {
+      this._routesList.push(STORE);
+      this._app?.get(STORE, (_req, res) => {
         res.send(this._store);
       });
     }
@@ -198,7 +226,7 @@ export class MockServer extends GettersSetters {
     this._app = undefined;
     this._server = undefined;
     this._router = undefined;
-    this._availableRoutes = [];
+    this._routesList = [];
 
     this._routes = default_Routes;
     this._config = default_Config;
@@ -209,17 +237,17 @@ export class MockServer extends GettersSetters {
 
   transformHar = (
     harData: HAR | string = <HAR>{},
-    config: { routesToLoop?: string[], routesToGroup?: string[] } = {},
-    entryCallback?: (entry: object, statusCode: number, routePath: string, response: any) => Routes,
-    finalCallback?: (generatedMock: Routes) => Routes
+    config: { routesToLoop?: string[], routesToGroup?: string[], routeRewrite?: KeyValString } = {},
+    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp) => Routes,
+    finalCallback?: (generatedMock: Routes, pathToRegexp) => Routes
   ): Routes => {
     try {
-      const { routesToLoop = [], routesToGroup = [] } = config;
+      const { routesToLoop = [], routesToGroup = [], routeRewrite } = config;
       const har = _.isString(harData)
         ? JSON.parse(fs.readFileSync(this.parseUrl(harData), "utf-8"))
         : harData;
       const entries: HarEntry[] = har?.log?.entries || [];
-      const generatedMock: Routes = {};
+      let generatedMock: Routes = {};
 
       entries.forEach((entry: HarEntry) => {
         const route = new URL(entry?.request?.url)?.pathname;
@@ -234,15 +262,18 @@ export class MockServer extends GettersSetters {
           response = responseText;
         }
 
+        const routeConfig = {
+          methods: [entry?.request?.method],
+          statusCode,
+          mock: response
+        }
+
         let uRoutes: Routes = {
-          [routePath]: {
-            statusCode,
-            mock: response
-          }
+          [routePath]: routeConfig
         };
 
         if (_.isFunction(entryCallback)) {
-          uRoutes = entryCallback(entry, statusCode, routePath, response) || {};
+          uRoutes = entryCallback(entry, routePath, routeConfig, pathToRegexp) || {};
         }
 
         const [uRoutePath, uRouteConfig] = Object.entries(uRoutes)[0] || []
@@ -253,8 +284,10 @@ export class MockServer extends GettersSetters {
 
       routesToGroup.length && this.#setGroupMock(generatedMock, routesToGroup);
 
+      generatedMock = this.getRewrittenRoutes(generatedMock, routeRewrite);
+
       if (_.isFunction(finalCallback)) {
-        return finalCallback(generatedMock);
+        return finalCallback(generatedMock, pathToRegexp);
       }
 
       return generatedMock;
@@ -267,17 +300,23 @@ export class MockServer extends GettersSetters {
 
   #setLoopedMock = (generatedMock: Routes, routesToLoop: string[], uroutePath: string, routeConfig: RouteConfig) => {
     const routePath = this.getValidRoutePaths(uroutePath).join(',');
-    if (generatedMock[routePath] && (routesToLoop[0] === '*' || routesToLoop.includes(routePath))) {
-      const mockValue = generatedMock[routePath].mock;
 
+    const currentMock = routeConfig.mock || routeConfig;
+    const currentMethods = routeConfig.methods || [];
+
+    if (generatedMock[routePath] && (routesToLoop[0] === '*' || routesToLoop.includes(routePath))) {
+      const existingMockValue = generatedMock[routePath].mock;
+      const existingMethods = generatedMock[routePath].methods || [];
       if (generatedMock[routePath].middlewares?.[0] === "loopMock") {
-        generatedMock[routePath].mock?.push(routeConfig.mock);
+        generatedMock[routePath].mock?.push(currentMock);
+        generatedMock[routePath].methods = [...new Set(...existingMethods, ...currentMethods)] as Methods[]
       } else {
         generatedMock[routePath] = {
           mock: [
-            mockValue,
-            routeConfig.mock || routeConfig
+            existingMockValue,
+            currentMock
           ],
+          methods: [...new Set(...existingMethods, ...currentMethods)] as Methods[],
           middlewares: ["loopMock"]
         }
       }
@@ -300,6 +339,8 @@ export class MockServer extends GettersSetters {
 
   #groupTogether = (generatedMock: Routes, matchedRoute: string, routeToMatch: string) => {
     generatedMock[routeToMatch].mock[matchedRoute] = generatedMock[matchedRoute].mock;
+    generatedMock[routeToMatch].methods = [...new Set(...generatedMock[routeToMatch].methods || [],
+      ...generatedMock[matchedRoute].methods || [])] as Methods[]
     delete generatedMock[matchedRoute];
   }
 

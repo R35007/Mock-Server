@@ -3,8 +3,7 @@ import express from "express";
 import { Server } from "http";
 import { MiddlewareHandlers } from './middleware-handlers';
 import {
-  GetData, UserConfig, UserStore,
-  UserInjectors, UserMiddlewares, UserRoutes
+  GetData, UserConfig, UserInjectors, UserMiddlewares, UserRoutes, UserStore
 } from './model';
 
 export class GettersSetters extends MiddlewareHandlers {
@@ -12,7 +11,7 @@ export class GettersSetters extends MiddlewareHandlers {
   protected _app: express.Application | undefined;
   protected _router: express.Router | undefined;
   protected _server: Server | undefined;
-  protected _availableRoutes: string[] = [];
+  protected _routesList: string[] = [];
 
   protected _isServerLaunched = false;
   protected _isExpressAppCreated = false;
@@ -92,7 +91,7 @@ export class GettersSetters extends MiddlewareHandlers {
   get app() { return this._app };
   get server() { return this._server }
   get router() { return this._router }
-  get availableRoutes() { return this._availableRoutes }
+  get routesList() { return this._routesList }
 
   get isServerLaunched() { return this._isServerLaunched }
   get isExpressAppCreated() { return this._isExpressAppCreated }

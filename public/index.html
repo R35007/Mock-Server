@@ -4,97 +4,99 @@
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <script src="https://kit.fontawesome.com/1515315868.js" crossorigin="anonymous"></script>
   <title>Mock Server</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="./style.css">
-  <script>
-    function onLoadHandler() {
-      document.getElementById("resource-iframe").contentWindow.document.body.style.color = "#b9b8b8";
-      document.getElementById("resource-iframe").contentWindow.document.body.style.fontSize = "18px";
-      document.getElementById("loader").style.display = "none";
-      setIframeHeader();
-    }
-
-    function setIframeHeader() {
-      const iframesource = document.getElementById("resource-iframe").src;
-      const iframeHeader = document.getElementById("iframe-header");
-      const anchorHeader = iframeHeader.getElementsByTagName("a");
-
-      anchorHeader[0].href = iframesource;
-      anchorHeader[0].innerText = iframesource;
-    }
-  </script>
 </head>
 
 <body>
-  <header class="top-header">
-    <div class="container">
-      <nav>
-        <ul>
-          <li class="title">
+  <div class="d-flex">
+    <div class="resources-container">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark position-sticky top-0">
+        <div class="container">
+          <a class="navbar-brand d-flex align-items-center" href="https://github.com/R35007/Mock-Server">
+            <img src="./mockserverlogo.png" alt="" width="30" class="d-inline-block align-text-top me-2">
             Mock Server
-          </li>
-          <li>
-            <a href="https://github.com/R35007/Mock-Server">
-              <i class="fab fa-github-alt"></i>GitHub
-            </a>
-          </li>
-          <li>
-            <a href="https://r35007.github.io/Siva_Profile/">
-              <i class="fas fa-user"></i>My Profile
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <main>
-    <div class="container">
-        <div id="resources-container">
-          <header>
-            <h2>
-              <a href="#resources-container">Resources</a>
-              <span id="routes-count"></span>
-            </h2>
-            <div>
-              <input type="search" id="search" class="search" oninput="filterRoutes()"
-                placeholder="Search resources here" />
-              <i class="fas fa-search" onclick="filterRoutes()"></i>
-            </div>
-          </header>
-          <div class="resources-wrapper">
-            <div id="resources-list">
-            </div>
-            <div id="noresources" style="display: none"> No resources found</div>
-            <div id="iframe-wrapper">
-              <div id="loader" class="loader-05" style="display : none"></div>
-              <div id="iframe-header"><a style="text-decoration:none" target="_blank"></a>
-              </div>
-              <iframe id="resource-iframe" src="" onload="onLoadHandler()"></iframe>
-            </div>
+          </a>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+              <li class="nav-item me-3">
+                <a class="nav-link" href="https://github.com/R35007/Mock-Server">
+                  <i class="fab fa-github-alt me-2"></i>GitHub
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://r35007.github.io/Siva_Profile/">
+                  <i class="fas fa-user me-2"></i>My Profile
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-
+      </nav>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light position-sticky" style="top: 61px;">
+        <div class="container">
+          <a class="navbar-brand d-flex align-items-center">
+            <span>Resources</span>
+            <span id="resources-count" class="badge bg-secondary ms-3" style="font-size: 0.7rem;"></span>
+          </a>
+          <form class="ms-3 d-flex align-items-center m-0">
+            <input type="search" id="search" class="form-control search" oninput="filterRoutes()"
+              placeholder="Search resources here" aria-label="Search" />
+          </form>
+        </div>
+      </nav>
+      <ul id="resources-list" class="nav nav-pills mt-3 mb-5 mx-4 flex-column p-0 overflow-hidden"></ul>
+      <div class="container px-4">
+        <p>To access and modify resources, you can use any HTTP method:</p>
         <p>
-          To access and modify resources, you can use any HTTP method:
+          <code class="badge bg-secondary me-2">GET</code>
+          <code class="badge bg-secondary me-2">POST</code>
+          <code class="badge bg-secondary me-2">PUT</code>
+          <code class="badge bg-secondary me-2">PATCH</code>
+          <code class="badge bg-secondary me-2">DELETE</code>
+          <code class="badge bg-secondary me-2">OPTIONS</code>
+          <code class="badge bg-secondary me-2">HEAD</code>
         </p>
-        <p>
-          <code>GET</code>
-          <code>POST</code>
-          <code>PUT</code>
-          <code>PATCH</code>
-          <code>DELETE</code>
-          <code>OPTIONS</code>
-        </p>
-
         <h2>Documentation</h1>
-          <p>
-            <a href="https://r35007.github.io/Mock-Server/">
-              README
-            </a>
-          </p>
+          <p><a href="https://r35007.github.io/Mock-Server/" target="blank">README</a></p>
+      </div>
     </div>
-  </main>
+    <div class="data-container position-relative">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark position-sticky top-0">
+        <div class="container-fluid p-0">
+          <a id="resource-header" style="margin: 3.2px" class="btn btn-primary" target="_blank">
+            <i class="me-3 fas fa-external-link-alt"></i>
+            <span></span>
+          </a>
+        </div>
+      </nav>
+      <div id="loader" style="display: none">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <pre name="data" class="w-100">
+<code id="data"></code>
+      </pre>
+    </div>
+  </div>
 
-  <script src="./script.js"></script>
+  <div>
+  </div>
+  <div class=" d-flex p-0">
+    <div id="" style="flex: 1;">
+    </div>
+    <div id="noresources" style="display: none"> No resources found</div>
+  </div>
+  <main>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+      integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+      integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+      crossorigin="anonymous"></script>
+    <script src="./script.js"></script>
 </body>
 
 </html>

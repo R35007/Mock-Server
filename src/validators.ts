@@ -35,7 +35,7 @@ export class Validators {
       const valid_Config = <Config>{};
 
       valid_Config.port = userConfig.port || port;
-      valid_Config.baseUrl = userConfig.baseUrl ? this.getValidRoutePath(userConfig.baseUrl) : baseUrl;
+      valid_Config.baseUrl = userConfig.baseUrl && userConfig.baseUrl.trim() !== "/" ? this.getValidRoutePath(userConfig.baseUrl) : baseUrl;
       valid_Config.rootPath = userConfig.rootPath && this.isDirectoryExist(userConfig.rootPath) ? userConfig.rootPath : rootPath;
       valid_Config.staticUrl = userConfig.staticUrl && this.isDirectoryExist(userConfig.staticUrl) ? this.parseUrl(userConfig.staticUrl) : staticUrl;
       valid_Config.routeRewrite = userConfig.routeRewrite ? this.getValidPathRewrite(userConfig.routeRewrite) : pathRewrite;
@@ -101,7 +101,7 @@ export class Validators {
 
       const construct_valid_routes = this.#formValidRoutes(flattenedRoutes);
       const routesWithInjectors = this.#mergeRoutesWithInjectors(construct_valid_routes);
-      const finalRoutes = this.#getRewrittenPath(routesWithInjectors);
+      const finalRoutes = this.getRewrittenRoutes(routesWithInjectors);
 
       const excludedRouteEntries = Object.entries(finalRoutes)
         .filter(([routePath]) => !this._config.excludeRoutes.includes(routePath));
@@ -166,6 +166,7 @@ export class Validators {
 
   getValidRoutePath = (route: string): string => {
     const routeStr = route.trim();
+    if (routeStr === "/") return routeStr;
     const addedSlashAtFirst = routeStr.startsWith("/") ? routeStr : "/" + routeStr;
     const removedSlashAtLast = addedSlashAtFirst.endsWith("/") ? addedSlashAtFirst.slice(0, -1) : addedSlashAtFirst;
     return removedSlashAtLast;
@@ -296,13 +297,13 @@ export class Validators {
     }, []).filter(Boolean)
   }
 
-  #getRewrittenPath = (routes: Routes): Routes => {
+  getRewrittenRoutes = (routes: Routes, routeRewrite: KeyValString = this._config.routeRewrite): Routes => {
     const rewrittenRoutes = {} as Routes;
 
-    Object.entries(this._config.routeRewrite).forEach(([routePath, pathRewrite]) => {
+    Object.entries(routeRewrite).forEach(([routePath, pathRewrite]) => {
       const matched = match(routePath);
       const toPath = compile(pathRewrite);
-      const matchedRoutes = Object.keys(routes).filter(matched);
+      const matchedRoutes = this.getRouteMatchList(routePath, routes);
       matchedRoutes.forEach(mr => {
         try {
           const paramsAttachedRoute = toPath((matched(mr) as MatchResult).params);
@@ -315,6 +316,11 @@ export class Validators {
     })
 
     return { ...routes, ...rewrittenRoutes }
+  }
+
+  getRouteMatchList = (routeToMatch: string, routes = this._routes): string[] => {
+    const matched = match(routeToMatch);
+    return Object.keys(routes).filter(r => matched(r) || r === routeToMatch);
   }
 
   #flattenRoutes = <T>(object: T): T => {

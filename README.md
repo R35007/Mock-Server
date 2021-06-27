@@ -13,6 +13,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
 - [Route Config](#route-config)
   - [Set Delay Response](#set-delay-response)
   - [Set Custom StatusCode](#set-custom-statuscode)
+  - [Specific Request](#specific-request)
   - [Fetch Data From URL](#fetch-data-from-url)
     - [Fetch File](#fetch-file)
     - [Custom Fetch Options](#custom-fetch-options)
@@ -55,6 +56,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Validators](#validators)
   - [Path Check](#path-check)
   - [transformHar](#transformhar)
+  - [getRouteMatchList](#getroutematchlist)
   - [getJSON](#getjson)
   - [getFilesList](#getfileslist)
 - [Author](#author)
@@ -226,6 +228,28 @@ It must be of type number and between 100 to 600.
 ```
 
 The above `/user/1` route returns the response with a `500` statusCode
+
+### **Specific Request**
+
+Uisng `methods` you can set a specific request to route.
+You can set `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD`.
+
+```jsonc
+{
+  "/user/1": {
+    "mock": {
+      "id": 1,
+      "name": "Leanne Graham",
+      "username": "Bret",
+      "email": "Sincere@april.biz"
+    },
+    "methods": ["GET", "DELETE"]
+  }
+}
+```
+
+The above `/user/1` route can only make `GET` and `DELETE` request.
+Note: If the `methods` is not assigned or empty array then the route can access `ALL` requests.
 
 ### **Fetch Data From URL**
 
@@ -727,6 +751,7 @@ new MockServer("./routes.json", config).launchServer();
 - `Home` - [http://localhost:3000/home](http://localhost:3000/home)
 - `Routes` - [http://localhost:3000/routes](http://localhost:3000/routes)
 - `Store` - [http://localhost:3000/store](http://localhost:3000/store)
+- `Config` - [http://localhost:3000/config](http://localhost:3000/config)
 - `Routes List` - [http://localhost:3000/routesList](http://localhost:3000/routesList)
 
 ## API
@@ -868,7 +893,7 @@ Other useful variables.
 const app = mockServer.app;
 const server = mockServer.server;
 const router = mockServer.router;
-const availableRoutes = mockServer.availableRoutes;
+const routesInfo = mockServer.routesInfo;
 
 const isServerLaunched = mockServer.isServerLaunched;
 const isExpressAppCreated = mockServer.isExpressAppCreated;
@@ -921,11 +946,11 @@ const localhostData = require("./localhost.json");
 const mockServer = new MockServer();
 const mock = mockServer.transformHar(
   "./localhost.har",
-  {routesToLoop:["*"], routesToGroup:["posts/:id"]}
-  (entry, statusCode, route, response) => {
-    return { [route]: response };
+  {routesToLoop:["*"], routesToGroup:["posts/:id"], routeRewrite:{"/posts/:id":"customPosts/:id"}}
+  (entry, routePath, routeConfig, pathToRegexp) => {
+    return { [routePath]: routeConfig };
   },
-  (generatedMock) => generatedMock
+  (generatedMock, pathToRegexp) => generatedMock
 );
 mockServer.setData(mock);
 mockServer.launchServer();
@@ -933,12 +958,20 @@ mockServer.launchServer();
 
 **`Params`**
 
-| Name          | Type          | Required | Default   | Description                                              |
-| ------------- | ------------- | -------- | --------- | -------------------------------------------------------- |
-| harData       | object/string | No       | {}        | This object generates the local rest api.                |
-| config        | object        | No       | {}        | Here you can give list of routesToLoop and routesToGroup |
-| entryCallback | Function      | No       | undefined | This method is called on each entry of the har data      |
-| finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock    |
+| Name          | Type          | Required | Default   | Description                                                            |
+| ------------- | ------------- | -------- | --------- | ---------------------------------------------------------------------- |
+| harData       | object/string | No       | {}        | This object generates the local rest api.                              |
+| config        | object        | No       | {}        | Here you can give list of routesToLoop, routesToGroup and routeRewrite |
+| entryCallback | Function      | No       | undefined | This method is called on each entry of the har data                    |
+| finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock                  |
+
+### **getRouteMatchList**
+
+returns routes string from the given pattern route to match
+
+```js
+const matchedList = mockserver.getRouteMatchList("/posts/:id");
+```
 
 ### **getJSON**
 

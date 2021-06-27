@@ -1,3 +1,28 @@
+# v2.2.0
+
+- added
+  - `methods` in routeConfig. Now we can set a route to a specific methods.
+  - `mockserver.getRewrittenRoutes(routes, routeRewrite)` - returns routes with rewritten route path.
+  - `mockserver.getRouteMatchList(routeToMatch, routes)` - returns list of matched routes to the given pattern
+  - `transformHar` method with additional options. `pathToRegexp` - gives the methods available in `path-to-regexp` npm package
+  ```ts
+  type transformHar = (
+    harData?: HAR | string,
+    config?: {
+      routesToLoop?: string[];
+      routesToGroup?: string[];
+      routeRewrite?: KeyValString;
+    },
+    entryCallback?: (
+      entry: object,
+      routePath: string,
+      routeConfig: RouteConfig,
+      pathToRegexp: pathToRegexp
+    ) => Routes,
+    finalCallback?: (generatedMock: Routes, pathToRegexp: pathToRegexp) => Routes
+  ) => Routes;
+  ```
+
 # v2.1.1
 
 - Bug Fix

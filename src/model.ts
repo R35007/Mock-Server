@@ -7,13 +7,14 @@ export type UserInjectors = string | Injectors;
 export type UserMiddlewares = string | User_Middlewares;
 export type UserStore = string | Object;
 export type defaultMiddlewaresName = 'loopMock' | 'groupMock' | 'crudMock' | 'fetchOnce';
-
+export type Methods = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD" | "ALL"
 
 export type Routes = {
   [key: string]: RouteConfig
 }
 
 export type RouteConfig = {
+  methods?: Methods[];
   statusCode?: number;
   delay?: number;
   fetch?: string | AxiosRequestConfig;

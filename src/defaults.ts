@@ -8,7 +8,7 @@ export const default_Store: Object = {};
 export const default_Config: Config = {
   port: 3000,
   rootPath: "./",
-  baseUrl: "/",
+  baseUrl: "",
   staticUrl: "",
   routeRewrite: {},
   excludeRoutes: [],
