@@ -756,6 +756,10 @@ new MockServer("./routes.json", config).launchServer();
 - `Config` - [http://localhost:3000/config](http://localhost:3000/config)
 - `Store` - [http://localhost:3000/store](http://localhost:3000/store)
 
+[http://localhost:3000/home](http://localhost:3000/home)
+
+![Home Page](https://r35007.github.io/Mock-Server/homePage.png)
+
 ## API
 
 ### **MockServer**
