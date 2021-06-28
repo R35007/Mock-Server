@@ -102,13 +102,11 @@ export class Validators {
       const construct_valid_routes = this.#formValidRoutes(flattenedRoutes);
       const routesWithInjectors = this.#mergeRoutesWithInjectors(construct_valid_routes);
       const finalRoutes = this.getRewrittenRoutes(routesWithInjectors);
-
-      const excludedRouteEntries = Object.entries(finalRoutes)
-        .filter(([routePath]) => !this._config.excludeRoutes.includes(routePath));
+      const excludedRoutes = this.excludeRoutes(finalRoutes)
 
       const valid_routes = this._config.reverseRouteOrder
-        ? _.fromPairs(excludedRouteEntries.reverse())
-        : _.fromPairs(excludedRouteEntries);
+        ? _.fromPairs(Object.entries(excludedRoutes).reverse())
+        : excludedRoutes;
 
       return { ...default_Routes, ...valid_routes };
     } catch (err) {
@@ -318,7 +316,18 @@ export class Validators {
     return { ...routes, ...rewrittenRoutes }
   }
 
-  getRouteMatchList = (routeToMatch: string, routes = this._routes): string[] => {
+  excludeRoutes = (routes: Routes, routesToExclude: string[] = this._config.excludeRoutes): Routes => {
+    const _routesToExclude = routesToExclude
+      .reduce((res: string[], routeToExclude: string) =>
+        res.concat(this.getRouteMatchList(routeToExclude, routes)), []);
+
+    const excludedRouteEntries = Object.entries(routes)
+      .filter(([routePath]) => !_routesToExclude.includes(routePath));
+
+    return _.fromPairs(excludedRouteEntries);
+  }
+
+  getRouteMatchList = (routeToMatch: string, routes: Routes = this._routes): string[] => {
     const matched = match(routeToMatch);
     return Object.keys(routes).filter(r => matched(r) || r === routeToMatch);
   }

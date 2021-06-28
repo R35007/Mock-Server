@@ -75,6 +75,7 @@
               </ul>
             </li>
             <li><a href="#default-routes">Default Routes</a></li>
+            <li><a href="#cli-usage">CLI Usage</a></li>
             <li><a href="#api">API</a>
               <ul>
                 <li><a href="#mockserver">MockServer</a></li>
@@ -765,6 +766,30 @@
     <p><code class="language-plaintext highlighter-rouge"><a href="http://localhost:3000/home">http://localhost:3000/home</a></code></p>
     <a href="https://r35007.github.io/Mock-Server/homePage.png" target="blank"><img src="./homePage.png" alt="Home Page" class="img"></a>
     
+
+    <h2 id="cli-usage">CLI Usage</h2>
+
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mock-server [options]
+
+Options:
+      --help         Show help                            [boolean]
+      --version      Show version number                  [boolean]
+
+  -r, --routes       Path to routes                       [string] [default: "https://jsonplaceholder.typicode.com/db"]
+  -c, --config       Path to Config file                  [string]
+  -m, --middlewares  Path to Middlewares file             [string]
+  -i, --injectors    Path to Injectors file               [string]
+  -st,--store        Path to Store                        [string]
+  -p, --port         Set port                             [number] [default: 3000]
+  -s, --static       Set static files directory           [string]
+
+Examples:
+  mock-server
+  mock-server --r=routes.json
+  mock-server --r=https://github.com/typicode/json-server/db
+  mock-server --r=routes.json --port=4000
+</code></pre>
+
     <h2 id="api">API</h2>
     
     <h3 id="mockserver"><strong>MockServer</strong></h3>

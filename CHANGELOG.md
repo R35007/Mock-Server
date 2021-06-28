@@ -1,3 +1,27 @@
+# v2.3.0
+
+- Bug Fix
+- added CLI Usage with options.
+- `excludeRoutes(routes, routesToExclude)` - returns routes with uexcluded routes.
+- `transformHar` now has `excludedRoutes` in a config.
+  This helps to exclued routes while generating mock from HAR.
+
+```ts
+  type transformHar = (
+    harData?: HAR | string,
+    config?: TransformHARConfig,
+    ...
+  ) => Routes;
+
+  export type TransformHARConfig = {
+    routesToLoop?: string[];
+    routesToGroup?: string[];
+    routeRewrite?: KeyValString;
+    excludeRoutes?: string[];
+  }
+
+```
+
 # v2.2.2
 
 - Readme update

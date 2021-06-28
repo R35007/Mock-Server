@@ -120,3 +120,10 @@ export type GetData = {
   injectors: Injectors;
   middlewares: Middlewares;
 }
+
+export type TransformHARConfig = {
+  routesToLoop?: string[];
+  routesToGroup?: string[];
+  routeRewrite?: KeyValString;
+  excludeRoutes?: string[];
+}

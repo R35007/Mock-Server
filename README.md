@@ -40,6 +40,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Route Rewriter](#config)
   - [Exclude Unwanted Routes](#config)
 - [Default Routes](#default-routes)
+- [CLI Usage](#cli-usage)
 - [API](#api)
   - [MockServer](#mockserver)
   - [launchServer](#launchserver)
@@ -57,6 +58,8 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Path Check](#path-check)
   - [transformHar](#transformhar)
   - [getRouteMatchList](#getroutematchlist)
+  - [getRewrittenRoutes](#getrewrittenroutes)
+  - [excludeRoutes](#excluderoutes)
   - [getJSON](#getjson)
   - [getFilesList](#getfileslist)
 - [Author](#author)
@@ -760,6 +763,30 @@ new MockServer("./routes.json", config).launchServer();
 
 ![Home Page](https://r35007.github.io/Mock-Server/homePage.png)
 
+## CLI Usage
+
+```
+mock-server [options]
+
+Options:
+      --help         Show help                            [boolean]
+      --version      Show version number                  [boolean]
+
+  -r, --routes       Path to routes                       [string] [default: "https://jsonplaceholder.typicode.com/db"]
+  -c, --config       Path to Config file                  [string]
+  -m, --middlewares  Path to Middlewares file             [string]
+  -i, --injectors    Path to Injectors file               [string]
+  -st,--store        Path to Store                        [string]
+  -p, --port         Set port                             [number] [default: 3000]
+  -s, --static       Set static files directory           [string]
+
+Examples:
+  mock-server
+  mock-server --r=routes.json
+  mock-server --r=https://github.com/typicode/json-server/db
+  mock-server --r=routes.json --port=4000
+```
+
 ## API
 
 ### **MockServer**
@@ -964,12 +991,12 @@ mockServer.launchServer();
 
 **`Params`**
 
-| Name          | Type          | Required | Default   | Description                                                            |
-| ------------- | ------------- | -------- | --------- | ---------------------------------------------------------------------- |
-| harData       | object/string | No       | {}        | This object generates the local rest api.                              |
-| config        | object        | No       | {}        | Here you can give list of routesToLoop, routesToGroup and routeRewrite |
-| entryCallback | Function      | No       | undefined | This method is called on each entry of the har data                    |
-| finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock                  |
+| Name          | Type          | Required | Default   | Description                                                                   |
+| ------------- | ------------- | -------- | --------- | ----------------------------------------------------------------------------- |
+| harData       | object/string | No       | {}        | This object generates the local rest api.                                     |
+| config        | object        | No       | {}        | Here you can give routesToLoop, routesToGroup, routeRewrite and excludeRoutes |
+| entryCallback | Function      | No       | undefined | This method is called on each entry of the har data                           |
+| finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock                         |
 
 ### **getRouteMatchList**
 
@@ -985,6 +1012,36 @@ const matchedList = mockserver.getRouteMatchList("/posts/:id");
 | ------------ | ------ | -------- | ------- | --------------------------------------------------- |
 | routeToMatch | string | YES      |         | Give the route pattern to match.                    |
 | routes       | object | No       | routes  | Give the routes object to compare the route Pattern |
+
+### **getRewrittenRoutes**
+
+returns routes along with rewritten routes
+
+```js
+const routes = mockserver.getRewrittenRoutes(routes, {"/posts/:id": "/custom/posts/:id"});
+```
+
+**`Params`**
+
+| Name         | Type   | Required | Default             | Description                                         |
+| ------------ | ------ | -------- | ------------------- | --------------------------------------------------- |
+| routes       | object | YES      |                     | Give the routes object to compare the route Pattern |
+| routeToMatch | string | NO       | config.routeRewrite | Give the routes pattern to rewrite.                 |
+
+### **excludeRoutes**
+
+Helps to excluded routes and returns an unexcluded routes.
+
+```js
+const routes = mockserver.excludeRoutes(routes, ["/posts/:id"]);
+```
+
+**`Params`**
+
+| Name            | Type     | Required | Default              | Description                                         |
+| --------------- | -------- | -------- | -------------------- | --------------------------------------------------- |
+| routes          | object   | YES      |                      | Give the routes object to compare the route Pattern |
+| routesToExclude | string[] | NO       | config.excludeRoutes | Give the route pattern to exclude routes.           |
 
 ### **getJSON**
 
