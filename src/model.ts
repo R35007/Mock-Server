@@ -21,6 +21,7 @@ export type RouteConfig = {
   mock?: any;
   mockFirst?: boolean;
   middlewares?: Array<defaultMiddlewaresName | string>;
+  [key: string]: any;
 }
 
 export type User_Config = {

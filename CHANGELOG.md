@@ -1,3 +1,7 @@
+# v2.3.1
+
+- `transformHar` bug fix
+
 # v2.3.0
 
 - Bug Fix

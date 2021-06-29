@@ -259,7 +259,7 @@ export class MockServer extends GettersSetters {
       generatedMock = this.excludeRoutes(generatedMock, excludeRoutes)
 
       if (_.isFunction(finalCallback)) {
-        return finalCallback(generatedMock, pathToRegexp);
+        return finalCallback(generatedMock, pathToRegexp) || {};
       }
 
       return generatedMock;
@@ -306,9 +306,10 @@ export class MockServer extends GettersSetters {
         uRoutes = entryCallback(entry, routePath, routeConfig, pathToRegexp) || {};
       }
 
-      const [uRoutePath, uRouteConfig] = Object.entries(uRoutes)[0] || []
-
-      this.#setLoopedMock(generatedMock, routesToLoop, uRoutePath, uRouteConfig);
+      if(Object.entries(uRoutes).length){
+        const [uRoutePath, uRouteConfig] = Object.entries(uRoutes)[0];
+        this.#setLoopedMock(generatedMock, routesToLoop, uRoutePath, uRouteConfig);
+      }
 
     });
 
