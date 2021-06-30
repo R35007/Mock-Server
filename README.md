@@ -799,7 +799,8 @@ const mockServer = new MockServer(
   "./routes.json",
   "./config.json",
   "./middlewares.js",
-  "./injectors.json"
+  "./injectors.json",
+  "./store.json"
 ).launcherServer();
 mockServer.launchServer(); // starts the mock server.
 
@@ -814,6 +815,7 @@ mockServer.launchServer(); // starts the mock server.
 | config      | string / object | No       | This object sets the port, common middleware and delay  |
 | middlewares | string / object | No       | Here you initialize the needed custom middlewares       |
 | injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
+| store       | string / object | No       | Helps to store values and share between routes          |
 
 ### **launchServer**
 

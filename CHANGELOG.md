@@ -1,3 +1,7 @@
+# v2.4.2
+
+- drag handle has been provided in homepage to resize the routes view an data view.
+
 # v2.4.1
 
 - Now has ability to render image and other files as a response in homepage

@@ -8,7 +8,7 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="./style.css">
   <script>
-    function onIframeLoadHandler($event){
+    function onIframeLoadHandler($event) {
       document.getElementById("loader").style.display = "none";
       $event.contentWindow.document.body.style.color = "#dcdcdc";
       $event.contentWindow.document.body.style.fontSize = "18px";
@@ -17,7 +17,7 @@
       $event.contentWindow.document.body.style.margin = "0";
 
       const pre = $event.contentWindow.document.body.getElementsByTagName("pre");
-      if(pre && pre[0]){
+      if (pre && pre[0]) {
         pre[0].style.margin = "0";
       }
     }
@@ -25,8 +25,8 @@
 </head>
 
 <body>
-  <div class="d-flex">
-    <div class="resources-container custom-scrollbar">
+  <div id="container" class="d-flex h-100">
+    <div id="resources-container" class="custom-scrollbar">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark position-sticky top-0">
         <div class="container">
           <a class="navbar-brand d-flex align-items-center" href="https://github.com/R35007/Mock-Server" target="blank">
@@ -77,7 +77,8 @@
           <p><a href="https://r35007.github.io/Mock-Server/" target="blank">README</a></p>
       </div>
     </div>
-    <div class="data-container position-relative custom-scrollbar">
+    <div id="separator"></div>
+  <div id="data-container" style="width: 600px;" class="position-relative custom-scrollbar">
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary position-sticky top-0 p-0">
         <div class="container-fluid p-0">
           <a title="open in new tab" id="resource-header" style="margin: 3.2px" class="btn btn-primary" target="_blank">
@@ -118,6 +119,56 @@
       integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
       crossorigin="anonymous"></script>
     <script src="./script.js"></script>
+    <script>
+      const $resourcesContainer = document.getElementById("resources-container");
+      const $dataContainer = document.getElementById("data-container");
+      // A function is used for dragging and moving
+      function dragElement(element) {
+        var md; // remember mouse down info
+        element.onmousedown = onMouseDown;
+
+        function onMouseDown(e) {
+          md = {
+            e,
+            offsetLeft: element.offsetLeft,
+            offsetTop: element.offsetTop,
+            resourcesContainerWidth: $resourcesContainer.offsetWidth,
+            dataContainerWidth: $dataContainer.offsetWidth
+          };
+
+          element.style.width = "10px";
+          $iframeData.style.pointerEvents = "none";
+          document.onmousemove = onMouseMove;
+          document.onmouseup = () => {
+            element.style.width = "6px";
+            $iframeData.style.pointerEvents = "all";
+            document.onmousemove = document.onmouseup = null; // clears drag event
+          }
+        }
+
+        function onMouseMove(e) {
+          var delta = {
+            x: e.clientX - md.e.clientX,
+            y: e.clientY - md.e.clientY
+          };
+
+          // Prevent negative-sized elements
+          delta.x = Math.min(Math.max(delta.x, -md.resourcesContainerWidth), md.dataContainerWidth);
+          let resourcesContainerWidth = md.resourcesContainerWidth + delta.x;
+          let dataContainerWidth = md.dataContainerWidth - delta.x;
+          
+          if (resourcesContainerWidth>=500 && dataContainerWidth>=500) {
+            element.style.left = md.offsetLeft + delta.x + "px";
+            // $resourcesContainer.style.width = resourcesContainerWidth + "px";
+            $dataContainer.style.width = dataContainerWidth + "px";
+          }
+        }
+      }
+
+
+      dragElement(document.getElementById("separator"));
+
+    </script>
 </body>
 
 </html>
