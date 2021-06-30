@@ -791,7 +791,7 @@ Examples:
 
 ### **MockServer**
 
-This is a constructor to initialize the routes, config, middlewares, Injectors.
+This is a constructor to initialize the routes, config, middlewares, Injectors, store.
 
 ```js
 const { MockServer } = require("@r35007/mock-server");

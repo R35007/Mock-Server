@@ -797,7 +797,7 @@ Examples:
     
     <h3 id="mockserver"><strong>MockServer</strong></h3>
     
-    <p>This is a constructor to initialize the routes, config, middlewares, Injectors.</p>
+    <p>This is a constructor to initialize the routes, config, middlewares, Injectors, store.</p>
     
     <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight">
 <code><span class="kd">const</span> <span class="p">{</span> <span class="nx">MockServer</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@r35007/mock-server</span><span class="dl">"</span><span class="p">);</span>
@@ -806,6 +806,7 @@ Examples:
     <span class="dl">"</span><span class="s2">./config.json</span><span class="dl">"</span><span class="p">,</span>
     <span class="dl">"</span><span class="s2">./middlewares.js</span><span class="dl">"</span><span class="p">,</span>
     <span class="dl">"</span><span class="s2">./injectors.json</span><span class="dl">"</span>
+    <span class="dl">"</span><span class="s2">./store.json</span><span class="dl">"</span>
   <span class="p">).</span><span class="nx">launcherServer</span><span class="p">();</span>
 <span class="nx">mockServer</span><span class="p">.</span><span class="nx">launchServer</span><span class="p">();</span> <span class="c1">// starts the mock server.</span>
     
@@ -846,6 +847,12 @@ Examples:
           <td>string / object</td>
           <td>No</td>
           <td>Helps to inject a route configs for the existing routes</td>
+        </tr>
+        <tr>
+          <td>store</td>
+          <td>string / object</td>
+          <td>No</td>
+          <td>Helps to store values and share the value between routes</td>
         </tr>
       </tbody>
     </table>
