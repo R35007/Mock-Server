@@ -984,7 +984,7 @@ const entryCallback = (entry, routePath, routeConfig, pathToRegexp) => {
 
 const finallCallback = (harData, generatedMock, pathToRegexp) => generatedMock;
 
-const mock = mockServer.transformHar(
+const mock = mockServer.generateMockFromHAR(
   "./localhost.har",
   {
     routesToLoop: ["*"],

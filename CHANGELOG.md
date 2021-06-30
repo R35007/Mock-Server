@@ -1,4 +1,4 @@
-# v2.4.0
+# v2.4.1
 
 - Now has ability to render image and other files as a response in homepage
 - Download option is given near the redirect link in homepage.
@@ -6,7 +6,7 @@
 - Ui improvements
 - `finalCallback` in `generateMockFromHAR` now has the harData as the first param
 
-```js
+```ts
   type generateMockFromHAR = (
     harData?: HAR | string,
     config?: TransformHARConfig,
