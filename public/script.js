@@ -12,7 +12,8 @@ const $resourcesList = document.getElementById("resources-list");
 const $resourcesCount = document.getElementById("resources-count");
 const $search = document.getElementById("search");
 const $loader = document.getElementById("loader");
-const $data = document.getElementById("data");
+const $iframeData = document.getElementById("iframe-data");
+const $download = document.getElementById("download");
 
 async function init() {
   localhost = window.location.href.replace(/\/home.*/gi, "");
@@ -58,7 +59,7 @@ function NoResource() {
 function ResourceItem(routePath, routeConfig) {
   return `
   <li class="nav-item align-items-center w-100 mt-1" style="display: flex">
-    <a class="nav-link p-2 px-3 me-2 d-block ${routeConfig.isDefault ? 'default' : ''}" onclick="setData(this,'${
+    <a class="nav-link p-2 px-3 me-2 d-block ${routeConfig.isDefault ? 'default' : ''}" onclick="setIframeData(this,'${
       localhost + routePath
     }')" type="button">
       <span style="word-break:break-all">${routePath}</span>
@@ -87,24 +88,15 @@ function setRoutesCount(totalRoutesCount, filteredRoutesCount, searchText) {
   $resourcesCount.innerHTML = count;
 }
 
-async function setData($event, url) {
+async function setIframeData($event, url) {
   clearActiveLink();
   $event.classList.add("active");
-
+  $iframeData.contentWindow.document.open();
+  $iframeData.contentWindow.document.close();
   $loader.style.display = "grid";
   serResourceHeader(url);
-  const dataText = await window.fetch(url).then((response) => response.text())
-  .catch(err => err);
-  
-  let dataStr;
-  try {
-    dataStr = JSON.stringify(JSON.parse(dataText), null, 2);
-  } catch (err) {
-    dataStr = dataText;
-  }
-  
-  $data.innerText = dataStr.trim();
-  $loader.style.display = "none";
+  setDownload(url);
+  $iframeData.src = url;
 }
 
 function clearActiveLink() {
@@ -117,6 +109,11 @@ function clearActiveLink() {
 function serResourceHeader(url) {
   $resourceHeader.href = url;
   $resourceHeader.children[1].innerHTML = url;
+}
+
+function setDownload(url) {
+  $download.href = url;
+  $download.style.pointerEvents = "all";
 }
 
 function filterRoutes() {

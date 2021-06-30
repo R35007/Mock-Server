@@ -56,7 +56,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Variables](#variables)
   - [Validators](#validators)
   - [Path Check](#path-check)
-  - [transformHar](#transformhar)
+  - [generateMockFromHAR](#generatemockfromhar)
   - [getRouteMatchList](#getroutematchlist)
   - [getRewrittenRoutes](#getrewrittenroutes)
   - [excludeRoutes](#excluderoutes)
@@ -961,7 +961,7 @@ const isDirectoryExist = mockServer.isDirectoryExist(path);
 const isFileExist = mockServer.isFileExist(path);
 ```
 
-### **transformHar**
+### **generateMockFromHAR**
 
 The HTTP Archive format, or HAR, is a JSON-formatted archive file format for logging of a web browser's interaction with a site. The common extension for these files is .har. [Wikipedia](<https://en.wikipedia.org/wiki/HAR_(file_format)>).
 
@@ -977,13 +977,22 @@ const { MockServer } = require("@r35007/mock-server");
 const localhostData = require("./localhost.json");
 
 const mockServer = new MockServer();
+
+const entryCallback = (entry, routePath, routeConfig, pathToRegexp) => {
+  return { [routePath]: routeConfig };
+};
+
+const finallCallback = (harData, generatedMock, pathToRegexp) => generatedMock;
+
 const mock = mockServer.transformHar(
   "./localhost.har",
-  {routesToLoop:["*"], routesToGroup:["posts/:id"], routeRewrite:{"/posts/:id":"customPosts/:id"}}
-  (entry, routePath, routeConfig, pathToRegexp) => {
-    return { [routePath]: routeConfig };
+  {
+    routesToLoop: ["*"],
+    routesToGroup: ["posts/:id"],
+    routeRewrite: { "/posts/:id": "customPosts/:id" },
   },
-  (generatedMock, pathToRegexp) => generatedMock
+  entryCallback,
+  finallCallback
 );
 mockServer.setData(mock);
 mockServer.launchServer();
@@ -997,6 +1006,19 @@ mockServer.launchServer();
 | config        | object        | No       | {}        | Here you can give routesToLoop, routesToGroup, routeRewrite and excludeRoutes |
 | entryCallback | Function      | No       | undefined | This method is called on each entry of the har data                           |
 | finalCallback | Function      | No       | undefined | This method is at the end of the final generated mock                         |
+
+Note: If using VS Code extension, You can give the `entryCallback` and `finalCallback` in the `middlewares.js` when using the command `Generate Mock From HAR`
+
+```js
+exports.entryCallback = (entry, routePath, routeConfig, pathToRegexp) => {
+  // your code goes here
+};
+
+exports.finalCallback = (harData, generatedMock, pathToRegexp) => {
+  // your code goes here
+  // Note: this method will always be called even in catch block when something went wrong;
+};
+```
 
 ### **getRouteMatchList**
 
@@ -1018,7 +1040,9 @@ const matchedList = mockserver.getRouteMatchList("/posts/:id");
 returns routes along with rewritten routes
 
 ```js
-const routes = mockserver.getRewrittenRoutes(routes, {"/posts/:id": "/custom/posts/:id"});
+const routes = mockserver.getRewrittenRoutes(routes, {
+  "/posts/:id": "/custom/posts/:id",
+});
 ```
 
 **`Params`**

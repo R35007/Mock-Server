@@ -1,3 +1,32 @@
+# v2.4.0
+
+- Now has ability to render image and other files as a response in homepage
+- Download option is given near the redirect link in homepage.
+- renamed `transformHar` to `generateMockFromHAR`
+- Ui improvements
+- `finalCallback` in `generateMockFromHAR` now has the harData as the first param
+
+```js
+  type generateMockFromHAR = (
+    harData?: HAR | string,
+    config?: TransformHARConfig,
+    entryCallback?: (
+      entry: object,
+      routePath: string,
+      routeConfig: RouteConfig,
+      pathToRegexp: pathToRegexp
+    ) => Routes,
+    finalCallback?: (
+      harData: any
+      generatedMock: Routes,
+      pathToRegexp: pathToRegexp
+    ) => any
+  ) => Routes;
+```
+
+- The `finalCallback` will always be called even if it went to catch block if anything went wrong.
+- CLI default routes is changed from `https://jsonplaceholder.typicode.com/db` to `http://jsonplaceholder.typicode.com/db`
+
 # v2.3.1
 
 - `transformHar` bug fix

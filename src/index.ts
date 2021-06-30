@@ -234,11 +234,11 @@ export class MockServer extends GettersSetters {
     this._store = {};
   };
 
-  transformHar = (
+  generateMockFromHAR = (
     harData: HAR | string = <HAR>{},
     config: TransformHARConfig = {},
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp) => Routes,
-    finalCallback?: (generatedMock: Routes, pathToRegexp) => Routes
+    finalCallback?: (harData: any, generatedMock: Routes, pathToRegexp) => Routes
   ): Routes => {
     try {
       const {
@@ -259,14 +259,14 @@ export class MockServer extends GettersSetters {
       generatedMock = this.excludeRoutes(generatedMock, excludeRoutes)
 
       if (_.isFunction(finalCallback)) {
-        return finalCallback(generatedMock, pathToRegexp) || {};
+        return finalCallback(har, generatedMock, pathToRegexp) || {};
       }
-
+      
       return generatedMock;
     } catch (err) {
       console.error('transformHar : ' + chalk.red(err.message));
       if (this._config.throwError) throw new Error(err);
-      return {} as Routes;
+      return _.isFunction(finalCallback) ? finalCallback(harData, {}, pathToRegexp) || {} : {}
     }
   };
 

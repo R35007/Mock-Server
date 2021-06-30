@@ -7,6 +7,21 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="./style.css">
+  <script>
+    function onIframeLoadHandler($event){
+      document.getElementById("loader").style.display = "none";
+      $event.contentWindow.document.body.style.color = "#dcdcdc";
+      $event.contentWindow.document.body.style.fontSize = "18px";
+      $event.contentWindow.document.body.style.lineHeight = "1.7rem";
+      $event.contentWindow.document.body.style.padding = "20px";
+      $event.contentWindow.document.body.style.margin = "0";
+
+      const pre = $event.contentWindow.document.body.getElementsByTagName("pre");
+      if(pre && pre[0]){
+        pre[0].style.margin = "0";
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -14,20 +29,20 @@
     <div class="resources-container custom-scrollbar">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark position-sticky top-0">
         <div class="container">
-          <a class="navbar-brand d-flex align-items-center" href="https://github.com/R35007/Mock-Server">
+          <a class="navbar-brand d-flex align-items-center" href="https://github.com/R35007/Mock-Server" target="blank">
             <img src="./mockserverlogo.png" alt="" width="30" class="d-inline-block align-text-top me-2">
             Mock Server
           </a>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               <li class="nav-item me-3">
-                <a class="nav-link" href="https://github.com/R35007/Mock-Server">
+                <a class="nav-link" href="https://github.com/R35007/Mock-Server" target="blank">
                   <i class="fab fa-github-alt me-2"></i>GitHub
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="https://r35007.github.io/Siva_Profile/">
-                  <i class="fas fa-user me-2"></i>My Profile
+                <a class="nav-link" href="https://r35007.github.io/Mock-Server/" target="blank">
+                  <i class="fab fa-readme me-2"></i>Readme
                 </a>
               </li>
             </ul>
@@ -63,22 +78,28 @@
       </div>
     </div>
     <div class="data-container position-relative custom-scrollbar">
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark position-sticky top-0">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary position-sticky top-0 p-0">
         <div class="container-fluid p-0">
-          <a id="resource-header" style="margin: 3.2px" class="btn btn-primary" target="_blank">
+          <a title="open in new tab" id="resource-header" style="margin: 3.2px" class="btn btn-primary" target="_blank">
             <i class="me-3 fas fa-external-link-alt"></i>
             <span></span>
+          </a>
+          <a title="download" id="download" download href="" style="pointer-events: none;">
+            <i class="fas fa-download"></i>
           </a>
         </div>
       </nav>
       <div id="loader" style="display: none">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+        <div class="loader-wrapper">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Processing...</span>
+          </div>
+          <div style="margin-left: 15px;">Processing...</div>
         </div>
       </div>
-      <pre name="data" class="w-100">
-<code id="data"></code>
-      </pre>
+      <div id="iframe-container" style="height: calc(100% - 45px)">
+        <iframe id="iframe-data" src="" class="w-100 h-100" frameborder="0" onload="onIframeLoadHandler(this)"></iframe>
+      </div>
     </div>
   </div>
 

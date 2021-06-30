@@ -15,19 +15,26 @@ interface Options {
   store: string;
   port: number;
   static: string;
+  r: string;
+  c: UserConfig;
+  m: string;
+  i: string;
+  st: string;
+  p: number;
+  s: string;
   _: (string | number)[];
   $0: string;
 }
 
 function parseCommandLine() {
   let options: Options = yargs.options({
-    routes: { type: "string", alias: "r", default: "https://jsonplaceholder.typicode.com/db", description: "Path to routes" },
-    config: { type: "string", alias: "c", description: "Path to Config file" },
-    middlewares: { type: "string", alias: "m", description: "Path to Middlewares file. Note It must be a .js file" },
-    injectors: { type: "string", alias: "i", description: "Path to Injectors file" },
-    store: { type: "string", alias: "st", description: "Path to Store" },
-    port: { type: "number", alias: "p", default: 3000, description: "Set port" },
-    static: { type: "string", alias: "s", description: "Set static files directory" },
+    r: { type: "string", alias: "routes", default: "http://jsonplaceholder.typicode.com/db", description: "Path to routes" },
+    c: { type: "string", alias: "config", description: "Path to Config file" },
+    m: { type: "string", alias: "middlewares", description: "Path to Middlewares file. Note It must be a .js file" },
+    i: { type: "string", alias: "injectors", description: "Path to Injectors file" },
+    st: { type: "string", alias: "store", description: "Path to Store" },
+    p: { type: "number", alias: "port", default: 3000, description: "Set port" },
+    s: { type: "string", alias: "static", description: "Set static files directory" },
   }).argv as Options;
 
   if (options.port !== 3000 || options.static) {

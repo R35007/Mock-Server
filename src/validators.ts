@@ -133,10 +133,14 @@ export class Validators {
   };
 
   #requireData = (data: any): object => {
-    if (_.isString(data) && this.isFileExist(data)) {
+    if (_.isString(data) && this.isPathExist(data)) {
       const parsedUrl = this.parseUrl(data)
-      delete require.cache[parsedUrl];
-      return path.extname(parsedUrl) === '.js' ? require(parsedUrl) : this.getJSON(data);
+
+      if(path.extname(parsedUrl) === '.js' && this.isFileExist(data)){
+        delete require.cache[parsedUrl];
+        return require(parsedUrl);
+      }
+      return this.getJSON(data);
     } else if (_.isPlainObject(data)) {
       return data
     }
