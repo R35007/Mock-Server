@@ -1,10 +1,10 @@
 #! /usr/bin/env node
 import axios from 'axios';
 import chalk from "chalk";
-import { MockServer } from ".";
-import { UserConfig } from './model';
-import * as yargs from 'yargs';
 import * as path from 'path';
+import * as yargs from 'yargs';
+import { MockServer } from "../server";
+import { UserConfig } from '../server/model';
 
 interface Options {
   [x: string]: unknown;
@@ -28,7 +28,7 @@ interface Options {
 
 function parseCommandLine() {
   let options: Options = yargs.options({
-    r: { type: "string", alias: "routes", default: "http://jsonplaceholder.typicode.com/db", description: "Path to routes" },
+    r: { type: "string", alias: "routes", description: "Path to routes" },
     c: { type: "string", alias: "config", description: "Path to Config file" },
     m: { type: "string", alias: "middlewares", description: "Path to Middlewares file. Note It must be a .js file" },
     i: { type: "string", alias: "injectors", description: "Path to Injectors file" },
@@ -39,7 +39,7 @@ function parseCommandLine() {
 
   if (options.port !== 3000 || options.static) {
     options.config = {
-      staticUrl: options.static,
+      static: options.static,
       port: options.port
     }
   }
@@ -53,7 +53,7 @@ async function init() {
     let { routes, config, middlewares, injectors, store } = parseCommandLine();
 
     if (routes.startsWith("http")) {
-      routes = await axios.get(routes).then(resp => resp.data).catch(_err => { });
+      routes = await axios.get(routes).then(resp => resp.data).catch(_err => undefined);
     } else {
       routes = path.resolve(process.cwd(), routes);
     }
