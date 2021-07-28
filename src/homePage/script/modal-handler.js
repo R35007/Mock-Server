@@ -69,10 +69,10 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   const routeConfig = {
     statusCode: parseInt($routeConfigForm.statusCode.value) || '',
     delay: parseInt($routeConfigForm.delay.value) || '',
+    fetchCount: parseInt($routeConfigForm.fetchCount.value) || '',
     fetch: fetch || '',
-    fetchCount: parseInt($routeConfigForm.fetchCount.value) ?? 1,
-    skipFetchError: $routeConfigForm.skipFetchError.checked,
     mock: mock || '',
+    skipFetchError: $routeConfigForm.skipFetchError.checked,
     middlewares: $routeConfigForm.middlewares?.value?.toLowerCase().split(",").filter(Boolean) || [],
     _fetchData: _fetchData || '',
     _fetchError: _fetchError || '',
@@ -109,10 +109,11 @@ $routeConfigForm.addEventListener("submit", async function (e) {
     request = routeConfig;
   } else {
     // Create New Route
-    if(!(routeConfig.delay+'').length) delete routeConfig.delay;
-    if(!(routeConfig.statusCode+'').length) delete routeConfig.statusCode;
-    if(!routeConfig.fetch.length) delete routeConfig.fetch;
-    if(!routeConfig.mock.length) delete routeConfig.mock;
+    if(typeof routeConfig.delay !== 'number') delete routeConfig.delay;
+    if(typeof routeConfig.statusCode !== 'number') delete routeConfig.statusCode;
+    if(typeof routeConfig.fetchCount !== 'number') delete routeConfig.fetchCount;
+    if(!routeConfig.fetch) delete routeConfig.fetch;
+    if(!routeConfig.mock) delete routeConfig.mock;
     delete routeConfig._fetchData;
     delete routeConfig._fetchError;
     delete routeConfig._store;
