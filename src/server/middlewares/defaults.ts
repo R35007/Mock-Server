@@ -5,6 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
+import { Config } from '../../../dist/server/model';
 import Default_Config from '../config';
 import { Default_Options } from '../model';
 const errorhandler = require('errorhandler');
@@ -12,17 +13,17 @@ const errorhandler = require('errorhandler');
 export default (opts: Default_Options) => {
 
 
-  opts = { ...Default_Config, ...opts }
+  const _opts = { ...Default_Config, ...opts } as Config;
 
   const arr: any[] = [];
 
   // Compress all requests
-  if (!opts.noGzip) {
+  if (!_opts.noGzip) {
     arr.push(compression());
   }
 
   // Enable CORS for all the requests, including static files
-  if (!opts.noCors) {
+  if (!_opts.noCors) {
     arr.push(cors({
       origin: true,
       credentials: true
@@ -35,10 +36,12 @@ export default (opts: Default_Options) => {
   }
 
   // Serve static files
-  arr.push(express.static(opts.staticDir!));
+  const router = express.Router();
+  router.use(_opts.base, express.static(_opts.staticDir!))
+  arr.push(router);
 
   // Logger
-  if (opts.logger) {
+  if (_opts.logger) {
     arr.push(morgan('dev', {
       skip: req => process.env.NODE_ENV === 'test' || 
       req.url === '/favicon.ico'
@@ -65,7 +68,7 @@ export default (opts: Default_Options) => {
   });
 
   // Read-only
-  if (opts.readOnly) {
+  if (_opts.readOnly) {
     arr.push((req, res, next) => {
       if (req.method === 'GET') {
         next(); // Continue
@@ -76,7 +79,7 @@ export default (opts: Default_Options) => {
   } // Add middlewares
 
 
-  if (opts.bodyParser) {
+  if (_opts.bodyParser) {
     arr.push(express.urlencoded({ extended: true }));
     arr.push(express.json({ limit: '10mb' }));
   }

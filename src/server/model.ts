@@ -54,6 +54,7 @@ export type Config = {
 }
 
 export type Default_Options = {
+  base?: string;
   staticDir?: string;
   noGzip?: boolean;
   noCors?: boolean;

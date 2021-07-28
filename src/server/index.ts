@@ -43,11 +43,11 @@ export class MockServer extends GettersSetters {
   launchServer = async () => {
     const app = this.app;
 
-    const defaults = this.defaults();
-    app.use(defaults);
-
     const rewriter = this.rewriter();
     app.use(rewriter);
+
+    const defaults = this.defaults();
+    app.use(defaults);
 
     this.router = this.resource();
     app.use(this.config.base, this.router);

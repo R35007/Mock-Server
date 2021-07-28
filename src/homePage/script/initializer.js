@@ -23,5 +23,13 @@ const $routeConfigForm = document.getElementById("route-config-form");
 const $formError = document.getElementById("form-error");
 const $toast = document.getElementById("toast");
 
-const $routeBsModal = new bootstrap.Modal($routeModal);
-const $bsToast = new bootstrap.Toast($toast, { anumation: true, delay: 2000 });
+let $routeBsModal;
+let $bsToast;
+
+try{
+  $routeBsModal = new bootstrap.Modal($routeModal);
+  $bsToast = new bootstrap.Toast($toast, { anumation: true, delay: 2000 });
+}catch{
+  $routeBsModal = {};
+  $bsToast = {};
+}

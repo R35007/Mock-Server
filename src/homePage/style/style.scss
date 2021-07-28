@@ -60,7 +60,7 @@
       display: flex;
       flex-wrap: wrap;
       #add-resource {
-        border: 1px dashed var(--bs-primary);
+        border: 1px dashed rgba(var(--bs-primary-rgb),0.4);
         background: rgba(var(--bs-primary-rgb), 3%);
         transition: all 0.2s linear;
         &:hover {
@@ -89,6 +89,16 @@
           padding-left: 0.5rem;
           opacity: 0;
           transition: opacity 0.15s linear;
+          .icon{
+            background: var(--bs-blue);
+            display: inline-block;
+            width: 18px;
+            color: white;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bolder;
+          }
           &:hover {
             opacity: 0.9;
             padding: 0.5rem 0.6rem;
@@ -111,6 +121,12 @@
           color: #fff;
           .nav-link {
             color: currentColor;
+          }
+          .info-icon{
+            .icon{
+              background-color: #fff;
+              color:var(--bs-primary)
+            }
           }
         }
       }

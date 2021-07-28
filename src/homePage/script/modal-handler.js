@@ -1,6 +1,6 @@
 function openModal($button) {
   hideFormError();
-  $routeBsModal.show();
+  $routeBsModal?.show?.();
   const modalType = $button.getAttribute('data-type');
   const _id = $button.getAttribute('data-id');
   modalType === "update" ? updateRoute(_id) : addRoute(_id);
@@ -131,7 +131,7 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   }).then((res) => res.json());
 
   createResourcesList(resources);
-  $routeBsModal.hide();
+  $routeBsModal?.hide?.();
 
   _id ? showToast(`${routeConfig.routePath} Updated Sucessfully`) : showToast(`Added Sucessfully`);
 })

@@ -37,7 +37,7 @@ function allowTabSpaces($event, $textarea) {
 
 function showToast(message) {
   $toast.querySelector(".toast-body").textContent = message;
-  $bsToast.show();
+  $bsToast?.show?.();
 }
 
 function parseJson(data) {

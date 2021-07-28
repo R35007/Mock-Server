@@ -31,7 +31,7 @@ function createRewritersList(rewriters) {
     return `
     <li class="nav-item w-100 mt-1 overflow-hidden d-block">
       <div class="header d-flex align-items-center w-100" style='filter:grayscale(0.6)'">
-        <a class="nav-link py-2 px-3" onclick="setIframeData(this,'${localhost + key}')" type="button">
+        <a class="nav-link py-2 px-4">
           <span class="route-path" style="word-break:break-all">${key}</span>
           <code class="px-2">⇢</code>
           <span class="route-path" style="word-break:break-all">${val}</span>
@@ -75,7 +75,7 @@ function ResourceList(resources) {
     <li id="add-resource" role="button" class="nav-item w-100 mt-2 d-block" data-type="add" onclick="openModal(this)">
       <span class="nav-link p-2 px-3 me-3 text-primary text-center">
         <span role="button" class="action-icon"><i class="fas fa-plus-circle"></i></span>
-        <span> Click here To add new Route </span>
+        <span> Click here To add new Resource </span>
       </span>
     </li>
     <li class="nav-item w-100 mt-2 d-block">
@@ -90,8 +90,8 @@ function ResourceList(resources) {
 function ResourceItem(routePath, routeConfig) {
   return `
   <li id="${routeConfig._id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
-    <div class="header d-flex align-items-center w-100" ${routeConfig._isDefault && "style='filter:grayscale(0.6)'"}>
-      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><i class="fas fa-info-circle"></i></span>  
+    <div class="header d-flex align-items-center w-100" style="${routeConfig._isDefault ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
+      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><span class="icon">i</span></span>  
       <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
@@ -115,9 +115,7 @@ async function setIframeData($event, url) {
 }
 
 function clearActiveLink() {
-  const rcli = $resourcesList.querySelectorAll("li .header");
-  const rwli = $rewritersList.querySelectorAll("li .header");
-  const li = [...rcli, ...rwli];
+  const li = $resourcesList.querySelectorAll("li .header");
   for (let i = 0; i < li.length; i++) {
     li[i].classList.remove("active");
   }

@@ -22,11 +22,19 @@ const $modalTitle = document.getElementById("modal-title");
 const $routeConfigForm = document.getElementById("route-config-form");
 const $formError = document.getElementById("form-error");
 const $toast = document.getElementById("toast");
-const $routeBsModal = new bootstrap.Modal($routeModal);
-const $bsToast = new bootstrap.Toast($toast, {
-  anumation: true,
-  delay: 2000
-});
+let $routeBsModal;
+let $bsToast;
+
+try {
+  $routeBsModal = new bootstrap.Modal($routeModal);
+  $bsToast = new bootstrap.Toast($toast, {
+    anumation: true,
+    delay: 2000
+  });
+} catch {
+  $routeBsModal = {};
+  $bsToast = {};
+}
 
 function getBadges(badgeList) {
   return badgeList.map(badge => `<h6 class="m-0">
@@ -61,8 +69,10 @@ function allowTabSpaces($event, $textarea) {
 ;
 
 function showToast(message) {
+  var _$bsToast, _$bsToast$show;
+
   $toast.querySelector(".toast-body").textContent = message;
-  $bsToast.show();
+  (_$bsToast = $bsToast) === null || _$bsToast === void 0 ? void 0 : (_$bsToast$show = _$bsToast.show) === null || _$bsToast$show === void 0 ? void 0 : _$bsToast$show.call(_$bsToast);
 }
 
 function parseJson(data) {
@@ -204,8 +214,10 @@ function getKeyVal(id, key, val) {
 }
 
 function openModal($button) {
+  var _$routeBsModal, _$routeBsModal$show;
+
   hideFormError();
-  $routeBsModal.show();
+  (_$routeBsModal = $routeBsModal) === null || _$routeBsModal === void 0 ? void 0 : (_$routeBsModal$show = _$routeBsModal.show) === null || _$routeBsModal$show === void 0 ? void 0 : _$routeBsModal$show.call(_$routeBsModal);
   const modalType = $button.getAttribute('data-type');
 
   const _id = $button.getAttribute('data-id');
@@ -254,7 +266,7 @@ function addRoute(_id) {
 }
 
 $routeConfigForm.addEventListener("submit", async function (e) {
-  var _$routeConfigForm$rou, _$routeConfigForm$rou2, _$routeConfigForm$mid, _$routeConfigForm$mid2;
+  var _$routeConfigForm$rou, _$routeConfigForm$rou2, _$routeConfigForm$mid, _$routeConfigForm$mid2, _$routeBsModal2, _$routeBsModal2$hide;
 
   e.preventDefault();
   hideFormError();
@@ -345,7 +357,7 @@ $routeConfigForm.addEventListener("submit", async function (e) {
     body: JSON.stringify(request)
   }).then(res => res.json());
   createResourcesList(resources);
-  $routeBsModal.hide();
+  (_$routeBsModal2 = $routeBsModal) === null || _$routeBsModal2 === void 0 ? void 0 : (_$routeBsModal2$hide = _$routeBsModal2.hide) === null || _$routeBsModal2$hide === void 0 ? void 0 : _$routeBsModal2$hide.call(_$routeBsModal2);
   _id ? showToast(`${routeConfig.routePath} Updated Sucessfully`) : showToast(`Added Sucessfully`);
 });
 
@@ -390,7 +402,7 @@ function createRewritersList(rewriters) {
     return `
     <li class="nav-item w-100 mt-1 overflow-hidden d-block">
       <div class="header d-flex align-items-center w-100" style='filter:grayscale(0.6)'">
-        <a class="nav-link py-2 px-3" onclick="setIframeData(this,'${localhost + key}')" type="button">
+        <a class="nav-link py-2 px-4">
           <span class="route-path" style="word-break:break-all">${key}</span>
           <code class="px-2">⇢</code>
           <span class="route-path" style="word-break:break-all">${val}</span>
@@ -429,7 +441,7 @@ function ResourceList(resources) {
     <li id="add-resource" role="button" class="nav-item w-100 mt-2 d-block" data-type="add" onclick="openModal(this)">
       <span class="nav-link p-2 px-3 me-3 text-primary text-center">
         <span role="button" class="action-icon"><i class="fas fa-plus-circle"></i></span>
-        <span> Click here To add new Route </span>
+        <span> Click here To add new Resource </span>
       </span>
     </li>
     <li class="nav-item w-100 mt-2 d-block">
@@ -444,8 +456,8 @@ function ResourceList(resources) {
 function ResourceItem(routePath, routeConfig) {
   return `
   <li id="${routeConfig._id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
-    <div class="header d-flex align-items-center w-100" ${routeConfig._isDefault && "style='filter:grayscale(0.6)'"}>
-      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><i class="fas fa-info-circle"></i></span>  
+    <div class="header d-flex align-items-center w-100" style="${routeConfig._isDefault ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
+      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><span class="icon">i</span></span>  
       <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
@@ -469,9 +481,7 @@ async function setIframeData($event, url) {
 }
 
 function clearActiveLink() {
-  const rcli = $resourcesList.querySelectorAll("li .header");
-  const rwli = $rewritersList.querySelectorAll("li .header");
-  const li = [...rcli, ...rwli];
+  const li = $resourcesList.querySelectorAll("li .header");
 
   for (let i = 0; i < li.length; i++) {
     li[i].classList.remove("active");
