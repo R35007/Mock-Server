@@ -1,29 +1,32 @@
 import chalk from "chalk";
 import * as _ from "lodash";
-import * as path from "path";
 import pathToRegexp from 'path-to-regexp';
+import Default_Config from './config';
 import { Initials } from './initials';
+import Default_Middlewares from './middlewares';
 import {
-  Config, HAR, HarEntry, Middlewares, RouteConfig, Routes, UserConfig,
+  Config, HAR, HarEntry, KeyValString, Middlewares, RouteConfig, Routes, UserConfig,
   UserMiddlewares, UserRoutes, UserStore, User_Config
 } from "./model";
+import Sample_Routes from './sample-routes';
 import {
-  getInjectedRoutes, getJSON, getRoutesFromEntries,
-  getStats, isValidData, normalizeRoutes, parseUrl, validRoute
+  getInjectedRoutes, getRoutesFromEntries,
+  normalizeRoutes, validRoute
 } from './utils';
-import { Default_Config } from './utils/config';
-import { Default_Middlewares } from './utils/middlewares';
+import {
+  getStats, parseUrl, requireData
+} from './utils/fetch';
 
 export class Validators extends Initials {
 
   getValidConfig = (config?: UserConfig): Config => {
+    const userConfig = requireData(config, Default_Config.root) as User_Config;
 
-    if (!isValidData(config)) {
-      console.log(chalk.gray("  Oops, Config not found. Using default Config"));
+    if (_.isEmpty(userConfig)) {
+      console.log(chalk.yellow("  Oops, Config doesn't seem to exist."));
+      console.log(chalk.yellow("  Using default Config."));
       return _.cloneDeep(Default_Config);
     }
-
-    const userConfig = this.requireData(config, {}) as User_Config;
 
     const parsedRoot = parseUrl(userConfig.root, Default_Config.root);
     const root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Default_Config.root
@@ -32,15 +35,20 @@ export class Validators extends Initials {
       ...userConfig,
       root,
       base: userConfig.base && validRoute(userConfig.base) !== "/" ? validRoute(userConfig.base) : Default_Config.base,
-      static: !_.isEmpty(userConfig.static) && getStats(parseUrl(userConfig.static, root))?.isDirectory ? parseUrl(userConfig.static, root) : Default_Config.static,
-    } as Config;
+      staticDir: userConfig.staticDir && getStats(parseUrl(userConfig.staticDir, root))?.isDirectory ? parseUrl(userConfig.staticDir, root) : Default_Config.staticDir,
+    };
 
-    return { ...Default_Config, ...valid_Config };
+    return { ...Default_Config, ...valid_Config } as Config;
   };
 
   getValidMiddlewares = (middlewares?: UserMiddlewares): Middlewares => {
-    if (!isValidData(middlewares)) return { ...Default_Middlewares };
-    const userMiddlewares = this.requireData(middlewares, {}) as Middlewares;
+    const userMiddlewares = requireData(middlewares, this.config.root) as Middlewares;
+
+    if (_.isEmpty(userMiddlewares)) {
+      console.log(chalk.yellow("  Oops, Middlewares doesn't seem to exist."));
+      return { ...Default_Middlewares }
+    }
+
     const valid_middlewares = Object.keys(userMiddlewares)
       .filter(um => _.isFunction(userMiddlewares[um]))
       .reduce((result, um) => ({ ...result, [um]: userMiddlewares[um] }), {})
@@ -48,43 +56,58 @@ export class Validators extends Initials {
   }
 
   getValidInjectors = (injectors?: UserRoutes): Routes => {
-    if (!isValidData(injectors)) return {} as Routes;
-    const userInjectors = this.requireData(injectors, {}) as Routes;
+    const userInjectors = requireData(injectors, this.config.root) as Routes;
+
+    if (_.isEmpty(userInjectors)) {
+      console.log(chalk.yellow("  Oops, Injectors doesn't seem to exist."));
+      return {}
+    }
+
     const flattenedInjectors = normalizeRoutes(userInjectors);
     return flattenedInjectors;
   };
 
   getValidStore = (store?: UserStore): Object => {
-    if (!isValidData(store)) return {};
-    const userStore = this.requireData(store, {}) as Object;
+    const userStore = requireData(store, this.config.root) as Object;
+
+    if (_.isEmpty(userStore)) {
+      console.log(chalk.yellow("  Oops, Store doesn't seem to exist."));
+      return {}
+    }
+
     return userStore;
   };
 
-  getValidRewriter = (rewriter?: UserStore): { [key: string]: string } => {
-    if (!isValidData(rewriter)) return {};
-    const userRewriter = this.requireData(rewriter, {}) as { [key: string]: string };
-    return userRewriter;
+  getValidRewriterRoutes = (rewriterRoutes?: UserStore): KeyValString => {
+    const userRewriterRoutes = requireData(rewriterRoutes, this.config.root) as KeyValString;
+
+    if (_.isEmpty(userRewriterRoutes)) {
+      console.log(chalk.yellow("  Oops, RewriterRoutes doesn't seem to exist."));
+      return {}
+    }
+
+    return userRewriterRoutes;
   };
 
   getValidRoutes = (
     routes?: UserRoutes | HAR,
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp) => Routes,
     finalCallback?: (harData: any, generatedMock: Routes, pathToRegexp) => Routes,
-    options: { reverse: boolean } = this._config
+    options: { reverse: boolean } = this.config
   ): Routes => {
-    let _routes = routes;
-    if (!isValidData(routes)) {
-      console.log(chalk.gray("  Oops, Routes not found. Using Sample Routes"));
-      _routes = _.cloneDeep(this._sample_routes) as Routes;
-    }
+    let userRoutes = requireData(routes, this.config.root) as Routes | HAR;
 
-    const userRoutes = this.requireData(_routes, {}) as Routes | HAR;
+    if (_.isEmpty(userRoutes)) {
+      console.log(chalk.yellow("  Oops, Routes doesn't seem to exist."));
+      console.log(chalk.yellow("  Using Sample Routes with some default data."));
+      userRoutes = _.cloneDeep(Sample_Routes) as Routes;
+    }
 
     const entries: HarEntry[] = (userRoutes as HAR)?.log?.entries;
     const routesFromEntries: Routes = entries ? getRoutesFromEntries(entries, entryCallback) : userRoutes as Routes;
 
     const normalizedRoutes = normalizeRoutes(routesFromEntries);
-    const injectedRoutes = getInjectedRoutes(normalizedRoutes, this._injectors);
+    const injectedRoutes = getInjectedRoutes(normalizedRoutes, this.injectors);
 
     const valid_routes = options.reverse
       ? _.fromPairs(Object.entries(injectedRoutes).reverse())
@@ -98,21 +121,4 @@ export class Validators extends Initials {
 
     return generatedRoutes;
   };
-
-  requireData = (data: any, defaults: object): object => {
-    if (_.isString(data)) {
-      const parsedUrl = parseUrl(data, this._config.root);
-      const stats = getStats(parsedUrl);
-      if (!stats) return defaults;
-
-      if (path.extname(parsedUrl) === '.js') {
-        delete require.cache[parsedUrl];
-        return require(parsedUrl);
-      }
-      return getJSON(parsedUrl);
-    } else if (_.isPlainObject(data)) {
-      return data
-    }
-    return _.cloneDeep(defaults);
-  }
 }

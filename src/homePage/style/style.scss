@@ -52,12 +52,23 @@
     }
   }
 
-  #resources-list {
-    margin: 1rem 1.5rem;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
+  #routes-list {
     min-height: calc(100vh - 19rem);
+    #resources-list {
+      margin: 1rem 1.5rem;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      #add-resource {
+        border: 1px dashed var(--bs-primary);
+        background: rgba(var(--bs-primary-rgb), 3%);
+        transition: all 0.2s linear;
+        &:hover {
+          background: rgba(var(--bs-primary-rgb), 7%);
+        }
+      }
+    }
+
     .nav-item {
       position: relative;
       border-radius: 0.2rem;
@@ -115,15 +126,6 @@
           max-height: 25rem;
           overflow: auto;
         }
-      }
-    }
-
-    #add-resource {
-      border: 1px dashed var(--bs-primary);
-      background: rgba(var(--bs-primary-rgb), 3%);
-      transition: all 0.2s linear;
-      &:hover {
-        background: rgba(var(--bs-primary-rgb), 7%);
       }
     }
   }

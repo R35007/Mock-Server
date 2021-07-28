@@ -1,4 +1,5 @@
 let resources = {};
+let rewriters = {};
 let localhost = "http://localhost:3000";
 
 let totalRoutesCount = 0;
@@ -7,8 +8,10 @@ let filteredRoutesCount = 0;
 const $container = document.getElementById("container");
 const $resourcesContainer = document.getElementById("resources-container");
 const $dataContainer = document.getElementById("data-container");
+const $rewritersContainer = document.getElementById("rewriters-container");
 const $resourceHeader = document.getElementById("resource-header");
 const $resourcesList = document.getElementById("resources-list");
+const $rewritersList = document.getElementById("rewriters-list");
 const $resourcesCount = document.getElementById("resources-count");
 const $search = document.getElementById("search");
 const $iframeloader = document.getElementById("iframe-loader");

@@ -656,8 +656,8 @@ const routes = {
 
 const middlewares = {
   countIncrement: (req, res) => {
-    let count = res.locals.store.get(req.path);
-    res.locals.store.set(req.path, count++);
+    let count = res.locals.store.get(req.baseUrl);
+    res.locals.store.set(req.baseUrl, count++);
     res.send(count);
   },
 };

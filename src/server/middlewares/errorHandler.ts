@@ -1,7 +1,6 @@
 import chalk from 'chalk';
-import express from "express";
 
-export const ErrorHandler = (err, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+export default (err, _req, res, next) => {
   if (!err) return next();
   const response = err.response;
   if (response) {
@@ -13,8 +12,6 @@ export const ErrorHandler = (err, _req: express.Request, res: express.Response, 
     if (err.message !== "Page Not Found") {
       console.log(chalk.red("\nError. Something went wrong !"));
       console.log(chalk.gray(err.stack) + "\n");
-    } else {
-      console.log(chalk.red("\n" + err.message));
     }
   }
 };

@@ -4,7 +4,7 @@ import * as lodashDashId from "lodash-id";
 import { nanoid } from 'nanoid';
 import { flatQuery } from '.';
 _.mixin(lodashDashId);
-export class CRUD {
+export default class {
 
   static search = (req: express.Request, res: express.Response, data: any[], id: string = "id") => {
     _.id = id;
@@ -106,7 +106,7 @@ export class CRUD {
     if (_page !== undefined) {
       const chunks = _.chunk(_data, _limit ?? 10);
       const links: any = {};
-      const fullURL = `http://${req.get('host')}${req.originalUrl}`;
+      const fullURL = `http://${req.get('host')}${req.baseUrl}`;
 
       links.first = fullURL.replace(`_page=${_page}`, `_page=1`);
       if (_page > 1) links.prev = fullURL.replace(`_page=${_page}`, `_page=${_page - 1}`);
@@ -148,7 +148,7 @@ export class CRUD {
         return 1;
       } else {
         let _id = _.maxBy(coll, id)[id]; // Increment integer id or generate string id
-        return _.isFinite(_id) ? ++_id : nanoid(7);
+        return _.isFinite(_id) ? ++_id : "id-"+nanoid(7);
       }
     }
     const body = [].concat(req.body);

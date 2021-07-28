@@ -1,14 +1,17 @@
 "use strict";
 
 let resources = {};
+let rewriters = {};
 let localhost = "http://localhost:3000";
 let totalRoutesCount = 0;
 let filteredRoutesCount = 0;
 const $container = document.getElementById("container");
 const $resourcesContainer = document.getElementById("resources-container");
 const $dataContainer = document.getElementById("data-container");
+const $rewritersContainer = document.getElementById("rewriters-container");
 const $resourceHeader = document.getElementById("resource-header");
 const $resourcesList = document.getElementById("resources-list");
+const $rewritersList = document.getElementById("rewriters-list");
 const $resourcesCount = document.getElementById("resources-count");
 const $search = document.getElementById("search");
 const $iframeloader = document.getElementById("iframe-loader");
@@ -145,7 +148,7 @@ function showInfoBox($li, _id) {
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm mx-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm" onclick="refresh('${routeConfig._id}')">Refresh</button>
       </div>
-      <div class="route-config">${Object.entries(routeConfig).map(([key, val]) => getKeyVal(key, val)).join("")}</div>
+      <div class="route-config">${Object.entries(routeConfig).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
     </div>`));
 }
 
@@ -167,10 +170,10 @@ async function refresh(_id) {
   showToast(`${routePath} Refreshed Sucessfully`);
 }
 
-function getKeyVal(key, val) {
+function getKeyVal(id, key, val) {
   var _ref;
 
-  if (!((_ref = val + '') !== null && _ref !== void 0 && _ref.length)) return '';
+  if (!((_ref = val + '') !== null && _ref !== void 0 && _ref.length) || val === null || val === undefined) return '';
 
   if (!["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
     return `
@@ -183,9 +186,12 @@ function getKeyVal(key, val) {
   } else if (typeof val === "object" || ["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key)) {
     return `
     <div class="row px-3">
-      <label for="inputEmail3" class="key col col-form-label p-0 mb-2">${key} :</label>
-      <div class="val col-12">
-      <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
+      <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
+        <a class="nav-link p-0" data-bs-toggle="collapse" href="#${id}_${key}" 
+        role="button" aria-expanded="false" aria-controls="${id}_${key}">${key} :</a>
+      </label>
+      <div class="val col-12 collapse" id="${id}_${key}">
+        <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
       </div>
     </div>`;
   } else {
@@ -209,10 +215,11 @@ function openModal($button) {
 
 ;
 
-function updateRoute(_id) {
+async function updateRoute(_id) {
+  const refreshedRoute = await window.fetch(localhost + "/routes/" + _id).then(res => res.json());
+  const [routePath, routeConfig] = Object.entries(refreshedRoute)[0];
   $routeConfigForm.classList.add("update-form");
   $routeConfigForm.classList.remove("add-form");
-  const [routePath, routeConfig] = findEntry(_id);
   $modalTitle.textContent = routePath;
   const {
     statusCode,
@@ -221,7 +228,6 @@ function updateRoute(_id) {
     fetchCount,
     skipFetchError,
     mock,
-    mockFirst,
     _fetchData,
     _fetchError,
     _store
@@ -234,7 +240,6 @@ function updateRoute(_id) {
   $routeConfigForm.fetchCount.value = fetchCount;
   $routeConfigForm.skipFetchError.checked = skipFetchError == true;
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
-  $routeConfigForm.mockFirst.checked = mockFirst == true;
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchError.value = typeof _fetchError === 'object' ? JSON.stringify(_fetchError, null, 8) : _fetchError ?? '';
@@ -249,7 +254,7 @@ function addRoute(_id) {
 }
 
 $routeConfigForm.addEventListener("submit", async function (e) {
-  var _$routeConfigForm$mid;
+  var _$routeConfigForm$rou, _$routeConfigForm$rou2, _$routeConfigForm$mid, _$routeConfigForm$mid2;
 
   e.preventDefault();
   hideFormError();
@@ -269,19 +274,15 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   const _store = parseJson(storeValue);
 
   const _id = $routeConfigForm._id.value;
-  const routePath = $routeConfigForm.routePath.value.trim();
-  const checked = document.querySelectorAll('#methods :checked');
-  const methods = [...checked].map(option => option.value);
+  const routePath = (_$routeConfigForm$rou = $routeConfigForm.routePath) === null || _$routeConfigForm$rou === void 0 ? void 0 : (_$routeConfigForm$rou2 = _$routeConfigForm$rou.value) === null || _$routeConfigForm$rou2 === void 0 ? void 0 : _$routeConfigForm$rou2.trim();
   const routeConfig = {
-    methods,
     statusCode: parseInt($routeConfigForm.statusCode.value) || '',
     delay: parseInt($routeConfigForm.delay.value) || '',
     fetch: fetch || '',
-    fetchCount: parseInt($routeConfigForm.fetchCount.value) || 1,
+    fetchCount: parseInt($routeConfigForm.fetchCount.value) ?? 1,
     skipFetchError: $routeConfigForm.skipFetchError.checked,
     mock: mock || '',
-    mockFirst: $routeConfigForm.mockFirst.checked,
-    middlewares: (_$routeConfigForm$mid = $routeConfigForm.middlewares.value) === null || _$routeConfigForm$mid === void 0 ? void 0 : _$routeConfigForm$mid.toLowerCase().split(",").filter(Boolean),
+    middlewares: ((_$routeConfigForm$mid = $routeConfigForm.middlewares) === null || _$routeConfigForm$mid === void 0 ? void 0 : (_$routeConfigForm$mid2 = _$routeConfigForm$mid.value) === null || _$routeConfigForm$mid2 === void 0 ? void 0 : _$routeConfigForm$mid2.toLowerCase().split(",").filter(Boolean)) || [],
     _fetchData: _fetchData || '',
     _fetchError: _fetchError || '',
     _store: _store || ''
@@ -290,18 +291,23 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   if (!fetch) {
     delete routeConfig.fetchCount;
     delete routeConfig.skipFetchError;
-  }
+  } // Validate If Creating New Route
 
-  if (!routeConfig.routePath.trim().length) {
-    error += "Please Provide Route Path. <br/>";
-  }
 
-  if (!routeConfig._id && Object.keys(resources).find(resource => resource === routeConfig.routePath.trim())) {
-    error += "Route Path already exist. Please Provide New Route Path. <br/>";
-  }
+  if (!_id) {
+    var _routePath$trim;
 
-  if (!routeConfig.mock && !routeConfig.fetch) {
-    error += "Please Provide alteast one of Fetch or Mock data. <br/>";
+    if (!(routePath !== null && routePath !== void 0 && (_routePath$trim = routePath.trim()) !== null && _routePath$trim !== void 0 && _routePath$trim.length)) {
+      error += "Please Provide Route Path. <br/>";
+    }
+
+    if (Object.keys(resources).find(resource => resource === (routePath === null || routePath === void 0 ? void 0 : routePath.trim()))) {
+      error += "Route Path already exist. Please Provide New Route Path. <br/>";
+    }
+
+    if (!routeConfig.mock && !routeConfig.fetch) {
+      error += "Please Provide alteast one of Fetch or Mock data. <br/>";
+    }
   }
 
   if (error) {
@@ -312,17 +318,21 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   let request;
 
   if (_id) {
-    request = {
-      [routePath]: routeConfig
-    };
-  } else {
-    delete routeConfig.routePath;
+    // update Route
     delete routeConfig.middlewares;
-    delete routeConfig.methods;
+    request = routeConfig;
+  } else {
+    // Create New Route
+    if (!(routeConfig.delay + '').length) delete routeConfig.delay;
+    if (!(routeConfig.statusCode + '').length) delete routeConfig.statusCode;
+    if (!routeConfig.fetch.length) delete routeConfig.fetch;
+    if (!routeConfig.mock.length) delete routeConfig.mock;
     delete routeConfig._fetchData;
     delete routeConfig._fetchError;
     delete routeConfig._store;
-    request = routeConfig;
+    request = {
+      [routePath]: routeConfig
+    };
   }
 
   console.log("Fetch request :", request);
@@ -351,17 +361,16 @@ function showFormError(errorText) {
 }
 
 async function init() {
-  localhost = window.location.href.replace(/\/home.*/gi, "");
+  localhost = window.location.href.slice(0, -1);
   resources = await window.fetch(localhost + "/routes").then(res => res.json());
+  rewriters = await window.fetch(localhost + "/rewriter").then(res => res.json());
   createResourcesList(resources);
+  Object.entries(rewriters).length && createRewritersList(rewriters);
   showToast("Resources Loaded Sucessfully");
 }
 
 function createResourcesList(resources) {
   setIFrameSrc(localhost);
-  delete resources["/home"];
-  delete resources["/reset/route"];
-  delete resources["/reset/store"];
   $search.value = ""; // collects all expanded list to restore after refresh
 
   const expandedList = [];
@@ -371,8 +380,40 @@ function createResourcesList(resources) {
     $resourcesList.removeChild($resourcesList.lastElementChild);
   }
 
-  $resourcesList.innerHTML += ResourceList(resources);
+  setDefaultRoutes(resources);
+  $resourcesList.innerHTML = ResourceList(resources);
   expandedList.forEach(toggleInfoBox);
+}
+
+function createRewritersList(rewriters) {
+  $rewritersList.innerHTML = Object.entries(rewriters).map(([key, val]) => {
+    return `
+    <li class="nav-item w-100 mt-1 overflow-hidden d-block">
+      <div class="header d-flex align-items-center w-100" style='filter:grayscale(0.6)'">
+        <a class="nav-link py-2 px-3" onclick="setIframeData(this,'${localhost + key}')" type="button">
+          <span class="route-path" style="word-break:break-all">${key}</span>
+          <code class="px-2">⇢</code>
+          <span class="route-path" style="word-break:break-all">${val}</span>
+        </a>
+      </div>
+    </li>
+    `;
+  });
+  $rewritersContainer.style.display = "block";
+}
+
+function setDefaultRoutes(resources) {
+  const routesList = Object.keys(resources);
+  if (!routesList.includes("/routes")) resources["/routes"] = {
+    description: "This route gives you the list of available routes with baseUrl. It also included Default Routes.",
+    _isDefault: true,
+    _id: "default_1"
+  };
+  if (!routesList.includes("/store")) resources["/store"] = {
+    description: "This route gives you the store values",
+    _isDefault: true,
+    _id: "default_2"
+  };
 }
 
 function ResourceList(resources) {
@@ -405,7 +446,7 @@ function ResourceItem(routePath, routeConfig) {
   <li id="${routeConfig._id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
     <div class="header d-flex align-items-center w-100" ${routeConfig._isDefault && "style='filter:grayscale(0.6)'"}>
       <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><i class="fas fa-info-circle"></i></span>  
-      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}', '${routeConfig._id}')" type="button">
+      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
     </div>
@@ -413,7 +454,7 @@ function ResourceItem(routePath, routeConfig) {
 `;
 }
 
-async function setIframeData($event, url, id) {
+async function setIframeData($event, url) {
   try {
     clearActiveLink();
     $event.parentNode.classList.add("active");
@@ -428,7 +469,9 @@ async function setIframeData($event, url, id) {
 }
 
 function clearActiveLink() {
-  const li = $resourcesList.querySelectorAll("li .header");
+  const rcli = $resourcesList.querySelectorAll("li .header");
+  const rwli = $rewritersList.querySelectorAll("li .header");
+  const li = [...rcli, ...rwli];
 
   for (let i = 0; i < li.length; i++) {
     li[i].classList.remove("active");
@@ -491,4 +534,3 @@ async function resetAll(type) {
 }
 
 init();
-//# sourceMappingURL=script.js.map

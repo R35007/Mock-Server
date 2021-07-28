@@ -22,7 +22,7 @@ function showInfoBox($li, _id) {
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm mx-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm" onclick="refresh('${routeConfig._id}')">Refresh</button>
       </div>
-      <div class="route-config">${Object.entries(routeConfig).map(([key, val]) => getKeyVal(key, val)).join("")}</div>
+      <div class="route-config">${Object.entries(routeConfig).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
     </div>`)
   );
 }
@@ -45,8 +45,8 @@ async function refresh(_id) {
   showToast(`${routePath} Refreshed Sucessfully`);
 }
 
-function getKeyVal(key, val) {
-  if(!(val+'')?.length) return '';
+function getKeyVal(id, key, val) {
+  if (!(val + '')?.length || val === null || val === undefined) return '';
 
   if (!["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
     return `
@@ -59,9 +59,12 @@ function getKeyVal(key, val) {
   } else if (typeof val === "object" || ["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key)) {
     return `
     <div class="row px-3">
-      <label for="inputEmail3" class="key col col-form-label p-0 mb-2">${key} :</label>
-      <div class="val col-12">
-      <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
+      <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
+        <a class="nav-link p-0" data-bs-toggle="collapse" href="#${id}_${key}" 
+        role="button" aria-expanded="false" aria-controls="${id}_${key}">${key} :</a>
+      </label>
+      <div class="val col-12 collapse" id="${id}_${key}">
+        <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
       </div>
     </div>`;
   } else {

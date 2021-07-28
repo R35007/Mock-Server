@@ -66,7 +66,7 @@
         </div>
       </nav>
       <main class="position-relative">
-        <nav class="navbar w-100 navbar-expand-lg navbar-light bg-light position-sticky top-0" style="z-index: 1;">
+        <nav class="navbar w-100 navbar-expand-lg navbar-light bg-light position-sticky top-0" style="z-index: 3;">
           <div class="container-fluid">
             <a class="navbar-brand p-0 m-0" href="#">
               Resources
@@ -83,7 +83,13 @@
             </div>
           </div>
         </nav>
-        <ul id="resources-list" class="nav nav-pills mt-3 mb-2 mx-4 flex-column p-0"></ul>
+        <div id="routes-list">
+          <ul id="resources-list" class="nav nav-pills mt-3 mb-3 mx-4 flex-column p-0"></ul>
+          <div id="rewriters-container" style="display: none">
+            <h5 class="mx-4">Route Rewriters</h5>
+            <ul id="rewriters-list" class="nav nav-pills mt-3 mb-2 mx-4 flex-column p-0"></ul>
+          </div>
+        </div>
         <div class="footer">
           <p>
             <span>To access and modify resources, you can use any HTTP method:</span><br>
@@ -135,7 +141,8 @@
       <div class="modal-content">
         <div class="modal-header bg-primary text-white p-2 px-3">
           <div class="modal-title" id="modal-title" style="word-break: break-all; font-size: 1.1rem;">Modal title</div>
-          <button type="button" class="btn-close" style="filter: invert(1); font-size: 0.8rem;" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" style="filter: invert(1); font-size: 0.8rem;" data-bs-dismiss="modal"
+            aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div id="form-error" class="p-2 text-danger mb-2" style="display: none"></div>
@@ -151,25 +158,6 @@
               <div class="col-sm-10">
                 <input type="text" class="form-control" name="routePath" id="routePath">
                 <div class="feedback">
-                  Be cautious. Once the route is added then it cannot be modified or removed.
-                </div>
-              </div>
-            </div>
-            <div class="row mb-3 no-edit">
-              <label for="methods" class="col-sm-2 col-form-label">Methods</label>
-              <div class="col-sm-10">
-                <select role="button" class="form-select box-shadow-none p-0" multiple aria-label="methodse"  name="methods" id="methods">
-                  <option class="px-3 py-1" value="all" selected>ALL</option>
-                  <option class="px-3 py-1" value="get">GET</option>
-                  <option class="px-3 py-1" value="put">PUT</option>
-                  <option class="px-3 py-1" value="patch">PATCH</option>
-                  <option class="px-3 py-1" value="post">POST</option>
-                  <option class="px-3 py-1" value="delete">DELETE</option>
-                  <option class="px-3 py-1" value="options">OPTIONS</option>
-                  <option class="px-3 py-1" value="head">HEAD</option>
-                </select>
-                <div class="feedback">
-                  Hold cmd / ctl to select multiple methods.
                   Be cautious. Once the route is added then it cannot be modified or removed.
                 </div>
               </div>
@@ -190,8 +178,11 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="fetch" class="col-sm-2 form-label">Fetch</label>
-              <div class="col-sm-10">
+              <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Fetch" role="button" aria-expanded="false"
+                  aria-controls="Fetch">Fetch</a>
+              </label>
+              <div class="col-12 collapse" id="Fetch">
                 <textarea class="form-control" name="fetch" id="fetch" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
@@ -212,24 +203,21 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="mock" class="col-sm-2 col-form-label">Mock</label>
-              <div class="col-sm-10">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Mock" role="button" aria-expanded="false"
+                  aria-controls="Mock">Mock</a>
+              </label>
+              <div class="col-12 collapse" id="Mock">
                 <textarea class="form-control" name="mock" id="mock" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
             </div>
-            <div class="row mb-3">
-              <label for="mockFirst" class="col-sm-2 col-form-label">Mock First</label>
-              <div class="col-sm-10 d-flex align-items-center">
-                <div class="form-check form-switch">
-                  <input class="form-check-input box-shadow-none" type="checkbox" name="mockFirst" id="mockFirst"
-                    value="true">
-                </div>
-              </div>
-            </div>
             <div class="row mb-3 no-add">
-              <label for="mock" class="col-sm-2 col-form-label">Fetch Data</label>
-              <div class="col-sm-10">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#FetchData" role="button" aria-expanded="false"
+                  aria-controls="FetchData">Fetch Data</a>
+              </label>
+              <div class="col-12 collapse" id="FetchData">
                 <textarea class="form-control" name="_fetchData" id="_fetchData" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
@@ -239,8 +227,11 @@
               </div>
             </div>
             <div class="row mb-3 no-add">
-              <label for="mock" class="col-sm-2 col-form-label">Fetch Error</label>
-              <div class="col-sm-10">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#FetchError" role="button" aria-expanded="false"
+                  aria-controls="FetchError">Fetch Error</a>
+              </label>
+              <div class="col-12 collapse" id="FetchError">
                 <textarea class="form-control" name="_fetchError" id="_fetchError" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
@@ -251,8 +242,11 @@
               </div>
             </div>
             <div class="row mb-3 no-add">
-              <label for="mock" class="col-sm-2 col-form-label">Store</label>
-              <div class="col-sm-10">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Store" role="button" aria-expanded="false"
+                  aria-controls="Store">Store</a>
+              </label>
+              <div class="col-12 collapse" id=Store>
                 <textarea class="form-control" name="_store" id="_store" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">

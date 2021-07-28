@@ -2,20 +2,28 @@ import { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 import express from "express";
 import * as _ from "lodash";
-import { getStats, parseUrl } from '.';
-import { Config, Locals, PathDetails, RouteConfig } from '../model';
+import { Config, Locals, PathDetails, Routes } from '../model';
+import { getStats, parseUrl } from '../utils/fetch';
 
-export const InitialMiddleware = (routePath: string, routeConfig: RouteConfig, config: Config, store: { [key: string]: any }) => {
+export default (routePath: string, routes: Routes, getRoutes: (_ids?: string[], routePaths?: string[]) => Routes, config: Config, store: object) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 
+    const routeConfig = routes[routePath];
     routeConfig._store && !_.isPlainObject(routeConfig._store) && (routeConfig._store = {});
 
     const locals = res.locals as Locals
     locals.routePath = routePath;
     locals.routeConfig = routeConfig;
+    locals.getRoutes = getRoutes;
     locals.store = store;
     locals.config = _.cloneDeep(config);
     
+    locals.data = undefined;
+
+    delete locals.routeConfig._request;
+    delete locals.routeConfig._isFile;
+    delete locals.routeConfig._extension;
+
     if (!_.isEmpty(routeConfig.fetch)) {
       routeConfig.fetchCount = routeConfig.fetchCount ?? 1
       const fetch = getUrlDetail(req, res);
@@ -24,17 +32,15 @@ export const InitialMiddleware = (routePath: string, routeConfig: RouteConfig, c
         locals.routeConfig._isFile = fetch.isFile;
         locals.routeConfig._extension = fetch.extension;
       }
-    }
-    
-    locals.data = routeConfig.mock;
-    
-    setTimeout(() => {
       next();
-    }, routeConfig.delay || 0);
+    }else{
+      locals.data = routeConfig.mock;
+      next();
+    }
   };
 };
 
-const getUrlDetail = (req: express.Request, res: express.Response) => {
+const getUrlDetail = (req, res) => {
 
   const locals = res.locals as Locals;
   const fetch = locals.routeConfig.fetch;
@@ -60,7 +66,7 @@ const getUrlDetail = (req: express.Request, res: express.Response) => {
   }
 }
 
-const getValidReq = (req: express.Request, res: express.Response, fetch: AxiosRequestConfig): AxiosRequestConfig => {
+const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig => {
   const locals = res.locals as Locals;
   const config = locals.config;
 
@@ -68,7 +74,8 @@ const getValidReq = (req: express.Request, res: express.Response, fetch: AxiosRe
     replace(/{{port}}/gi, config.port + '')
     .replace(/{{baseUrl}}/gi, config.base)
     .replace(/\/{{routePath}}/gi, req.path)
-    .replace(/\/{{params}}/gi, req.url.replace(req.path, ""));
+    .replace(/\/{{params}}/gi, req.url.replace(req.path, ""))
+    .replace(/\/{{query}}/gi, req.url.replace(req.path, ""));
 
   const expReq = _.fromPairs(Object.entries(req).filter(([key]) => AxiosRequestConfig.includes(key)));
 
@@ -88,8 +95,11 @@ const getValidReq = (req: express.Request, res: express.Response, fetch: AxiosRe
 
   const fetchEntries = Object.entries(fetch).map(([key, val]) => {
     if (val === '{{' + key + '}}') {
-      const reqVal = key === 'data' ? expReq.body : key === 'params' ? expReq.query : expReq[key]
-      return [key, reqVal]
+      if(key === 'data') return [key, expReq.body]
+      if(key === 'body') return ['data', expReq.body]
+      if(key === 'params') return [key, expReq.query]
+      if(key === 'query') return ['params', expReq.query]
+      return [key, expReq[key]]
     };
     return [key, val]
   })
@@ -101,7 +111,9 @@ const AxiosRequestConfig: string[] = [
   "headers",
   "method",
   "baseURL",
+  "params",
   "query",
+  "data",
   "body",
   "adapter",
   "auth",

@@ -5,10 +5,13 @@ import cors from 'cors';
 import express from 'express';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
-import { Default_Config } from './config';
+import Default_Config from '../config';
+import { Default_Options } from '../model';
 const errorhandler = require('errorhandler');
 
-export function Defaults(opts) {
+export default (opts: Default_Options) => {
+
+
   opts = { ...Default_Config, ...opts }
 
   const arr: any[] = [];
@@ -32,12 +35,13 @@ export function Defaults(opts) {
   }
 
   // Serve static files
-  arr.push(express.static(opts.static));
+  arr.push(express.static(opts.staticDir!));
 
   // Logger
   if (opts.logger) {
     arr.push(morgan('dev', {
-      skip: req => process.env.NODE_ENV === 'test' || req["path"] === '/favicon.ico'
+      skip: req => process.env.NODE_ENV === 'test' || 
+      req.url === '/favicon.ico'
     }));
   }
 

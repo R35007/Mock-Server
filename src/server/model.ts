@@ -1,11 +1,15 @@
 import { AxiosRequestConfig } from 'axios';
 import * as express from "express";
 
-export type UserRoutes = string | Routes;
-export type UserConfig = string | User_Config;
-export type UserMiddlewares = string | User_Middlewares;
+export type UserRoutes = string | User_Routes | Routes;
+export type UserConfig = string | User_Config | Config;
+export type UserMiddlewares = string | User_Middlewares | Middlewares;
 export type UserStore = string | Object;
-export type UserRewriter = string | Object;
+export type UserRewriter = string | KeyValString;
+
+export type User_Routes = {
+  [key: string]: RouteConfig | any[] | string;
+}
 
 export type Routes = {
   [key: string]: RouteConfig
@@ -16,12 +20,13 @@ export type RouteConfig = {
   delay?: number;
   fetch?: string | AxiosRequestConfig;
   fetchCount?: number;
+  skipFetchError?: boolean;
   mock?: any;
   override?: boolean;
   middlewares?: string[];
   middleware?: express.RequestHandler;
   description?: string;
-  
+
   _id?: string;
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
@@ -38,47 +43,48 @@ export type Config = {
   host: string;
   root: string;
   base: string;
-  static: string;
+  id: string;
+  reverse: boolean;
+  staticDir: string;
   noGzip: boolean;
   noCors: boolean;
   logger: boolean;
   readOnly: boolean;
   bodyParser: boolean;
-  id: string;
-  reverse: boolean;
+}
+
+export type Default_Options = {
+  staticDir?: string;
+  noGzip?: boolean;
+  noCors?: boolean;
+  logger?: boolean;
+  readOnly?: boolean;
+  bodyParser?: boolean;
 }
 
 export type User_Config = {
   port?: number;
   root?: string;
   base?: string;
-  static?: string;
-  noGzip?: boolean;
-  noCors?: boolean;
-  logger?: boolean;
-  readOnly?: boolean;
-  bodyParser?: boolean;
-  id?: boolean;
-  foreignKeySuffix?: boolean;
+  id?: string;
   reverse?: boolean;
-} | Config;
-
-export type ExpressMiddleware = (req: express.Request,
-  res: express.Response,
-  next: express.NextFunction) => void | Promise<void>
+} & Default_Options;
 
 export type User_Middlewares = {
-  [x: string]: ExpressMiddleware;
-} | Middlewares
+  [x: string]: express.RequestHandler;
+}
 
 export type Middlewares = {
-  _LoopResponse?: ExpressMiddleware;
-  _GroupResponse?: ExpressMiddleware;
-  _CrudResponse?: ExpressMiddleware;
-  _FetchTillData?: ExpressMiddleware;
-  _SetFetchDataToMock?: ExpressMiddleware;
+  _IterateResponse?: express.RequestHandler;
+  _IterateRoutes?: express.RequestHandler;
+  _CrudOperation?: express.RequestHandler;
+  _ReadOperation?: express.RequestHandler;
+  _FetchTillData?: express.RequestHandler;
+  _SetFetchDataToMock?: express.RequestHandler;
+  _SetStoreDataToMock?: express.RequestHandler;
+  _SendOnlyMock?: express.RequestHandler;
 } & {
-  [x: string]: ExpressMiddleware;
+  [x: string]: express.RequestHandler;
 }
 
 export type KeyValString = {
@@ -90,7 +96,9 @@ export interface Locals {
   routeConfig: RouteConfig;
   data: any;
   store: object;
-  config: Config
+  getRoutes: (_ids?: string[], routePaths?: string[]) => Routes;
+  config: Config;
+  _isRouteRewritten: boolean;
 }
 
 export type HAR = {
@@ -128,6 +136,8 @@ export type PathDetails = {
 export type GetData = {
   routes: Routes;
   config: Config;
-  injectors: Routes;
   middlewares: Middlewares;
+  injectors: Routes;
+  store: Object;
+  rewriterRoutes: KeyValString
 }

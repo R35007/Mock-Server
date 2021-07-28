@@ -1,15 +1,14 @@
 async function init() {
-  localhost = window.location.href.replace(/\/home.*/gi, "");
+  localhost = window.location.href.slice(0, -1);
   resources = await window.fetch(localhost + "/routes").then((res) => res.json());
+  rewriters = await window.fetch(localhost + "/rewriter").then((res) => res.json());
   createResourcesList(resources);
+  Object.entries(rewriters).length && createRewritersList(rewriters);
   showToast("Resources Loaded Sucessfully");
 }
 
 function createResourcesList(resources) {
   setIFrameSrc(localhost);
-  delete resources["/home"];
-  delete resources["/reset/route"];
-  delete resources["/reset/store"];
   $search.value = "";
 
   // collects all expanded list to restore after refresh
@@ -21,9 +20,45 @@ function createResourcesList(resources) {
     $resourcesList.removeChild($resourcesList.lastElementChild);
   }
 
-  $resourcesList.innerHTML += ResourceList(resources);
+  setDefaultRoutes(resources);
+  $resourcesList.innerHTML = ResourceList(resources);
 
   expandedList.forEach(toggleInfoBox);
+}
+
+function createRewritersList(rewriters) {
+  $rewritersList.innerHTML = Object.entries(rewriters).map(([key, val]) => {
+    return `
+    <li class="nav-item w-100 mt-1 overflow-hidden d-block">
+      <div class="header d-flex align-items-center w-100" style='filter:grayscale(0.6)'">
+        <a class="nav-link py-2 px-3" onclick="setIframeData(this,'${localhost + key}')" type="button">
+          <span class="route-path" style="word-break:break-all">${key}</span>
+          <code class="px-2">⇢</code>
+          <span class="route-path" style="word-break:break-all">${val}</span>
+        </a>
+      </div>
+    </li>
+    `
+  })
+  $rewritersContainer.style.display = "block";
+}
+
+function setDefaultRoutes(resources) {
+  const routesList = Object.keys(resources)
+
+  if (!routesList.includes("/routes"))
+    resources["/routes"] = {
+      description: "This route gives you the list of available routes with baseUrl. It also included Default Routes.",
+      _isDefault: true,
+      _id: "default_1"
+    }
+
+  if (!routesList.includes("/store"))
+    resources["/store"] = {
+      description: "This route gives you the store values",
+      _isDefault: true,
+      _id: "default_2"
+    }
 }
 
 function ResourceList(resources) {
@@ -57,8 +92,7 @@ function ResourceItem(routePath, routeConfig) {
   <li id="${routeConfig._id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
     <div class="header d-flex align-items-center w-100" ${routeConfig._isDefault && "style='filter:grayscale(0.6)'"}>
       <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><i class="fas fa-info-circle"></i></span>  
-      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath
-    }', '${routeConfig._id}')" type="button">
+      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
     </div>
@@ -66,7 +100,7 @@ function ResourceItem(routePath, routeConfig) {
 `;
 }
 
-async function setIframeData($event, url, id) {
+async function setIframeData($event, url) {
   try {
     clearActiveLink();
     $event.parentNode.classList.add("active");
@@ -81,7 +115,9 @@ async function setIframeData($event, url, id) {
 }
 
 function clearActiveLink() {
-  const li = $resourcesList.querySelectorAll("li .header");
+  const rcli = $resourcesList.querySelectorAll("li .header");
+  const rwli = $rewritersList.querySelectorAll("li .header");
+  const li = [...rcli, ...rwli];
   for (let i = 0; i < li.length; i++) {
     li[i].classList.remove("active");
   }

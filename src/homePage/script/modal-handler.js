@@ -6,10 +6,12 @@ function openModal($button) {
   modalType === "update" ? updateRoute(_id) : addRoute(_id);
 };
 
-function updateRoute(_id) {
+async function updateRoute(_id) {
+  const refreshedRoute = await window.fetch(localhost + "/routes/" + _id).then((res) => res.json());
+  const [routePath, routeConfig] = Object.entries(refreshedRoute)[0];
+
   $routeConfigForm.classList.add("update-form");
   $routeConfigForm.classList.remove("add-form");
-  const [routePath, routeConfig] = findEntry(_id);
   $modalTitle.textContent = routePath;
   const {
     statusCode,
@@ -18,7 +20,6 @@ function updateRoute(_id) {
     fetchCount,
     skipFetchError,
     mock,
-    mockFirst,
     _fetchData,
     _fetchError,
     _store
@@ -32,7 +33,6 @@ function updateRoute(_id) {
   $routeConfigForm.fetchCount.value = fetchCount;
   $routeConfigForm.skipFetchError.checked = skipFetchError == true;
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
-  $routeConfigForm.mockFirst.checked = mockFirst == true;
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchError.value = typeof _fetchError === 'object' ? JSON.stringify(_fetchError, null, 8) : _fetchError ?? '';
@@ -64,21 +64,16 @@ $routeConfigForm.addEventListener("submit", async function (e) {
   const _fetchError = parseJson(fetchErrorValue);
   const _store = parseJson(storeValue);
   const _id = $routeConfigForm._id.value;
-  const routePath = $routeConfigForm.routePath.value.trim();
-
-  const checked = document.querySelectorAll('#methods :checked');
-  const methods = [...checked].map(option => option.value);
+  const routePath = $routeConfigForm.routePath?.value?.trim();
 
   const routeConfig = {
-    methods,
     statusCode: parseInt($routeConfigForm.statusCode.value) || '',
     delay: parseInt($routeConfigForm.delay.value) || '',
     fetch: fetch || '',
-    fetchCount: parseInt($routeConfigForm.fetchCount.value) || 1,
+    fetchCount: parseInt($routeConfigForm.fetchCount.value) ?? 1,
     skipFetchError: $routeConfigForm.skipFetchError.checked,
     mock: mock || '',
-    mockFirst: $routeConfigForm.mockFirst.checked,
-    middlewares: $routeConfigForm.middlewares.value?.toLowerCase().split(",").filter(Boolean),
+    middlewares: $routeConfigForm.middlewares?.value?.toLowerCase().split(",").filter(Boolean) || [],
     _fetchData: _fetchData || '',
     _fetchError: _fetchError || '',
     _store: _store || ''
@@ -89,14 +84,17 @@ $routeConfigForm.addEventListener("submit", async function (e) {
     delete routeConfig.skipFetchError;
   }
 
-  if (!routeConfig.routePath.trim().length) {
-    error += "Please Provide Route Path. <br/>";
-  }
-  if (!routeConfig._id && Object.keys(resources).find(resource => resource === routeConfig.routePath.trim())) {
-    error += "Route Path already exist. Please Provide New Route Path. <br/>";
-  }
-  if (!routeConfig.mock && !routeConfig.fetch) {
-    error += "Please Provide alteast one of Fetch or Mock data. <br/>";
+  // Validate If Creating New Route
+  if(!_id){
+    if (!routePath?.trim()?.length) {
+      error += "Please Provide Route Path. <br/>";
+    }
+    if (Object.keys(resources).find(resource => resource === routePath?.trim())) {
+      error += "Route Path already exist. Please Provide New Route Path. <br/>";
+    }
+    if (!routeConfig.mock && !routeConfig.fetch) {
+      error += "Please Provide alteast one of Fetch or Mock data. <br/>";
+    }
   }
 
   if (error) {
@@ -106,15 +104,19 @@ $routeConfigForm.addEventListener("submit", async function (e) {
 
   let request;
   if (_id) {
-    request = { [routePath]: routeConfig };
-  } else {
-    delete routeConfig.routePath;
+    // update Route
     delete routeConfig.middlewares;
-    delete routeConfig.methods;
+    request = routeConfig;
+  } else {
+    // Create New Route
+    if(!(routeConfig.delay+'').length) delete routeConfig.delay;
+    if(!(routeConfig.statusCode+'').length) delete routeConfig.statusCode;
+    if(!routeConfig.fetch.length) delete routeConfig.fetch;
+    if(!routeConfig.mock.length) delete routeConfig.mock;
     delete routeConfig._fetchData;
     delete routeConfig._fetchError;
     delete routeConfig._store;
-    request = routeConfig;
+    request = { [routePath]: routeConfig };
   }
 
   console.log("Fetch request :", request);

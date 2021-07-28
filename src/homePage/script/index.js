@@ -3,4 +3,4 @@
 // @prepros-append ./split-screen.js
 // @prepros-append ./info-box.js
 // @prepros-append ./modal-handler.js
-// @prepros-append ./script.js
+// @prepros-append ./main.js
