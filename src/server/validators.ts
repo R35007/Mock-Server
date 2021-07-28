@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import * as _ from "lodash";
-import pathToRegexp from 'path-to-regexp';
 import Default_Config from './config';
 import { Initials } from './initials';
 import Default_Middlewares from './middlewares';
@@ -91,8 +90,8 @@ export class Validators extends Initials {
 
   getValidRoutes = (
     routes?: UserRoutes | HAR,
-    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp) => Routes,
-    finalCallback?: (harData: any, generatedMock: Routes, pathToRegexp) => Routes,
+    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Routes,
+    finalCallback?: (harData: any, generatedMock: Routes) => Routes,
     options: { reverse: boolean } = this.config
   ): Routes => {
     let userRoutes = requireData(routes, this.config.root) as Routes | HAR;
@@ -116,7 +115,7 @@ export class Validators extends Initials {
     const generatedRoutes = _.cloneDeep(valid_routes) as Routes;
 
     if (finalCallback && _.isFunction(finalCallback)) {
-      return finalCallback(routes, generatedRoutes, pathToRegexp) || {};
+      return finalCallback(routes, generatedRoutes) || {};
     }
 
     return generatedRoutes;

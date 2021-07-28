@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
-import pathToRegexp, { match } from 'path-to-regexp';
+import { match } from 'path-to-regexp';
 import { HarEntry, RouteConfig, Routes } from '../model';
 
 export const validRoute = (route: string): string => {
@@ -25,15 +25,15 @@ export const normalizeRoutes = <T>(object: T): T => {
 }
 
 const validRouteConfig = (routeConfig): RouteConfig => {
-  if (!_.isPlainObject(routeConfig)) return { mock: routeConfig, _id: "id-"+nanoid(7) }
+  if (!_.isPlainObject(routeConfig)) return { mock: routeConfig, _id: "id-" + nanoid(7) }
 
   if (routeConfig.fetch === undefined && routeConfig.mock === undefined) {
-    return { mock: routeConfig, _id: "id-"+nanoid(7) }
+    return { mock: routeConfig, _id: "id-" + nanoid(7) }
   }
   for (let key in routeConfig) {
     if (key.startsWith("_")) delete routeConfig[key];
   }
-  routeConfig._id = "id-"+nanoid(7);
+  routeConfig._id = "id-" + nanoid(7);
   return routeConfig
 }
 
@@ -68,7 +68,7 @@ export const getMatchedRoutesList = (routeToMatch: string, routes: Routes): stri
 
 export const getRoutesFromEntries = (
   entries: HarEntry[],
-  entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp) => Routes,
+  entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Routes,
 ) => {
 
   let generatedRoutes: Routes = {};
@@ -77,22 +77,23 @@ export const getRoutesFromEntries = (
     const route = new URL(entry?.request?.url)?.pathname;
     const responseText = entry?.response?.content?.text || "";
 
-    let response;
+    let mock;
     try {
-      response = JSON.parse(responseText);
+      mock = JSON.parse(responseText);
     } catch {
-      response = responseText;
+      mock = responseText;
     }
 
+    const statusCode = entry?.response?.status;
     let routePath: string = validRoute(route || '');
     let routeConfig: RouteConfig = {
-      statusCode: entry?.response?.status,
-      mock: response
+      statusCode: statusCode == 304 ? 200 : statusCode,
+      mock
     }
 
     if (entryCallback && _.isFunction(entryCallback)) {
-      const routes = entryCallback(entry, routePath, routeConfig, pathToRegexp) || {};
-      [routePath, routeConfig] = Object.entries(routes)[0];
+      const routes = entryCallback(entry, routePath, routeConfig) || {};
+      [routePath, routeConfig] = Object.entries(routes)[0] || [];
     }
     routePath && routeConfig && setRouteRedirects(generatedRoutes, routePath, routeConfig);
   });
@@ -105,8 +106,8 @@ const setRouteRedirects = (routes: Routes, routePath: string, currentRouteConfig
     const existingConfig = routes[routePath];
     if (routes[routePath].middlewares?.[0] !== "_IterateRoutes") {
       delete routes[routePath];
-      const iterateRoute1 = validRoute(routePath + "/" + "id-"+nanoid(7))
-      const iterateRoute2 = validRoute(routePath + "/" + "id-"+nanoid(7))
+      const iterateRoute1 = validRoute(routePath + "/" + "id-" + nanoid(7))
+      const iterateRoute2 = validRoute(routePath + "/" + "id-" + nanoid(7))
       routes[routePath] = {
         mock: [
           iterateRoute1,
@@ -117,7 +118,7 @@ const setRouteRedirects = (routes: Routes, routePath: string, currentRouteConfig
       routes[iterateRoute1] = existingConfig;
       routes[iterateRoute2] = currentRouteConfig;
     } else {
-      const iterateRoute = validRoute(routePath + "/" + "id-"+nanoid(7))
+      const iterateRoute = validRoute(routePath + "/" + "id-" + nanoid(7))
       routes[routePath].mock.push(iterateRoute);
       routes[iterateRoute] = currentRouteConfig;
     }
