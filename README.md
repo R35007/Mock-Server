@@ -187,11 +187,11 @@ For Example:
     "store": {}, // helps to store any values for later use
 
     // System generated.
-    //Please dont set any values to the below attributes.
+    //Please don't set any values to the below attributes.
     "_fetchData": {}, // contains the fetch call success response
     "_fetchError": {}, // contains the fetch call error response
-    "_id": "id-uniquie", // sets a uniquie id for each route
-    "_isFile": false, // sets to true if the gien fetch url is a file type url
+    "_id": "id-unique", // sets a unique id for each route
+    "_isFile": false, // sets to true if the given fetch url is a file type url
     "_request": {}, // give the actual axios request object of the fetch call
     "_extension": "" // If the given url is a file type url then it give the extension of the file.
   },
@@ -337,7 +337,7 @@ The fetch data will be set to `_fetchData`.
   },
   "/users/1": {
     "fetch": "https://jsonplaceholder.typicode.com/users/1",
-    "fetchCount": 0, // If set to zero, It dosent make a fetch call instead it tries to fetch data from _fetchData
+    "fetchCount": 0, // If set to zero, It doesn't make a fetch call instead it tries to fetch data from _fetchData
     "_fetchData": { "id": 1, "user": "foo" }
   },
   "/todos": {
@@ -541,7 +541,7 @@ GET /posts?q=internet&_text=success
 ### **CrudOperations**
 
 `_CrudOperations` middleware handles all the crud operations of the given data.
-By default it also hadles the `_AdvancedSearch` operations.
+By default it also handles the `_AdvancedSearch` operations.
 Note : the mock must of type Array of objects and must contain a unique value of attribute `id`.
 this `id` attribute can also be changes using `config.id`.
 
@@ -560,7 +560,7 @@ For example: `config.json`
 ### **SetFetchDataToMock**
 
 `_SetFetchDataToMock` sets every fetchData to Mock.
-This overrides the existing mock with the `_fetechData`.
+This overrides the existing mock with the `_fetchData`.
 
 ### **SetStoreDataToMock**
 
@@ -577,7 +577,7 @@ This overrides the existing mock with the `store`.
 
 ### **ReadOnly**
 
-`_ReadOnly` forbiddes every Http method calls except `GET` call.
+`_ReadOnly` forbidden every Http method calls except `GET` call.
 
 ## **Injectors**
 
@@ -685,7 +685,7 @@ Make sure you give `(.*)` at the end of the `injectors.json` object to set route
 
 ## **Store Data**
 
-Store used to store any values which can be used later for any purpose like response manipulation or loging etc..
+Store used to store any values which can be used later for any purpose like response manipulation or logging etc..
 
 ### **Route Store**
 
@@ -738,12 +738,12 @@ Now you can access resources using additional routes.
 ## **Locals**
 
 `res.locals` helps to access the current route config, fetchData, store etc..
-Here are the available optons in `res.locals`
+Here are the available options in `res.locals`
 
 ```ts
 interface Locals {
   routePath: string;
-  //all routeConfigs can be modifed at runtime except middlewares and middleware attribute
+  //all routeConfigs can be modified at runtime except middlewares and middleware attribute
   routeConfig: {
     statusCode?: number;
     delay?: number;
@@ -765,7 +765,7 @@ interface Locals {
     _fetchData?: any;
     _fetchError?: any;
   };
-  data: any; // response will be sent usng this attribute value.
+  data: any; // response will be sent using this attribute value.
   store: object;
   getRoutes: (_ids?: string[], routePaths?: string[]) => Routes; // This method helps to get other route configs and values.
   config: Config; // gives you the current mock server configuration.
@@ -774,7 +774,7 @@ interface Locals {
 
 ### **Dynamic Route Config**
 
-RouteConfigs are mutatable. Means we can able to modify the routeConfigs in runtime using middleware.
+RouteConfigs are mutable. Means we can able to modify the routeConfigs in runtime using middleware.
 For Example:
 
 `middlewares.js`
@@ -812,9 +812,9 @@ const config = {
   bodyParser: true, // Sets the bodyParser
   id: "id", // Set the id attribute here. Helps to do Crud Operations. For example: 'id': "_id"
   logger: true, // If False no logger will be shown
-  noCors: false, // If false cross orgin will not be handled
-  noGzip: false, // If False response will not be comressed
-  readOnly: false, // If ture only GET call is allowed
+  noCors: false, // If false cross origin will not be handled
+  noGzip: false, // If False response will not be compressed
+  readOnly: false, // If true only GET call is allowed
 };
 
 new MockServer("./routes.json", config).launchServer();
@@ -858,7 +858,7 @@ Options:
   -s, --staticDir        Set static files directory                     [string]
   -b, --base             Set base route path                            [string]
       --readOnly, --ro   Allow only GET requests                       [boolean]
-      --noCros, --nc     Disable Cross-Origin Resource Sharing
+      --noCors, --nc     Disable Cross-Origin Resource Sharing
       --noGzip, --ng     Disable GZIP Content-Encoding                 [boolean]
   -l, --logger           Enable logger                 [boolean] [default: true]
   -i, --id               Set database id property (e.g. _id)
@@ -914,7 +914,7 @@ mockServer.launchServer(
 | routes         | string / object | No       | This object generates the local rest api.               |
 | middlewares    | string / object | No       | Here you initialize the needed custom middlewares       |
 | injectors      | string / object | No       | Helps to inject a route configs for the existing routes |
-| routeRewriters | string / object | No       | Helps to set route rewiters                             |
+| routeRewriters | string / object | No       | Helps to set route rewriters                             |
 
 ### **rewriter**
 
@@ -1048,10 +1048,10 @@ mockServer.resetServer();
 
 ### **resetRoutes**
 
-Returns the resetted routes.
+Returns the routes that are reset.
 
 ```js
-const resettedRoutes = mockServer.resetRoutes(); // If param is not present, it resets all the routes.
+const routes = mockServer.resetRoutes(); // If param is not present, it resets all the routes.
 ```
 
 **`Params`**
@@ -1063,10 +1063,10 @@ const resettedRoutes = mockServer.resetRoutes(); // If param is not present, it 
 
 ### **resetStore**
 
-Returns the resetted store values.
+Returns the store values that are reset.
 
 ```js
-const resettedStore = mockServer.resetStore(); // If param is not present, it resets all the store values.
+const store = mockServer.resetStore(); // If param is not present, it resets all the store values.
 ```
 
 **`Params`**

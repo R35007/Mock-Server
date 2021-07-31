@@ -1,4 +1,4 @@
-# v3.0.1
+# v3.0.1, 3.0.2
 
   - Bug Fix
   - Readme Update
@@ -57,9 +57,9 @@
 
 - Bug Fix
 - added CLI Usage with options.
-- `excludeRoutes(routes, routesToExclude)` - returns routes with uexcluded routes.
+- `excludeRoutes(routes, routesToExclude)` - returns routes with unExcluded routes.
 - `transformHar` now has `excludedRoutes` in a config.
-  This helps to exclued routes while generating mock from HAR.
+  This helps to excluded routes while generating mock from HAR.
 
 ```ts
   type transformHar = (
@@ -85,8 +85,8 @@
 
 - added
   - `methods` in routeConfig. Now we can set a route to a specific methods.
-  - `mockserver.getRewrittenRoutes(routes, routeRewrite)` - returns routes with rewritten route path.
-  - `mockserver.getRouteMatchList(routeToMatch, routes)` - returns list of matched routes to the given pattern
+  - `mockServer.getRewrittenRoutes(routes, routeRewrite)` - returns routes with rewritten route path.
+  - `mockServer.getRouteMatchList(routeToMatch, routes)` - returns list of matched routes to the given pattern
   - `transformHar` method with additional options. `pathToRegexp` - gives the methods available in `path-to-regexp` npm package
   ```ts
   type transformHar = (
@@ -123,7 +123,7 @@
 - added
   - `res.locals.store` - now you can directly assign values to store.
   - Dynamic routConfig - Now the routeConfigs are mutable - means you can change the routeConfig inside a middleware using `res.locals.routeConfig`
-  - `fetchOnce` - predefined midleware. Helps to get fetchData only once and returns the existing fetchData for every other api hit.
+  - `fetchOnce` - predefined middleware. Helps to get fetchData only once and returns the existing fetchData for every other api hit.
 
 # v2.0.7,v2.0.8,v2.0.9,v2.0.10
 

@@ -35,7 +35,7 @@ export default () => {
     base: { alias: 'b', description: 'Set base route path', type: "string" },
     config: { alias: 'c', description: 'Path to config file', type: "string" },
     readOnly: { alias: 'ro', description: 'Allow only GET requests' },
-    noCros: { alias: 'nc', description: 'Disable Cross-Origin Resource Sharing' },
+    noCors: { alias: 'nc', description: 'Disable Cross-Origin Resource Sharing' },
     noGzip: { alias: 'ng', description: 'Disable GZIP Content-Encoding' },
     logger: { alias: 'l', description: 'Enable logger', default: true },
     id: { alias: 'i', description: 'Set database id property (e.g. _id)', default: 'id', type: "string" },
@@ -44,7 +44,7 @@ export default () => {
     .example('$0 --r=routes.json', '')
     .example('$0 --r=https://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version("3.0.1").alias('version', 'v').argv as Options;
+    .version("3.0.2").alias('version', 'v').argv as Options;
 
   return options;
 }
