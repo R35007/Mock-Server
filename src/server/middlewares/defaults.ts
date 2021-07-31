@@ -5,9 +5,8 @@ import cors from 'cors';
 import express from 'express';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
-import { Config } from '../../../dist/server/model';
 import Default_Config from '../config';
-import { Default_Options } from '../model';
+import { Config, Default_Options } from '../model';
 const errorhandler = require('errorhandler');
 
 export default (opts: Default_Options) => {
@@ -43,8 +42,8 @@ export default (opts: Default_Options) => {
   // Logger
   if (_opts.logger) {
     arr.push(morgan('dev', {
-      skip: req => process.env.NODE_ENV === 'test' || 
-      req.url === '/favicon.ico'
+      skip: req => process.env.NODE_ENV === 'test' ||
+        req.url === '/favicon.ico'
     }));
   }
 

@@ -17,7 +17,7 @@ export class Initials {
   injectors = {} as Routes;
   store = {} as Object;
   config = _.cloneDeep(Default_Config) as Config
-  rewriterRoutes = {} as KeyValString;
+  routeRewriters = {} as KeyValString;
 
   initialRoutes = {} as Routes;
   initialStore = {} as Object;

@@ -8,16 +8,13 @@ import { Validators } from './validators';
 export class GettersSetters extends Validators {
 
   constructor(
-    routes?: UserRoutes,
     config?: UserConfig,
-    middlewares?: UserMiddlewares,
-    injectors?: UserRoutes,
     store?: UserStore,
-    rewriterRoutes?: UserRewriter
   ) {
     super();
     console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
-    this.setData(routes, config, middlewares, injectors, store, rewriterRoutes);
+    this.setConfig(config);
+    !_.isEmpty(store) && this.setStore(store);
   }
 
   setData(
@@ -26,14 +23,14 @@ export class GettersSetters extends Validators {
     middlewares?: UserMiddlewares,
     injectors?: UserRoutes,
     store?: UserStore,
-    rewriterRoutes?: UserRewriter
+    routeRewriters?: UserRewriter
   ) {
     this.setConfig(config);
     !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
     !_.isEmpty(store) && this.setStore(store);
     !_.isEmpty(routes) && this.setRoutes(routes);
-    !_.isEmpty(rewriterRoutes) && this.setRewriterRoutes(rewriterRoutes);
+    !_.isEmpty(routeRewriters) && this.setRewriterRoutes(routeRewriters);
   };
 
   get data(): GetData {
@@ -43,7 +40,7 @@ export class GettersSetters extends Validators {
       injectors: this.injectors,
       middlewares: this.middlewares,
       store: this.store,
-      rewriterRoutes: this.rewriterRoutes
+      routeRewriters: this.routeRewriters
     } as GetData;
   };
 
@@ -79,9 +76,9 @@ export class GettersSetters extends Validators {
     console.log("Done.");
   }
 
-  setRewriterRoutes(rewriterRoutes?: UserRewriter) {
+  setRewriterRoutes(routeRewriters?: UserRewriter) {
     console.log("\nSetting Rewriter Routes...");
-    this.rewriterRoutes = this.getValidRewriterRoutes(rewriterRoutes);
+    this.routeRewriters = this.getValidRouteRewriters(routeRewriters);
     console.log("Done.");
   }
 }

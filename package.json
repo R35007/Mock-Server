@@ -8,8 +8,8 @@
   "main": "dist/server/index.js",
   "types": "dist/server/index.d.ts",
   "scripts": {
-    "start": "node dist/index.js",
-    "mock-server": "node dist/mock-server.js"
+    "start": "node dist/server/index.js",
+    "mock-server": "node dist/cli/index.js"
   },
   "files": [
     "dist",

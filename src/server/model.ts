@@ -25,17 +25,16 @@ export type RouteConfig = {
   override?: boolean;
   middlewares?: string[];
   middleware?: express.RequestHandler;
+  store?: object;
   description?: string;
 
   _id?: string;
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
-  _isDefault?: boolean;
   _extension?: string;
 
   _fetchData?: any;
   _fetchError?: any;
-  _store?: object;
 }
 
 export type Config = {
@@ -99,7 +98,6 @@ export interface Locals {
   store: object;
   getRoutes: (_ids?: string[], routePaths?: string[]) => Routes;
   config: Config;
-  _isRouteRewritten: boolean;
 }
 
 export type HAR = {
@@ -140,5 +138,5 @@ export type GetData = {
   middlewares: Middlewares;
   injectors: Routes;
   store: Object;
-  rewriterRoutes: KeyValString
+  routeRewriters: KeyValString
 }

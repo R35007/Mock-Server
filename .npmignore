@@ -5,3 +5,5 @@ node_modules
 markdown-style.css
 preprops.config
 package-lock.json
+*.map
+*.scss

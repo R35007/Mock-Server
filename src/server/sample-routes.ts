@@ -3,14 +3,6 @@ import { User_Routes } from './model';
 
 
 const Sample_Routes: User_Routes = {
-  "/iterateRoutes": {
-    mock: [
-      "/posts",
-      "/comments",
-      "/todos"
-    ],
-    middlewares: ["_IterateRoutes"]
-  },
   "/posts": [
     {
       "userId": 1,

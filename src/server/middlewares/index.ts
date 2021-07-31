@@ -6,8 +6,8 @@ const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateResponse method the data must be of type Array");
@@ -25,8 +25,8 @@ const _IterateRoutes = (req, res, next) => {
   const storeKey = "_IterateRoutes"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateRoutes method the data must be of type Array");
@@ -47,8 +47,8 @@ const _CrudOperation = (req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
 
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
     console.error("To use _CurdResponse method the data must be of type Array of objects");
@@ -99,15 +99,29 @@ const _SetFetchDataToMock = (_req, res, next) => {
 const _SetStoreDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig._store !== undefined) {
-    routeConfig.mock = routeConfig._store;
+  if (routeConfig.store !== undefined) {
+    routeConfig.mock = routeConfig.store;
   }
   next();
 }
-const _SendOnlyMock = (_req, res) => {
+const _MockOnly = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  res.send(routeConfig.mock);
+  locals.data = routeConfig.mock;
+  next();
+}
+const _FetchOnly = (_req, res, next) => {
+  const locals = res.locals as Locals;
+  const routeConfig = locals.routeConfig;
+  locals.data = routeConfig._fetchData;
+  next();
+}
+const _ReadOnly = (req, res, next) => {
+  if (req.method === 'GET') {
+    next(); // Continue
+  } else {
+    res.sendStatus(403); // Forbidden
+  }
 }
 
 const Default_Middlewares: Middlewares = {
@@ -118,7 +132,9 @@ const Default_Middlewares: Middlewares = {
   _FetchTillData,
   _SetFetchDataToMock,
   _SetStoreDataToMock,
-  _SendOnlyMock
+  _MockOnly,
+  _FetchOnly,
+  _ReadOnly
 }
 
 export default Default_Middlewares;

@@ -1,7 +1,7 @@
 async function init() {
   localhost = window.location.href.slice(0, -1);
-  resources = await window.fetch(localhost + "/routes").then((res) => res.json());
-  rewriters = await window.fetch(localhost + "/rewriter").then((res) => res.json());
+  resources = await window.fetch(localhost + "/_routes").then((res) => res.json());
+  rewriters = await window.fetch(localhost + "/_rewriter").then((res) => res.json());
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);
   showToast("Resources Loaded Sucessfully");
@@ -46,15 +46,15 @@ function createRewritersList(rewriters) {
 function setDefaultRoutes(resources) {
   const routesList = Object.keys(resources)
 
-  if (!routesList.includes("/routes"))
-    resources["/routes"] = {
+  if (!routesList.includes("/_routes"))
+    resources["/_routes"] = {
       description: "This route gives you the list of available routes with baseUrl. It also included Default Routes.",
       _isDefault: true,
       _id: "default_1"
     }
 
-  if (!routesList.includes("/store"))
-    resources["/store"] = {
+  if (!routesList.includes("/_store"))
+    resources["/_store"] = {
       description: "This route gives you the store values",
       _isDefault: true,
       _id: "default_2"
@@ -166,10 +166,10 @@ function showNoResource(show) {
 
 async function resetAll(type) {
   if (type === 'route') {
-    resources = await window.fetch(localhost + "/reset/route").then(res => res.json());
+    resources = await window.fetch(localhost + "/_reset/route").then(res => res.json());
     showToast("Routes Resetted Sucessfully");
   } else {
-    await window.fetch(localhost + "/reset/store").then(res => res.json());
+    await window.fetch(localhost + "/_reset/store").then(res => res.json());
     showToast("Store Resetted Sucessfully");
   }
   createResourcesList(resources);

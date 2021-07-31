@@ -3,13 +3,14 @@ import chalk from 'chalk';
 import express from "express";
 import * as _ from "lodash";
 import { Config, Locals, PathDetails, Routes } from '../model';
+import { clean } from '../utils';
 import { getStats, parseUrl } from '../utils/fetch';
 
 export default (routePath: string, routes: Routes, getRoutes: (_ids?: string[], routePaths?: string[]) => Routes, config: Config, store: object) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 
     const routeConfig = routes[routePath];
-    routeConfig._store && !_.isPlainObject(routeConfig._store) && (routeConfig._store = {});
+    routeConfig.store && !_.isPlainObject(routeConfig.store) && (routeConfig.store = {});
 
     const locals = res.locals as Locals
     locals.routePath = routePath;
@@ -25,7 +26,8 @@ export default (routePath: string, routes: Routes, getRoutes: (_ids?: string[], 
     delete locals.routeConfig._extension;
 
     if (!_.isEmpty(routeConfig.fetch)) {
-      routeConfig.fetchCount = routeConfig.fetchCount ?? 1
+      const fetchCount = parseInt(routeConfig.fetchCount+"");
+      routeConfig.fetchCount = isNaN(fetchCount) ? 1 : fetchCount;
       const fetch = getUrlDetail(req, res);
       if (fetch) {
         locals.routeConfig._request = fetch.request;
@@ -72,7 +74,8 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
 
   const replacedPath = fetch.url?.
     replace(/{{port}}/gi, config.port + '')
-    .replace(/{{baseUrl}}/gi, config.base)
+    .replace(/{{host}}/gi, config.host)
+    .replace(/{{base}}/gi, config.base)
     .replace(/\/{{routePath}}/gi, req.path)
     .replace(/\/{{params}}/gi, req.url.replace(req.path, ""))
     .replace(/\/{{query}}/gi, req.url.replace(req.path, ""));
@@ -85,12 +88,12 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   })
 
   if (fetch.headers?.proxy) {
-    return {
+    return clean({
       ...expReq,
       data: req.body,
       params: req.query,
       url: replacedPath
-    } as AxiosRequestConfig
+    }) as AxiosRequestConfig
   }
 
   const fetchEntries = Object.entries(fetch).map(([key, val]) => {
@@ -104,7 +107,7 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
     return [key, val]
   })
 
-  return { ..._.fromPairs(fetchEntries), url: replacedPath }
+  return clean({ ..._.fromPairs(fetchEntries), url: replacedPath })
 }
 
 const AxiosRequestConfig: string[] = [

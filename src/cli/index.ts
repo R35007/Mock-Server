@@ -15,10 +15,12 @@ const init = async () => {
 
     routes = source || routes;
 
-    if (routes.startsWith("http")) {
-      routes = await axios.get(routes).then(resp => resp.data).catch(_err => undefined);
-    } else {
-      routes = path.resolve(process.cwd(), routes);
+    if(routes){
+      if (routes?.startsWith("http")) {
+        routes = await axios.get(routes).then(resp => resp.data).catch(_err => undefined);
+      } else {
+        routes = path.resolve(process.cwd(), routes);
+      }
     }
 
     const _config = typeof config === 'string' ? path.resolve(process.cwd(), config) : {
@@ -29,7 +31,7 @@ const init = async () => {
     store = store && path.resolve(process.cwd(), store);
     rewriter = rewriter && path.resolve(process.cwd(), rewriter);
 
-    new MockServer(routes, _config, middlewares, injectors, store, rewriter).launchServer()
+    new MockServer(_config, store).launchServer(routes, middlewares, injectors, rewriter)
   } catch (err) {
     console.error("\n" + chalk.red(err.message) + "\n");
   }

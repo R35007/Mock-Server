@@ -33,8 +33,8 @@ const _FetchUrl = async (_req, res, next) => {
   const { fetchData, fetchError } = await getUrlData(_request!);
   routeConfig._fetchData = fetchData;
   routeConfig._fetchError = fetchError;
-  routeConfig._store = {};
   routeConfig.fetchCount!--;
+  delete routeConfig.store;
 
   locals.data = fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : fetchError);
 
@@ -55,8 +55,8 @@ const _FetchFile = (_req, res, next) => {
   const { fetchData, fetchError } = getFileData(_request!.url!, _extension);
   routeConfig._fetchData = fetchData;
   routeConfig._fetchError = fetchError;
-  routeConfig._store = {};
   routeConfig.fetchCount!--;
+  delete routeConfig.store;
 
   locals.data = fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : fetchError);
 

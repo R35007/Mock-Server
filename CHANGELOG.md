@@ -1,3 +1,17 @@
+# v3.0.0
+
+- `generateMockFromHAR` - removed. instead use `getValidRoutes` method
+- specific method handler is removed in routeConfigs
+- implemented defaults methods with some options like compression, readOnly, staticDir etc..
+- Bug Fix
+- Code refactoring and organized
+- Middleware Utils are added and renamed
+- Added Url rewrites
+- Advanced Search operation is added in CRUD Operation middleware
+- Sample Routes Data is updated
+- many options are added to CLI
+- Now can able to modify routeConfig and add new routes using the new Home Page.
+
 # v2.4.2
 
 - drag handle has been provided in homepage to resize the routes view an data view.

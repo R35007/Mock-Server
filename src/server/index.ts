@@ -24,39 +24,40 @@ import {
   UserRoutes,
   UserStore
 } from "./model";
-import { cleanRoutes, flatQuery, snapShotRoutes } from './utils';
+import { clean, cleanRoutes, flatQuery, snapShotRoutes } from './utils';
 import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
 
   constructor(
-    routes?: UserRoutes,
     config?: UserConfig,
-    middlewares?: UserMiddlewares,
-    injectors?: UserRoutes,
     store?: UserStore,
-    rewriterRoutes?: UserRewriter
   ) {
-    super(routes, config, middlewares, injectors, store, rewriterRoutes);
+    super(config, store);
   }
 
-  launchServer = async () => {
+  launchServer = async (
+    routes?: UserRoutes,
+    middlewares?: UserMiddlewares,
+    injectors?: UserRoutes,
+    routeRewriters?: UserRewriter
+  ) => {
     const app = this.app;
 
-    const rewriter = this.rewriter();
+    const rewriter = this.rewriter(routeRewriters);
     app.use(rewriter);
 
     const defaults = this.defaults();
     app.use(defaults);
 
-    this.router = this.resource();
-    app.use(this.config.base, this.router);
+    const resources = this.resources(routes, middlewares, injectors);
+    app.use(this.config.base, resources);
 
     const defaultRoutes = this.defaultRoutes();
     app.use(this.config.base, defaultRoutes);
 
-    app.use(PageNotFound);
-    app.use(ErrorHandler);
+    app.use(this.pageNotFound);
+    app.use(this.errorHandler);
 
     await this.startServer();
   };
@@ -66,12 +67,16 @@ export class MockServer extends GettersSetters {
     return Defaults(this.config);
   }
 
-  rewriter = (rewriterRoutes?: KeyValString) => {
-    rewriterRoutes && this.setRewriterRoutes(rewriterRoutes);
-    return Rewriter(this.rewriterRoutes);
+  rewriter = (routeRewriters?: UserRewriter) => {
+    routeRewriters && this.setRewriterRoutes(routeRewriters);
+    return Rewriter(this.routeRewriters);
   }
 
-  resource = (
+  pageNotFound = PageNotFound;
+
+  errorHandler = ErrorHandler;
+
+  resources = (
     routes?: UserRoutes,
     middlewares?: UserMiddlewares,
     injectors?: UserRoutes
@@ -87,11 +92,11 @@ export class MockServer extends GettersSetters {
 
     console.log("\n" + chalk.gray("Loading Resources..."));
 
-    const router = express.Router();
-    Object.entries(this.routes).forEach(routes => this.#createRoute(...routes, router));
+    this.router = express.Router();
+    Object.entries(this.routes).forEach(routes => this.#createRoute(...routes, this.router));
 
     console.log(chalk.gray("Done."));
-    return router;
+    return this.router;
   };
 
   #createRoute = (routePath: string, routeConfig: RouteConfig = {}, router: Router) => {
@@ -110,6 +115,13 @@ export class MockServer extends GettersSetters {
     if (!this.router) this.router = express.Router();
     Object.entries(validRoutes).forEach(([routePath, routeConfig]) => this.#createRoute(routePath, routeConfig, router));
     this.initialRoutes = _.cloneDeep(this.routes);
+  }
+
+  getRoutes = (_ids: string[] = [], routePaths: string[] = []): Routes => {
+    if (!_ids.length && !routePaths.length) return _.cloneDeep(this.routes) as Routes;
+    const _routePaths = _ids.map(_id => _.findKey(this.routes, { "_id": _id })).filter(Boolean) as string[];
+    const routePathsList = [..._routePaths, ...routePaths];
+    return _.cloneDeep(routePathsList.reduce((res, rp) => ({ ...res, [rp]: this.routes[rp] }), {})) as Routes;
   }
 
   #getMiddlewareList = (routePath: string, routeConfig: RouteConfig) => {
@@ -171,7 +183,7 @@ export class MockServer extends GettersSetters {
     this.middlewares = { ...Default_Middlewares } as Middlewares;
     this.injectors = {} as Routes;
     this.store = {} as Object;
-    this.rewriterRoutes = {} as KeyValString;
+    this.routeRewriters = {} as KeyValString;
 
     this.initialRoutes = {} as Routes;
     this.initialStore = {} as Object;
@@ -190,17 +202,18 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  resetRoutes = (_ids?: string[]) => {
-    if (_ids?.length) {
-      const routePathToReset = _ids.map(_id => _.findKey(this.initialRoutes, { "_id": _id })).filter(Boolean) as string[];
+  resetRoutes = (_ids: string[] = [], routePaths: string[] = []) => {
+    if (!_ids.length && !routePaths.length) {
+      this.routes = _.cloneDeep(this.initialRoutes);
+      return this.routes;
+    } else {
+      const _routePaths = _ids.map(_id => _.findKey(this.initialRoutes, { "_id": _id })).filter(Boolean) as string[];
+      const routePathToReset = [..._routePaths, ...routePaths];
       const resetedRoutes = routePathToReset.reduce((result, routePath) => {
         this.routes[routePath] = _.cloneDeep(this.initialRoutes[routePath]);
         return { ...result, [routePath]: this.routes[routePath] }
       }, {});
       return resetedRoutes
-    } else {
-      this.routes = _.cloneDeep(this.initialRoutes);
-      return this.routes;
     }
   }
 
@@ -209,21 +222,18 @@ export class MockServer extends GettersSetters {
     const router = express.Router();
 
     const defaultRoutes: Array<[string, express.RequestHandler]> = [
-      ["/routes/:_id?", (req: express.Request, res: express.Response) => {
-        if (req.method.toLowerCase() === 'post') {
-          if (req.body._id || req.query._id) {
-            this.#updateRoute(req, res)
-          } else {
-            this.addRoutes(req.body);
-            res.send(this.routes);
-          }
+      ["/_routes/:_id?", (req: express.Request, res: express.Response) => {
+        if (req.method === 'POST') {
+          this.addRoutes(req.body);
+          res.send(this.routes);
+        } else if (req.method === 'PUT') {
+          this.#replaceRouteConfig(req, res);
         } else {
           this.#getRoutes(req, res);
         }
-      }
-      ],
-      ["/rewriter", (_req, res) => res.send(this.rewriterRoutes)],
-      ["/store/:key?", (req, res) => {
+      }],
+      ["/_rewriter", (_req, res) => res.send(this.routeRewriters)],
+      ["/_store/:key?", (req, res) => {
         const keys = flatQuery(req.params.key || req.query.key) as string[];
         if (keys.length) {
           const store = keys.reduce((res, key) => ({ ...res, [key]: this.store[key] }), {})
@@ -232,12 +242,12 @@ export class MockServer extends GettersSetters {
           res.send(this.store)
         }
       }],
-      ["/reset/route/:_id?", (req, res) => {
+      ["/_reset/route/:_id?", (req, res) => {
         const _ids = flatQuery(req.params._id || req.query._id);
         const resetedRoutes = this.resetRoutes(_ids);
         res.send(resetedRoutes);
       }],
-      ["/reset/store/:key?", (req, res) => {
+      ["/_reset/store/:key?", (req, res) => {
         const keys = flatQuery(req.params.key || req.query.key);
         const resetedStore = this.resetStore(keys);
         res.send(resetedStore)
@@ -274,9 +284,9 @@ export class MockServer extends GettersSetters {
         return { ...res, [routePath]: routeConfig }
       }, {})
 
-      if(isSnapShot){
+      if (isSnapShot) {
         snapShotRoutes(routes);
-      }else{
+      } else {
         isClean && cleanRoutes(routes);
       }
 
@@ -286,56 +296,18 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  getRoutes = (_ids: string[] = [], routePaths: string[] = []): Routes => {
-    if (!_ids.length && !routePaths.length) return _.cloneDeep(this.routes) as Routes;
-    const _routePaths = _ids.map(_id => _.findKey(this.routes, { "_id": _id })).filter(Boolean) as string[];
-    const routePathsList = [..._routePaths, ...routePaths];
-    return _.cloneDeep(routePathsList.reduce((res, rp) => ({ ...res, [rp]: this.routes[rp] }), {})) as Routes;
-  }
-
-  #updateRoute = (req: express.Request, res: express.Response) => {
-    const routeConfig = [].concat(req.body)[0] as RouteConfig;
-    delete routeConfig.middlewares;
-    delete routeConfig._id;
-    const _ids = flatQuery(req.params._id || req.query._id);
-    const routePaths = _ids.map(_id => _.findKey(this.routes, { "_id": _id }));
-    if (routePaths.length) {
-      routePaths.forEach(routePath => {
-        this.routes[routePath] = { ...this.routes[routePath], ...routeConfig }
-      })
+  #replaceRouteConfig = (req: express.Request, res: express.Response) => {
+    const updatedRouteConfig = clean([].concat(req.body)[0]) as RouteConfig;
+    const routePath = _.findKey(this.routes, { _id: req.params._id });
+    const existingRouteConfig = this.routes[routePath];
+    if (routePath) {
+      for(let key in existingRouteConfig){
+        delete this.routes[routePath][key] // clearing all existing Route Config values.
+      }
+      for(let key in updatedRouteConfig){
+        this.routes[routePath][key] = updatedRouteConfig[key] // adding updated Route Config values
+      }
     }
     res.send(this.routes);
   }
-}
-
-let mockServer: MockServer;
-export default {
-  create: (config?: UserConfig, store?: UserStore) => {
-    mockServer = new MockServer(undefined, config, undefined, undefined, store);
-    return mockServer.app;
-  },
-  defaults: (options?: Default_Options) => {
-    return mockServer.defaults(options);
-  },
-  rewriter: (rewriterRoutes: KeyValString) => {
-    return mockServer.rewriter(rewriterRoutes);
-  },
-  resource: (
-    routes?: UserRoutes,
-    middlewares?: UserMiddlewares,
-    injectors?: UserRoutes
-  ) => {
-    return mockServer?.resource(routes, middlewares, injectors);
-  },
-  defaultRoutes: () => mockServer?.defaultRoutes(),
-  addRoutes: (routes: Routes, router?: Router) => mockServer?.addRoutes(routes, router),
-  startServer: (port?: number, host?: string) => {
-    return mockServer?.startServer(port, host)
-  },
-  stopServer: () => mockServer?.stopServer(),
-  resetRoutes: (_ids: string[]) => mockServer?.resetRoutes(_ids),
-  resetStore: (keys: string[]) => mockServer?.resetStore(keys),
-  pageNotFound: PageNotFound,
-  errorHandler: ErrorHandler,
-  data: () => mockServer?.data
 }

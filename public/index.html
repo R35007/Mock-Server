@@ -157,7 +157,7 @@
               <div class="col-sm-10">
                 <input type="text" class="form-control" name="routePath" id="routePath">
                 <div class="feedback">
-                  Be cautious. Once the route is added then it cannot be modified or removed.
+                  Be cautious. Once the route is added then it cannot be removed.
                 </div>
               </div>
             </div>
@@ -178,10 +178,10 @@
             </div>
             <div class="row mb-3">
               <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Fetch" role="button" aria-expanded="false"
-                  aria-controls="Fetch">Fetch</a>
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_fetch" role="button" aria-expanded="false"
+                  aria-controls="_fetch">Fetch</a>
               </label>
-              <div class="col-12 collapse" id="Fetch">
+              <div class="col-12 collapse" id="_Fetch">
                 <textarea class="form-control" name="fetch" id="fetch" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
@@ -203,20 +203,20 @@
             </div>
             <div class="row mb-3">
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Mock" role="button" aria-expanded="false"
-                  aria-controls="Mock">Mock</a>
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_mock" role="button" aria-expanded="false"
+                  aria-controls="_mock">Mock</a>
               </label>
-              <div class="col-12 collapse" id="Mock">
+              <div class="col-12 collapse" id="_mock">
                 <textarea class="form-control" name="mock" id="mock" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
             </div>
             <div class="row mb-3 no-add">
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#FetchData" role="button" aria-expanded="false"
-                  aria-controls="FetchData">Fetch Data</a>
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchData" role="button" aria-expanded="false"
+                  aria-controls="__fetchData">Fetch Data</a>
               </label>
-              <div class="col-12 collapse" id="FetchData">
+              <div class="col-12 collapse" id="__fetchData">
                 <textarea class="form-control" name="_fetchData" id="_fetchData" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
@@ -227,10 +227,10 @@
             </div>
             <div class="row mb-3 no-add">
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#FetchError" role="button" aria-expanded="false"
-                  aria-controls="FetchError">Fetch Error</a>
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchError" role="button" aria-expanded="false"
+                  aria-controls="__fetchError">Fetch Error</a>
               </label>
-              <div class="col-12 collapse" id="FetchError">
+              <div class="col-12 collapse" id="__fetchError">
                 <textarea class="form-control" name="_fetchError" id="_fetchError" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
@@ -242,11 +242,11 @@
             </div>
             <div class="row mb-3 no-add">
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#Store" role="button" aria-expanded="false"
-                  aria-controls="Store">Store</a>
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_store" role="button" aria-expanded="false"
+                  aria-controls="_store">Store</a>
               </label>
-              <div class="col-12 collapse" id=Store>
-                <textarea class="form-control" name="_store" id="_store" rows="5"
+              <div class="col-12 collapse" id=_store>
+                <textarea class="form-control" name="store" id="store" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
                   Helps to Store any values for later use.
@@ -264,6 +264,7 @@
               </div>
             </div>
           </form>
+          <textarea name="routeConfig" id="routeConfig" class="d-none"></textarea>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -273,7 +274,12 @@
     </div>
   </div>
   <script src="./js/bootstrap.bundle.min.js"></script>
-  <script src="./js/script.js"></script>
+  <script src="./js/initializer.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/split-screen.js"></script>
+  <script src="./js/info-box.js"></script>
+  <script src="./js/modal-handler.js"></script>
+  <script src="./js/main.js"></script>
 </body>
 
 </html>

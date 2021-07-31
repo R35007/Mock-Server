@@ -2,8 +2,8 @@ import * as express from 'express';
 import rewrite from 'express-urlrewrite';
 import { KeyValString } from '../model';
 
-export default (rewriterRoutes: KeyValString) => {
+export default (routeRewriters: KeyValString) => {
   const router = express.Router();
-  Object.keys(rewriterRoutes).forEach(key => router.use(rewrite(key, rewriterRoutes[key])));
+  Object.keys(routeRewriters).forEach(key => router.use(rewrite(key, routeRewriters[key])));
   return router;
 }

@@ -20,6 +20,7 @@ const $download = document.getElementById("download");
 const $routeModal = document.getElementById("routeModal");
 const $modalTitle = document.getElementById("modal-title");
 const $routeConfigForm = document.getElementById("route-config-form");
+const $routeConfig = document.getElementById("routeConfig");
 const $formError = document.getElementById("form-error");
 const $toast = document.getElementById("toast");
 

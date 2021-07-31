@@ -77,11 +77,11 @@ export class Validators extends Initials {
     return userStore;
   };
 
-  getValidRewriterRoutes = (rewriterRoutes?: UserStore): KeyValString => {
-    const userRewriterRoutes = requireData(rewriterRoutes, this.config.root) as KeyValString;
+  getValidRouteRewriters = (routeRewriters?: UserStore): KeyValString => {
+    const userRewriterRoutes = requireData(routeRewriters, this.config.root) as KeyValString;
 
     if (_.isEmpty(userRewriterRoutes)) {
-      console.log(chalk.yellow("  Oops, RewriterRoutes doesn't seem to exist."));
+      console.log(chalk.yellow("  Oops, Route Rewriters doesn't seem to exist."));
       return {}
     }
 

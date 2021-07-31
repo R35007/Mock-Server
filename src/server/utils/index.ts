@@ -14,7 +14,6 @@ export const validRoute = (route: string): string => {
 export const normalizeRoutes = <T>(object: T): T => {
   const flattenedRoutes = {} as T;
   Object.entries(object)
-    .filter(([_routes, routeConfig]: [string, RouteConfig]) => !routeConfig._isDefault)
     .forEach(([routes, routeConfig]: [string, RouteConfig]) => {
       const routesChunk = routes.split(",");
       routesChunk.map(validRoute).forEach(r => {
@@ -146,7 +145,7 @@ export const snapShotRoutes = (routes: Routes) => {
     const routeConfig = routes[routePath];
     routes[routePath] = {
       mock: routeConfig.mock ?? (routeConfig._fetchData ??
-        (routeConfig._fetchError ?? routeConfig._store))
+        (routeConfig._fetchError ?? routeConfig.store))
     };
   }
   cleanRoutes(routes);
@@ -158,6 +157,24 @@ export const cleanRoutes = (routes: Routes) => {
     keys.forEach(key => {
       if (key.startsWith("_")) delete routes[routePath][key]
     })
+    clean(routes[routePath]);
   }
 }
+
+export const clean = (obj: object) => {
+  for (var propName in obj) {
+    if (
+        obj[propName] === null ||
+        obj[propName] === undefined ||
+        (_.isArray(obj[propName]) && !obj[propName].length) || 
+        (_.isPlainObject(obj[propName]) && !Object.keys(obj[propName]).length) || 
+        _.isNaN(obj[propName]) ||
+        !(obj[propName].toString().trim())?.length
+    ) {
+      delete obj[propName];
+    }
+  }
+  return obj
+}
+
 

@@ -22,13 +22,13 @@ function showInfoBox($li, _id) {
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm mx-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm" onclick="refresh('${routeConfig._id}')">Refresh</button>
       </div>
-      <div class="route-config">${Object.entries(routeConfig).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
+      <div class="route-config">${Object.entries(orderRouteConfig(routeConfig)).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
     </div>`)
   );
 }
 
 async function reset(_id) {
-  const resetedRoutes = await window.fetch(localhost + "/reset/route/" + _id).then((res) => res.json());
+  const resetedRoutes = await window.fetch(localhost + "/_reset/route/" + _id).then((res) => res.json());
   const [routePath, routeConfig] = Object.entries(resetedRoutes)[0];
   resources[routePath] = routeConfig
   toggleInfoBox(_id);
@@ -37,7 +37,7 @@ async function reset(_id) {
 }
 
 async function refresh(_id) {
-  const refreshedRoute = await window.fetch(localhost + "/routes/" + _id).then((res) => res.json());
+  const refreshedRoute = await window.fetch(localhost + "/_routes/" + _id).then((res) => res.json());
   const [routePath, routeConfig] = Object.entries(refreshedRoute)[0];
   resources[routePath] = routeConfig;
   toggleInfoBox(_id);
@@ -48,7 +48,8 @@ async function refresh(_id) {
 function getKeyVal(id, key, val) {
   if (!(val + '')?.length || val === null || val === undefined) return '';
 
-  if (!["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
+  if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
+    if(!val.length) return '';
     return `
       <div class="row px-3">
         <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
@@ -56,7 +57,8 @@ function getKeyVal(id, key, val) {
         ${getBadges(val).join("")}
         </div>
       </div>`;
-  } else if (typeof val === "object" || ["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"].includes(key)) {
+  } else if (typeof val === "object" || ObjectKeys.includes(key)) {
+    if(!Object.keys(val).length) return ''
     return `
     <div class="row px-3">
       <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
@@ -68,6 +70,7 @@ function getKeyVal(id, key, val) {
       </div>
     </div>`;
   } else {
+    if(!val.toString().trim().length) return '';
     return `
       <div class="row px-3">
         <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
@@ -75,3 +78,5 @@ function getKeyVal(id, key, val) {
       </div>`;
   }
 }
+
+const ObjectKeys = ["fetch", "mock", "_fetchData", "_fetchError", "store", "_request"];
