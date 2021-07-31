@@ -88,7 +88,7 @@ Install Mock Server
 npm install -g @r35007/mock-server
 ```
 
-Create a `server.json` file with mock data.
+Create a `routes.json` file with mock data.
 
 ```jsonc
 {
@@ -101,7 +101,7 @@ Create a `server.json` file with mock data.
 Start Mock Server
 
 ```sh
-mock-server ./server.json
+mock-server ./routes.json
 ```
 
 Now if you go to [http://localhost:3000/hello](http://localhost:3000/hello), you'll get
