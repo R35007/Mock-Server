@@ -25,7 +25,7 @@ export class GettersSetters extends Validators {
     store?: UserStore,
     routeRewriters?: UserRewriter
   ) {
-    this.setConfig(config);
+    !_.isEmpty(config) && this.setConfig(config);
     !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
     !_.isEmpty(store) && this.setStore(store);

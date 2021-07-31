@@ -74,7 +74,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [resetStore](#resetStore)
   - [pageNotFound](#pagenotfound)
   - [errorHandler](#errorhandler)
-  - [setData](#setdata)
+  - [Setters](#setters)
   - [Variables](#variables)
   - [Validators](#validators)
 - [Author](#author)
@@ -88,7 +88,7 @@ Install Mock Server
 npm install -g @r35007/mock-server
 ```
 
-Create a `routes.json` file with mock data.
+Create a `server.json` file with mock data.
 
 ```jsonc
 {
@@ -101,7 +101,7 @@ Create a `routes.json` file with mock data.
 Start Mock Server
 
 ```sh
-mock-server ./mock.json
+mock-server ./server.json
 ```
 
 Now if you go to [http://localhost:3000/hello](http://localhost:3000/hello), you'll get
@@ -465,7 +465,7 @@ example:
 Use `.` to access deep properties
 
 ```
-GET /posts?title=json-server&author=typicode
+GET /posts?title=mock-server&author=typicode
 GET /posts?id=1&id=2
 GET /comments?author.name=typicode
 ```
@@ -970,12 +970,20 @@ app.use(resources);
 
 ### **defaultRoutes**
 
-return the default routes router.
+Returns middlewares used by JSON Server.
 
 ```js
-const defaultsRoutes = mockServer.defaultRoutes();
+const defaultsRoutes = mockServer.defaultRoutes({ readOnly: true });
 app.use(defaultsRoutes);
 ```
+
+* options
+  * `static` path to static files
+  * `logger` enable logger middleware (default: true)
+  * `bodyParser` enable body-parser middleware (default: true)
+  * `noGzip` disable Compression (default: false)
+  * `noCors` disable CORS (default: false)
+  * `readOnly` accept only GET requests (default: false)
 
 ### **addRoutes**
 
@@ -1085,7 +1093,7 @@ Please use it at the end of all routes.
 app.use(mockServer.errorHandler);
 ```
 
-### **setData**
+### **Setters**
 
 set the routes, config, middlewares, injectors, store, routeRewriters
 

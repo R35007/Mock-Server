@@ -1,3 +1,7 @@
+# v3.0.1
+
+  - Bug Fix
+  - Readme Update
 # v3.0.0
 
 - `generateMockFromHAR` - removed. instead use `getValidRoutes` method
