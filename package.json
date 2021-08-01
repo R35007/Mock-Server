@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -38,7 +38,7 @@
     "type": "git",
     "url": "https://github.com/R35007/Mock-Server"
   },
-  "homepage": "https://github.com/R35007/Mock-Server",
+  "homepage": "https://r35007.github.io/Mock-Server/",
   "author": {
     "name": "Sivaraman",
     "email": "sendmsg2siva@gmail.com"

@@ -914,7 +914,7 @@ mockServer.launchServer(
 | routes         | string / object | No       | This object generates the local rest api.               |
 | middlewares    | string / object | No       | Here you initialize the needed custom middlewares       |
 | injectors      | string / object | No       | Helps to inject a route configs for the existing routes |
-| routeRewriters | string / object | No       | Helps to set route rewriters                             |
+| routeRewriters | string / object | No       | Helps to set route rewriters                            |
 
 ### **rewriter**
 
@@ -937,15 +937,17 @@ returns the list of default middlewares.
 Also helps to host a static directory.
 
 ```js
-const defaults = mockServer.defaults({ static: "./public", readOnly: true });
+const defaults = mockServer.defaults({ staticDir: "./public", readOnly: true });
 app.use(defaults);
 ```
 
-**`Params`**
-
-| Name   | Type   | Required | Description     |
-| ------ | ------ | -------- | --------------- |
-| config | object | No       | Give the config |
+- options
+  - `staticDir` path to static files
+  - `logger` enable logger middleware (default: true)
+  - `bodyParser` enable body-parser middleware (default: true)
+  - `noGzip` disable Compression (default: false)
+  - `noCors` disable CORS (default: false)
+  - `readOnly` accept only GET requests (default: false)
 
 ### **resources**
 
@@ -976,14 +978,6 @@ Returns middlewares used by JSON Server.
 const defaultsRoutes = mockServer.defaultRoutes({ readOnly: true });
 app.use(defaultsRoutes);
 ```
-
-* options
-  * `static` path to static files
-  * `logger` enable logger middleware (default: true)
-  * `bodyParser` enable body-parser middleware (default: true)
-  * `noGzip` disable Compression (default: false)
-  * `noCors` disable CORS (default: false)
-  * `readOnly` accept only GET requests (default: false)
 
 ### **addRoutes**
 

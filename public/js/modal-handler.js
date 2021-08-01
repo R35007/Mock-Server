@@ -1,3 +1,5 @@
+'use-strict'
+
 function openModal($button) {
   hideFormError();
   $routeConfigForm.reset();
@@ -99,7 +101,7 @@ async function updateRouteConfig(routeConfig){
   createResourcesList(resources);
   $routeBsModal?.hide?.();
 
-  showToast(`${routePath} Updated Sucessfully`);
+  showToast(`${routePath} Updated Successfully`);
 }
 
 async function addNewRoute(routeConfig){
@@ -115,6 +117,8 @@ async function addNewRoute(routeConfig){
     delete _routeConfig.skipFetchError;
   }
 
+  let error;
+
   if (!routePath?.trim()?.length) {
     error += "Please Provide Route Path. <br/>";
   }
@@ -122,14 +126,14 @@ async function addNewRoute(routeConfig){
     error += "Route Path already exist. Please Provide New Route Path. <br/>";
   }
   if (!_routeConfig.mock && !_routeConfig.fetch) {
-    error += "Please Provide alteast one of Fetch or Mock data. <br/>";
+    error += "Please Provide minimum one of Fetch or Mock data. <br/>";
   }
   if (error) {
     showFormError(error);
     return false;
   }
 
-  const request = request = { [routePath]: _routeConfig };
+  const request = { [routePath]: _routeConfig };
 
   console.log("Add Fetch request :", request);
 
@@ -145,7 +149,7 @@ async function addNewRoute(routeConfig){
   createResourcesList(resources);
   $routeBsModal?.hide?.();
 
-  showToast(`${routePath} Added Sucessfully`);
+  showToast(`${routePath} Added Successfully`);
 }
 
 function hideFormError() {

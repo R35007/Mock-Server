@@ -64,6 +64,7 @@ export type Default_Options = {
 
 export type User_Config = {
   port?: number;
+  host?: string;
   root?: string;
   base?: string;
   id?: string;
