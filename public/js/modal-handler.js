@@ -1,5 +1,3 @@
-'use-strict'
-
 function openModal($button) {
   hideFormError();
   $routeConfigForm.reset();
