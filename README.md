@@ -975,7 +975,7 @@ app.use(resources);
 Returns middlewares used by JSON Server.
 
 ```js
-const defaultsRoutes = mockServer.defaultRoutes({ readOnly: true });
+const defaultsRoutes = mockServer.defaultRoutes();
 app.use(defaultsRoutes);
 ```
 
