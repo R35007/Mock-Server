@@ -6,8 +6,8 @@ const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
-  const store = routeConfig.store || {};
+  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
+  const store = routeConfig._store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateResponse method the data must be of type Array");
@@ -25,8 +25,8 @@ const _IterateRoutes = (req, res, next) => {
   const storeKey = "_IterateRoutes"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
-  const store = routeConfig.store || {};
+  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
+  const store = routeConfig._store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateRoutes method the data must be of type Array");
@@ -47,8 +47,8 @@ const _CrudOperation = (req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
 
-  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
-  const store = routeConfig.store || {};
+  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
+  const store = routeConfig._store || {};
 
   if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
     console.error("To use _CurdResponse method the data must be of type Array of objects");
@@ -99,8 +99,8 @@ const _SetFetchDataToMock = (_req, res, next) => {
 const _SetStoreDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig.store !== undefined) {
-    routeConfig.mock = routeConfig.store;
+  if (routeConfig._store !== undefined) {
+    routeConfig.mock = routeConfig._store;
   }
   next();
 }

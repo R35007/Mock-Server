@@ -85,7 +85,7 @@ function orderRouteConfig(routeConfig) {
     "_extension",
     "_fetchData",
     "_fetchError",
-    "store"
+    "_store"
   ]
 
   const routeConfigKeys = Object.keys(routeConfig);

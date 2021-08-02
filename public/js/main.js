@@ -4,7 +4,7 @@ async function init() {
   rewriters = await window.fetch(localhost + "/_rewriter").then((res) => res.json());
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);
-  showToast("Resources Loaded Sucessfully");
+  showToast("Resources Loaded Successfully");
 }
 
 function createResourcesList(resources) {
@@ -106,7 +106,7 @@ async function setIframeData($event, url) {
     $event.parentNode.classList.add("active");
     $iframeData.contentWindow.document.open();
     $iframeData.contentWindow.document.close();
-    $iframeloader.style.display = "grid";
+    $frameborder.style.display = "grid";
     $dataContainer.style.display = "block";
     setIFrameSrc(url);
   } catch (err) {
@@ -167,10 +167,10 @@ function showNoResource(show) {
 async function resetAll(type) {
   if (type === 'route') {
     resources = await window.fetch(localhost + "/_reset/route").then(res => res.json());
-    showToast("Routes Resetted Sucessfully");
+    showToast("Routes Restored Successfully");
   } else {
     await window.fetch(localhost + "/_reset/store").then(res => res.json());
-    showToast("Store Resetted Sucessfully");
+    showToast("Store Restored Successfully");
   }
   createResourcesList(resources);
 }

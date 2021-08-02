@@ -28,12 +28,12 @@ function showInfoBox($li, _id) {
 }
 
 async function reset(_id) {
-  const resetedRoutes = await window.fetch(localhost + "/_reset/route/" + _id).then((res) => res.json());
-  const [routePath, routeConfig] = Object.entries(resetedRoutes)[0];
+  const restoredRoutes = await window.fetch(localhost + "/_reset/route/" + _id).then((res) => res.json());
+  const [routePath, routeConfig] = Object.entries(restoredRoutes)[0];
   resources[routePath] = routeConfig
   toggleInfoBox(_id);
   toggleInfoBox(_id);
-  showToast(`${routePath} Resetted Sucessfully`);
+  showToast(`${routePath} Restored Successfully`);
 }
 
 async function refresh(_id) {
@@ -42,7 +42,7 @@ async function refresh(_id) {
   resources[routePath] = routeConfig;
   toggleInfoBox(_id);
   toggleInfoBox(_id);
-  showToast(`${routePath} Refreshed Sucessfully`);
+  showToast(`${routePath} Refreshed Successfully`);
 }
 
 function getKeyVal(id, key, val) {
@@ -79,4 +79,4 @@ function getKeyVal(id, key, val) {
   }
 }
 
-const ObjectKeys = ["fetch", "mock", "_fetchData", "_fetchError", "store", "_request"];
+const ObjectKeys = ["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"];

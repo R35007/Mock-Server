@@ -14,7 +14,7 @@ const $resourcesList = document.getElementById("resources-list");
 const $rewritersList = document.getElementById("rewriters-list");
 const $resourcesCount = document.getElementById("resources-count");
 const $search = document.getElementById("search");
-const $iframeloader = document.getElementById("iframe-loader");
+const $frameborder = document.getElementById("iframe-loader");
 const $iframeData = document.getElementById("iframe-data");
 const $download = document.getElementById("download");
 const $routeModal = document.getElementById("routeModal");
@@ -29,7 +29,7 @@ let $bsToast;
 
 try{
   $routeBsModal = new bootstrap.Modal($routeModal);
-  $bsToast = new bootstrap.Toast($toast, { anumation: true, delay: 2000 });
+  $bsToast = new bootstrap.Toast($toast, { animation: true, delay: 2000 });
 }catch{
   $routeBsModal = {};
   $bsToast = {};

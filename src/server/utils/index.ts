@@ -140,25 +140,28 @@ export const flatQuery = (data) => {
   return _.flattenDeep([].concat(data).filter(Boolean).map((s: string) => s.split(","))).filter(Boolean);
 }
 
-export const snapShotRoutes = (routes: Routes) => {
-  for (let routePath in routes) {
-    const routeConfig = routes[routePath];
-    routes[routePath] = {
-      mock: routeConfig.mock ?? (routeConfig._fetchData ??
-        (routeConfig._fetchError ?? routeConfig.store))
+export const getCleanedRoutes = (routes: Routes) => {
+  const _routes = _.cloneDeep(routes);
+  for (let routePath in _routes) {
+    const routeConfig = _routes[routePath];
+    _routes[routePath] = {
+      ..._routes[routePath],
+      mock: routeConfig._fetchData ?? routeConfig.mock
     };
-  }
-  cleanRoutes(routes);
-}
 
-export const cleanRoutes = (routes: Routes) => {
-  for (let routePath in routes) {
-    const keys = Object.keys(routes[routePath]);
+    const keys = Object.keys(_routes[routePath]);
     keys.forEach(key => {
-      if (key.startsWith("_")) delete routes[routePath][key]
+      if (key.startsWith("_")) delete _routes[routePath][key]
     })
-    clean(routes[routePath]);
+
+    clean(_routes[routePath]);
+
+    const remainingKeys = Object.keys(_routes[routePath]);
+    if(remainingKeys.length === 1 && remainingKeys[0] === 'mock'){
+      _routes[routePath] = _routes[routePath].mock;
+    }
   }
+  return _routes;
 }
 
 export const clean = (obj: object) => {

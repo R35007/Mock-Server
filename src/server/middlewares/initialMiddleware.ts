@@ -10,7 +10,7 @@ export default (routePath: string, routes: Routes, getRoutes: (_ids?: string[], 
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 
     const routeConfig = routes[routePath];
-    routeConfig.store && !_.isPlainObject(routeConfig.store) && (routeConfig.store = {});
+    routeConfig._store && !_.isPlainObject(routeConfig._store) && (routeConfig._store = {});
 
     const locals = res.locals as Locals
     locals.routePath = routePath;
@@ -63,7 +63,8 @@ const getUrlDetail = (req, res) => {
     const parsedUrl = parseUrl(request.url, locals.config.root);
     console.log(chalk.gray("parsed Fetch url : "), chalk.green(parsedUrl));
     const stats = getStats(parsedUrl) || {} as PathDetails;
-    request.url = parsedUrl
+    request.url = parsedUrl;
+    delete request.headers;
     return { request, ...stats };
   }
 }
@@ -76,9 +77,9 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
     replace(/{{port}}/gi, config.port + '')
     .replace(/{{host}}/gi, config.host)
     .replace(/{{base}}/gi, config.base)
-    .replace(/\/{{routePath}}/gi, req.path)
-    .replace(/\/{{params}}/gi, req.url.replace(req.path, ""))
-    .replace(/\/{{query}}/gi, req.url.replace(req.path, ""));
+    .replace(/\/{{routePath}}|{{routePath}}/gi, req.path)
+    .replace(/\?{{params}}|{{params}}/gi, req.url.replace(req.path, ""))
+    .replace(/\?{{query}}|{{query}}/gi, req.url.replace(req.path, ""));
 
   const expReq = _.fromPairs(Object.entries(req).filter(([key]) => AxiosRequestConfig.includes(key)));
 
@@ -88,12 +89,16 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   })
 
   if (fetch.headers?.proxy) {
-    return clean({
+    const request = {
       ...expReq,
       data: req.body,
       params: req.query,
       url: replacedPath
-    }) as AxiosRequestConfig
+    };
+    delete request.query;
+    delete request.body;
+
+    return clean(request) as AxiosRequestConfig
   }
 
   const fetchEntries = Object.entries(fetch).map(([key, val]) => {
@@ -107,7 +112,11 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
     return [key, val]
   })
 
-  return clean({ ..._.fromPairs(fetchEntries), url: replacedPath })
+  const request = { ..._.fromPairs(fetchEntries), url: replacedPath };
+  delete request.query;
+  delete request.body;
+
+  return clean(request)
 }
 
 const AxiosRequestConfig: string[] = [

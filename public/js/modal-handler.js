@@ -25,7 +25,7 @@ async function updateRoute(_id) {
     mock,
     _fetchData,
     _fetchError,
-    store
+    _store
   } = routeConfig;
 
   $routeConfigForm._id.value = _id;
@@ -39,7 +39,7 @@ async function updateRoute(_id) {
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
   $routeConfigForm._fetchError.value = typeof _fetchError === 'object' ? JSON.stringify(_fetchError, null, 8) : _fetchError ?? '';
-  $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
+  $routeConfigForm._store.value = typeof _store === 'object' ? JSON.stringify(_store, null, 8) : _store ?? '';
 }
 
 function addRoute(_id) {
@@ -56,7 +56,7 @@ $routeConfigForm.addEventListener("submit", function (e) {
   const mock = parseJson($routeConfigForm.mock.value);
   const _fetchData = parseJson($routeConfigForm._fetchData.value);
   const _fetchError = parseJson($routeConfigForm._fetchError.value);
-  const store = parseJson($routeConfigForm.store.value);
+  const _store = parseJson($routeConfigForm._store.value);
   
   const routeConfig = {
     _id: $routeConfigForm._id.value?.trim(),
@@ -68,9 +68,9 @@ $routeConfigForm.addEventListener("submit", function (e) {
     middlewares: $routeConfigForm.middlewares?.value?.toLowerCase().split(",").filter(Boolean) || [],
     fetch,
     mock,
-    store,
     _fetchData,
-    _fetchError
+    _fetchError,
+    _store
   }
   routeConfig._id ? updateRouteConfig(routeConfig) : addNewRoute(routeConfig)
 })

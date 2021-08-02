@@ -24,7 +24,7 @@ import {
   UserRoutes,
   UserStore
 } from "./model";
-import { clean, cleanRoutes, flatQuery, snapShotRoutes } from './utils';
+import { clean, flatQuery, getCleanedRoutes } from './utils';
 import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
@@ -191,11 +191,11 @@ export class MockServer extends GettersSetters {
 
   resetStore = (keys?: string[]) => {
     if (keys?.length) {
-      const resetedStore = keys.reduce((result, key) => {
+      const restoredStore = keys.reduce((result, key) => {
         this.store[key] = _.cloneDeep(this.initialStore[key]);
         return { ...result, [key]: this.store[key] };
       }, {});
-      return resetedStore;
+      return restoredStore;
     } else {
       this.store = _.cloneDeep(this.initialStore) as Object;
       return this.store;
@@ -209,11 +209,11 @@ export class MockServer extends GettersSetters {
     } else {
       const _routePaths = _ids.map(_id => _.findKey(this.initialRoutes, { "_id": _id })).filter(Boolean) as string[];
       const routePathToReset = [..._routePaths, ...routePaths];
-      const resetedRoutes = routePathToReset.reduce((result, routePath) => {
+      const restoredRoutes = routePathToReset.reduce((result, routePath) => {
         this.routes[routePath] = _.cloneDeep(this.initialRoutes[routePath]);
         return { ...result, [routePath]: this.routes[routePath] }
       }, {});
-      return resetedRoutes
+      return restoredRoutes
     }
   }
 
@@ -244,13 +244,13 @@ export class MockServer extends GettersSetters {
       }],
       ["/_reset/route/:_id?", (req, res) => {
         const _ids = flatQuery(req.params._id || req.query._id);
-        const resetedRoutes = this.resetRoutes(_ids);
-        res.send(resetedRoutes);
+        const restoredRoutes = this.resetRoutes(_ids);
+        res.send(restoredRoutes);
       }],
       ["/_reset/store/:key?", (req, res) => {
         const keys = flatQuery(req.params.key || req.query.key);
-        const resetedStore = this.resetStore(keys);
-        res.send(resetedStore)
+        const restoredStore = this.resetStore(keys);
+        res.send(restoredStore)
       }]
     ]
 
@@ -265,30 +265,24 @@ export class MockServer extends GettersSetters {
   }
 
   #getRoutes = (req: express.Request, res: express.Response) => {
-    const routeConfigList = Object.entries(this.routes)
+    const routeConfigList = Object.entries(_.cloneDeep(this.routes) as Routes)
       .map(([routePath, routeConfig]) => ({ ...routeConfig, routePath }));
 
     req.params.id = req.params._id;
     req.query.id = req.query._id ?? req.query.id;
 
-    const isClean = req.query.clean;
-    const isSnapShot = req.query.snapshot;
-    delete req.query.clean;
-    delete req.query.isSnapShot;
+    const isClean = req.query._clean;
+    delete req.query._clean;
 
     try {
       const result = CRUD.search(req, res, routeConfigList, "_id");
-      const routes = [].concat(result).filter(Boolean).reduce((res, routeConfig: any) => {
+      let routes = [].concat(result).filter(Boolean).reduce((res, routeConfig: any) => {
         const routePath = routeConfig.routePath;
         delete routeConfig.routePath;
         return { ...res, [routePath]: routeConfig }
       }, {})
 
-      if (isSnapShot) {
-        snapShotRoutes(routes);
-      } else {
-        isClean && cleanRoutes(routes);
-      }
+      if (isClean) routes = getCleanedRoutes(routes);
 
       res.send(routes);
     } catch (err) {
@@ -301,10 +295,10 @@ export class MockServer extends GettersSetters {
     const routePath = _.findKey(this.routes, { _id: req.params._id });
     const existingRouteConfig = this.routes[routePath];
     if (routePath) {
-      for(let key in existingRouteConfig){
+      for (let key in existingRouteConfig) {
         delete this.routes[routePath][key] // clearing all existing Route Config values.
       }
-      for(let key in updatedRouteConfig){
+      for (let key in updatedRouteConfig) {
         this.routes[routePath][key] = updatedRouteConfig[key] // adding updated Route Config values
       }
     }

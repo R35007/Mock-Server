@@ -184,12 +184,12 @@ For Example:
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
     "skipFetchError": false, // If True it skips any fetch error and send the mock data
-    "store": {}, // helps to store any values for later use
 
     // System generated.
     //Please don't set any values to the below attributes.
     "_fetchData": {}, // contains the fetch call success response
     "_fetchError": {}, // contains the fetch call error response
+    "_store": {}, // helps to store any values for later use
     "_id": "id-unique", // sets a unique id for each route
     "_isFile": false, // sets to true if the given fetch url is a file type url
     "_request": {}, // give the actual axios request object of the fetch call
@@ -691,7 +691,7 @@ Store used to store any values which can be used later for any purpose like resp
 
 Route store helps to store any values which can be accessed on by that particular route.
 This stores values cannot be able to accessed by the other routes.
-Route Store can be accessed using `res.locals.routeConfig.store` inside the middleware.
+Route Store can be accessed using `res.locals.routeConfig._store` inside the middleware.
 
 The middlewares `_CrudOperations`, `_IterateRoutes`, `_IterateResponse` uses the Route store to manipulate response.
 
@@ -737,7 +737,7 @@ Now you can access resources using additional routes.
 
 ## **Locals**
 
-`res.locals` helps to access the current route config, fetchData, store etc..
+`res.locals` helps to access the current route config, _fetchData, _store etc..
 Here are the available options in `res.locals`
 
 ```ts
@@ -754,7 +754,6 @@ interface Locals {
     override?: boolean;
     middlewares?: string[];
     middleware?: express.RequestHandler;
-    store?: object;
     description?: string;
 
     // System generated attributes. Please avoid modifying these attribute values
@@ -764,6 +763,7 @@ interface Locals {
     _extension?: string;
     _fetchData?: any;
     _fetchError?: any;
+    _store?: object;
   };
   data: any; // response will be sent using this attribute value.
   store: object;

@@ -25,16 +25,16 @@ export type RouteConfig = {
   override?: boolean;
   middlewares?: string[];
   middleware?: express.RequestHandler;
-  store?: object;
   description?: string;
-
+  
   _id?: string;
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
   _extension?: string;
-
+  
   _fetchData?: any;
   _fetchError?: any;
+  _store?: object;
 }
 
 export type Config = {

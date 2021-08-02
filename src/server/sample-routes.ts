@@ -36,7 +36,7 @@ const Sample_Routes: User_Routes = {
     }
   ],
   "/albums/:id?": {
-    fetch: "https://jsonplaceholder.typicode.com/{{routePath}}",
+    fetch: "https://jsonplaceholder.typicode.com/{{routePath}}?{{params}}",
     middlewares: ["_FetchTillData"]
   },
   "/comments": {
@@ -46,7 +46,12 @@ const Sample_Routes: User_Routes = {
   },
   "/photos": {
     statusCode: 500,
-    fetch: { url: "https://jsonplaceholder.typicode.com/photos" },
+    fetch: { 
+      url: "https://jsonplaceholder.typicode.com/photos",
+      params:{
+        _limit: 20
+      }
+     },
     middlewares: ["_IterateResponse"]
   },
   "/todos": {

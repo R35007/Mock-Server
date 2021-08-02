@@ -34,7 +34,7 @@ const _FetchUrl = async (_req, res, next) => {
   routeConfig._fetchData = fetchData;
   routeConfig._fetchError = fetchError;
   routeConfig.fetchCount!--;
-  delete routeConfig.store;
+  delete routeConfig._store;
 
   locals.data = fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : fetchError);
 
@@ -56,7 +56,7 @@ const _FetchFile = (_req, res, next) => {
   routeConfig._fetchData = fetchData;
   routeConfig._fetchError = fetchError;
   routeConfig.fetchCount!--;
-  delete routeConfig.store;
+  delete routeConfig._store;
 
   locals.data = fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : fetchError);
 
