@@ -28,12 +28,12 @@ async function updateRoute(_id) {
     _store
   } = routeConfig;
 
-  $routeConfigForm._id.value = _id;
-  $routeConfigForm.routePath.value = routePath;
-  $routeConfigForm.statusCode.value = statusCode;
-  $routeConfigForm.delay.value = delay;
+  $routeConfigForm._id.value = _id || '';
+  $routeConfigForm.routePath.value = routePath || '';
+  $routeConfigForm.statusCode.value = statusCode || '';
+  $routeConfigForm.delay.value = delay || '';
   $routeConfigForm.fetch.value = typeof fetch === 'object' ? JSON.stringify(fetch, null, 8) : fetch ?? '';
-  $routeConfigForm.fetchCount.value = fetchCount;
+  $routeConfigForm.fetchCount.value = fetchCount || '';
   $routeConfigForm.skipFetchError.checked = skipFetchError == true;
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
   $routeConfigForm._fetchData.value = typeof _fetchData === 'object' ? JSON.stringify(_fetchData, null, 8) : _fetchData ?? '';
@@ -115,7 +115,7 @@ async function addNewRoute(routeConfig){
     delete _routeConfig.skipFetchError;
   }
 
-  let error;
+  let error = '';
 
   if (!routePath?.trim()?.length) {
     error += "Please Provide Route Path. <br/>";
