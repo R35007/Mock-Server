@@ -44,7 +44,7 @@ export default () => {
     .example('$0 routes.json', '')
     .example('$0 https://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version("3.0.5").alias('version', 'v').argv as Options;
+    .version("3.0.6").alias('version', 'v').argv as Options;
 
   return options;
 }
