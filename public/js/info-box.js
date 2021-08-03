@@ -18,9 +18,10 @@ function showInfoBox($li, _id) {
     parseHTML(`
     <div class="info-box position-relative overflow=hidden">
       <div class="actions justify-content-end p-2 position-absolute" style="display: ${routeConfig._isDefault ? 'none' : 'flex'}">
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm" onclick="reset('${routeConfig._id}')">Reset</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm mx-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm" onclick="refresh('${routeConfig._id}')">Refresh</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="reset('${routeConfig._id}')">Reset</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig._id}">Clone</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig._id}')">Refresh</button>
       </div>
       <div class="route-config">${Object.entries(orderRouteConfig(routeConfig)).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
     </div>`)

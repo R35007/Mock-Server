@@ -1,7 +1,14 @@
+# v3.0.8
+
+- Bug Fix
+- Ui update in Home Page
+- Implemented Route Config Clone in Home page
+
 # v3.0.7
 
-  - Bug Fix
-  - Readme Update
+- Bug Fix
+- Readme Update
+
 # v3.0.0
 
 - `generateMockFromHAR` - removed. instead use `getValidRoutes` method

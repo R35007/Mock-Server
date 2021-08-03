@@ -42,9 +42,10 @@ export default () => {
   }).boolean('readOnly').boolean('noCors').boolean('noGzip').boolean('logger')
     .help('help').alias('help', 'h')
     .example('$0 routes.json', '')
-    .example('$0 https://jsonplaceholder.typicode.com/db', '')
+    .example('$0 --r=routes.json', '')
+    .example('$0 http://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version("3.0.7").alias('version', 'v').argv as Options;
+    .version("3.0.8").alias('version', 'v').argv as Options;
 
   return options;
 }

@@ -43,9 +43,9 @@ function showToast(message) {
 function parseJson(data) {
   let parsedData;
   try {
-    parsedData = JSON.parse(data) || undefined;
+    parsedData = JSON.parse(data || '');
   } catch {
-    parsedData = data.trim() || undefined;
+    parsedData = data?.trim();
   }
   return parsedData;
 }

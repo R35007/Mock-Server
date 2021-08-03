@@ -29,9 +29,6 @@ const validRouteConfig = (routeConfig): RouteConfig => {
   if (routeConfig.fetch === undefined && routeConfig.mock === undefined) {
     return { mock: routeConfig, _id: "id-" + nanoid(7) }
   }
-  for (let key in routeConfig) {
-    if (key.startsWith("_")) delete routeConfig[key];
-  }
   routeConfig._id = "id-" + nanoid(7);
   return routeConfig
 }
@@ -178,6 +175,15 @@ export const clean = (obj: object) => {
     }
   }
   return obj
+}
+
+export const replaceObj = (oldObj: object, newObj: object) => {
+  for (let key in oldObj) {
+    delete oldObj[key] // clearing all existing Route Config values.
+  }
+  for (let key in newObj) {
+    oldObj[key] = newObj[key] // adding updated Route Config values
+  }
 }
 
 

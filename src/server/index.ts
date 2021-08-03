@@ -24,7 +24,7 @@ import {
   UserRoutes,
   UserStore
 } from "./model";
-import { clean, flatQuery, getCleanedRoutes } from './utils';
+import { clean, flatQuery, getCleanedRoutes, replaceObj } from './utils';
 import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
@@ -103,8 +103,11 @@ export class MockServer extends GettersSetters {
     if (!this.routesList.includes(routePath)) {
       this.routesList.push(routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
+
+      // adding new Routes
       if (!Object.keys(this.routes).includes(routePath)) {
         this.routes[routePath] = routeConfig;
+        this.initialRoutes[routePath] = _.cloneDeep(routeConfig);
       }
       router?.all(routePath, middlewareList);
     };
@@ -114,7 +117,6 @@ export class MockServer extends GettersSetters {
     const validRoutes = this.getValidRoutes(routes);
     if (!this.router) this.router = express.Router();
     Object.entries(validRoutes).forEach(([routePath, routeConfig]) => this.#createRoute(routePath, routeConfig, router));
-    this.initialRoutes = _.cloneDeep(this.routes);
   }
 
   getRoutes = (_ids: string[] = [], routePaths: string[] = []): Routes => {
@@ -192,25 +194,25 @@ export class MockServer extends GettersSetters {
   resetStore = (keys?: string[]) => {
     if (keys?.length) {
       const restoredStore = keys.reduce((result, key) => {
-        this.store[key] = _.cloneDeep(this.initialStore[key]);
+        replaceObj(this.store[key], _.cloneDeep(this.initialStore[key]));
         return { ...result, [key]: this.store[key] };
       }, {});
       return restoredStore;
     } else {
-      this.store = _.cloneDeep(this.initialStore) as Object;
+      replaceObj(this.store, _.cloneDeep(this.initialStore));
       return this.store;
     }
   }
 
   resetRoutes = (_ids: string[] = [], routePaths: string[] = []) => {
     if (!_ids.length && !routePaths.length) {
-      this.routes = _.cloneDeep(this.initialRoutes);
+      replaceObj(this.routes, _.cloneDeep(this.initialRoutes));
       return this.routes;
     } else {
       const _routePaths = _ids.map(_id => _.findKey(this.initialRoutes, { "_id": _id })).filter(Boolean) as string[];
       const routePathToReset = [..._routePaths, ...routePaths];
       const restoredRoutes = routePathToReset.reduce((result, routePath) => {
-        this.routes[routePath] = _.cloneDeep(this.initialRoutes[routePath]);
+        replaceObj(this.routes[routePath], _.cloneDeep(this.initialRoutes[routePath]))
         return { ...result, [routePath]: this.routes[routePath] }
       }, {});
       return restoredRoutes
@@ -293,15 +295,7 @@ export class MockServer extends GettersSetters {
   #replaceRouteConfig = (req: express.Request, res: express.Response) => {
     const updatedRouteConfig = clean([].concat(req.body)[0]) as RouteConfig;
     const routePath = _.findKey(this.routes, { _id: req.params._id });
-    const existingRouteConfig = this.routes[routePath];
-    if (routePath) {
-      for (let key in existingRouteConfig) {
-        delete this.routes[routePath][key] // clearing all existing Route Config values.
-      }
-      for (let key in updatedRouteConfig) {
-        this.routes[routePath][key] = updatedRouteConfig[key] // adding updated Route Config values
-      }
-    }
+    routePath && replaceObj(this.routes[routePath], updatedRouteConfig)
     res.send(this.routes);
   }
 }

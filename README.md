@@ -55,8 +55,10 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Static File Server](#config)
 - [Default Routes](#default-routes)
 - [Home Page](#home-page)
-  - [Add New Route](#add-new-route)
-  - [Update Route Config](#update-route-config)
+  - [Details View](#details-view)
+  - [Update Route](#update-route)
+  - [Clone Route](#clone-route)
+  - [Add Route](#add-route)
 - [CLI Usage](#cli-usage)
 - [API](#api)
   - [MockServer](#mockserver)
@@ -737,7 +739,7 @@ Now you can access resources using additional routes.
 
 ## **Locals**
 
-`res.locals` helps to access the current route config, _fetchData, _store etc..
+`res.locals` helps to access the current route config, `_fetchData`, `_store` etc..
 Here are the available options in `res.locals`
 
 ```ts
@@ -833,13 +835,21 @@ new MockServer("./routes.json", config).launchServer();
 
 ![Home Page](https://r35007.github.io/Mock-Server/src/img/homePage.png)
 
-### **Add New Route**
+## **Details View**
 
-![Add New Route](https://r35007.github.io/Mock-Server/src/img/addNewRoute.png)
+![Details View](https://r35007.github.io/Mock-Server/src/img/detailsView.png)
 
-### **Update Route Config**
+### **Update Route**
 
-![Update Route Config](https://r35007.github.io/Mock-Server/src/img/updateRouteConfig.png)
+![Update Route](https://r35007.github.io/Mock-Server/src/img/updateRoute.png)
+
+### **Clone Route**
+
+![Clone Route](https://r35007.github.io/Mock-Server/src/img/cloneRoute.png)
+
+### **Add Route**
+
+![Add Route](https://r35007.github.io/Mock-Server/src/img/addRoute.png)
 
 ## CLI Usage
 
@@ -867,8 +877,9 @@ Options:
   -v, --version          Show version number                           [boolean]
 
 Examples:
+  index.js routes.json
   index.js --r=routes.json
-  index.js --r=https://jsonplaceholder.typicode.com/db
+  index.js http://jsonplaceholder.typicode.com/db
 
 https://r35007.github.io/Mock-Server/
 ```

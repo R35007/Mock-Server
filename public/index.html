@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <script src="https://kit.fontawesome.com/1515315868.js" crossorigin="anonymous"></script>
   <title>Mock Server</title>
@@ -32,7 +35,7 @@
 </head>
 
 <body>
-  <div id="container" class="d-flex w-100" style="height: 100vh !important;">
+  <div id="container" class="d-flex w-100 h-100">
     <div id="resources-container" class="position-relative">
       <div id="toast" class="toast hide align-items-center text-white bg-success border-0 position-absolute"
         role="alert" aria-live="assertive" aria-atomic="true">
@@ -109,8 +112,8 @@
         </div>
       </main>
     </div>
-    <div id="separator" class="h-100"></div>
-    <div id="data-container" style="width: 30rem;" class="position-relative">
+    <div id="separator"></div>
+    <div id="data-container" style="width: 50%;" class="position-relative">
       <nav id="iframe-header" class="navbar navbar-expand-lg navbar-primary bg-primary p-1">
         <div class="container-fluid p-0">
           <a title="open in new tab" id="resource-header" class="btn btn-primary w-100 overflow-hidden" target="_blank">
@@ -131,7 +134,7 @@
             <div style="margin-left: 15px;">Processing...</div>
           </div>
         </div>
-        <iframe id="iframe-data" src="" class="w-100 h-100" frameborder="0" onload="onIframeLoadHandler(this)"></iframe>
+        <iframe id="iframe-data" src="" class="w-100 h-100 d-block" frameborder="0" onload="onIframeLoadHandler(this)"></iframe>
       </main>
     </div>
   </div>
@@ -163,6 +166,12 @@
               </div>
             </div>
             <div class="row mb-3">
+              <label for="description" class="col-sm-2 col-form-label">Description</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" name="description" id="description">
+              </div>
+            </div>
+            <div class="row mb-3">
               <label for="statusCode" class="col-sm-2 col-form-label">Status Code</label>
               <div class="col-sm-10">
                 <input type="number" class="form-control" min="100" max="600" name="statusCode" id="statusCode">
@@ -175,6 +184,16 @@
                 <div class="feedback">
                   Please provide delay in milliseconds
                 </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_mock" role="button" aria-expanded="false"
+                  aria-controls="_mock">Mock</a>
+              </label>
+              <div class="col-12 collapse" id="_mock">
+                <textarea class="form-control" name="mock" id="mock" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
             </div>
             <div class="row mb-3">
@@ -203,17 +222,7 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_mock" role="button" aria-expanded="false"
-                  aria-controls="_mock">Mock</a>
-              </label>
-              <div class="col-12 collapse" id="_mock">
-                <textarea class="form-control" name="mock" id="mock" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-              </div>
-            </div>
-            <div class="row mb-3 no-add">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+              <label for="_fetchData" class="col-form-label w-100" style="max-width: 100%">
                 <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchData" role="button"
                   aria-expanded="false" aria-controls="__fetchData">Fetch Data</a>
               </label>
@@ -226,8 +235,8 @@
                 </div>
               </div>
             </div>
-            <div class="row mb-3 no-add">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+            <div class="row mb-3">
+              <label for="_fetchError" class="col-form-label w-100" style="max-width: 100%">
                 <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchError" role="button"
                   aria-expanded="false" aria-controls="__fetchError">Fetch Error</a>
               </label>
@@ -241,8 +250,8 @@
                 </div>
               </div>
             </div>
-            <div class="row mb-3 no-add">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+            <div class="row mb-3">
+              <label for="_store" class="col-form-label w-100" style="max-width: 100%">
                 <a class="nav-link p-0" data-bs-toggle="collapse" href="#__store" role="button" aria-expanded="false"
                   aria-controls="__store">Store</a>
               </label>
@@ -268,7 +277,7 @@
           <textarea name="routeConfig" id="routeConfig" class="d-none"></textarea>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary box-shadow-none" data-bs-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary box-shadow-none" form="route-config-form">Save</button>
         </div>
       </div>
