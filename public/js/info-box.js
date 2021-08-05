@@ -63,9 +63,11 @@ function getKeyVal(id, key, val) {
     return `
     <div class="row px-3">
       <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
-        <a class="nav-link p-0" data-bs-toggle="collapse" href="#${id}_${key}" 
-        role="button" aria-expanded="false" aria-controls="${id}_${key}">${key} :</a>
-      </label>
+      <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" 
+      data-bs-toggle="collapse" data-bs-target="#${id}_${key}" 
+      aria-expanded="false" aria-controls="${id}_${key}">
+        ${key} :
+      </button>  
       <div class="val col-12 collapse" id="${id}_${key}">
         <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
       </div>

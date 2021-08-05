@@ -101,11 +101,11 @@
           .icon{
             background: var(--bs-blue);
             display: inline-block;
-            width: 18px;
+            width: 1rem;
             color: white;
             text-align: center;
             border-radius: 50%;
-            font-size: 11px;
+            font-size: 0.7rem;
             font-weight: bolder;
           }
           &:hover {
@@ -166,7 +166,7 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='white'/></svg>");
   background-repeat: no-repeat;
   background-position: center;
-  width: 5px;
+  width: 0.3rem;
   opacity: 0.4;
   z-index: 20;
 
@@ -209,7 +209,7 @@
 }
 
 main {
-  height: #{"calc(100vh - 50px)"};
+  height: #{"calc(100vh - 2.8rem)"};
   overflow-x: hidden;
   overflow-y: auto;
 }

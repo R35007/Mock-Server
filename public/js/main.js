@@ -1,5 +1,4 @@
 async function init() {
-  localhost = window.location.href.slice(0, -1);
   resources = await window.fetch(localhost + "/_routes").then((res) => res.json());
   rewriters = await window.fetch(localhost + "/_rewriter").then((res) => res.json());
   createResourcesList(resources);

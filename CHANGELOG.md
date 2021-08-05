@@ -1,3 +1,8 @@
+# v3.0.9
+
+- Home Page Bug Fix
+- Implemented Home Page Screen inside the VS Code
+
 # v3.0.8
 
 - Bug Fix

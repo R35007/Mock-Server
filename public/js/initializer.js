@@ -1,6 +1,5 @@
 let resources = {};
 let rewriters = {};
-let localhost = "http://localhost:3000";
 
 let totalRoutesCount = 0;
 let filteredRoutesCount = 0;

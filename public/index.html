@@ -11,31 +11,22 @@
   <link rel="stylesheet" href="./css/bootstrap.min.css">
   <link rel="stylesheet" href="./css/style.css">
   <script>
-    function onIframeLoadHandler($event) {
-      try {
-        document.getElementById("iframe-loader").style.display = "none";
-        let $iframeDocument = $event.contentWindow.document;
-        if ($iframeDocument) {
-          $iframeDocument.body.style.color = "#dcdcdc";
-          $iframeDocument.body.style.fontSize = "18px";
-          $iframeDocument.body.style.lineHeight = "1.7rem";
-          $iframeDocument.body.style.padding = "20px";
-          $iframeDocument.body.style.margin = "0";
+    const $html = document.getElementsByTagName("html")[0];
 
-          const pre = $iframeDocument.body.getElementsByTagName("pre");
-          if (pre && pre[0]) {
-            pre[0].style.margin = "0";
-          }
-        }
-      } catch (error) {
-        console.warning(error);
-      }
-    }
+    const href = window.location.href;
+    const search = window.location.search;
+    let localhost = window.location.href.replace(search, "").slice(0, -1);
+    let urlParams = new URLSearchParams(search);
+
+    // Adjust screen size using query params. Used inside VS Code Extension.
+    const fontSize = urlParams.get("_fontSize");
+    $html.style.fontSize = fontSize;
   </script>
+  <script src="./js/iframe-OnLoad-handler.js"></script>
 </head>
 
 <body>
-  <div id="container" class="d-flex w-100 h-100">
+  <div id="container" class="d-flex w-100 h-100 overflow-hidden">
     <div id="resources-container" class="position-relative">
       <div id="toast" class="toast hide align-items-center text-white bg-success border-0 position-absolute"
         role="alert" aria-live="assertive" aria-atomic="true">
@@ -45,11 +36,11 @@
             aria-label="Close"></button>
         </div>
       </div>
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <nav id="mock-server-nav-header" class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
           <a class="navbar-brand d-flex align-items-center text-light p-0" href="https://github.com/R35007/Mock-Server"
             target="blank">
-            <img src="./mockserverlogo.png" alt="" width="24" class="d-inline-block align-text-top me-2">
+            <img src="./mockserverlogo.png" class="d-inline-block align-text-top me-2" style="width: 1.5rem">
             Mock Server
           </a>
           <div class="collapse navbar-collapse">
@@ -134,7 +125,8 @@
             <div style="margin-left: 15px;">Processing...</div>
           </div>
         </div>
-        <iframe id="iframe-data" src="" class="w-100 h-100 d-block" frameborder="0" onload="onIframeLoadHandler(this)"></iframe>
+        <iframe id="iframe-data" src="" class="w-100 h-100 d-block" frameborder="0"
+          onload="onIframeLoadHandler(this)"></iframe>
       </main>
     </div>
   </div>
@@ -188,8 +180,10 @@
             </div>
             <div class="row mb-3">
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_mock" role="button" aria-expanded="false"
-                  aria-controls="_mock">Mock</a>
+                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
+                  Mock
+                </button>
               </label>
               <div class="col-12 collapse" id="_mock">
                 <textarea class="form-control" name="mock" id="mock" rows="5"
@@ -198,8 +192,10 @@
             </div>
             <div class="row mb-3">
               <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#_fetch" role="button" aria-expanded="false"
-                  aria-controls="_fetch">Fetch</a>
+                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
+                  Fetch
+                </button>
               </label>
               <div class="col-12 collapse" id="_fetch">
                 <textarea class="form-control" name="fetch" id="fetch" rows="5"
@@ -217,14 +213,16 @@
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
                   <input class="form-check-input box-shadow-none" type="checkbox" name="skipFetchError"
-                    id="ignoteFetchError" value="true">
+                    id="skipFetchError" value="true">
                 </div>
               </div>
             </div>
             <div class="row mb-3">
               <label for="_fetchData" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchData" role="button"
-                  aria-expanded="false" aria-controls="__fetchData">Fetch Data</a>
+                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#__fetchData" aria-expanded="false" aria-controls="__fetchData">
+                  Fetch Data
+                </button>
               </label>
               <div class="col-12 collapse" id="__fetchData">
                 <textarea class="form-control" name="_fetchData" id="_fetchData" rows="5"
@@ -237,8 +235,10 @@
             </div>
             <div class="row mb-3">
               <label for="_fetchError" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#__fetchError" role="button"
-                  aria-expanded="false" aria-controls="__fetchError">Fetch Error</a>
+                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#__fetchError" aria-expanded="false" aria-controls="__fetchError">
+                  Fetch Error
+                </button>
               </label>
               <div class="col-12 collapse" id="__fetchError">
                 <textarea class="form-control" name="_fetchError" id="_fetchError" rows="5"
@@ -252,8 +252,10 @@
             </div>
             <div class="row mb-3">
               <label for="_store" class="col-form-label w-100" style="max-width: 100%">
-                <a class="nav-link p-0" data-bs-toggle="collapse" href="#__store" role="button" aria-expanded="false"
-                  aria-controls="__store">Store</a>
+                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#__store" aria-expanded="false" aria-controls="__store">
+                  Store
+                </button>
               </label>
               <div class="col-12 collapse" id=__store>
                 <textarea class="form-control" name="_store" id="_store" rows="5"
