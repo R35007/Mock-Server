@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import * as _ from 'lodash';
 import {
-  GetData, UserConfig, UserMiddlewares, UserRewriter, UserRoutes, UserStore
+  GetData, UserConfig, UserMiddleware, UserRewriters, UserDb, UserStore
 } from './model';
 import { Validators } from './validators';
 
@@ -18,67 +18,67 @@ export class GettersSetters extends Validators {
   }
 
   setData(
-    routes?: UserRoutes,
+    db?: UserDb,
+    middleware?: UserMiddleware,
+    injectors?: UserDb,
+    rewriters?: UserRewriters,
     config?: UserConfig,
-    middlewares?: UserMiddlewares,
-    injectors?: UserRoutes,
-    store?: UserStore,
-    routeRewriters?: UserRewriter
+    store?: UserStore
   ) {
     !_.isEmpty(config) && this.setConfig(config);
-    !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
+    !_.isEmpty(middleware) && this.setMiddleware(middleware);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
     !_.isEmpty(store) && this.setStore(store);
-    !_.isEmpty(routes) && this.setRoutes(routes);
-    !_.isEmpty(routeRewriters) && this.setRewriterRoutes(routeRewriters);
+    !_.isEmpty(db) && this.setDb(db);
+    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
   };
 
   get data(): GetData {
     return {
-      routes: this.routes,
-      config: this.config,
+      db: this.db,
       injectors: this.injectors,
-      middlewares: this.middlewares,
-      store: this.store,
-      routeRewriters: this.routeRewriters
+      middleware: this.middleware,
+      rewriters: this.rewriters,
+      config: this.config,
+      store: this.store
     } as GetData;
   };
 
   setConfig(config?: UserConfig) {
-    console.log("\nSetting Config...");
+    console.log("\n" + chalk.gray("Setting Config..."));
     this.config = this.getValidConfig(config);
-    console.log("Done.");
+    console.log(chalk.gray("Done."));
   }
 
-  setMiddlewares(middlewares?: UserMiddlewares) {
-    console.log("\nSetting Middlewares...");
-    this.middlewares = this.getValidMiddlewares(middlewares);
-    console.log("Done.");
+  setMiddleware(middleware?: UserMiddleware) {
+    console.log("\n" + chalk.gray("Setting Middleware..."));
+    this.middleware = this.getValidMiddleware(middleware);
+    console.log(chalk.gray("Done."));
   }
 
-  setInjectors(injectors?: UserRoutes) {
-    console.log("\nSetting Injectors...");
+  setInjectors(injectors?: UserDb) {
+    console.log("\n" + chalk.gray("Setting Injectors..."));
     this.injectors = this.getValidInjectors(injectors);
-    console.log("Done.");
+    console.log(chalk.gray("Done."));
   }
 
-  setRoutes(routes?: UserRoutes) {
-    console.log("\nSetting Routes...");
-    this.routes = this.getValidRoutes(routes);
-    this.initialRoutes = _.cloneDeep(this.routes);
-    console.log("Done.");
+  setDb(db?: UserDb) {
+    console.log("\n" + chalk.gray("Setting Db..."));
+    this.db = this.getValidDb(db);
+    this.initialDb = _.cloneDeep(this.db);
+    console.log(chalk.gray("Done."));
   }
 
   setStore(store?: UserStore) {
-    console.log("\nSetting Store...");
+    console.log("\n" + chalk.gray("Setting Store..."));
     this.store = this.getValidStore(store);
     this.initialStore = _.cloneDeep(this.store);
-    console.log("Done.");
+    console.log(chalk.gray("Done."));
   }
 
-  setRewriterRoutes(routeRewriters?: UserRewriter) {
-    console.log("\nSetting Rewriter Routes...");
-    this.routeRewriters = this.getValidRouteRewriters(routeRewriters);
-    console.log("Done.");
+  setRewriters(rewriters?: UserRewriters) {
+    console.log("\n" + chalk.gray("Setting Rewriters..."));
+    this.rewriters = this.getValidRewriters(rewriters);
+    console.log(chalk.gray("Done."));
   }
 }

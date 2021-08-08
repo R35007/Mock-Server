@@ -78,10 +78,10 @@
           </div>
         </nav>
         <div id="routes-list">
-          <ul id="resources-list" class="nav nav-pills mt-3 mb-4 mx-4 flex-column p-0"></ul>
-          <div id="rewriters-container" class="mb-4" style="display: none">
+          <ul id="resources-list" class="nav nav-pills my-3 mx-4 flex-column p-0"></ul>
+          <div id="rewriters-container" style="display: none">
             <h5 class="mx-4">Route Rewriters</h5>
-            <ul id="rewriters-list" class="nav nav-pills mt-3 mx-4 flex-column p-0"></ul>
+            <ul id="rewriters-list" class="nav nav-pills my-3 mx-4 flex-column p-0"></ul>
           </div>
         </div>
         <div class="footer">
@@ -100,6 +100,9 @@
           <h2>Documentation</h2>
           <p><a href="https://r35007.github.io/Mock-Server/" class="text-primary" style="text-decoration: underline;"
               target="blank">README</a></p>
+          <p>
+            To replace this page, create a <code>./public/index.html</code> file.
+          </p>
         </div>
       </main>
     </div>
@@ -143,9 +146,9 @@
           <div id="form-error" class="p-2 text-danger mb-2" style="display: none"></div>
           <form id="route-config-form" name="route-config-form">
             <div class="row mb-3 no-add">
-              <label for="_id" class="col-sm-2 col-form-label">_id</label>
+              <label for="id" class="col-sm-2 col-form-label">id</label>
               <div class="col-sm-10">
-                <input type="text" disabled class="form-control" name="_id" id="_id">
+                <input type="text" disabled class="form-control" name="id" id="id">
               </div>
             </div>
             <div class="row mb-3 no-edit">
@@ -218,14 +221,14 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="_fetchData" class="col-form-label w-100" style="max-width: 100%">
+              <label for="fetchData" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
                   data-bs-target="#__fetchData" aria-expanded="false" aria-controls="__fetchData">
                   Fetch Data
                 </button>
               </label>
               <div class="col-12 collapse" id="__fetchData">
-                <textarea class="form-control" name="_fetchData" id="_fetchData" rows="5"
+                <textarea class="form-control" name="fetchData" id="fetchData" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
                   This change will only be reflected when FetchCount is 0.
@@ -234,14 +237,14 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="_fetchError" class="col-form-label w-100" style="max-width: 100%">
+              <label for="fetchError" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
                   data-bs-target="#__fetchError" aria-expanded="false" aria-controls="__fetchError">
                   Fetch Error
                 </button>
               </label>
               <div class="col-12 collapse" id="__fetchError">
-                <textarea class="form-control" name="_fetchError" id="_fetchError" rows="5"
+                <textarea class="form-control" name="fetchError" id="fetchError" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
                   This change will only be reflected when FetchCount is 0 and Fetch Data is empty.
@@ -251,14 +254,14 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="_store" class="col-form-label w-100" style="max-width: 100%">
+              <label for="store" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
                   data-bs-target="#__store" aria-expanded="false" aria-controls="__store">
                   Store
                 </button>
               </label>
               <div class="col-12 collapse" id=__store>
-                <textarea class="form-control" name="_store" id="_store" rows="5"
+                <textarea class="form-control" name="store" id="store" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
                 <div class="feedback">
                   Helps to Store any values for later use.

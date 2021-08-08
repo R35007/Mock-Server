@@ -1,40 +1,42 @@
 import { AxiosRequestConfig } from 'axios';
 import * as express from "express";
 
-export type UserRoutes = string | User_Routes | Routes;
+export type UserDb = string | User_Db | Db;
 export type UserConfig = string | User_Config | Config;
-export type UserMiddlewares = string | User_Middlewares | Middlewares;
+export type UserMiddleware = string | User_Middleware | Middleware;
 export type UserStore = string | Object;
-export type UserRewriter = string | KeyValString;
+export type UserRewriters = string | KeyValString;
 
-export type User_Routes = {
+export type User_Db = {
   [key: string]: RouteConfig | any[] | string;
 }
 
-export type Routes = {
+export type Db = {
   [key: string]: RouteConfig
 }
 
 export type RouteConfig = {
+  _config?: boolean;
+  id?: string;
+  description?: string;
+  mock?: any;
+  fetch?: string | AxiosRequestConfig;
+  fetchData?: any;
+  fetchError?: any;
+  store?: object;
   statusCode?: number;
   delay?: number;
-  fetch?: string | AxiosRequestConfig;
   fetchCount?: number;
   skipFetchError?: boolean;
-  mock?: any;
   override?: boolean;
   middlewares?: string[];
   middleware?: express.RequestHandler;
-  description?: string;
   
-  _id?: string;
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
   _extension?: string;
-  
-  _fetchData?: any;
-  _fetchError?: any;
-  _store?: object;
+
+  [key: string]: any;
 }
 
 export type Config = {
@@ -71,11 +73,11 @@ export type User_Config = {
   reverse?: boolean;
 } & Default_Options;
 
-export type User_Middlewares = {
+export type User_Middleware = {
   [x: string]: express.RequestHandler;
 }
 
-export type Middlewares = {
+export type Middleware = {
   _IterateResponse?: express.RequestHandler;
   _IterateRoutes?: express.RequestHandler;
   _CrudOperation?: express.RequestHandler;
@@ -97,7 +99,7 @@ export interface Locals {
   routeConfig: RouteConfig;
   data: any;
   store: object;
-  getRoutes: (_ids?: string[], routePaths?: string[]) => Routes;
+  getDb: (ids?: string[], routePaths?: string[]) => Db;
   config: Config;
 }
 
@@ -134,10 +136,10 @@ export type PathDetails = {
 }
 
 export type GetData = {
-  routes: Routes;
+  db: Db;
+  middleware: Middleware;
+  injectors: Db;
+  rewriters: KeyValString
   config: Config;
-  middlewares: Middlewares;
-  injectors: Routes;
   store: Object;
-  routeRewriters: KeyValString
 }

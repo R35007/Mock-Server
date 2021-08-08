@@ -1,0 +1,9 @@
+{
+  "/(.*)": {
+    "status": 200,
+    "middlewares": [
+      "...",
+      "CustomLog"
+    ]
+  }
+}

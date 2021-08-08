@@ -1,13 +1,13 @@
 import * as _ from 'lodash';
-import { Locals, Middlewares } from '../model';
+import { Locals, Middleware } from '../model';
 import CRUD from '../utils/crud';
 
 const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateResponse method the data must be of type Array");
@@ -25,8 +25,8 @@ const _IterateRoutes = (req, res, next) => {
   const storeKey = "_IterateRoutes"
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
     console.error("To use _IterateRoutes method the data must be of type Array");
@@ -42,13 +42,13 @@ const _IterateRoutes = (req, res, next) => {
 }
 const _CrudOperation = (req, res, next) => {
 
-  const storeKey = "_CurdResponse";
+  const storeKey = "_CrudOperation";
   const method = req.method;
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
 
-  routeConfig._store = _.isPlainObject(routeConfig._store) ? routeConfig._store : {};
-  const store = routeConfig._store || {};
+  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
+  const store = routeConfig.store || {};
 
   if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
     console.error("To use _CurdResponse method the data must be of type Array of objects");
@@ -81,7 +81,7 @@ const _AdvancedSearch = (req, res, next) => {
 const _FetchTillData = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig._fetchData !== undefined) {
+  if (routeConfig.fetchData !== undefined) {
     routeConfig.fetchCount = 0;
   } else if (routeConfig.fetchCount !== undefined && routeConfig.fetchCount == 0) {
     routeConfig.fetchCount = -1;
@@ -91,16 +91,16 @@ const _FetchTillData = (_req, res, next) => {
 const _SetFetchDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig._fetchData !== undefined || routeConfig._fetchError !== undefined) {
-    routeConfig.mock = routeConfig._fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : routeConfig._fetchError);
+  if (routeConfig.fetchData !== undefined || routeConfig.fetchError !== undefined) {
+    routeConfig.mock = routeConfig.fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : routeConfig.fetchError);
   }
   next();
 }
 const _SetStoreDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig._store !== undefined) {
-    routeConfig.mock = routeConfig._store;
+  if (routeConfig.store !== undefined) {
+    routeConfig.mock = routeConfig.store;
   }
   next();
 }
@@ -113,7 +113,7 @@ const _MockOnly = (_req, res, next) => {
 const _FetchOnly = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  locals.data = routeConfig._fetchData;
+  locals.data = routeConfig.fetchData;
   next();
 }
 const _ReadOnly = (req, res, next) => {
@@ -124,7 +124,7 @@ const _ReadOnly = (req, res, next) => {
   }
 }
 
-const Default_Middlewares: Middlewares = {
+const Default_Middlewares: Middleware = {
   _IterateResponse,
   _IterateRoutes,
   _CrudOperation,

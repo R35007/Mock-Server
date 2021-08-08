@@ -1,3 +1,12 @@
+# v4.0.0
+
+- improved CLI
+- --snapshot flag in CLI will create a snaphost of db in a .json file
+- --watch will automatically restarts the db on changes.
+- --sample - creates a sample db.json, middleware.json, injectors.json, rewrites.json files
+- code refactoring
+- Set `_config` to true to set any route config like delay, statusCode etc...
+
 # v3.0.9
 
 - Home Page Bug Fix

@@ -2,6 +2,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 import * as fs from 'fs';
+import JPH from 'json-parse-helpfulerror';
 import * as _ from 'lodash';
 import * as path from 'path';
 import { PathDetails } from '../model';
@@ -10,11 +11,16 @@ export const getJSON = (directoryPath: string, excludeFolders: string[] = [], re
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
   const onlyJson = filesList.filter((f) => f.extension === ".json" || f.extension === ".har");
 
-  const mockData = onlyJson.reduce((mock, file) => {
-    const obj = JSON.parse(fs.readFileSync(file.filePath, "utf-8"));
-    return { ...mock, ...obj };
+  const obj = onlyJson.reduce((mock, file) => {
+    try {
+      const obj = JPH.parse(fs.readFileSync(file.filePath, "utf-8"));
+      return { ...mock, ...obj };
+    } catch (error) {
+      console.log(chalk.red(`Error reading ${file.filePath}`));
+      throw(error);
+    }
   }, {});
-  return mockData;
+  return obj;
 };
 
 export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true): PathDetails[] => {
@@ -51,12 +57,13 @@ export const getFileData = (filePath: string, extension: string): { fetchData?: 
   try {
     if (extension === ".json" || extension === ".har") {
       console.log(chalk.gray("Fetch request : "), filePath);
-      fetchData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      fetchData = JPH.parse(fs.readFileSync(filePath, "utf-8"));
     } else if (extension === ".txt") {
       console.log(chalk.gray("Fetch request : "), filePath);
       fetchData = fs.readFileSync(filePath, "utf8");
     }
   } catch (error) {
+    console.log(chalk.red(`Error reading ${filePath}`));
     fetchError = error;
   }
 
@@ -84,7 +91,7 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
 };
 
 export const requireData = (data?: any, root: string = process.cwd()): object | undefined => {
-  if(_.isEmpty(data)) return;
+  if (_.isEmpty(data)) return;
   if (_.isString(data)) {
     const parsedUrl = parseUrl(data, root);
     const stats = getStats(parsedUrl);

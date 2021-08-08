@@ -30,10 +30,10 @@ function dragElement(element) {
 
     // Prevent negative-sized elements
     const deltaX = Math.min(Math.max(delta.x, -md.resourcesContainerWidth), md.dataContainerWidth);
-    let resourcesContainerWidth = md.resourcesContainerWidth + deltaX;
     let dataContainerWidth = md.dataContainerWidth - deltaX;
-    let minWidth = (md.dataContainerWidth/100)*35;
-    if(dataContainerWidth < minWidth) {
+    let dataContainerMinWidth = (md.dataContainerWidth/100)*35;
+    
+    if(dataContainerWidth < dataContainerMinWidth) {
       $dataContainer.style.display = "none"
     }else{
       $dataContainer.style.display = "block"

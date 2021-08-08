@@ -1,6 +1,15 @@
 async function init() {
-  resources = await window.fetch(localhost + "/_routes").then((res) => res.json());
-  rewriters = await window.fetch(localhost + "/_rewriter").then((res) => res.json());
+  try{
+    resources = await window.fetch(localhost + "/_db").then((res) => res.json());
+  }catch(err){
+    console.log(err);
+  }
+  
+  try{
+    rewriters = await window.fetch(localhost + "/_rewriters").then((res) => res.json());
+  }catch(err){
+    console.log(err);
+  }
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);
   showToast("Resources Loaded Successfully");
@@ -45,18 +54,18 @@ function createRewritersList(rewriters) {
 function setDefaultRoutes(resources) {
   const routesList = Object.keys(resources)
 
-  if (!routesList.includes("/_routes"))
-    resources["/_routes"] = {
-      description: "This route gives you the list of available routes with baseUrl. It also included Default Routes.",
+  if (!routesList.includes("/_db"))
+    resources["/_db?_snapshot=true"] = {
+      id: "default_1",
+      description: "This route gives you the Db snapshot",
       _isDefault: true,
-      _id: "default_1"
     }
 
   if (!routesList.includes("/_store"))
     resources["/_store"] = {
+      id: "default_2",
       description: "This route gives you the store values",
       _isDefault: true,
-      _id: "default_2"
     }
 }
 
@@ -79,8 +88,9 @@ function ResourceList(resources) {
     </li>
     <li class="nav-item w-100 mt-2 d-block">
       <div class="d-flex align-items-center justify-content-end">
-        <button class="btn btn-secondary box-shadow-none btn-sm" onclick="resetAll('route')"> Reset Routes</button>
-        <button class="btn btn-secondary ms-3 box-shadow-none btn-sm" onclick="resetAll('store')">Reset Store</button>
+        <button style="margin-top:-3.6rem" 
+        class="btn btn-secondary box-shadow-none btn-sm" 
+        onclick="resetAll('db')"> Reset Resources</button>
       </div>
     </li>
   `;
@@ -88,9 +98,9 @@ function ResourceList(resources) {
 
 function ResourceItem(routePath, routeConfig) {
   return `
-  <li id="${routeConfig._id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
+  <li id="${routeConfig.id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
     <div class="header d-flex align-items-center w-100" style="${routeConfig._isDefault ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
-      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig._id}')"><span class="icon">i</span></span>  
+      <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig.id}')"><span class="icon">i</span></span>  
       <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
@@ -164,8 +174,8 @@ function showNoResource(show) {
 }
 
 async function resetAll(type) {
-  if (type === 'route') {
-    resources = await window.fetch(localhost + "/_reset/route").then(res => res.json());
+  if (type === 'db') {
+    resources = await window.fetch(localhost + "/_reset/db").then(res => res.json());
     showToast("Routes Restored Successfully");
   } else {
     await window.fetch(localhost + "/_reset/store").then(res => res.json());

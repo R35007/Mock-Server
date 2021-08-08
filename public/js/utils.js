@@ -13,8 +13,8 @@ function parseHTML(html) {
   return t.content;
 }
 
-function findEntry(_id) {
-  const route = Object.entries(resources).find(([_key, val]) => val._id == _id);
+function findEntry(id) {
+  const route = Object.entries(resources).find(([_key, val]) => val.id == id);
   return route || [];
 }
 
@@ -71,7 +71,7 @@ function clean(obj) {
 function orderRouteConfig(routeConfig) {
   const clonedRouteConfig = JSON.parse(JSON.stringify(routeConfig));
   const order = [
-    "_id",
+    "id",
     "_isDefault",
     "description",
     "statusCode",
@@ -83,9 +83,9 @@ function orderRouteConfig(routeConfig) {
     "_request",
     "_isFile",
     "_extension",
-    "_fetchData",
-    "_fetchError",
-    "_store"
+    "fetchData",
+    "fetchError",
+    "store"
   ]
 
   const routeConfigKeys = Object.keys(routeConfig);

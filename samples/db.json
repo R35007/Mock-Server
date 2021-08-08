@@ -1,0 +1,122 @@
+{
+  "/posts": [
+    {
+      "userId": 1,
+      "id": 1,
+      "title": "Lorem ipsum dolor sit.",
+      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+    },
+    {
+      "userId": 1,
+      "id": 2,
+      "title": "Lorem ipsum dolor sit.",
+      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+    },
+    {
+      "userId": 1,
+      "id": 3,
+      "title": "Lorem ipsum dolor sit.",
+      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+    },
+    {
+      "userId": 1,
+      "id": 4,
+      "title": "Lorem ipsum dolor sit.",
+      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+    },
+    {
+      "userId": 1,
+      "id": 5,
+      "title": "Lorem ipsum dolor sit.",
+      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+    }
+  ],
+  "/albums/:id?": {
+    "_config": true,
+    "fetch": {
+      "url": "https://jsonplaceholder.typicode.com/{{routePath}}"
+    },
+    "middlewares": [
+      "_FetchTillData"
+    ]
+  },
+  "/comments": {
+    "_config": true,
+    "delay": 1000,
+    "fetch": "https://jsonplaceholder.typicode.com/comments",
+    "fetchCount": 5,
+    "middlewares": [
+      "DataWrapper"
+    ]
+  },
+  "/photos": {
+    "_config": true,
+    "statusCode": 500,
+    "fetch": {
+      "url": "https://jsonplaceholder.typicode.com/photos",
+      "params": {
+        "_limit": 20
+      }
+    },
+    "middlewares": [
+      "_IterateResponse"
+    ]
+  },
+  "/todos": {
+    "_config": true,
+    "fetch": {
+      "url": "https://jsonplaceholder.typicode.com/{{routePath}}",
+      "params": "{{params}}"
+    },
+    "fetchCount": -1
+  },
+  "/users": {
+    "_config": true,
+    "fetch": "./data/users.json",
+    "middlewares": [
+      "_SetFetchDataToMock",
+      "_CrudOperation"
+    ],
+    "fetchCount": -1
+  },
+  "/db": {
+    "_config": true,
+    "fetch": "http://jsonplaceholder.typicode.com/dbs",
+    "mock": {
+      "/posts": {
+        "fetch": "https://jsonplaceholder.typicode.com/posts"
+      },
+      "/comments": {
+        "fetch": "https://jsonplaceholder.typicode.com/comments"
+      },
+      "/albums": {
+        "fetch": "https://jsonplaceholder.typicode.com/albums"
+      },
+      "/photos": {
+        "fetch": "https://jsonplaceholder.typicode.com/photos"
+      },
+      "/todos": {
+        "fetch": "https://jsonplaceholder.typicode.com/todos"
+      },
+      "/users": {
+        "fetch": "https://jsonplaceholder.typicode.com/users"
+      }
+    },
+    "fetchCount": 2,
+    "middlewares": [
+      "_FetchTillData"
+    ]
+  },
+  "/internalRequest": {
+    "_config": true,
+    "fetch": "http://localhost:{{port}}/db",
+    "middlewares": [
+      "_FetchTillData"
+    ]
+  },
+  "/pageNotFound": {
+    "_config": true,
+    "fetch": "http://localhost:{{port}}/404",
+    "fetchCount": -1
+  }
+}

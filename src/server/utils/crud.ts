@@ -13,7 +13,7 @@ export default class {
     const query = req.query;
     const params = req.params;
 
-    const _ids = flatQuery(params.id || query.id);
+    const ids = flatQuery(params.id || query.id);
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
     const _start = flatQuery(query._start)[0];
@@ -38,8 +38,8 @@ export default class {
     delete query.q;
 
     // Filters By Id
-    if (_ids.length) {
-      _data = _ids.map(id => _.getById(_data, id)).filter(Boolean);
+    if (ids.length) {
+      _data = ids.map(id => _.getById(_data, id)).filter(Boolean);
     }
 
     // Automatically delete query parameters that can't be found in database
@@ -147,8 +147,8 @@ export default class {
       if (_.isEmpty(coll)) {
         return 1;
       } else {
-        let _id = _.maxBy(coll, id)[id]; // Increment integer id or generate string id
-        return _.isFinite(_id) ? ++_id : "id-"+nanoid(7);
+        let maxId = _.maxBy(coll, id)[id]; // Increment integer id or generate string id
+        return _.isFinite(maxId) ? ++maxId : "id-"+nanoid(7);
       }
     }
     const body = [].concat(req.body);
@@ -191,7 +191,7 @@ export default class {
       return _.replaceById(data, req.params.id, body)
     } else if (!_.isEmpty(req.query)) {
       const matchedIds = _.filter(data, req.query).map(d => d[id]);
-      return matchedIds.reduce((res, _id) => res.concat(_.replaceById(data, _id, body)), [])
+      return matchedIds.reduce((res, matchedId) => res.concat(_.replaceById(data, matchedId, body)), [])
     }
     return;
   }

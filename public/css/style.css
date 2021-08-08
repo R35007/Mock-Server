@@ -52,7 +52,7 @@
   box-shadow: none !important;
 }
 #resources-container #routes-list {
-  min-height: calc(100vh - 19rem);
+  min-height: calc(100vh - 21rem);
 }
 #resources-container #routes-list #resources-list {
   margin: 1rem 1.5rem;

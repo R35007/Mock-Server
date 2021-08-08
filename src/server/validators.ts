@@ -4,13 +4,12 @@ import Default_Config from './config';
 import { Initials } from './initials';
 import Default_Middlewares from './middlewares';
 import {
-  Config, HAR, HarEntry, KeyValString, Middlewares, RouteConfig, Routes, UserConfig,
-  UserMiddlewares, UserRoutes, UserStore, User_Config
+  Config, Db, HAR, HarEntry, KeyValString, Middleware,
+  RouteConfig, UserConfig, UserDb, UserMiddleware, UserStore, User_Config
 } from "./model";
-import Sample_Routes from './sample-routes';
 import {
-  getInjectedRoutes, getRoutesFromEntries,
-  normalizeRoutes, validRoute
+  getInjectedRoutes as getInjectedDb, getRoutesFromEntries as getDbFromEntries,
+  normalizeRoutes as normalizeDb, validRoute
 } from './utils';
 import {
   getStats, parseUrl, requireData
@@ -40,8 +39,8 @@ export class Validators extends Initials {
     return { ...Default_Config, ...valid_Config } as Config;
   };
 
-  getValidMiddlewares = (middlewares?: UserMiddlewares): Middlewares => {
-    const userMiddlewares = requireData(middlewares, this.config.root) as Middlewares;
+  getValidMiddleware = (middleware?: UserMiddleware): Middleware => {
+    const userMiddlewares = requireData(middleware, this.config.root) as Middleware;
 
     if (_.isEmpty(userMiddlewares)) {
       console.log(chalk.yellow("  Oops, Middlewares doesn't seem to exist."));
@@ -54,15 +53,15 @@ export class Validators extends Initials {
     return { ...Default_Middlewares, ...valid_middlewares };
   }
 
-  getValidInjectors = (injectors?: UserRoutes): Routes => {
-    const userInjectors = requireData(injectors, this.config.root) as Routes;
+  getValidInjectors = (injectors?: UserDb): Db => {
+    const userInjectors = requireData(injectors, this.config.root) as Db;
 
     if (_.isEmpty(userInjectors)) {
       console.log(chalk.yellow("  Oops, Injectors doesn't seem to exist."));
       return {}
     }
 
-    const flattenedInjectors = normalizeRoutes(userInjectors);
+    const flattenedInjectors = normalizeDb(userInjectors);
     return flattenedInjectors;
   };
 
@@ -77,45 +76,44 @@ export class Validators extends Initials {
     return userStore;
   };
 
-  getValidRouteRewriters = (routeRewriters?: UserStore): KeyValString => {
-    const userRewriterRoutes = requireData(routeRewriters, this.config.root) as KeyValString;
+  getValidRewriters = (rewriters?: UserStore): KeyValString => {
+    const userRewriters = requireData(rewriters, this.config.root) as KeyValString;
 
-    if (_.isEmpty(userRewriterRoutes)) {
+    if (_.isEmpty(userRewriters)) {
       console.log(chalk.yellow("  Oops, Route Rewriters doesn't seem to exist."));
       return {}
     }
 
-    return userRewriterRoutes;
+    return userRewriters;
   };
 
-  getValidRoutes = (
-    routes?: UserRoutes | HAR,
-    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Routes,
-    finalCallback?: (harData: any, generatedMock: Routes) => Routes,
+  getValidDb = (
+    data?: UserDb | HAR,
+    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
+    finalCallback?: (data: any, db: Db) => Db,
     options: { reverse: boolean } = this.config
-  ): Routes => {
-    let userRoutes = requireData(routes, this.config.root) as Routes | HAR;
+  ): Db => {
+    let userData = requireData(data, this.config.root) as Db | HAR;
 
-    if (_.isEmpty(userRoutes)) {
-      console.log(chalk.yellow("  Oops, Routes doesn't seem to exist."));
-      console.log(chalk.yellow("  Using Sample Routes with some default data."));
-      userRoutes = _.cloneDeep(Sample_Routes) as Routes;
+    if (_.isEmpty(userData)) {
+      console.log(chalk.yellow("  Oops, Db doesn't seem to exist."));
+      return {}
     }
 
-    const entries: HarEntry[] = (userRoutes as HAR)?.log?.entries;
-    const routesFromEntries: Routes = entries ? getRoutesFromEntries(entries, entryCallback) : userRoutes as Routes;
+    const entries: HarEntry[] = (userData as HAR)?.log?.entries;
+    const dataFromEntries: Db = entries ? getDbFromEntries(entries, entryCallback) : userData as Db;
 
-    const normalizedRoutes = normalizeRoutes(routesFromEntries);
-    const injectedRoutes = getInjectedRoutes(normalizedRoutes, this.injectors);
+    const normalizedDb = normalizeDb(dataFromEntries);
+    const injectedDb = getInjectedDb(normalizedDb, this.injectors);
 
     const valid_routes = options.reverse
-      ? _.fromPairs(Object.entries(injectedRoutes).reverse())
-      : injectedRoutes;
+      ? _.fromPairs(Object.entries(injectedDb).reverse())
+      : injectedDb;
 
-    const generatedRoutes = _.cloneDeep(valid_routes) as Routes;
+    const generatedRoutes = _.cloneDeep(valid_routes) as Db;
 
     if (finalCallback && _.isFunction(finalCallback)) {
-      return finalCallback(routes, generatedRoutes) || {};
+      return finalCallback(data, generatedRoutes) || {};
     }
 
     return generatedRoutes;

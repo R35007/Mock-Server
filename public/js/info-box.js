@@ -1,8 +1,8 @@
 
-function toggleInfoBox(_id) {
-  const $li = document.getElementById(_id);
+function toggleInfoBox(id) {
+  const $li = document.getElementById(id);
   const classList = $li.classList;
-  classList.contains("expanded") ? hideInfoBox($li) : showInfoBox($li, _id);
+  classList.contains("expanded") ? hideInfoBox($li) : showInfoBox($li, id);
 }
 
 function hideInfoBox($li) {
@@ -10,44 +10,44 @@ function hideInfoBox($li) {
   $li.removeChild($li.lastElementChild);
 }
 
-function showInfoBox($li, _id) {
-  const [routePath, routeConfig] = findEntry(_id);
+function showInfoBox($li, id) {
+  const [routePath, routeConfig] = findEntry(id);
 
   $li.classList.add("expanded");
   $li.appendChild(
     parseHTML(`
     <div class="info-box position-relative overflow=hidden">
       <div class="actions justify-content-end p-2 position-absolute" style="display: ${routeConfig._isDefault ? 'none' : 'flex'}">
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="reset('${routeConfig._id}')">Reset</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig._id}">Edit</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig._id}">Clone</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig._id}')">Refresh</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="reset('${routeConfig.id}')">Reset</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}">Edit</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}">Clone</button>
+        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig.id}')">Refresh</button>
       </div>
-      <div class="route-config">${Object.entries(orderRouteConfig(routeConfig)).map(([key, val]) => getKeyVal(routeConfig._id, key, val)).join("")}</div>
+      <div class="route-config">${Object.entries(orderRouteConfig(routeConfig)).map(([key, val]) => getKeyVal(routeConfig.id, key, val)).join("")}</div>
     </div>`)
   );
 }
 
-async function reset(_id) {
-  const restoredRoutes = await window.fetch(localhost + "/_reset/route/" + _id).then((res) => res.json());
+async function reset(id) {
+  const restoredRoutes = await window.fetch(localhost + "/_reset/db/" + id).then((res) => res.json());
   const [routePath, routeConfig] = Object.entries(restoredRoutes)[0];
   resources[routePath] = routeConfig
-  toggleInfoBox(_id);
-  toggleInfoBox(_id);
+  toggleInfoBox(id);
+  toggleInfoBox(id);
   showToast(`${routePath} Restored Successfully`);
 }
 
-async function refresh(_id) {
-  const refreshedRoute = await window.fetch(localhost + "/_routes/" + _id).then((res) => res.json());
+async function refresh(id) {
+  const refreshedRoute = await window.fetch(localhost + "/_db/" + id).then((res) => res.json());
   const [routePath, routeConfig] = Object.entries(refreshedRoute)[0];
   resources[routePath] = routeConfig;
-  toggleInfoBox(_id);
-  toggleInfoBox(_id);
+  toggleInfoBox(id);
+  toggleInfoBox(id);
   showToast(`${routePath} Refreshed Successfully`);
 }
 
 function getKeyVal(id, key, val) {
-  if (!(val + '')?.length || val === null || val === undefined) return '';
+  if (!(val + '')?.length || val === null || val === undefined ||key==="_config") return '';
 
   if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
     if(!val.length) return '';
@@ -82,4 +82,4 @@ function getKeyVal(id, key, val) {
   }
 }
 
-const ObjectKeys = ["fetch", "mock", "_fetchData", "_fetchError", "_store", "_request"];
+const ObjectKeys = ["fetch", "mock", "fetchData", "fetchError", "store", "_request"];
