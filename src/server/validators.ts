@@ -8,7 +8,7 @@ import {
   RouteConfig, UserConfig, UserDb, UserMiddleware, UserStore, User_Config
 } from "./model";
 import {
-  getInjectedRoutes as getInjectedDb, getRoutesFromEntries as getDbFromEntries,
+  getInjectedDb, getDbFromEntries, getDbSnapShot,
   normalizeRoutes as normalizeDb, validRoute
 } from './utils';
 import {
@@ -90,7 +90,7 @@ export class Validators extends Initials {
   getValidDb = (
     data?: UserDb | HAR,
     injectors: UserDb = this.injectors,
-    options: { reverse: boolean } = this.config,
+    options?: { reverse?: boolean, isSnapshot?: boolean },
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
     finalCallback?: (data: any, db: Db) => Db,
   ): Db => {
@@ -107,16 +107,18 @@ export class Validators extends Initials {
     const normalizedDb = normalizeDb(dataFromEntries);
     const injectedDb = getInjectedDb(normalizedDb, this.getValidInjectors(injectors));
 
-    const valid_routes = options.reverse
+    const reverse = options ? options.reverse : this.config.reverse;
+
+    const validDb = reverse
       ? _.fromPairs(Object.entries(injectedDb).reverse())
       : injectedDb;
 
-    const generatedRoutes = _.cloneDeep(valid_routes) as Db;
+    const generatedDb = options?.isSnapshot ? getDbSnapShot(validDb) : _.cloneDeep(validDb) as Db;
 
     if (finalCallback && _.isFunction(finalCallback)) {
-      return finalCallback(data, generatedRoutes) || {};
+      return finalCallback(data, generatedDb) || {};
     }
 
-    return generatedRoutes;
+    return generatedDb;
   };
 }

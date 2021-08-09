@@ -1,3 +1,8 @@
+# v4.1.1
+
+- added `isSnapshot` options in `getValidDb` method.
+- Bug Fix
+
 # v4.1.0
 
 - Injectors not applied properly- Bug Fixed.

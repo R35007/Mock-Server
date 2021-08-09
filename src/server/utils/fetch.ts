@@ -13,7 +13,9 @@ export const getJSON = (directoryPath: string, excludeFolders: string[] = [], re
 
   const obj = onlyJson.reduce((mock, file) => {
     try {
-      const obj = JPH.parse(fs.readFileSync(file.filePath, "utf-8"));
+      const str = fs.readFileSync(file.filePath, "utf-8");
+      if(_.isEmpty(str)) return {}
+      const obj = JPH.parse(str);
       return { ...mock, ...obj };
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
@@ -57,7 +59,12 @@ export const getFileData = (filePath: string, extension: string): { fetchData?: 
   try {
     if (extension === ".json" || extension === ".har") {
       console.log(chalk.gray("Fetch request : "), filePath);
-      fetchData = JPH.parse(fs.readFileSync(filePath, "utf-8"));
+      const str = fs.readFileSync(filePath, "utf-8");
+      if(_.isEmpty(str)){
+        fetchData = {};
+      }else {
+        fetchData = JPH.parse(str);
+      }
     } else if (extension === ".txt") {
       console.log(chalk.gray("Fetch request : "), filePath);
       fetchData = fs.readFileSync(filePath, "utf8");

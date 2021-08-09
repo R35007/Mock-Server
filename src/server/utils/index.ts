@@ -36,7 +36,7 @@ const validRouteConfig = (routeConfig): RouteConfig => {
   return routeConfig
 }
 
-export const getInjectedRoutes = (db: Db, injectors: Db): Db => {
+export const getInjectedDb = (db: Db, injectors: Db): Db => {
   const injectedRoutes = {} as Db;
   Object.entries(injectors).forEach(([routeToMatch, injectorRouteConfig]) => {
     const matchedRoutes = getMatchedRoutesList(routeToMatch, db);
@@ -70,7 +70,7 @@ export const getMatchedRoutesList = (routeToMatch: string, routes: Db): string[]
   return Object.keys(routes).filter(r => matched(r) || r === routeToMatch);
 }
 
-export const getRoutesFromEntries = (
+export const getDbFromEntries = (
   entries: HarEntry[],
   entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
 ) => {
