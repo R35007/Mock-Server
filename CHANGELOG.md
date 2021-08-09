@@ -1,4 +1,4 @@
-# v4.1.1
+# v4.1.2
 
 - added `isSnapshot` options in `getValidDb` method.
 - Bug Fix
