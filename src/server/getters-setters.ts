@@ -1,20 +1,16 @@
 import chalk from "chalk";
 import * as _ from 'lodash';
-import {
-  GetData, UserConfig, UserMiddleware, UserRewriters, UserDb, UserStore
-} from './model';
+import { Db, GetData, HAR, RouteConfig, UserConfig, UserDb, UserMiddleware, UserRewriters, UserStore } from './model';
 import { Validators } from './validators';
 
 export class GettersSetters extends Validators {
 
   constructor(
     config?: UserConfig,
-    store?: UserStore,
   ) {
     super();
     console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
     this.setConfig(config);
-    !_.isEmpty(store) && this.setStore(store);
   }
 
   setData(
@@ -22,15 +18,15 @@ export class GettersSetters extends Validators {
     middleware?: UserMiddleware,
     injectors?: UserDb,
     rewriters?: UserRewriters,
+    store?: UserStore,
     config?: UserConfig,
-    store?: UserStore
   ) {
     !_.isEmpty(config) && this.setConfig(config);
     !_.isEmpty(middleware) && this.setMiddleware(middleware);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
+    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
     !_.isEmpty(store) && this.setStore(store);
     !_.isEmpty(db) && this.setDb(db);
-    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
   };
 
   get data(): GetData {
@@ -39,8 +35,8 @@ export class GettersSetters extends Validators {
       injectors: this.injectors,
       middleware: this.middleware,
       rewriters: this.rewriters,
-      config: this.config,
-      store: this.store
+      store: this.store,
+      config: this.config
     } as GetData;
   };
 
@@ -62,9 +58,14 @@ export class GettersSetters extends Validators {
     console.log(chalk.gray("Done."));
   }
 
-  setDb(db?: UserDb) {
+  setDb(db?: UserDb | HAR,
+    injectors: UserDb = this.injectors,
+    options: { reverse: boolean } = this.config,
+    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
+    finalCallback?: (data: any, db: Db) => Db
+  ) {
     console.log("\n" + chalk.gray("Setting Db..."));
-    this.db = this.getValidDb(db);
+    this.db = this.getValidDb(db, injectors, options, entryCallback, finalCallback);
     this.initialDb = _.cloneDeep(this.db);
     console.log(chalk.gray("Done."));
   }

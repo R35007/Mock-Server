@@ -153,6 +153,7 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='white'/></svg>");
   background-repeat: no-repeat;
   background-position: center;
+  min-width: 0.3rem;
   width: 0.3rem;
   opacity: 0.4;
   z-index: 20;

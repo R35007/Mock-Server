@@ -26,18 +26,30 @@ import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
 
-  constructor(
-    config?: UserConfig,
-    store?: UserStore,
-  ) {
-    super(config, store);
+  static #mockServer: MockServer | undefined;
+  constructor(config?: UserConfig) { super(config) }
+
+  static Create = (config?: UserConfig) => {
+    if (!MockServer.#mockServer) {
+      MockServer.#mockServer = new MockServer(config);
+      return MockServer.#mockServer;
+    } else {
+      MockServer.#mockServer?.setConfig(config);
+      return MockServer.#mockServer;
+    }
+  }
+
+  static Destroy = async () => {
+    MockServer.#mockServer?.server && await MockServer.#mockServer.stopServer();
+    MockServer.#mockServer = undefined;
   }
 
   launchServer = async (
     db?: UserDb,
     middleware?: UserMiddleware,
     injectors?: UserDb,
-    rewriters?: UserRewriters
+    rewriters?: UserRewriters,
+    store?: UserStore
   ) => {
     const app = this.app;
 
@@ -47,7 +59,7 @@ export class MockServer extends GettersSetters {
     const defaults = this.defaults();
     app.use(defaults);
 
-    const resources = this.resources(db, middleware, injectors);
+    const resources = this.resources(db, middleware, injectors, store);
     app.use(this.config.base, resources);
 
     const defaultRoutes = this.defaultRoutes();
@@ -76,12 +88,14 @@ export class MockServer extends GettersSetters {
   resources = (
     db?: UserDb,
     middleware?: UserMiddleware,
-    injectors?: UserDb
+    injectors?: UserDb,
+    store?: UserStore,
   ) => {
 
-    !_.isEmpty(db) && this.setDb(db);
     !_.isEmpty(middleware) && this.setMiddleware(middleware);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
+    !_.isEmpty(store) && this.setStore(store);
+    !_.isEmpty(db) && this.setDb(db);
 
     console.log("\n" + chalk.gray("Loading Resources..."));
 

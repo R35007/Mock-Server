@@ -1,10 +1,16 @@
+# v4.1.0
+
+- Injectors not applied properly- Bug Fixed.
+- added `Create` method which returns the single instance of the MockServer.
+- added `Destroy` method which stops the server and clears the instance of the MockServer.
+
 # v4.0.0
 
-- improved CLI
+- Improved CLI.
 - --snapshot flag in CLI will create a snaphost of db in a .json file
 - --watch will automatically restarts the db on changes.
 - --sample - creates a sample db.json, middleware.json, injectors.json, rewrites.json files
-- code refactoring
+- Code refactoring
 - Set `_config` to true to set any route config like delay, statusCode etc...
 
 # v3.0.9

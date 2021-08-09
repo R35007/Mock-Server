@@ -50,8 +50,8 @@ const init = async () => {
     store = store && path.resolve(process.cwd(), store);
     rewriters = rewriters && path.resolve(process.cwd(), rewriters);
 
-    await startServer(snapshots, watch, db, middleware, injectors, rewriters,
-      _config, store);
+    await startServer(snapshots, watch, db, middleware, injectors,
+      rewriters, store, _config);
   }
 }
 
@@ -62,10 +62,10 @@ const startServer = async (
   middleware?: string,
   injectors?: string,
   rewriters?: string,
-  _config?: UserConfig,
-  store?: string
+  store?: string,
+  _config?: UserConfig
 ) => {
-  const mockServer = new MockServer(_config, store);
+  const mockServer = new MockServer(_config);
   const filesToWatch = ([
     _config,
     store,
@@ -82,16 +82,16 @@ const startServer = async (
         try {
           console.log("\n" + chalk.yellow(_path) + chalk.gray(` has changed, reloading...`));
           mockServer.server && await mockServer.stopServer();
-          !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters);
+          !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
           console.log(chalk.gray('watching for changes...'));
           console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
         } catch (err) {
           console.log(err.message);
         }
       });
-      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters);
+      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
     } else {
-      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters);
+      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
     }
   } catch (err) {
     console.log(err.message);

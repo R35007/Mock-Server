@@ -61,7 +61,7 @@ export class Validators extends Initials {
       return {}
     }
 
-    const flattenedInjectors = normalizeDb(userInjectors);
+    const flattenedInjectors = normalizeDb(userInjectors, true);
     return flattenedInjectors;
   };
 
@@ -89,9 +89,10 @@ export class Validators extends Initials {
 
   getValidDb = (
     data?: UserDb | HAR,
+    injectors: UserDb = this.injectors,
+    options: { reverse: boolean } = this.config,
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
     finalCallback?: (data: any, db: Db) => Db,
-    options: { reverse: boolean } = this.config
   ): Db => {
     let userData = requireData(data, this.config.root) as Db | HAR;
 
@@ -104,7 +105,7 @@ export class Validators extends Initials {
     const dataFromEntries: Db = entries ? getDbFromEntries(entries, entryCallback) : userData as Db;
 
     const normalizedDb = normalizeDb(dataFromEntries);
-    const injectedDb = getInjectedDb(normalizedDb, this.injectors);
+    const injectedDb = getInjectedDb(normalizedDb, this.getValidInjectors(injectors));
 
     const valid_routes = options.reverse
       ? _.fromPairs(Object.entries(injectedDb).reverse())

@@ -14,13 +14,13 @@ export const validRoute = (route: string): string => {
   return trimmedRoute;
 }
 
-export const normalizeRoutes = <T>(object: T): T => {
+export const normalizeRoutes = <T>(object: T, isInjector: boolean = false): T => {
   const flattenedRoutes = {} as T;
   Object.entries(object)
     .forEach(([routePath, routeConfig]: [string, RouteConfig]) => {
       const routesChunk = routePath.split(",");
       routesChunk.map(validRoute).forEach(r => {
-        flattenedRoutes[r] = validRouteConfig(routeConfig);
+        flattenedRoutes[r] = isInjector ? routeConfig : validRouteConfig(routeConfig);
       })
     })
   return flattenedRoutes;
@@ -42,17 +42,22 @@ export const getInjectedRoutes = (db: Db, injectors: Db): Db => {
     const matchedRoutes = getMatchedRoutesList(routeToMatch, db);
     const injectorsMiddlewares = injectorRouteConfig.middlewares?.length ? injectorRouteConfig.middlewares : [];
     matchedRoutes.forEach(r => {
-      if (injectorRouteConfig.override) {
+      if (injectorRouteConfig._override) {
+        delete injectorRouteConfig._override;
         injectedRoutes[r] = {
           ...db[r], ...injectorRouteConfig,
           middlewares: mergeArray(injectorsMiddlewares, db[r].middlewares)
         }
       } else {
-        injectedRoutes[r] = { ...injectorRouteConfig, ...db[r] }
+        injectedRoutes[r] = { 
+          ...injectorRouteConfig, ...db[r],
+          middlewares: injectorsMiddlewares.includes("...") ? mergeArray(injectorsMiddlewares, db[r].middlewares) : db[r].middlewares
+        }
       }
 
       if (injectedRoutes[r].fetch === undefined) {
         delete injectedRoutes[r].fetchCount;
+        delete injectedRoutes[r].skipFetchError;
       }
     })
   })

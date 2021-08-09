@@ -28,13 +28,13 @@ export type RouteConfig = {
   delay?: number;
   fetchCount?: number;
   skipFetchError?: boolean;
-  override?: boolean;
   middlewares?: string[];
   middleware?: express.RequestHandler;
   
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
   _extension?: string;
+  _override?: boolean;
 
   [key: string]: any;
 }
@@ -140,6 +140,6 @@ export type GetData = {
   middleware: Middleware;
   injectors: Db;
   rewriters: KeyValString
-  config: Config;
   store: Object;
+  config: Config;
 }
