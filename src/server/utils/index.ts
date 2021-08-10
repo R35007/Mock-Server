@@ -88,11 +88,9 @@ export const getDbFromEntries = (
       mock = responseText;
     }
 
-    const statusCode = entry?.response?.status;
     let routePath: string = validRoute(route || '');
     let routeConfig: RouteConfig = {
       _config: true,
-      statusCode: statusCode == 304 ? 200 : statusCode,
       mock
     }
 
@@ -155,8 +153,11 @@ export const getDbSnapShot = (db: Db) => {
       if (key.startsWith("_")) delete _db[routePath][key]
     })
     clean(_db[routePath]);
+    delete _db[routePath]?.id;
     const remainingKeys = Object.keys(_db[routePath]);
-    if (remainingKeys.length === 2 && remainingKeys.includes('mock') && remainingKeys.includes('id')) {
+    if(!remainingKeys.length){
+      _db[routePath] = _.cloneDeep(db[routePath]?.mock || {});
+    }else if (remainingKeys.length === 1 && remainingKeys[0]==='mock') {
       _db[routePath] = _db[routePath].mock;
     } else {
       _db[routePath]._config = true;

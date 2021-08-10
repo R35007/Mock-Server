@@ -22,9 +22,9 @@ export class GettersSetters extends Validators {
     config?: UserConfig,
   ) {
     !_.isEmpty(config) && this.setConfig(config);
+    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
     !_.isEmpty(middleware) && this.setMiddleware(middleware);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
-    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
     !_.isEmpty(store) && this.setStore(store);
     !_.isEmpty(db) && this.setDb(db);
   };

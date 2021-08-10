@@ -1,3 +1,8 @@
+# v4.2.0
+
+- added `server.js` in samples
+- removed `id` attribute in db snapshot.
+
 # v4.1.2
 
 - added `isSnapshot` options in `getValidDb` method.
