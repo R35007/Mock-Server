@@ -3,9 +3,9 @@
 // It will be called for each entry in a HAR formatted data
 // Here you can return your custom route and routeConfig
 // `entryCallback` is a reserved word for generating Db
-exports.entryCallback = (entry, routePath, routeConfig)  => {
+exports.entryCallback = (entry, routePath, routeConfig) => {
   // your code goes here ...
-  return { [routePath] :  routeConfig}
+  return { [routePath]: routeConfig }
 };
 
 // Used in VS Code Mock Server extension
@@ -27,7 +27,7 @@ exports.finalCallback = (data, db) => {
 //    "delay": 1000,
 //    "fetch": "https://jsonplaceholder.typicode.com/comments",
 //    "fetchCount": 5,
-//    "middlewares": [
+//    "middlewareNames": [
 //      "DataWrapper"
 //    ]
 //  }
@@ -44,5 +44,11 @@ exports.DataWrapper = (req, res, next) => {
 
 exports.CustomLog = (req, res, next) => {
   console.log(new Date());
+  next();
+};
+
+// Access store value
+exports.GetStoreValue = (req, res, next) => {
+  res.locals.data = "The store value is : " + res.locals.store.data;
   next();
 };

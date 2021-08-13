@@ -6,8 +6,8 @@ import { flatQuery } from '.';
 _.mixin(lodashDashId);
 export default class {
 
-  static search = (req: express.Request, res: express.Response, data: any[], id: string = "id") => {
-    _.id = id;
+  static search = (req: express.Request, res: express.Response, data: any[]) => {
+    _.id = res.locals?.config?.id || 'id';
 
     let _data = _.cloneDeep(data);
     const query = req.query;
@@ -141,7 +141,8 @@ export default class {
 
   }
 
-  static insert = (req: express.Request, _res: express.Response, data: any[], id: string = "id") => {
+  static insert = (req: express.Request, res: express.Response, data: any[]) => {
+    const id = res.locals?.config?.id || 'id';
     _.id = id;
     _.createId = (coll) => {
       if (_.isEmpty(coll)) {
@@ -158,8 +159,8 @@ export default class {
     return insertedData;
   }
 
-  static remove = (req: express.Request, _res: express.Response, data: any[], id: string = "id") => {
-    _.id = id;
+  static remove = (req: express.Request, res: express.Response, data: any[]) => {
+    _.id = res.locals?.config?.id || 'id';
     if (req.params.id) {
       return _.removeById(data, req.params.id)
     } else if (!_.isEmpty(req.query)) {
@@ -168,8 +169,8 @@ export default class {
     return;
   }
 
-  static update = (req: express.Request, _res: express.Response, data: any[], id: string = "id") => {
-    _.id = id;
+  static update = (req: express.Request, res: express.Response, data: any[]) => {
+    _.id = res.locals?.config?.id || 'id';
     const body = [].concat(req.body)[0];
     if (_.isEmpty(body)) return;
 
@@ -181,7 +182,8 @@ export default class {
     return;
   }
 
-  static replace = (req: express.Request, _res: express.Response, data: any[], id: string = "id") => {
+  static replace = (req: express.Request, res: express.Response, data: any[]) => {
+    const id = res.locals?.config?.id || 'id';
     _.id = id;
     const body = [].concat(req.body)[0];
 

@@ -1,118 +1,163 @@
 {
-  "/posts": [
-    {
-      "userId": 1,
-      "id": 1,
-      "title": "Lorem ipsum dolor sit.",
-      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-    },
-    {
-      "userId": 1,
-      "id": 2,
-      "title": "Lorem ipsum dolor sit.",
-      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-    },
-    {
-      "userId": 1,
-      "id": 3,
-      "title": "Lorem ipsum dolor sit.",
-      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-    },
-    {
-      "userId": 1,
-      "id": 4,
-      "title": "Lorem ipsum dolor sit.",
-      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-    },
-    {
-      "userId": 1,
-      "id": 5,
-      "title": "Lorem ipsum dolor sit.",
-      "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-    }
-  ],
-  "/albums/:id?": {
-    "_config": true,
-    "fetch": {
-      "url": "https://jsonplaceholder.typicode.com/{{routePath}}"
-    },
-    "middlewares": [
-      "_FetchTillData"
+  "/customMockData/1": {
+    "descrption": "Since '_config' flag is not set to true. This Whole object will be considered as a mock data. So if you don't have any specific route configuration you can directly give the mock data to the route",
+    "mock": [
+      {
+        "userId": 1,
+        "id": 1,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 2,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 3,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 4,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 5,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      }
     ]
   },
-  "/comments": {
+  "/customMockData/2": {
     "_config": true,
-    "delay": 1000,
-    "fetch": "https://jsonplaceholder.typicode.com/comments",
-    "fetchCount": 5,
-    "middlewares": [
-      "DataWrapper"
+    "mock": [
+      {
+        "userId": 1,
+        "id": 1,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 2,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      },
+      {
+        "userId": 1,
+        "id": 3,
+        "title": "Lorem ipsum dolor sit.",
+        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
+      }
     ]
   },
-  "/photos": {
+  "/customStatusCode": {
     "_config": true,
     "statusCode": 500,
-    "fetch": {
-      "url": "https://jsonplaceholder.typicode.com/photos",
-      "params": {
-        "_limit": 20
-      }
-    },
-    "middlewares": [
-      "_IterateResponse"
-    ]
+    "mock": "This is response is received with a statusCode of 500"
   },
-  "/todos": {
+  "/customDelay": {
     "_config": true,
+    "delay": 2000,
+    "description": "Note: give delay in milliseconds",
+    "mock": "This is response is received with a delay of 2000 milliseconds"
+  },
+  "/fetch/photos/records/data": {
+    "_config": true,
+    "description": "By default fetch call will be made only once. Then it stores the value in the `fetchData` attribute and make the `fetchCount` to 0. When you again hit the url it will get the data from `fetchData` and returns as a response",
+    "fetch": "http://jsonplaceholder.typicode.com/photos"
+  },
+  "/fetch/comments/proxy": {
+    "_config": true,
+    "description": "When you directly give the url, all the request query params and posted body data will also to sent to the given url",
+    "fetch": "http://jsonplaceholder.typicode.com/comments",
+    "fetchCount": -1
+  },
+  "/fetch/posts/customOptions": {
+    "_config": true,
+    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",
     "fetch": {
-      "url": "https://jsonplaceholder.typicode.com/{{routePath}}",
+      "method": "GET",
+      "url": "http://jsonplaceholder.typicode.com/posts",
       "params": "{{params}}"
     },
     "fetchCount": -1
   },
-  "/users": {
+  "/fetch/users/file": {
     "_config": true,
-    "fetch": "./data/users.json",
-    "middlewares": [
-      "_SetFetchDataToMock",
-      "_CrudOperation"
-    ],
+    "description": "The given fetch url will be relative to the root path given in config",
+    "fetch": "./data/users.json"
+  },
+  "/fetch/users/image": {
+    "_config": true,
+    "fetch": "https://via.placeholder.com/600/771796"
+  },
+  "/fetch/todos/fetchCount/3/times": {
+    "_config": true,
+    "description": "By default the fetch will be called only one time. You can limit or extend the number of fetch calls using 'fetchCount' attribute",
+    "fetch": "http://jsonplaceholder.typicode.com/todos",
+    "fetchCount": 3
+  },
+  "/fetch/albums/fetchCount/Infinite/times": {
+    "_config": true,
+    "description": "Setting 'fetchCount' to -1 time will helps to make a fetch call on each and every url hit without any limit. By This way you always get a new fresh data from the fetch url.",
+    "fetch": "http://jsonplaceholder.typicode.com/albums",
     "fetchCount": -1
   },
-  "/db": {
+  "/fetch/404/skipFetchError": {
     "_config": true,
-    "fetch": "http://jsonplaceholder.typicode.com/dbs",
-    "mock": {
-      "/posts": {
-        "fetch": "https://jsonplaceholder.typicode.com/posts"
-      },
-      "/comments": {
-        "fetch": "https://jsonplaceholder.typicode.com/comments"
-      },
-      "/albums": {
-        "fetch": "https://jsonplaceholder.typicode.com/albums"
-      },
-      "/photos": {
-        "fetch": "https://jsonplaceholder.typicode.com/photos"
-      },
-      "/todos": {
-        "fetch": "https://jsonplaceholder.typicode.com/todos"
-      },
-      "/users": {
-        "fetch": "https://jsonplaceholder.typicode.com/users"
-      }
-    },
-    "fetchCount": 2,
-    "middlewares": [
-      "_FetchTillData"
+    "description": "Bu default fetch returns the actual error if occur. If you set `skipFetchError` flag to true. the If any error occur in fetch call it will then skips the fetch error and return you the mock data",
+    "fetch": "http://localhost:3000/404",
+    "skipFetchError": true,
+    "mock": "This data is returned due to some error in fetch call. You can see the error in 'fetchError' attribute",
+    "fetchCount": -1
+  },
+  "/customMiddleware": {
+    "_config": true,
+    "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
+    "fetch": "http://jsonplaceholder.typicode.com/users",
+    "middlewareNames": [
+      "DataWrapper"
+    ]
+  },
+  "/predefined/middleware": {
+    "_config": true,
+    "description": "These are the list of predined middleware that are available for ease of use. For Example: This route uses the '_IterateResponse' middleware to iterate the mock data",
+    "mock": [
+      "_IterateResponse - Iterates to each response in an array for each hit. Note: the data must be an array",
+      "_IterateRoutes - Iterates to each route in a mock data. Note: mock data contains the list of routes to be redirected",
+      "_AdvancedSearch - This middleware helps to retrive the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a uniquid id",
+      "_CrudOperations - Helps to do all the CRUD operations like Create, Read, Update, Delete using GET, PUT, PATCH, POST, DELETE method. Note: Id values are not mutable. Any id value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already take",
+      "_FetchTillData - Helps to keep on make fetch calls until it gets a valid success data",
+      "_SetFetchDataToMock - This middleware sets the 'fetchData' to 'mock' attribute. Note: The existing data in mock will be overridden",
+      "_SetStoreDataToMock - This is similar to '_FetchTillData'. This sets the 'store' value to 'mock' attribute",
+      "_MockOnly - Always send only the mock data the even If it has a 'fetchdata'.",
+      "_FetchOnly - Always send only the 'fetchdata'",
+      "_ReadOnly - Only GET methods calls are allowed."
+    ],
+    "middlewareNames": [
+      "_IterateResponse"
+    ]
+  },
+  "/injectors/1": {},
+  "/injectors/2": {},
+  "/store": {
+    "_config": true,
+    "description": "This will call the below middleware and send the store value.",
+    "middlewareNames": [
+      "GetStoreValue"
     ]
   },
   "/internalRequest": {
     "_config": true,
-    "fetch": "http://localhost:{{port}}/db",
-    "middlewares": [
-      "_FetchTillData"
-    ]
+    "description": "Gets the data from /customMockData/1 route",
+    "fetch": "http://localhost:{{port}}/customMockData/1"
   },
   "/pageNotFound": {
     "_config": true,

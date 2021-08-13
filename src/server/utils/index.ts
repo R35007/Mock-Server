@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 import * as path from 'path';
 import { match } from 'path-to-regexp';
-import { Db, HarEntry, RouteConfig } from '../model';
+import { Db, HarEntry, Injector, RouteConfig } from '../model';
 
 export const validRoute = (route: string): string => {
   const trimmedRoute = "/" + route.split('/')
@@ -36,22 +36,23 @@ const validRouteConfig = (routeConfig): RouteConfig => {
   return routeConfig
 }
 
-export const getInjectedDb = (db: Db, injectors: Db): Db => {
-  const injectedRoutes = {} as Db;
-  Object.entries(injectors).forEach(([routeToMatch, injectorRouteConfig]) => {
-    const matchedRoutes = getMatchedRoutesList(routeToMatch, db);
-    const injectorsMiddlewares = injectorRouteConfig.middlewares?.length ? injectorRouteConfig.middlewares : [];
+export const getInjectedDb = (db: Db, injectors: { [key: string]: Injector }): Db => {
+  const injectedRoutes = {};
+  Object.entries(injectors).forEach(([key, injectorRouteConfig]) => {
+    const routeToMatch = injectorRouteConfig.routeToMatch || key;
+    const matchedRoutes = getMatchedRoutesList(routeToMatch, db, injectorRouteConfig.exact);
+    const injectorsMiddlewares = injectorRouteConfig.middlewareNames;
     matchedRoutes.forEach(r => {
-      if (injectorRouteConfig._override) {
-        delete injectorRouteConfig._override;
+      const existingMiddlewares = injectedRoutes[r]?.middlewareNames?.length ? injectedRoutes[r]?.middlewareNames : db[r]?.middlewareNames;
+      if (injectorRouteConfig.override) {
         injectedRoutes[r] = {
-          ...db[r], ...injectorRouteConfig,
-          middlewares: mergeArray(injectorsMiddlewares, db[r].middlewares)
+          ...db[r], ...(injectedRoutes[r] || {}), ...injectorRouteConfig,
+          middlewareNames: mergeArray(injectorsMiddlewares, existingMiddlewares)
         }
       } else {
-        injectedRoutes[r] = { 
-          ...injectorRouteConfig, ...db[r],
-          middlewares: injectorsMiddlewares.includes("...") ? mergeArray(injectorsMiddlewares, db[r].middlewares) : db[r].middlewares
+        injectedRoutes[r] = {
+          ...injectorRouteConfig, ...db[r], ...(injectedRoutes[r] || {}),
+          middlewareNames: mergeArray(injectorsMiddlewares, existingMiddlewares)
         }
       }
 
@@ -59,15 +60,20 @@ export const getInjectedDb = (db: Db, injectors: Db): Db => {
         delete injectedRoutes[r].fetchCount;
         delete injectedRoutes[r].skipFetchError;
       }
+      delete injectedRoutes[r].routeToMatch;
+      delete injectedRoutes[r].override;
+      delete injectedRoutes[r].exact;
     })
   })
 
   return _.cloneDeep({ ...db, ...injectedRoutes }) as Db;
 }
 
-export const getMatchedRoutesList = (routeToMatch: string, routes: Db): string[] => {
+export const getMatchedRoutesList = (routeToMatch: string, db: Db, exact: boolean = false): string[] => {
   const matched = match(routeToMatch);
-  return Object.keys(routes).filter(r => matched(r) || r === routeToMatch);
+  return exact ?
+    Object.keys(db).filter(r => r === routeToMatch) :
+    Object.keys(db).filter(r => matched(r));
 }
 
 export const getDbFromEntries = (
@@ -107,7 +113,7 @@ export const getDbFromEntries = (
 const setRouteRedirects = (db: Db, routePath: string, currentRouteConfig: RouteConfig) => {
   if (db[routePath]) {
     const existingConfig = db[routePath];
-    if (db[routePath].middlewares?.[0] !== "_IterateRoutes") {
+    if (db[routePath].middlewareNames?.[0] !== "_IterateRoutes") {
       delete db[routePath];
       const iterateRoute1 = validRoute(routePath + "/" + "id-" + nanoid(7))
       const iterateRoute2 = validRoute(routePath + "/" + "id-" + nanoid(7))
@@ -117,7 +123,7 @@ const setRouteRedirects = (db: Db, routePath: string, currentRouteConfig: RouteC
           iterateRoute1,
           iterateRoute2
         ],
-        middlewares: ["_IterateRoutes"]
+        middlewareNames: ["_IterateRoutes"]
       }
       db[iterateRoute1] = existingConfig;
       db[iterateRoute2] = currentRouteConfig;
@@ -133,11 +139,12 @@ const setRouteRedirects = (db: Db, routePath: string, currentRouteConfig: RouteC
 }
 
 const mergeArray = (newList: string[] = [], existingList: string[] = []): string[] => {
+  if (!newList.length) return existingList;
   return newList.reduce((result, im) => {
     if (im === "...") {
-      return [...result, ...existingList]
+      return [...new Set([...result, ...existingList])]
     }
-    return [...result, im]
+    return [...new Set([...result, im])]
   }, []).filter(Boolean)
 }
 
@@ -155,9 +162,9 @@ export const getDbSnapShot = (db: Db) => {
     clean(_db[routePath]);
     delete _db[routePath]?.id;
     const remainingKeys = Object.keys(_db[routePath]);
-    if(!remainingKeys.length){
+    if (!remainingKeys.length) {
       _db[routePath] = _.cloneDeep(db[routePath]?.mock || {});
-    }else if (remainingKeys.length === 1 && remainingKeys[0]==='mock') {
+    } else if (remainingKeys.length === 1 && remainingKeys[0] === 'mock') {
       _db[routePath] = _db[routePath].mock;
     } else {
       _db[routePath]._config = true;
@@ -168,14 +175,9 @@ export const getDbSnapShot = (db: Db) => {
 
 export const clean = (obj: object) => {
   for (var propName in obj) {
-    if (
-      obj[propName] === null ||
-      obj[propName] === undefined ||
-      (_.isArray(obj[propName]) && !obj[propName].length) ||
-      (_.isPlainObject(obj[propName]) && !Object.keys(obj[propName]).length) ||
-      _.isNaN(obj[propName]) ||
-      !(obj[propName].toString().trim())?.length
-    ) {
+    const checkVal = _.isInteger(obj[propName]) || _.isBoolean(obj[propName]) ?
+    obj[propName].toString() : obj[propName];
+    if (_.isEmpty(checkVal)) {
       delete obj[propName];
     }
   }

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import * as _ from 'lodash';
-import { Db, GetData, HAR, RouteConfig, UserConfig, UserDb, UserMiddleware, UserRewriters, UserStore } from './model';
+import { Db, GetData, HAR, RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware, UserRewriters, UserStore } from './model';
 import { Validators } from './validators';
 
 export class GettersSetters extends Validators {
@@ -16,7 +16,7 @@ export class GettersSetters extends Validators {
   setData(
     db?: UserDb,
     middleware?: UserMiddleware,
-    injectors?: UserDb,
+    injectors?: UserInjectors,
     rewriters?: UserRewriters,
     store?: UserStore,
     config?: UserConfig,
@@ -52,14 +52,14 @@ export class GettersSetters extends Validators {
     console.log(chalk.gray("Done."));
   }
 
-  setInjectors(injectors?: UserDb) {
+  setInjectors(injectors?: UserInjectors) {
     console.log("\n" + chalk.gray("Setting Injectors..."));
     this.injectors = this.getValidInjectors(injectors);
     console.log(chalk.gray("Done."));
   }
 
   setDb(db?: UserDb | HAR,
-    injectors: UserDb = this.injectors,
+    injectors: UserInjectors = this.injectors,
     options: { reverse: boolean } = this.config,
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
     finalCallback?: (data: any, db: Db) => Db

@@ -16,9 +16,10 @@ import PageNotFound from './middlewares/pageNotFound';
 import Rewriter from './middlewares/rewriter';
 import {
   Config, Db, Default_Options,
+  Injector,
   KeyValString,
   Middleware,
-  RouteConfig, UserConfig, UserDb, UserMiddleware,
+  RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware,
   UserRewriters, UserStore
 } from "./model";
 import { clean, flatQuery, getDbSnapShot, replaceObj } from './utils';
@@ -47,7 +48,7 @@ export class MockServer extends GettersSetters {
   launchServer = async (
     db?: UserDb,
     middleware?: UserMiddleware,
-    injectors?: UserDb,
+    injectors?: UserInjectors,
     rewriters?: UserRewriters,
     store?: UserStore
   ) => {
@@ -88,7 +89,7 @@ export class MockServer extends GettersSetters {
   resources = (
     db?: UserDb,
     middleware?: UserMiddleware,
-    injectors?: UserDb,
+    injectors?: UserInjectors,
     store?: UserStore,
   ) => {
 
@@ -134,17 +135,17 @@ export class MockServer extends GettersSetters {
   }
 
   #getMiddlewareList = (routePath: string, routeConfig: RouteConfig) => {
-    const userMiddlewares = (routeConfig.middlewares || [])
-      .filter(m => _.isFunction(this.middleware?.[m]))
-      .map(m => this.middleware?.[m]);
+    const userMiddlewares = (routeConfig.middlewareNames || [])
+      .filter(middlewareName => _.isFunction(this.middleware?.[middlewareName]))
+      .map(middlewareName => this.middleware?.[middlewareName]);
 
-    const middleware = _.isFunction(routeConfig.middleware) ? routeConfig.middleware! : (_req, _res, next) => next();
+    const middlewares = (routeConfig.middlewares || []).filter(m => _.isFunction(m)) as Array<express.RequestHandler>;
 
     const middlewareList: express.RequestHandler[] = [
       InitialMiddleware(routePath, this.db, this.getDb, this.config, this.store),
       Delay,
       Fetch,
-      middleware,
+      ...middlewares,
       ...userMiddlewares,
       FinalMiddleware
     ];
@@ -192,7 +193,7 @@ export class MockServer extends GettersSetters {
     this.db = {} as Db;
     this.config = { ...Default_Config } as Config;
     this.middleware = { ...Default_Middlewares } as Middleware;
-    this.injectors = {} as Db;
+    this.injectors = {} as { [key: string] : Injector };
     this.store = {} as Object;
     this.rewriters = {} as KeyValString;
 

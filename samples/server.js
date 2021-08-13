@@ -1,4 +1,5 @@
-const { MockServer } = require("@r35007/mock-server");
+// const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require("../dist/server/index");
 
 // Provide config as a param. If not provided, It uses the default Config.
 const mockServer = MockServer.Create("./config.json");
@@ -44,16 +45,16 @@ app.use(mockServer.config.base, resources);
 
 // Add Custom Routes to existing default router
 // This Route will be listed in Home Page
-mockServer.addDbData({
-  "/data":{
-    _config: true,
-    middleware:(req, res, next) => {
-      console.log(res.locals.store);
-      res.locals.data = res.locals.store?.data;
-      next();
-    }
-  }
-})
+// mockServer.addDbData({
+//   "/data":{
+//     _config: true,
+//     middleware:(req, res, next) => {
+//       console.log(res.locals.store);
+//       res.locals.data = res.locals.store?.data;
+//       next();
+//     }
+//   }
+// })
 
 // Create the default Routes which helps to run the Mock Server Home Page.
 const defaultRoutes = mockServer.defaultRoutes();

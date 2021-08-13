@@ -1,9 +1,16 @@
-{
-  "/(.*)": {
-    "statusCode": 200,
-    "middlewares": [
-      "...",
-      "CustomLog"
-    ]
+[
+  {
+    "routeToMatch": "/injectors/:id",
+    "override": true,
+    "mock": "This data is injected using the injectors by matching the pattern '/injectors/:id'."
+  },
+  {
+    "routeToMatch": "/(.*)",
+    "description": "This Description is injected using the injectors. Set 'Override' flag to true to override the existing config values."
+  },
+  {
+    "routeToMatch": "/(.*)",
+    "override": true,
+    "middlewareNames": ["...", "CustomLog"]
   }
-}
+]

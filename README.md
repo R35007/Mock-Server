@@ -186,8 +186,8 @@ For Example:
     "description": "", // Description about this Route.
     "delay": 2000, // in milliseconds
     "statusCode": 200, // in number between 100 to 600
-    "middlewares": ["_IterateResponse"], // list of middleware to be called
-    "middleware": "", // Can give a direct Express Request Handler. It can be used only if the db is used as a .js file.
+    "middlewareNames": ["_IterateResponse"], // list of middleware names to be called
+    "middlewares": "", // Can give a list of express Middlewares If using in .js file
     "fetch": "./myFile.json", // this path will be relative to `config.root`
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
@@ -420,17 +420,17 @@ exports.wrapper = (req, res, next) => {
   "/posts/:id": {
     "_config": true,
     "fetch": "https://jsonplaceholder.typicode.com/posts",
-    "middlewares": ["log", "wrapper"] // give the name of the middlewares which are available in the middleware.js
+    "middlewareNames": ["log", "wrapper"] // give the name of the middleware which are available in the middleware.js
   },
   "/comment": {
     "_config": true,
     "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/1" },
-    "middlewares": ["log"]
+    "middlewareNames": ["log"]
   }
 }
 ```
 
-Note: A middleware must be available at the name of the middlewares given in `db.json`
+Note: A middleware must be available at the name of the middlewareNames given in `db.json`
 
 Now in server.js
 
@@ -457,7 +457,7 @@ example:
 {
   "/route": {
     "_config": true,
-    "middlewares": ["_IterateResponse"], // method name to be called
+    "middlewareNames": ["_IterateResponse"], // method name to be called
     "mock": ["response1", "response2]
   }
 }
@@ -476,7 +476,7 @@ example:
   "/posts": {
     "_config": true,
     // make sure this route stays at the top of the routes provided in the mock.
-    "middlewares": ["_IterateRoutes"], // method name to be called
+    "middlewareNames": ["_IterateRoutes"], // method name to be called
     "mock": ["/posts/1", "/posts/2", "/posts/3"]
   },
   "/posts/1": { "data": " Data 1" },
@@ -616,74 +616,55 @@ Injector uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp) pat
 
 ### **Inject Route Configs**
 
-Here we are explicitly injecting `delay`, `middlewares`, `statusCode` to the `/posts` route.
+Here we are explicitly injecting `delay`, `middlewareNames`, `statusCode` to the `/posts` route.
 You can any route configs to a specific or to a group of routes using Injectors.
 
-example :
+  - Injectors use `path-to-regexp` package for route pattern recognition.
+  - Click [here](https://www.npmjs.com/package/path-to-regexp)
 
-`db.json`
-
+example : `injectors.json`
 ```jsonc
-{
-  "/posts": {
-    "_config": true,
-    "fetch": { "url": "https://jsonplaceholder.typicode.com/posts" }
-  },
-  "/comments/1": {
-    "_config": true,
-    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/1" },
-    "middlewares": ["_CrudOperations", "log"]
-  },
-  "/comments/2": {
-    "_config": true,
-    "delay": 3000,
-    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/2" }
-  },
-  "/comments/3": {
-    "_config": true,
-    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/3" }
-  }
-}
-```
-
-`injectors.json`
-
-```jsonc
-{
-  "/posts": {
+[
+  {
+    "routeToMatch":"/posts",
     "delay": 2000,
-    "middlewares": ["log", "counter", "_CrudOperations"],
+    "middlewareNames": ["log", "counter", "_CrudOperations"],
     "StatusCode": 300
   },
-  "/comments/:id?": {
-    "delay": 2000, // since /comments/2 already has a delay of 3 seconds it will ot be replaced with 2 seconds delay
-    "middlewares": ["log"] // injects middlewares to /comments/2, /comments/3 routes excepts /comments/1
+  {
+    // This config will be injected to exact route "/comments/:id?" and not to "/comments" or "/comments/1".
+    "routeToMatch": "/comments/:id?",
+    "exact": true,
+    "delay": 2000,
+    "middlewareNames": ["log"] // injects middlewareNames to /comments/2, /comments/3 routes excepts /comments/1
   }
-}
+]
 ```
 
 ### **Override Existing Route Configs**
 
-Setting `_override` flag to true helps to override the existing config of that route.
+Setting `override` flag to true helps to override the existing config of that route.
 
 For example :
 
 `injectors.json`
 
 ```jsonc
-{
-  "/comments/1": {
-    "_override": true,
-    "middlewares": ["...", "timer"] // here /comments/1 route will have ["crudMock", "log", "timer"]
+[
+  {
+    "routeToMatch": "/comments/1",
+    "override": true,
+    "middlewareNames": ["...", "timer"] // here /comments/1 route will have ["crudMock", "log", "timer"]
   },
-  "/comments/2": {
-    "_override": true,
+  {
+    "routeToMatch": "/comments/2",
+    "override": true,
     "delay": 2000 // Now /comments/2 will have a delay of 2 seconds
   }
-}
+]
 ```
 
-Note: Use `["..."]` If you want to add the existing middlewares.
+Note: Use `["..."]` If you want to add the existing middlewareNames.
 
 ### **Common Route Configs**
 
@@ -695,21 +676,24 @@ For example :
 `injectors.json`
 
 ```jsonc
-{
-  "/posts": {
+[
+  {
+    "routeToMatch": "/posts",
     "delay": 2000 // will be overridden by the below route match configs.
   },
-  "/(.*)": {
-    "_override": true,
-    "middlewares": ["log", "..."],
+  {
+    "routeToMatch": "/(.*)", // pattern to match all the routes
+    "override": true,
+    "middlewareNames": ["log", "..."],
     "statusCode": 200,
     "delay": 1000
   },
-  "/comments/1": {
+  {
+    "routeToMatch": "/comments/1",
     "delay": 0, // Here only this route will not have a delay of 1 second
-    "_override": true
+    "override": true
   }
-}
+]
 ```
 
 Now all the Routes will have a delay of 1 second, `"log"` middleware is appended to all routes and `statusCode` will be 200.
@@ -725,7 +709,7 @@ Route store helps to store any values which can be accessed on by that particula
 This stores values cannot be able to accessed by the other routes.
 Route Store can be accessed using `res.locals.routeConfig.store` inside the middleware.
 
-The middlewares `_CrudOperations`, `_IterateRoutes`, `_IterateResponse` uses the Route store to manipulate response.
+The middlewareNames `_CrudOperations`, `_IterateRoutes`, `_IterateResponse` uses the Route store to manipulate response.
 
 ### **Local Store**
 
@@ -735,6 +719,9 @@ This can be accessed using `res.locals.store` inside the middleware.
 ## **Route Rewriters**
 
 Create a `rewriters.json` file. Pay attention to start every route with `/`.
+
+  - Rewriters use `express-urlrewrite` package to rewrite the urls.
+  - Click [here](https://www.npmjs.com/package/express-urlrewrite) for more information about url rewrite.
 
 ```jsonc
 {
@@ -775,7 +762,6 @@ Here are the available options in `res.locals`
 ```ts
 interface Locals {
   routePath: string;
-  //all routeConfigs can be modified at runtime except middlewares and middleware attribute
   routeConfig: {
     _config?: boolean;
     id?: string;
@@ -789,9 +775,8 @@ interface Locals {
     delay?: number;
     fetchCount?: number;
     skipFetchError?: boolean;
-    middlewares?: string[];
-    middleware?: express.RequestHandler;
-    _override?: boolean; // used only in injectors
+    middlewareNames?: string[];
+    middlewares?: Array<express.RequestHandler>;
 
     // System generated attributes. Please avoid modifying these attribute values
     _isFile?: boolean;
@@ -890,7 +875,7 @@ Options:
   -c, --config           Path to config file                            [string]
   -P, --port             Set port                                [default: 3000]
   -H, --host             Set host                         [default: "localhost"]
-  -m, --middleware       Paths to middlewares file                      [string]
+  -m, --middleware       Paths to middleware file                      [string]
   -i, --injectors        Path to Injectors file                         [string]
   -s, --store            Path to Store file                             [string]
   -r, --rewriters        Path to Rewriter file                          [string]
@@ -964,7 +949,7 @@ It validates all the params in the MockServer, loads the resources and starts th
 ```js
 mockServer.launchServer(
   "./db.json",
-  "./middleware.js", // middlewares must be of type .js
+  "./middleware.js", // middleware must be of type .js
   "./injectors.json",
   "./rewriters.json",
   "./store.json"
@@ -976,7 +961,7 @@ mockServer.launchServer(
 | Name        | Type            | Required | Description                                             |
 | ----------- | --------------- | -------- | ------------------------------------------------------- |
 | db          | string / object | No       | This object generates the local rest api.               |
-| middlewares | string / object | No       | Here you initialize the needed custom middlewares       |
+| middleware | string / object | No       | Here you initialize the needed custom middleware       |
 | injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
 | rewriters   | string / object | No       | Helps to set route rewriters                            |
 | store       | string / object | No       | Helps to store values and share between routes          |
@@ -1033,13 +1018,13 @@ app.use(resources);
 | Name        | Type            | Required | Description                                             |
 | ----------- | --------------- | -------- | ------------------------------------------------------- |
 | db          | string / object | No       | This object generates the local rest api.               |
-| middlewares | string / object | No       | Here you initialize the needed custom middlewares       |
+| middleware | string / object | No       | Here you initialize the needed custom middleware      |
 | injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
 | store       | string / object | No       | Helps to store values and share between routes          |
 
 ### **defaultRoutes**
 
-Returns middlewares used by Mock Server.
+Returns router with some default routes.
 
 ```js
 const defaultsRoutes = mockServer.defaultRoutes();

@@ -51,7 +51,7 @@ const getUrlDetail = (req, res) => {
   if (typeof fetch === 'string') {
     request = { url: fetch, headers: { proxy: true } }
   } else if (_.isPlainObject(fetch)) {
-    request = fetch as AxiosRequestConfig;
+    request = _.cloneDeep(fetch) as AxiosRequestConfig;
   } else {
     return;
   }

@@ -2,13 +2,14 @@ import { AxiosRequestConfig } from 'axios';
 import * as express from "express";
 
 export type UserDb = string | User_Db | Db;
+export type UserInjectors = string | Injector[] | { [key: string]: Injector };
 export type UserConfig = string | User_Config | Config;
 export type UserMiddleware = string | User_Middleware | Middleware;
 export type UserStore = string | Object;
 export type UserRewriters = string | KeyValString;
 
 export type User_Db = {
-  [key: string]: RouteConfig | any[] | string;
+  [key: string]: RouteConfig | any[] | object | string;
 }
 
 export type Db = {
@@ -28,16 +29,19 @@ export type RouteConfig = {
   delay?: number;
   fetchCount?: number;
   skipFetchError?: boolean;
-  middlewares?: string[];
-  middleware?: express.RequestHandler;
+  middlewareNames?: string[];
+  middlewares?: Array<express.RequestHandler>;
   
   _isFile?: boolean;
   _request?: AxiosRequestConfig,
   _extension?: string;
-  _override?: boolean;
-
-  [key: string]: any;
 }
+
+export type Injector = {
+  routeToMatch: string;
+  override?: boolean;
+  exact?: boolean;
+} & RouteConfig
 
 export type Config = {
   port: number;

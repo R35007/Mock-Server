@@ -58,15 +58,15 @@ const _CrudOperation = (req, res, next) => {
   const data = store[storeKey];
 
   if (method.toLowerCase() === 'get') {
-    locals.data = CRUD.search(req, res, data, locals.config.id);
+    locals.data = CRUD.search(req, res, data);
   } else if (method.toLowerCase() === 'put') {
-    locals.data = CRUD.replace(req, res, data, locals.config.id);
+    locals.data = CRUD.replace(req, res, data);
   } else if (method.toLowerCase() === 'patch') {
-    locals.data = CRUD.update(req, res, data, locals.config.id);
+    locals.data = CRUD.update(req, res, data);
   } else if (method.toLowerCase() === 'post') {
-    locals.data = CRUD.insert(req, res, data, locals.config.id);
+    locals.data = CRUD.insert(req, res, data);
   } else if (method.toLowerCase() === 'delete') {
-    locals.data = CRUD.remove(req, res, data, locals.config.id);
+    locals.data = CRUD.remove(req, res, data);
   }
   next();
 }
@@ -74,7 +74,7 @@ const _AdvancedSearch = (req, res, next) => {
   const method = req.method;
   const locals = res.locals as Locals;
   if (method.toLowerCase() === 'get') {
-    locals.data = CRUD.search(req, res, locals.data, locals.config.id);
+    locals.data = CRUD.search(req, res, locals.data);
   }
   next();
 }

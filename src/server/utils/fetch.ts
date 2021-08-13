@@ -14,12 +14,12 @@ export const getJSON = (directoryPath: string, excludeFolders: string[] = [], re
   const obj = onlyJson.reduce((mock, file) => {
     try {
       const str = fs.readFileSync(file.filePath, "utf-8");
-      if(_.isEmpty(str)) return {}
+      if (_.isEmpty(str)) return {}
       const obj = JPH.parse(str);
       return { ...mock, ...obj };
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      throw(error);
+      throw (error);
     }
   }, {});
   return obj;
@@ -60,18 +60,30 @@ export const getFileData = (filePath: string, extension: string): { fetchData?: 
     if (extension === ".json" || extension === ".har") {
       console.log(chalk.gray("Fetch request : "), filePath);
       const str = fs.readFileSync(filePath, "utf-8");
-      if(_.isEmpty(str)){
-        fetchData = {};
-      }else {
-        fetchData = JPH.parse(str);
+      if (_.isEmpty(str)) {
+        fetchData = {
+          isFetch: true,
+          response: {}
+        };
+      } else {
+        fetchData = {
+          isFetch: true,
+          response: JPH.parse(str)
+        };
       }
     } else if (extension === ".txt") {
       console.log(chalk.gray("Fetch request : "), filePath);
-      fetchData = fs.readFileSync(filePath, "utf8");
+      fetchData = {
+        isFetch: true,
+        response: fs.readFileSync(filePath, "utf8")
+      };
     }
   } catch (error) {
     console.log(chalk.red(`Error reading ${filePath}`));
-    fetchError = error;
+    fetchError = {
+      isFetch: true,
+      response: error
+    };
   }
 
   return { fetchData, fetchError }
@@ -81,12 +93,33 @@ export const getUrlData = async (request: AxiosRequestConfig) => {
   let fetchData, fetchError;
   console.log(chalk.gray("Fetch request : "), request);
   try {
-    const response = await axios(request);
-    fetchData = response.data;
+    if (request.url?.match(/\.(jpeg|jpg|gif|png)$/gi)) {
+      fetchData = {
+        isFetch: true,
+        isImage: true,
+        response: `<img src="${request.url}">`
+      };
+    } else {
+      const response = await axios(request);
+      fetchData = {
+        isFetch: true,
+        status: response.status,
+        headers: response.headers
+      };
+      if (response.headers["content-type"]?.match(/image\/(jpeg|jpg|gif|png)$/gi)) {
+        fetchData.isImage = true;
+        fetchData.response = `<img src="${request.url}">`
+      } else {
+        fetchData.response = response.data ?? {};
+      }
+    }
   } catch (err) {
-    fetchError = err
+    fetchError = {
+      isFetch: true,
+      status: err.response?.status,
+      response: err.response?.data ?? {}
+    };
   }
-
   return { fetchData, fetchError };
 }
 

@@ -16,7 +16,7 @@ async function init() {
 }
 
 function createResourcesList(resources) {
-  setIFrameSrc(localhost);
+  setIFrameSrc();
   $search.value = "";
 
   // collects all expanded list to restore after refresh
@@ -47,7 +47,7 @@ function createRewritersList(rewriters) {
       </div>
     </li>
     `
-  })
+  }).join("")
   $rewritersContainer.style.display = "block";
 }
 
@@ -101,7 +101,7 @@ function ResourceItem(routePath, routeConfig) {
   <li id="${routeConfig.id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
     <div class="header d-flex align-items-center w-100" style="${routeConfig._isDefault ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
       <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig.id}')"><span class="icon">i</span></span>  
-      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${localhost + routePath}')" type="button">
+      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
     </div>
@@ -109,7 +109,7 @@ function ResourceItem(routePath, routeConfig) {
 `;
 }
 
-async function setIframeData($event, url) {
+async function setIframeData($event, routePath) {
   try {
     clearActiveLink();
     $event.parentNode.classList.add("active");
@@ -117,7 +117,7 @@ async function setIframeData($event, url) {
     $iframeData.contentWindow.document.close();
     $frameborder.style.display = "grid";
     $dataContainer.style.display = "block";
-    setIFrameSrc(url);
+    setIFrameSrc(routePath);
   } catch (err) {
     console.error(err);
   }
@@ -130,13 +130,21 @@ function clearActiveLink() {
   }
 }
 
-function setIFrameSrc(url) {
-  $resourceHeader.href = url;
-  $resourceHeader.children[1].innerHTML = url;
-  if (url !== localhost) {
+function setIFrameSrc(routePath) {
+  if (routePath?.trim().length) {
+    // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
+    let validRoutePath = routePath.split("/").map(r => r.indexOf(":")>=0 ? r.indexOf("?")>=0  ? "" : "1" : r).join("/");
+    validRoutePath = validRoutePath.replace(/\/$/gi,"") // removing trailing slash. ex: /posts/ -> /posts
+
+    const url = localhost+validRoutePath;
+
+    $resourceHeader.href = url;
+    $resourceHeader.children[1].innerHTML = url;
     $iframeData.src = url;
     $download.href = url;
   } else {
+    $resourceHeader.href = localhost;
+    $resourceHeader.children[1].innerHTML = localhost;
     $iframeData.src = '';
     $download.href = '';
   }

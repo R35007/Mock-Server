@@ -1,6 +1,6 @@
 import { Locals } from '../model';
 
-export default async (_req, res, next) => {
+export default async (_req, res, _next) => {
   const locals = <Locals>res.locals;
   const routeConfig = locals.routeConfig
 
@@ -9,8 +9,14 @@ export default async (_req, res, next) => {
     if (status && status >= 100 && status < 600) res.status(status);
 
     if (locals.data !== undefined) {
-      if (locals.data.isAxiosError) return next(locals.data);
-      typeof locals.data === "object" ? res.jsonp(locals.data || {}) : res.send(locals.data || {})
+      if (locals.data.isFetch) {
+        locals.data.status && res.status(locals.data.status);
+        const response = locals.data.response ?? {};
+        typeof response === "object" ? res.jsonp(response) : res.send(response);
+      } else {
+        const response = locals.data ?? {};
+        typeof locals.data === "object" ? res.jsonp(response) : res.send(response);
+      }
     } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".har", ".txt"].includes(routeConfig._extension || '')) {
       if (routeConfig.fetchCount == 0) {
         res.send(locals.routeConfig.mock || {});

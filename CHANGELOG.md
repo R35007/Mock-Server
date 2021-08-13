@@ -1,3 +1,44 @@
+# v4.3.0
+
+- Rewriters list, ui issue in Home page resolved.
+- Set `exact` flag to true in injectors to exactly match the route.
+- Sample files are updated with new data.
+- Attribute `middlewares` is renamed to `middlewareNames`.
+- Storing Fetch data bug fixed.
+- Now we can get image from image url as an img tag.
+- Now injectors can be given in both the ways as shown below.
+  
+way 1:
+
+```jsonc
+{
+  "/(.*)": {
+    "fetchCount": 2
+  },
+  // Again we cannot give the same route match over here by this structure.
+  "/(.*)": {
+    "override": true,
+    "statusCode": 200
+  }
+}
+```
+
+way 2:
+
+```jsonc
+[
+  {
+    "routeToMatch": "/(.*)",
+    "fetchCount": 2
+  },
+  {
+    "routeToMatch": "/(.*)",
+    "override": true,
+    "statusCode": 200
+  }
+]
+```
+
 # v4.2.0
 
 - added `server.js` in samples

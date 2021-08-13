@@ -4,8 +4,8 @@ import Default_Config from './config';
 import { Initials } from './initials';
 import Default_Middlewares from './middlewares';
 import {
-  Config, Db, HAR, HarEntry, KeyValString, Middleware,
-  RouteConfig, UserConfig, UserDb, UserMiddleware, UserStore, User_Config
+  Config, Db, HAR, HarEntry, Injector, KeyValString, Middleware,
+  RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware, UserStore, User_Config
 } from "./model";
 import {
   getInjectedDb, getDbFromEntries, getDbSnapShot,
@@ -53,7 +53,7 @@ export class Validators extends Initials {
     return { ...Default_Middlewares, ...valid_middlewares };
   }
 
-  getValidInjectors = (injectors?: UserDb): Db => {
+  getValidInjectors = (injectors?: UserInjectors): { [key: string]: Injector } => {
     const userInjectors = requireData(injectors, this.config.root) as Db;
 
     if (_.isEmpty(userInjectors)) {
@@ -61,7 +61,7 @@ export class Validators extends Initials {
       return {}
     }
 
-    const flattenedInjectors = normalizeDb(userInjectors, true);
+    const flattenedInjectors = normalizeDb(userInjectors, true) as { [key: string]: Injector };
     return flattenedInjectors;
   };
 
@@ -89,7 +89,7 @@ export class Validators extends Initials {
 
   getValidDb = (
     data?: UserDb | HAR,
-    injectors: UserDb = this.injectors,
+    injectors: UserInjectors = this.injectors,
     options?: { reverse?: boolean, isSnapshot?: boolean },
     entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
     finalCallback?: (data: any, db: Db) => Db,
