@@ -52,20 +52,28 @@ function parseJson(data) {
 
 function clean(obj) {
   for (var propName in obj) {
-    if (obj[propName] === null ||
-        obj[propName] === undefined ||
-        obj[propName].toString() === 'NaN' ||
-        (Array.isArray(obj[propName]) && !obj[propName].length) || 
-        (typeof obj[propName] === 'object' && 
-        !Array.isArray(obj[propName]) && 
-        obj[propName] !== null && 
-        !Object.keys(obj[propName]).length) ||
-        !obj[propName].toString().trim().length
+    if(typeof obj[propName] === 'string'){
+      obj[propName] = obj[propName].trim();
+    }
+    if(isPlainObject(obj[propName])) {
+      obj[propName] = clean(obj[propName]);
+    }
+    let checkVal = obj[propName];
+    if (checkVal === null ||
+        checkVal === undefined ||
+        (Array.isArray(checkVal) && !checkVal.length) || 
+        (isPlainObject(checkVal) && !Object.keys(checkVal).length) ||
+        (checkVal+"").trim() === 'NaN' ||
+        !(checkVal+"").trim().length
     ) {
       delete obj[propName];
     }
   }
   return obj
+}
+
+function isPlainObject(val){
+  return typeof val === 'object' && val !== null && !Array.isArray(val)
 }
 
 function orderRouteConfig(routeConfig) {
@@ -74,6 +82,7 @@ function orderRouteConfig(routeConfig) {
     "id",
     "_isDefault",
     "description",
+    "middlewareNames",
     "statusCode",
     "delay",
     "fetch",
@@ -85,7 +94,14 @@ function orderRouteConfig(routeConfig) {
     "_extension",
     "fetchData",
     "fetchError",
-    "store"
+    "store",
+    "status",
+    "message",
+    "isImage",
+    "isError",
+    "headers",
+    "stack",
+    "response"
   ]
 
   const routeConfigKeys = Object.keys(routeConfig);
@@ -95,4 +111,8 @@ function orderRouteConfig(routeConfig) {
   orderedKeys.forEach(key => routeConfig[key] = clonedRouteConfig[key]);
 
   return routeConfig;
+}
+
+function random(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }

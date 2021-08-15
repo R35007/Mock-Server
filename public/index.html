@@ -109,12 +109,13 @@
     <div id="separator"></div>
     <div id="data-container" style="width: 50%;" class="position-relative">
       <nav id="iframe-header" class="navbar navbar-expand-lg navbar-primary bg-primary p-1">
-        <div class="container-fluid p-0">
-          <a title="open in new tab" id="resource-header" class="btn btn-primary w-100 overflow-hidden" target="_blank">
-            <i class="fas fa-external-link-alt" style="margin-right: .5rem;"></i>
-            <span></span>
+        <div class="container-fluid p-0 flex-nowrap">
+          <a title="open in new tab" id="resource-redirect" class="btn btn-primary" target="_blank">
+            <i class="fas fa-external-link-alt"></i>
           </a>
-          <a title="download" id="download" download href="">
+          <input type="text" class="form-control bg-primary border-0 text-white"
+            placeholder="Type resource url here and press Enter to load the data" id="iframe-url">
+          <a title="download" id="download" class="btn btn-primary" download href="">
             <i class="fas fa-download"></i>
           </a>
         </div>
@@ -221,37 +222,48 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="fetchData" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#__fetchData" aria-expanded="false" aria-controls="__fetchData">
-                  Fetch Data
-                </button>
-              </label>
-              <div class="col-12 collapse" id="__fetchData">
-                <textarea class="form-control" name="fetchData" id="fetchData" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-                <div class="feedback">
-                  This change will only be reflected when FetchCount is 0.
-                  If Fetch Count is not equal to 0 then this data will be overridden by the new fetch call.
+              <fieldset class="col-12">
+                <legend>Fetch Data</legend>
+                <div class="row mb-3">
+                  <div class="row mb-3">
+                    <label for="status" class="col-sm-2 col-form-label">Status</label>
+                    <div class="col-sm-10">
+                      <input type="number" class="form-control" min="100" max="600" name="status" id="status">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="message" class="col-sm-2 col-form-label">Message</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" name="message" id="message">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="isError" class="col-sm-2 col-form-label">Is Error</label>
+                    <div class="col-sm-10 d-flex align-items-center">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input box-shadow-none" type="checkbox" name="isError"
+                          id="isError" value="true">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="response" class="col-form-label w-100" style="max-width: 100%">
+                      <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#_response" aria-expanded="false" aria-controls="_response">
+                        Response
+                      </button>
+                    </label>
+                    <div class="col-12 collapse" id="_response">
+                      <textarea class="form-control" name="response" id="response" rows="5"
+                        onkeydown="allowTabSpaces(event, this)"></textarea>
+                        <div class="feedback">
+                          This change will only be reflected when FetchCount is 0.
+                          If Fetch Count is not equal to 0 then this data will be overridden by the new fetch call.
+                        </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label for="fetchError" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#__fetchError" aria-expanded="false" aria-controls="__fetchError">
-                  Fetch Error
-                </button>
-              </label>
-              <div class="col-12 collapse" id="__fetchError">
-                <textarea class="form-control" name="fetchError" id="fetchError" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-                <div class="feedback">
-                  This change will only be reflected when FetchCount is 0 and Fetch Data is empty.
-                  If the Fetch Data has value then the Fetch Error will be ignored.
-                  If Fetch Count is not equal to 0 then this data will be overridden by the new fetch call.
-                </div>
-              </div>
+              </fieldset>
             </div>
             <div class="row mb-3">
               <label for="store" class="col-form-label w-100" style="max-width: 100%">
@@ -294,6 +306,7 @@
   <script src="./js/split-screen.js"></script>
   <script src="./js/info-box.js"></script>
   <script src="./js/modal-handler.js"></script>
+  <script src="./js/iframe-input-handler.js"></script>
   <script src="./js/main.js"></script>
 </body>
 

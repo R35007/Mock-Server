@@ -23,7 +23,7 @@ function showInfoBox($li, id) {
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}">Clone</button>
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig.id}')">Refresh</button>
       </div>
-      <div class="route-config">${Object.entries(orderRouteConfig(routeConfig)).map(([key, val]) => getKeyVal(routeConfig.id, key, val)).join("")}</div>
+      <div class="route-config">${expandObject(routeConfig, routeConfig.id)}</div>
     </div>`)
   );
 }
@@ -46,11 +46,21 @@ async function refresh(id) {
   showToast(`${routePath} Refreshed Successfully`);
 }
 
-function getKeyVal(id, key, val) {
-  if (!(val + '')?.length || val === null || val === undefined ||key==="_config") return '';
+function expandObject(obj, id) {
+  return Object.entries(orderRouteConfig(obj)).map(([key, val]) => {
+    if (key === "fetchData" && val) {
+      return `<div class="row px-3"><fieldset><legend>Fetch Data</legend>${expandObject(val, id)}</fieldset></div>`
+    } else {
+      return getKeyVal(key, val, id);
+    }
+  }).join("")
+}
+
+function getKeyVal(key, val, id) {
+  if (!(val + '')?.length || val === null || val === undefined || key === "_config") return '';
 
   if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
-    if(!val.length) return '';
+    if (!val.length) return '';
     return `
       <div class="row px-3">
         <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
@@ -59,7 +69,16 @@ function getKeyVal(id, key, val) {
         </div>
       </div>`;
   } else if (typeof val === "object" || ObjectKeys.includes(key)) {
-    if(!Object.keys(val).length) return ''
+    if (!Object.keys(val).length) return ''
+    if ((val + "").trim().match(/<img(.*)>$/)) {
+      return `
+      <div class="row px-3">
+        <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
+        <div class="val col">
+          <div class="img">${val}</div>
+        </div>
+      </div>`;
+    }
     return `
     <div class="row px-3">
       <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
@@ -69,11 +88,19 @@ function getKeyVal(id, key, val) {
         ${key} :
       </button>  
       <div class="val col-12 collapse" id="${id}_${key}">
-        <pre class="form-control">${JSON.stringify(val, null, 2)}</pre>
+        <pre class="form-control">${typeof val === 'object' ? JSON.stringify(val, null, 2) : val}</pre>
+      </div>
+    </div>`;
+  } else if ((val + "").indexOf("<img") >= 0) {
+    return `
+    <div class="row px-3">
+      <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
+      <div class="val col">
+        <div class="img">${val}</div>
       </div>
     </div>`;
   } else {
-    if(!val.toString().trim().length) return '';
+    if (!(val + "").trim().length) return '';
     return `
       <div class="row px-3">
         <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
@@ -82,4 +109,4 @@ function getKeyVal(id, key, val) {
   }
 }
 
-const ObjectKeys = ["fetch", "mock", "fetchData", "fetchError", "store", "_request"];
+const ObjectKeys = ["fetch", "mock", "fetchData", "fetchError", "store", "_request", "stack", "response"];

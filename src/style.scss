@@ -69,8 +69,8 @@
     }
 
     #rewriters-list {
-      .nav-item{
-        .nav-link{
+      .nav-item {
+        .nav-link {
           text-decoration: none !important;
         }
       }
@@ -82,7 +82,7 @@
       &.expanded {
         box-shadow: 0 -2px 1px rgb(0 0 0 / 0%), 0 2px 2px rgb(0 0 0 / 14%),
           0 1px 5px rgb(0 0 0 / 14%);
-        .header{
+        .header {
           background-color: rgba(var(--bs-primary-rgb), 0.1);
         }
         .info-icon {
@@ -97,8 +97,8 @@
           padding: 0;
           padding-left: 0.5rem;
           opacity: 0;
-          transition: opacity 0.15s linear;
-          .icon{
+          transition: all 0.15s linear;
+          .icon {
             background: var(--bs-blue);
             display: inline-block;
             width: 1rem;
@@ -121,6 +121,10 @@
         }
         &:hover {
           background-color: rgba(var(--bs-primary-rgb), 0.1);
+          .info-icon {
+            opacity: 0.5;
+            padding: 0.5rem 0.6rem !important;
+          }
         }
         &.active {
           background-color: rgba(var(--bs-primary-rgb), 0.2);
@@ -137,9 +141,11 @@
             font-size: 0.8rem;
           }
         }
-        .route-config {
-          max-height: 35rem;
-          overflow: auto;
+        .img {
+          width: 8rem;
+          img {
+            width: 100%;
+          }
         }
       }
     }
@@ -185,11 +191,14 @@
   background: #000000;
   min-width: 30rem;
   #iframe-header {
-    #resource-header {
-      text-decoration: none;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 0.36rem 0.75rem;
+    #iframe-url {
+      &::selection {
+        background-color: #000000;
+      }
+      &::placeholder {
+        color: #ffffff;
+        opacity: 0.7;
+      }
     }
     #download {
       color: #fff;
@@ -290,5 +299,16 @@ span.action-icon {
         background-color: #dae6f7;
       }
     }
+  }
+}
+
+fieldset {
+  border: 1px solid #d2d2d2;
+  legend {
+    font-size: 1.2rem;
+    float: unset;
+    width: auto;
+    padding: 0 0.5rem;
+    font-weight: bold;
   }
 }

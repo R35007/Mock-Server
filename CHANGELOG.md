@@ -1,3 +1,11 @@
+# v4.3.1
+
+- Enabled resource url edit in Home Page.
+- removed `fetchError` attribute in routeConfig.
+- `_CrudOperation` bug fixed.
+- If any fetch error the `isError` flag is set to true in `fetchData`.
+- Sample Files are updated with more examples.
+
 # v4.3.0
 
 - Rewriters list, ui issue in Home page resolved.
@@ -7,7 +15,7 @@
 - Storing Fetch data bug fixed.
 - Now we can get image from image url as an img tag.
 - Now injectors can be given in both the ways as shown below.
-  
+
 way 1:
 
 ```jsonc

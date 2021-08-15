@@ -1,8 +1,24 @@
 [
   {
     "routeToMatch": "/injectors/:id",
+    "description": "This description is injected using the injectors by matching the pattern '/injectors/:id'."
+  },
+  {
+    "routeToMatch": "/injectors/1",
     "override": true,
-    "mock": "This data is injected using the injectors by matching the pattern '/injectors/:id'."
+    "mock": "This data is injected using the injectors by matching the pattern '/injectors/1'."
+  },
+  {
+    "routeToMatch": "/injectors/2",
+    "override": true,
+    "mock": "This data is injected using the injectors by matching the pattern '/injectors/2'."
+  },
+  {
+    "routeToMatch": "/injectors/:id",
+    "override": true,
+    "exact": true,
+    "statusCode": 200,
+    "mock": "This data is injected using the injectors by exactly matching the route '/injectors/:id'."
   },
   {
     "routeToMatch": "/(.*)",
@@ -11,6 +27,9 @@
   {
     "routeToMatch": "/(.*)",
     "override": true,
-    "middlewareNames": ["...", "CustomLog"]
+    "middlewareNames": [
+      "...",
+      "CustomLog"
+    ]
   }
 ]

@@ -5,18 +5,17 @@ import * as fs from 'fs';
 import JPH from 'json-parse-helpfulerror';
 import * as _ from 'lodash';
 import * as path from 'path';
-import { PathDetails } from '../model';
+import { FetchData, PathDetails } from '../model';
 
 export const getJSON = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
-  const onlyJson = filesList.filter((f) => f.extension === ".json" || f.extension === ".har");
+  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har"].includes(f.extension));
 
   const obj = onlyJson.reduce((mock, file) => {
     try {
       const str = fs.readFileSync(file.filePath, "utf-8");
       if (_.isEmpty(str)) return {}
-      const obj = JPH.parse(str);
-      return { ...mock, ...obj };
+      return { ...mock, ...JPH.parse(str) };
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
       throw (error);
@@ -54,73 +53,59 @@ export const getStats = (directoryPath: string): PathDetails | undefined => {
   return;
 };
 
-export const getFileData = (filePath: string, extension: string): { fetchData?: any, fetchError?: any } => {
-  let fetchData, fetchError;
+export const getFileData = (filePath: string, extension: string): FetchData => {
+  let fetchData: FetchData = {};
   try {
     if (extension === ".json" || extension === ".har") {
       console.log(chalk.gray("Fetch request : "), filePath);
       const str = fs.readFileSync(filePath, "utf-8");
-      if (_.isEmpty(str)) {
-        fetchData = {
-          isFetch: true,
-          response: {}
-        };
-      } else {
-        fetchData = {
-          isFetch: true,
-          response: JPH.parse(str)
-        };
-      }
+      fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     } else if (extension === ".txt") {
       console.log(chalk.gray("Fetch request : "), filePath);
-      fetchData = {
-        isFetch: true,
-        response: fs.readFileSync(filePath, "utf8")
-      };
+      fetchData.response = fs.readFileSync(filePath, "utf8")
     }
-  } catch (error) {
+  } catch (err) {
     console.log(chalk.red(`Error reading ${filePath}`));
-    fetchError = {
-      isFetch: true,
-      response: error
+    fetchData = {
+      isError: true,
+      stack: err.stack,
+      message: err.message,
+      response: {}
     };
   }
 
-  return { fetchData, fetchError }
+  return fetchData;
 }
 
-export const getUrlData = async (request: AxiosRequestConfig) => {
-  let fetchData, fetchError;
+export const getUrlData = async (request: AxiosRequestConfig): Promise<FetchData> => {
+  let fetchData: FetchData = {};
   console.log(chalk.gray("Fetch request : "), request);
   try {
     if (request.url?.match(/\.(jpeg|jpg|gif|png)$/gi)) {
-      fetchData = {
-        isFetch: true,
-        isImage: true,
-        response: `<img src="${request.url}">`
-      };
+      fetchData.response = `<img src="${request.url}">`;
     } else {
       const response = await axios(request);
       fetchData = {
-        isFetch: true,
         status: response.status,
         headers: response.headers
       };
       if (response.headers["content-type"]?.match(/image\/(jpeg|jpg|gif|png)$/gi)) {
-        fetchData.isImage = true;
         fetchData.response = `<img src="${request.url}">`
       } else {
         fetchData.response = response.data ?? {};
       }
     }
   } catch (err) {
-    fetchError = {
-      isFetch: true,
+    fetchData = {
+      isError: true,
+      stack: err.stack,
+      message: err.message || err.response?.statusText || "Internal Server Error",
+      headers: err.response?.headers,
       status: err.response?.status,
       response: err.response?.data ?? {}
     };
   }
-  return { fetchData, fetchError };
+  return fetchData;
 }
 
 export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): string => {

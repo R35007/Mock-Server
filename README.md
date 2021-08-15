@@ -127,21 +127,23 @@ Create `server.js` File
 ```js
 const { MockServer } = require("@r35007/mock-server"); // use import if using ES6 module
 
-const mockServer = new MockServer("./config.json", "./store.json");
+const mockServer = new MockServer("./config.json"); // Creates a Mock Server instance
+// or
+// const mockServer = MockServer.Create("./config.json"); // Creates a Mock Server single instance
 
 mockServer.launchServer(
   "./db.json",
   "./middleware.js",
   "./injectors.json",
-  "./rewriter.json"
+  "./rewriters.json",
+  "./store.json"
 ); // Starts the Mock Server.
 
 //or
 
-const mockServer = new MockServer("./config.json", "./store.json");
 const app = mockServer.app;
 
-const rewriter = mockServer.rewriter({ "/api/*": "/$1" });
+const rewriter = mockServer.rewriter("./rewriters.json");
 app.use(rewriter); // make sure to add this before defaults and resources
 
 const defaults = mockServer.defaults({ noGzip: true });
@@ -150,7 +152,8 @@ app.use(defaults);
 const resources = mockServer.resources(
   "./db.json",
   "./middleware.js",
-  "./injectors.json"
+  "./injectors.json",
+  "./store.json"
 );
 app.use(resources);
 
@@ -161,7 +164,7 @@ app.use(defaultRoutes);
 app.use(mockServer.pageNotFound);
 app.use(mockServer.errorHandler);
 
-await mockServer.startServer(3000, "localhost");
+mockServer.startServer(3000, "localhost");
 ```
 
 Now go to terminal and type the following command to start the Mock Server.
@@ -192,8 +195,11 @@ For Example:
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
     "skipFetchError": false, // If True it skips any fetch error and send the mock data
-    "fetchData": {}, // contains the fetch call success response
-    "fetchError": {}, // contains the fetch call error response
+    "fetchData": {
+      "status": 200,
+      "isError": false,
+      "response": "" // contains the fetch response
+    },
     "store": {}, // helps to store any values for later use
 
     // System generated.
@@ -220,20 +226,16 @@ Note : The delay yo set must be in milliseconds and of type number
 
 ```jsonc
 {
-  "/user/1": {
+  "/customDelay": {
     "_config": true,
-    "mock": {
-      "id": 1,
-      "name": "Leanne Graham",
-      "username": "Bret",
-      "email": "Sincere@april.biz"
-    },
-    "delay": 3000 // in milliseconds
+    "delay": 2000,
+    "description": "Note: give delay in milliseconds",
+    "mock": "This is response is received with a delay of 2000 milliseconds"
   }
 }
 ```
 
-The above `/user/1` route returns the response in a delay of 3 seconds.
+Now if you go to [http://localhost:3000/customDelay](http://localhost:3000/customDelay), you'll get the response in a delay of 2 seconds.
 
 ### **Set Custom StatusCode**
 
@@ -242,20 +244,15 @@ It must be of type number and between 100 to 600.
 
 ```jsonc
 {
-  "/user/1": {
+  "/customStatusCode": {
     "_config": true,
-    "mock": {
-      "id": 1,
-      "name": "Leanne Graham",
-      "username": "Bret",
-      "email": "Sincere@april.biz"
-    },
-    "statusCode": 500
+    "statusCode": 500,
+    "mock": "This is response is received with a statusCode of 500"
   }
 }
 ```
 
-The above `/user/1` route returns the response with a `500` statusCode
+Now if you go to [http://localhost:3000/customStatusCode](http://localhost:3000/customStatusCode), you'll get the response with a `500` statusCode
 
 ### **Fetch Data From URL**
 
@@ -269,12 +266,15 @@ Note: The given relative path will be relative to `config.root`.
 
 ```jsonc
 {
-  "/banner": {
+  "/fetch/local/file": {
     "_config": true,
-    "fetch": "./assets/banner.jpg"
+    "description": "The given fetch path will be relative to the root path given in config",
+    "fetch": "./data/users.json"
   }
 }
 ```
+
+[http://localhost:3000/fetch/local/file](http://localhost:3000/fetch/local/file).
 
 #### **Custom Fetch Options**
 
@@ -282,16 +282,20 @@ You can also give a fetch as a axios request object with custom options.
 
 ```jsonc
 {
-  "/customUsers": {
+  "/fetch/posts/customOptions": {
     "_config": true,
+    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",
     "fetch": {
-      "url": "https://jsonplaceholder.typicode.com/users",
-      "params": "{{params}}", // pass id from `customUsers?id=5` route
-      "method": "GET"
-    }
+      "method": "GET",
+      "url": "http://jsonplaceholder.typicode.com/posts",
+      "params": "{{params}}"
+    },
+    "fetchCount": 5
   }
 }
 ```
+
+[http://localhost:3000/fetch/posts/customOptions](http://localhost:3000/fetch/posts/customOptions).
 
 Note: The to pass any options from the route set the option value as `{{<option Name>}}`
 
@@ -313,24 +317,28 @@ It sends all the options like prams, query params, headers, data etc.. from the 
 
 ```jsonc
 {
-  "/customComments/:id?": {
+  "/fetch/comments/proxy": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/comments"
+    "description": "When you directly give the url, all the request query params and posted body data will also to sent to the given url",
+    "fetch": "http://jsonplaceholder.typicode.com/comments",
+    "fetchCount": -1
   },
-  "/posts": {
+  "/posts/:id?": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/{{routePath}}" // will become https://jsonplaceholder.typicode.com/posts
+    "fetch": "http://jsonplaceholder.typicode.com/{{routePath}}" // will become http://jsonplaceholder.typicode.com/posts/1
   }
 }
 ```
 
 Note: `{{routePath}}` will prepends the route to the url.
 
-Now you could use any routing provided by the `"https://jsonplaceholder.typicode.com/posts"`..
-For example: You could use the following.
-`http://localhost:3000/customComments`
-`http://localhost:3000/customComments/1`
-`http://localhost:3000/customComments?postId=1`
+Now try the following url.
+
+[http://localhost:3000/posts](http://localhost:3000/posts).
+
+[http://localhost:3000/posts/1](http://localhost:3000/posts/1).
+
+[http://localhost:3000/fetch/comments/proxy?postId=1](http://localhost:3000/fetch/comments/proxy?postId=1).
 
 ### **Fetch Count**
 
@@ -342,54 +350,43 @@ The fetch data will be set to `fetchData`.
 
 ```jsonc
 {
-  "/posts": {
+  "/fetch/todos/fetchCount/3/times": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/posts" // If fetchCount is not set by default it makes only one fetch call
+    "description": "By default the fetch will be called only one time. You can limit or extend the number of fetch calls using 'fetchCount' attribute",
+    "fetch": "http://jsonplaceholder.typicode.com/todos",
+    "fetchCount": 3
   },
-  "/users": {
+  "/fetch/albums/fetchCount/Infinite/times": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/users",
-    "fetchCount": 5 // fetch call is limited to 5 calls
-  },
-  "/users/1": {
-    "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/users/1",
-    "fetchCount": 0, // If set to zero, It doesn't make a fetch call instead it tries to fetch data from fetchData
-    "fetchData": { "id": 1, "user": "foo" }
-  },
-  "/todos": {
-    "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/todos",
-    "fetchCount": -1 // makes infinite fetch call.
+    "description": "Setting 'fetchCount' to -1 time will helps to make a fetch call on each and every url hit without any limit. By This way you always get a new fresh data from the fetch url.",
+    "fetch": "http://jsonplaceholder.typicode.com/albums",
+    "fetchCount": -1
   }
 }
 ```
+
+[http://localhost:3000/fetch/todos/fetchCount/3/times](http://localhost:3000/fetch/todos/fetchCount/3/times). - Makes fetch call only for 3 times.
+
+[http://localhost:3000/fetch/todos/fetchCount/Infinite/times](http://localhost:3000/fetch/todos/fetchCount/Infinite/times). - Makes fetch call Infinite times.
 
 ### **Skip Fetch Error**
 
 If `skipFetchError` is set to true, It will skip any error in fetch call and instead of returning that fetch error it gives you the mock data.
 
-### **Custom Mock**
-
 ```jsonc
 {
-  // If you don't have any route configurations you can directly give the mock data
-  "/customComments/1": [
-    { "id": 1, "username": "foo" },
-    { "id": 2, "username": "bar" }
-  ],
-  // If you have any route configurations like delay or statusCode etc..,
-  // Please give "_config": true and give your mock under `mock` attribute.
-  "/customComments/2": {
+  "/fetch/404/skipFetchError": {
     "_config": true,
-    "mock": [
-      { "id": 1, "username": "foo" },
-      { "id": 2, "username": "bar" }
-    ],
-    "delay": 2000
+    "description": "Bu default fetch returns the actual error if occur. If you set `skipFetchError` flag to true. the If any error occur in fetch call it will then skips the fetch error and return you the mock data",
+    "fetch": "http://localhost:3000/404",
+    "skipFetchError": true,
+    "mock": "This data is returned due to some error in fetch call. You can see the error in 'fetchError' attribute",
+    "fetchCount": -1
   }
 }
 ```
+
+[http://localhost:3000/fetch/404/skipFetchError](http://localhost:3000/fetch/404/skipFetchError).
 
 ### **Add Middleware**
 
@@ -398,18 +395,13 @@ You can add n number of middleware to a route which helps you to manipulate or l
 `middleware.js`
 
 ```js
-exports.log = (req, res, next) => {
-  console.log(new Date());
-  // make sure you always call next() method when you don't sent any response using res.send().
-  next();
-};
-exports.wrapper = (req, res, next) => {
-  const wrapperResponse = {
-    message: "Successful",
+exports.DataWrapper = (req, res, next) => {
+  res.locals.data = {
+    status: "Success",
+    message: "Retrived Successfully",
     result: res.locals.data,
   };
-  res.locals.data = wrapperResponse;
-  next(); // pass to next middleware
+  next();
 };
 ```
 
@@ -417,31 +409,17 @@ exports.wrapper = (req, res, next) => {
 
 ```jsonc
 {
-  "/posts/:id": {
+  "/fetch/users/customMiddleware": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/posts",
-    "middlewareNames": ["log", "wrapper"] // give the name of the middleware which are available in the middleware.js
-  },
-  "/comment": {
-    "_config": true,
-    "fetch": { "url": "https://jsonplaceholder.typicode.com/comments/1" },
-    "middlewareNames": ["log"]
+    "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
+    "fetch": "http://jsonplaceholder.typicode.com/users",
+    "middlewareNames": ["DataWrapper"]
   }
 }
 ```
 
 Note: A middleware must be available at the name of the middlewareNames given in `db.json`
-
-Now in server.js
-
-```js
-const { MockServer } = require("@r35007/mock-server");
-new MockServer().launchServer("./db.json", "./middleware.js");
-```
-
-Now when you go to `http://localhost:3000/posts/1`, you can see the new data og in console and also wrap's the response with the object.
-
-But When you go to `http://localhost:3000/comment`, you can only see the date log and will not be wrapped with the object.
+[http://localhost:3000/fetch/users/customMiddleware](http://localhost:3000/fetch/users/customMiddleware).
 
 ## **Middleware Utils**
 
@@ -455,15 +433,18 @@ example:
 
 ```jsonc
 {
-  "/route": {
+  "/middleware/utils/example/_IterateResponse": {
     "_config": true,
-    "middlewareNames": ["_IterateResponse"], // method name to be called
-    "mock": ["response1", "response2]
+    "description": "This route iterates through each data. Try to hit again to see the data change. Note: The data must be of type array",
+    "fetch": {
+      "url": "http://jsonplaceholder.typicode.com/photos"
+    },
+    "middlewareNames": ["_IterateResponse"]
   }
 }
 ```
 
-Now go and hit `http://localhost:3000/route`. For the first hit you get `response1` as a response and for the second hit you get `response2` as a response and its loops through each element in the mock array for each url hit.
+Now go and hit [http://localhost:3000/middleware/utils/example/\_IterateResponse](http://localhost:3000/middleware/utils/example/_IterateResponse). For each hit you will get the next object in an array from the photos data.
 
 ### **IterateRoutes**
 
@@ -473,17 +454,18 @@ example:
 
 ```jsonc
 {
-  "/posts": {
+  "/middleware/utils/example/_IterateRoutes": {
     "_config": true,
-    // make sure this route stays at the top of the routes provided in the mock.
-    "middlewareNames": ["_IterateRoutes"], // method name to be called
-    "mock": ["/posts/1", "/posts/2", "/posts/3"]
+    "description": "This route iterates through each route provide in the mock. Try to hit again to see the route change. Note: The data must be of type array",
+    "mock": ["/injectors/1", "/injectors/2"],
+    "middlewareNames": ["_IterateRoutes"]
   },
-  "/posts/1": { "data": " Data 1" },
-  "/posts/2": { "data": " Data 2" },
-  "/posts/3": { "data": " Data 3" }
+  "/injectors/1": "/injectors/1 data",
+  "/injectors/2": "/injectors/2 data"
 }
 ```
+
+Now go and hit [http://localhost:3000/middleware/utils/example/\_IterateRoutes](http://localhost:3000/middleware/utils/example/_IterateRoutes). For each hit the route is passed to next matching url provided in the mock list.
 
 ### **AdvancedSearch**
 
@@ -619,24 +601,16 @@ Injector uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp) pat
 Here we are explicitly injecting `delay`, `middlewareNames`, `statusCode` to the `/posts` route.
 You can any route configs to a specific or to a group of routes using Injectors.
 
-  - Injectors use `path-to-regexp` package for route pattern recognition.
-  - Click [here](https://www.npmjs.com/package/path-to-regexp)
+- Injectors use `path-to-regexp` package for route pattern recognition.
+- Click [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) for more details.
 
 example : `injectors.json`
+
 ```jsonc
 [
   {
-    "routeToMatch":"/posts",
-    "delay": 2000,
-    "middlewareNames": ["log", "counter", "_CrudOperations"],
-    "StatusCode": 300
-  },
-  {
-    // This config will be injected to exact route "/comments/:id?" and not to "/comments" or "/comments/1".
-    "routeToMatch": "/comments/:id?",
-    "exact": true,
-    "delay": 2000,
-    "middlewareNames": ["log"] // injects middlewareNames to /comments/2, /comments/3 routes excepts /comments/1
+    "routeToMatch": "/injectors/:id",
+    "description": "This description is injected using the injectors by matching the pattern '/injectors/:id'."
   }
 ]
 ```
@@ -652,14 +626,21 @@ For example :
 ```jsonc
 [
   {
-    "routeToMatch": "/comments/1",
+    "routeToMatch": "/injectors/2",
     "override": true,
-    "middlewareNames": ["...", "timer"] // here /comments/1 route will have ["crudMock", "log", "timer"]
+    "mock": "This data is injected using the injectors by matching the pattern '/injectors/2'."
   },
   {
-    "routeToMatch": "/comments/2",
+    "routeToMatch": "/injectors/:id",
     "override": true,
-    "delay": 2000 // Now /comments/2 will have a delay of 2 seconds
+    "exact": true,
+    "statusCode": 200,
+    "mock": "This data is injected using the injectors by exactly matching the route '/injectors/:id'."
+  },
+  {
+    "routeToMatch": "/(.*)",
+    "override": true,
+    "middlewareNames": ["...", "CustomLog"]
   }
 ]
 ```
@@ -678,25 +659,17 @@ For example :
 ```jsonc
 [
   {
-    "routeToMatch": "/posts",
-    "delay": 2000 // will be overridden by the below route match configs.
+    "routeToMatch": "/(.*)",
+    "description": "This Description is injected using the injectors. Set 'Override' flag to true to override the existing config values."
   },
   {
-    "routeToMatch": "/(.*)", // pattern to match all the routes
+    "routeToMatch": "/(.*)",
     "override": true,
-    "middlewareNames": ["log", "..."],
-    "statusCode": 200,
-    "delay": 1000
-  },
-  {
-    "routeToMatch": "/comments/1",
-    "delay": 0, // Here only this route will not have a delay of 1 second
-    "override": true
+    "middlewareNames": ["...", "CustomLog"]
   }
 ]
 ```
 
-Now all the Routes will have a delay of 1 second, `"log"` middleware is appended to all routes and `statusCode` will be 200.
 Make sure you give `/(.*)` at the end of the `injectors.json` object to set route configs to all the routes.
 
 ## **Store Data**
@@ -720,8 +693,8 @@ This can be accessed using `res.locals.store` inside the middleware.
 
 Create a `rewriters.json` file. Pay attention to start every route with `/`.
 
-  - Rewriters use `express-urlrewrite` package to rewrite the urls.
-  - Click [here](https://www.npmjs.com/package/express-urlrewrite) for more information about url rewrite.
+- Rewriters use `express-urlrewrite` package to rewrite the urls.
+- Click [here](https://www.npmjs.com/package/express-urlrewrite) for more information about url rewrite.
 
 ```jsonc
 {
@@ -735,7 +708,7 @@ Create a `rewriters.json` file. Pay attention to start every route with `/`.
 `server.js`
 
 ```js
-const mockServer = new MockServer();
+const mockServer = MockServer.Create();
 mockServer.launchServer(
   "./db.json",
   "./middleware.js",
@@ -768,8 +741,14 @@ interface Locals {
     description?: string;
     mock?: any;
     fetch?: string | AxiosRequestConfig;
-    fetchData?: any;
-    fetchError?: any;
+    fetchData?: {
+      status?: number;
+      message?: string;
+      isError?: boolean;
+      headers?: any;
+      response?: any;
+      stack?: any;
+    };
     store?: object;
     statusCode?: number;
     delay?: number;
@@ -799,15 +778,21 @@ For Example:
 
 ```js
 exports._FetchTillData = (_req, res, next) => {
-  const locals = res.locals as Locals;
+  const locals = res.locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig.fetchData !== undefined) {
+
+  if (!routeConfig.fetchData) return next();
+
+  if (!routeConfig.fetchData.isError) {
     routeConfig.fetchCount = 0;
-  } else if (routeConfig.fetchCount !== undefined && routeConfig.fetchCount == 0) {
+  } else if (
+    routeConfig.fetchCount !== undefined &&
+    routeConfig.fetchCount == 0
+  ) {
     routeConfig.fetchCount = -1;
   }
   next();
-}
+};
 ```
 
 The above middleware helps to fetch the data from url until it gets a valid success response.
@@ -825,7 +810,7 @@ const config = {
   host: "localhost",
   root: process.cwd(), // all paths will be relative to this path. Please provide a absolute path here.
   base: "/", // all routes will be prefixed with the given baseUrl.
-  staticDir: "", // Please provide a folder path. This will be hosted locally and all files will be statically accessed
+  staticDir: "public", // Please provide a folder path. This will be hosted locally and all files will be statically accessed
   reverse: false, // If true routes will be generated in reverse order
   bodyParser: true, // Sets the bodyParser
   id: "id", // Set the id attribute here. Helps to do Crud Operations. For example: 'id': "_id"
@@ -841,11 +826,11 @@ new MockServer(config).launchServer("./db.json");
 ## Default Routes
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
-- `Db` - [http://localhost:3000/routes](http://localhost:3000/_db_)
-- `Rewriters` - [http://localhost:3000/rewriter](http://localhost:3000/_rewriters)
-- `Store` - [http://localhost:3000/store](http://localhost:3000/_store)
-- `Reset Route` - [http://localhost:3000/reset/route](http://localhost:3000/_reset/db)
-- `Reset Store` - [http://localhost:3000/reset/store](http://localhost:3000/_reset/store)
+- `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
+- `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
+- `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
+- `Reset Route` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
+- `Reset Store` - [http://localhost:3000/\_reset/store](http://localhost:3000/_reset/store)
 
 ## **Home Page**
 
@@ -958,13 +943,13 @@ mockServer.launchServer(
 
 **`Params`**
 
-| Name        | Type            | Required | Description                                             |
-| ----------- | --------------- | -------- | ------------------------------------------------------- |
-| db          | string / object | No       | This object generates the local rest api.               |
-| middleware | string / object | No       | Here you initialize the needed custom middleware       |
-| injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
-| rewriters   | string / object | No       | Helps to set route rewriters                            |
-| store       | string / object | No       | Helps to store values and share between routes          |
+| Name       | Type            | Required | Description                                             |
+| ---------- | --------------- | -------- | ------------------------------------------------------- |
+| db         | string / object | No       | This object generates the local rest api.               |
+| middleware | string / object | No       | Here you initialize the needed custom middleware        |
+| injectors  | string / object | No       | Helps to inject a route configs for the existing routes |
+| rewriters  | string / object | No       | Helps to set route rewriters                            |
+| store      | string / object | No       | Helps to store values and share between routes          |
 
 ### **rewriter**
 
@@ -1015,12 +1000,12 @@ app.use(resources);
 
 **`Params`**
 
-| Name        | Type            | Required | Description                                             |
-| ----------- | --------------- | -------- | ------------------------------------------------------- |
-| db          | string / object | No       | This object generates the local rest api.               |
-| middleware | string / object | No       | Here you initialize the needed custom middleware      |
-| injectors   | string / object | No       | Helps to inject a route configs for the existing routes |
-| store       | string / object | No       | Helps to store values and share between routes          |
+| Name       | Type            | Required | Description                                             |
+| ---------- | --------------- | -------- | ------------------------------------------------------- |
+| db         | string / object | No       | This object generates the local rest api.               |
+| middleware | string / object | No       | Here you initialize the needed custom middleware        |
+| injectors  | string / object | No       | Helps to inject a route configs for the existing routes |
+| store      | string / object | No       | Helps to store values and share between routes          |
 
 ### **defaultRoutes**
 

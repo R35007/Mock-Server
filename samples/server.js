@@ -1,8 +1,7 @@
-// const { MockServer } = require("@r35007/mock-server");
-const { MockServer } = require("../dist/server/index");
+const { MockServer } = require("@r35007/mock-server");
 
 // Provide config as a param. If not provided, It uses the default Config.
-const mockServer = MockServer.Create("./config.json");
+const mockServer = MockServer.Create();
 
 const app = mockServer.app; // Gives you the Express app
 
@@ -44,17 +43,19 @@ const resources = mockServer.resources(
 app.use(mockServer.config.base, resources);
 
 // Add Custom Routes to existing default router
-// This Route will be listed in Home Page
-// mockServer.addDbData({
-//   "/data":{
-//     _config: true,
-//     middleware:(req, res, next) => {
-//       console.log(res.locals.store);
-//       res.locals.data = res.locals.store?.data;
-//       next();
-//     }
-//   }
-// })
+/* 
+This Route will be listed in Home Page
+mockServer.addDbData({
+  "/data":{
+    _config: true,
+    middlewares:[(req, res, next) => {
+      console.log(res.locals.store);
+      res.locals.data = res.locals.store?.data;
+      next();
+    }
+  }]
+}) 
+*/
 
 // Create the default Routes which helps to run the Mock Server Home Page.
 const defaultRoutes = mockServer.defaultRoutes();
@@ -70,13 +71,15 @@ mockServer.startServer();
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
 
-// mockServer.launchServer(
-//   "./db.json",
-//   "./middleware.js",
-//   "./injectors.json",
-//   "./rewriters.json",
-//   "./store.json"
-// )
+/* 
+mockServer.launchServer(
+  "./db.json",
+  "./middleware.js",
+  "./injectors.json",
+  "./rewriters.json",
+  "./store.json"
+) 
+*/
 
 // or
 // You can also run thru CLI command

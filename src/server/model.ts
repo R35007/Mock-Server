@@ -22,8 +22,7 @@ export type RouteConfig = {
   description?: string;
   mock?: any;
   fetch?: string | AxiosRequestConfig;
-  fetchData?: any;
-  fetchError?: any;
+  fetchData?: FetchData;
   store?: object;
   statusCode?: number;
   delay?: number;
@@ -146,4 +145,13 @@ export type GetData = {
   rewriters: KeyValString
   store: Object;
   config: Config;
+}
+
+export type FetchData = {
+  status?: number;
+  message?: string;
+  isError?: boolean;
+  headers?: any;
+  response?: any;
+  stack?: any;
 }

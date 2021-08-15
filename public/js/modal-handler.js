@@ -55,14 +55,17 @@ function setFormValues(routeConfig, routePath) {
   $routeConfigForm.delay.value = delay ?? '';
   $routeConfigForm.fetch.value = typeof fetch === 'object' ? JSON.stringify(fetch, null, 8) : fetch ?? '';
   $routeConfigForm.fetchCount.value = fetchCount ?? '';
-  $routeConfigForm.skipFetchError.checked = skipFetchError == true;
+  $routeConfigForm.skipFetchError.checked = (skipFetchError+"") == 'true';
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
-  $routeConfigForm.fetchData.value = typeof fetchData === 'object' ? JSON.stringify(fetchData, null, 8) : fetchData ?? '';
-  $routeConfigForm.fetchData.value = typeof fetchData === 'object' ? JSON.stringify(fetchData, null, 8) : fetchData ?? '';
-  $routeConfigForm.fetchError.value = typeof fetchError === 'object' ? JSON.stringify(fetchError, null, 8) : fetchError ?? '';
   $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
   $routeConfigForm.description.value = description ?? '';
   $routeConfigForm.middlewareNames.value = middlewareNames?.join(',') ?? '';
+  
+  // Setting Fetch Data value
+  $routeConfigForm.status.value = fetchData.status ?? '';
+  $routeConfigForm.message.value = fetchData.message ?? '';
+  $routeConfigForm.isError.checked = (fetchData.isError+"") == 'true';
+  $routeConfigForm.response.value = typeof fetchData.response === 'object' ? JSON.stringify(fetchData.response, null, 8) : fetchData.response ?? '';
 }
 
 function addRoute(id) {
@@ -78,8 +81,7 @@ $routeConfigForm.addEventListener("submit", function (e) {
 
   const fetch = parseJson($routeConfigForm.fetch.value);
   const mock = parseJson($routeConfigForm.mock.value);
-  const fetchData = parseJson($routeConfigForm.fetchData.value);
-  const fetchError = parseJson($routeConfigForm.fetchError.value);
+  const response = parseJson($routeConfigForm.response.value);
   const store = parseJson($routeConfigForm.store.value);
   const existingRouteConfig = JSON.parse($routeConfig.value);
 
@@ -95,8 +97,13 @@ $routeConfigForm.addEventListener("submit", function (e) {
     middlewareNames: $routeConfigForm.middlewareNames?.value?.split(",").filter(Boolean) || [],
     fetch,
     mock,
-    fetchData,
-    fetchError,
+    fetchData : {
+      ...existingRouteConfig.fetchData,
+      status: parseInt($routeConfigForm.status.value),
+      message: parseInt($routeConfigForm.message.value),
+      isError: $routeConfigForm.isError.checked,
+      response
+    },
     store
   }
   updatedRouteConfig.id ?
@@ -114,6 +121,10 @@ async function updateRouteConfig(existingRouteConfig, updatedRouteConfig) {
     delete request.fetchCount;
     delete request.skipFetchError;
   }
+  delete request._isFile;
+  delete request._request;
+  delete request._extension;
+  !request.fetchData?.isError && delete request.fetchData.stack;
 
   console.log("Update Fetch request :", request);
   resources = await window.fetch(localhost + "/_db/" + updatedRouteConfig.id, {
@@ -140,6 +151,9 @@ async function addNewRoute(existingRouteConfig, updatedRouteConfig) {
     delete _routeConfig.fetchCount;
     delete _routeConfig.skipFetchError;
   }
+  delete request._isFile;
+  delete request._request;
+  delete request._extension;
   
   let error = '';
   if (!routePath?.trim()?.length) {

@@ -9,15 +9,10 @@ export default async (_req, res, _next) => {
     if (status && status >= 100 && status < 600) res.status(status);
 
     if (locals.data !== undefined) {
-      if (locals.data.isFetch) {
-        locals.data.status && res.status(locals.data.status);
-        const response = locals.data.response ?? {};
-        typeof response === "object" ? res.jsonp(response) : res.send(response);
-      } else {
-        const response = locals.data ?? {};
-        typeof locals.data === "object" ? res.jsonp(response) : res.send(response);
-      }
-    } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".har", ".txt"].includes(routeConfig._extension || '')) {
+      if (routeConfig.fetchData?.status) res.status(routeConfig.fetchData.status);
+      const response = locals.data ?? {};
+      typeof locals.data === "object" ? res.jsonp(response) : res.send(response);
+    } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt"].includes(routeConfig._extension || '')) {
       if (routeConfig.fetchCount == 0) {
         res.send(locals.routeConfig.mock || {});
         return;

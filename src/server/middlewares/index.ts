@@ -81,7 +81,10 @@ const _AdvancedSearch = (req, res, next) => {
 const _FetchTillData = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig.fetchData !== undefined) {
+  
+  if(!routeConfig.fetchData) return next();
+
+  if (!routeConfig.fetchData.isError) {
     routeConfig.fetchCount = 0;
   } else if (routeConfig.fetchCount !== undefined && routeConfig.fetchCount == 0) {
     routeConfig.fetchCount = -1;
@@ -91,8 +94,9 @@ const _FetchTillData = (_req, res, next) => {
 const _SetFetchDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  if (routeConfig.fetchData !== undefined || routeConfig.fetchError !== undefined) {
-    routeConfig.mock = routeConfig.fetchData ?? (routeConfig.skipFetchError ? routeConfig.mock : routeConfig.fetchError);
+  if (routeConfig.fetchData) {
+    const { isError, response } = routeConfig.fetchData;
+    routeConfig.mock = isError ? (routeConfig.skipFetchError ? routeConfig.mock : response) : response;
   }
   next();
 }
@@ -113,7 +117,7 @@ const _MockOnly = (_req, res, next) => {
 const _FetchOnly = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  locals.data = routeConfig.fetchData;
+  locals.data = routeConfig.fetchData?.response || {};
   next();
 }
 const _ReadOnly = (req, res, next) => {

@@ -1,13 +1,13 @@
 async function init() {
-  try{
+  try {
     resources = await window.fetch(localhost + "/_db").then((res) => res.json());
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
-  
-  try{
+
+  try {
     rewriters = await window.fetch(localhost + "/_rewriters").then((res) => res.json());
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
   createResourcesList(resources);
@@ -16,7 +16,7 @@ async function init() {
 }
 
 function createResourcesList(resources) {
-  setIFrameSrc();
+  setIFrameSrc("https://r35007.github.io/Mock-Server/");
   $search.value = "";
 
   // collects all expanded list to restore after refresh
@@ -113,9 +113,11 @@ async function setIframeData($event, routePath) {
   try {
     clearActiveLink();
     $event.parentNode.classList.add("active");
-    $iframeData.contentWindow.document.open();
-    $iframeData.contentWindow.document.close();
-    $frameborder.style.display = "grid";
+    try {
+      $iframeData.contentWindow.document.open();
+      $iframeData.contentWindow.document.close();
+    } catch{}
+    $frameloader.style.display = "grid";
     $dataContainer.style.display = "block";
     setIFrameSrc(routePath);
   } catch (err) {
@@ -131,20 +133,25 @@ function clearActiveLink() {
 }
 
 function setIFrameSrc(routePath) {
-  if (routePath?.trim().length) {
+  if(routePath.startsWith("http")){
+    $resourceRedirect.href = routePath;
+    $iframeUrl.value = routePath;
+    $iframeData.src = routePath;
+    $download.href = routePath;
+  } else if (routePath?.trim().length) {
     // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
-    let validRoutePath = routePath.split("/").map(r => r.indexOf(":")>=0 ? r.indexOf("?")>=0  ? "" : "1" : r).join("/");
-    validRoutePath = validRoutePath.replace(/\/$/gi,"") // removing trailing slash. ex: /posts/ -> /posts
+    let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1,1000) : r).join("/");
+    validRoutePath = validRoutePath.replace(/\/$/gi, "") // removing trailing slash. ex: /posts/ -> /posts
 
-    const url = localhost+validRoutePath;
+    const url = localhost + validRoutePath;
 
-    $resourceHeader.href = url;
-    $resourceHeader.children[1].innerHTML = url;
+    $resourceRedirect.href = url;
+    $iframeUrl.value = url;
     $iframeData.src = url;
     $download.href = url;
   } else {
-    $resourceHeader.href = localhost;
-    $resourceHeader.children[1].innerHTML = localhost;
+    $resourceRedirect.href = localhost;
+    $iframeUrl.value = localhost;
     $iframeData.src = '';
     $download.href = '';
   }

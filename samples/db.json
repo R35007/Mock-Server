@@ -1,6 +1,6 @@
 {
   "/customMockData/1": {
-    "descrption": "Since '_config' flag is not set to true. This Whole object will be considered as a mock data. So if you don't have any specific route configuration you can directly give the mock data to the route",
+    "descrption": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
     "mock": [
       {
         "userId": 1,
@@ -57,16 +57,16 @@
       }
     ]
   },
-  "/customStatusCode": {
-    "_config": true,
-    "statusCode": 500,
-    "mock": "This is response is received with a statusCode of 500"
-  },
   "/customDelay": {
     "_config": true,
     "delay": 2000,
     "description": "Note: give delay in milliseconds",
     "mock": "This is response is received with a delay of 2000 milliseconds"
+  },
+  "/customStatusCode": {
+    "_config": true,
+    "statusCode": 500,
+    "mock": "This is response is received with a statusCode of 500"
   },
   "/fetch/photos/records/data": {
     "_config": true,
@@ -79,6 +79,11 @@
     "fetch": "http://jsonplaceholder.typicode.com/comments",
     "fetchCount": -1
   },
+  "/posts/:id?": {
+    "_config": true,
+    "fetch": "https://jsonplaceholder.typicode.com/{{routePath}}",
+    "fetchCount": -1
+  },
   "/fetch/posts/customOptions": {
     "_config": true,
     "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",
@@ -87,14 +92,20 @@
       "url": "http://jsonplaceholder.typicode.com/posts",
       "params": "{{params}}"
     },
-    "fetchCount": -1
+    "fetchCount": 5
   },
-  "/fetch/users/file": {
+  "/fetch/local/file": {
     "_config": true,
-    "description": "The given fetch url will be relative to the root path given in config",
+    "description": "The given fetch path will be relative to the root path given in config",
     "fetch": "./data/users.json"
   },
-  "/fetch/users/image": {
+  "/fetch/local/image": {
+    "_config": true,
+    "description": "The given fetch path will be relative to the root path given in config",
+    "fetch": "./data/mockserverlogo.png",
+    "fetchCount": -1
+  },
+  "/fetch/image/url": {
     "_config": true,
     "fetch": "https://via.placeholder.com/600/771796"
   },
@@ -118,7 +129,7 @@
     "mock": "This data is returned due to some error in fetch call. You can see the error in 'fetchError' attribute",
     "fetchCount": -1
   },
-  "/customMiddleware": {
+  "/fetch/users/customMiddleware": {
     "_config": true,
     "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
     "fetch": "http://jsonplaceholder.typicode.com/users",
@@ -126,28 +137,62 @@
       "DataWrapper"
     ]
   },
-  "/predefined/middleware": {
+  "/middleware/utils/list": {
     "_config": true,
     "description": "These are the list of predined middleware that are available for ease of use. For Example: This route uses the '_IterateResponse' middleware to iterate the mock data",
     "mock": [
       "_IterateResponse - Iterates to each response in an array for each hit. Note: the data must be an array",
       "_IterateRoutes - Iterates to each route in a mock data. Note: mock data contains the list of routes to be redirected",
       "_AdvancedSearch - This middleware helps to retrive the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a uniquid id",
-      "_CrudOperations - Helps to do all the CRUD operations like Create, Read, Update, Delete using GET, PUT, PATCH, POST, DELETE method. Note: Id values are not mutable. Any id value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already take",
+      "_CrudOperation - Helps to do all the CRUD operations like Create, Read, Update, Delete using GET, PUT, PATCH, POST, DELETE method. Note: Id values are not mutable. Any id value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already take",
       "_FetchTillData - Helps to keep on make fetch calls until it gets a valid success data",
       "_SetFetchDataToMock - This middleware sets the 'fetchData' to 'mock' attribute. Note: The existing data in mock will be overridden",
       "_SetStoreDataToMock - This is similar to '_FetchTillData'. This sets the 'store' value to 'mock' attribute",
       "_MockOnly - Always send only the mock data the even If it has a 'fetchdata'.",
       "_FetchOnly - Always send only the 'fetchdata'",
       "_ReadOnly - Only GET methods calls are allowed."
-    ],
+    ]
+  },
+  "/middleware/utils/example/_IterateResponse": {
+    "_config": true,
+    "description": "This route iterates through each data. Try to hit again to see the data change. Note: The data must be of type array",
+    "fetch": {
+      "url": "http://jsonplaceholder.typicode.com/photos"
+    },
     "middlewareNames": [
       "_IterateResponse"
     ]
   },
+  "/middleware/utils/example/_IterateRoutes": {
+    "_config": true,
+    "description": "This route iterates through each route provide in the mock. Try to hit again to see the route change. Note: The data must be of type array",
+    "mock": [
+      "/injectors/1",
+      "/injectors/2"
+    ],
+    "middlewareNames": [
+      "_IterateRoutes"
+    ]
+  },
+  "/middleware/utils/example/_AdvancedSearch/users/:id?": {
+    "_config": true,
+    "fetch": { "url": "http://jsonplaceholder.typicode.com/users" },
+    "middlewareNames": [
+      "_AdvancedSearch"
+    ]
+  },
+  "/middleware/utils/example/_FetchTillData": {
+    "_config": true,
+    "description": "This route keeps on making fetch call until it gets a success data.",
+    "fetch": "http://jsonplaceholder.typicode.com/dbs",
+    "middlewareNames": [
+      "_FetchTillData"
+    ]
+  },
   "/injectors/1": {},
   "/injectors/2": {},
-  "/store": {
+  "/injectors/:id": {},
+  "/getStoreValue": {
     "_config": true,
     "description": "This will call the below middleware and send the store value.",
     "middlewareNames": [
