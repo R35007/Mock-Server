@@ -1,5 +1,4 @@
-// const { MockServer } = require("@r35007/mock-server");
-const { MockServer } = require("../dist/server");
+const { MockServer } = require("@r35007/mock-server");
 
 // Provide config as a param. If not provided, It uses the default Config.
 const mockServer = MockServer.Create();
@@ -38,8 +37,8 @@ app.get('/echo', (req, res) => {
 const resources = mockServer.resources(
   "./db.json",
   "./middleware.js",
-  // "./injectors.json",
-  // "./store.json"
+  "./injectors.json",
+  "./store.json"
 );
 app.use(mockServer.config.base, resources);
 
