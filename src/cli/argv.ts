@@ -51,7 +51,7 @@ export default () => {
     .example('$0 --watch db.json', '')
     .example('$0 http://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version("4.3.2").alias('version', 'v').argv as Options;
+    .version("4.4.0").alias('version', 'v').argv as Options;
 
   return options;
 }
