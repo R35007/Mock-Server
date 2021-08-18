@@ -28,6 +28,7 @@ export type RouteConfig = {
   delay?: number;
   fetchCount?: number;
   skipFetchError?: boolean;
+  mockFirst?: boolean;
   middlewareNames?: string[];
   middlewares?: Array<express.RequestHandler>;
   

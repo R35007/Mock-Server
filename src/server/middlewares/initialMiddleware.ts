@@ -2,8 +2,8 @@ import { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 import express from "express";
 import * as _ from "lodash";
-import { Config, Locals, PathDetails, Db } from '../model';
-import { clean } from '../utils';
+import { Config, Db, Locals, PathDetails } from '../model';
+import { cleanObject } from '../utils';
 import { getStats, parseUrl } from '../utils/fetch';
 
 export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: string[]) => Db, config: Config, store: object) => {
@@ -18,15 +18,18 @@ export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: 
     locals.getDb = getDb;
     locals.store = store;
     locals.config = _.cloneDeep(config);
-    
+
     locals.data = undefined;
 
     delete locals.routeConfig._request;
     delete locals.routeConfig._isFile;
     delete locals.routeConfig._extension;
 
-    if (!_.isEmpty(routeConfig.fetch)) {
-      const fetchCount = parseInt(routeConfig.fetchCount+"");
+    if (routeConfig.mockFirst && routeConfig.mock !== undefined) {
+      locals.data = routeConfig.mock;
+      next();
+    } else if (!_.isEmpty(routeConfig.fetch)) {
+      const fetchCount = parseInt(routeConfig.fetchCount + "");
       routeConfig.fetchCount = isNaN(fetchCount) ? 1 : fetchCount;
       const fetch = getUrlDetail(req, res);
       if (fetch) {
@@ -35,7 +38,7 @@ export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: 
         locals.routeConfig._extension = fetch.extension;
       }
       next();
-    }else{
+    } else {
       locals.data = routeConfig.mock;
       next();
     }
@@ -97,16 +100,17 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
     };
     delete request.query;
     delete request.body;
+    cleanObject(request);
 
-    return clean(request) as AxiosRequestConfig
+    return request as AxiosRequestConfig;
   }
 
   const fetchEntries = Object.entries(fetch).map(([key, val]) => {
     if (val === '{{' + key + '}}') {
-      if(key === 'data') return [key, expReq.body]
-      if(key === 'body') return ['data', expReq.body]
-      if(key === 'params') return [key, expReq.query]
-      if(key === 'query') return ['params', expReq.query]
+      if (key === 'data') return [key, expReq.body]
+      if (key === 'body') return ['data', expReq.body]
+      if (key === 'params') return [key, expReq.query]
+      if (key === 'query') return ['params', expReq.query]
       return [key, expReq[key]]
     };
     return [key, val]
@@ -115,8 +119,9 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   const request = { ..._.fromPairs(fetchEntries), url: replacedPath };
   delete request.query;
   delete request.body;
+  cleanObject(request);
 
-  return clean(request)
+  return request as AxiosRequestConfig;
 }
 
 const AxiosRequestConfig: string[] = [

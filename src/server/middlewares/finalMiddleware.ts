@@ -9,7 +9,14 @@ export default async (_req, res, _next) => {
     if (status && status >= 100 && status < 600) res.status(status);
 
     if (locals.data !== undefined) {
-      if (routeConfig.fetchData?.status) res.status(routeConfig.fetchData.status);
+      const fetchData = routeConfig.fetchData;
+      if (fetchData && fetchData.status) {
+        if (fetchData.isError) {
+          !routeConfig.skipFetchError && res.status(fetchData.status);
+        } else {
+          res.status(fetchData.status);
+        }
+      }
       const response = locals.data ?? {};
       typeof locals.data === "object" ? res.jsonp(response) : res.send(response);
     } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt"].includes(routeConfig._extension || '')) {

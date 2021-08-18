@@ -155,12 +155,9 @@ export const flatQuery = (data) => {
 export const getDbSnapShot = (db: Db) => {
   const _db = _.cloneDeep(db);
   for (let routePath in _db) {
-    const keys = Object.keys(_db[routePath]);
-    keys.forEach(key => {
-      if (key.startsWith("_")) delete _db[routePath][key]
-    })
-    clean(_db[routePath]);
-    delete _db[routePath]?.id;
+    cleanRouteConfig(_db[routePath]);
+    delete _db[routePath].id;
+    delete _db[routePath]._config;
     const remainingKeys = Object.keys(_db[routePath]);
     if (!remainingKeys.length) {
       _db[routePath] = _.cloneDeep(db[routePath]?.mock || {});
@@ -173,15 +170,26 @@ export const getDbSnapShot = (db: Db) => {
   return _db;
 }
 
-export const clean = (obj: object) => {
-  for (var propName in obj) {
-    const checkVal = _.isInteger(obj[propName]) || _.isBoolean(obj[propName]) ?
-    obj[propName].toString() : obj[propName];
-    if (_.isEmpty(checkVal)) {
-      delete obj[propName];
+export const cleanRouteConfig = (obj: RouteConfig) => {
+  for (var key in obj) {
+    if (['fetchData', 'store'].includes(key)) cleanRouteConfig(obj[key]);
+    if ((!obj[key] && obj[key] != '0') ||
+      obj[key] === false ||
+      (obj[key] + "") === 'NaN' ||
+      key.startsWith('_') ||
+      (_.isArray(obj[key]) && _.isEmpty(obj[key])) ||
+      (_.isPlainObject(obj[key]) && _.isEmpty(obj[key])) ||
+      (_.isString(obj[key]) && !obj[key].length)
+    ) {
+      !['mock', 'response'].includes(key) && key !== "_config" && delete obj[key];
+    }
+    if (!obj.fetch) {
+      delete obj.fetchData;
+      delete obj.fetchCount;
+      delete obj.skipFetchError;
     }
   }
-  return obj
+  return obj;
 }
 
 export const replaceObj = (oldObj: object, newObj: object) => {
@@ -197,6 +205,21 @@ export const createSampleFiles = (root: string = process.cwd()) => {
   console.log(chalk.gray('\nCreating Samples...'));
   fs.copySync(path.join(__dirname, '../../../samples'), root)
   console.log(chalk.gray('Sample files created!'));
+}
+
+export const cleanObject = (obj: object) => {
+  for (let key in obj) {
+    if (_.isPlainObject(obj[key])) cleanObject(obj[key]);
+    if ((!obj[key] && obj[key] != '0') ||
+      obj[key] === false ||
+      (obj[key] + "") === 'NaN' ||
+      (_.isArray(obj[key]) && _.isEmpty(obj[key])) ||
+      (_.isPlainObject(obj[key]) && _.isEmpty(obj[key])) ||
+      (_.isString(obj[key]) && !obj[key].length)
+    ) {
+      delete obj[key];
+    }
+  }
 }
 
 

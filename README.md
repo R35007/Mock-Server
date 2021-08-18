@@ -189,6 +189,7 @@ For Example:
     "description": "", // Description about this Route.
     "delay": 2000, // in milliseconds
     "statusCode": 200, // in number between 100 to 600
+    "mockFirst": false, // If true, It sends the mock first else try to fetch first.
     "middlewareNames": ["_IterateResponse"], // list of middleware names to be called
     "middlewares": "", // Can give a list of express Middlewares If using in .js file
     "fetch": "./myFile.json", // this path will be relative to `config.root`
@@ -740,6 +741,7 @@ interface Locals {
     id?: string;
     description?: string;
     mock?: any;
+    mockFirst?: boolean;
     fetch?: string | AxiosRequestConfig;
     fetchData?: {
       status?: number;

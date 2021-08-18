@@ -57,10 +57,10 @@ function expandObject(obj, id) {
 }
 
 function getKeyVal(key, val, id) {
-  if (!(val + '')?.length || val === null || val === undefined || key === "_config") return '';
+  if ((!['mock', 'response'].includes(key) && !(val + '')?.length) || val === null || val === undefined || key === "_config") return '';
 
   if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
-    if (!val.length) return '';
+    if (!['mock', 'response'].includes(key) && !val.length) return '';
     return `
       <div class="row px-3">
         <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
@@ -69,7 +69,7 @@ function getKeyVal(key, val, id) {
         </div>
       </div>`;
   } else if (typeof val === "object" || ObjectKeys.includes(key)) {
-    if (!Object.keys(val).length) return ''
+    if (!['mock', 'response'].includes(key) && !Object.keys(val).length) return ''
     if ((val + "").trim().match(/<img(.*)>$/)) {
       return `
       <div class="row px-3">

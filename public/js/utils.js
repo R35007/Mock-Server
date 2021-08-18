@@ -50,32 +50,6 @@ function parseJson(data) {
   return parsedData;
 }
 
-function clean(obj) {
-  for (var propName in obj) {
-    if(typeof obj[propName] === 'string'){
-      obj[propName] = obj[propName].trim();
-    }
-    if(isPlainObject(obj[propName])) {
-      obj[propName] = clean(obj[propName]);
-    }
-    let checkVal = obj[propName];
-    if (checkVal === null ||
-        checkVal === undefined ||
-        (Array.isArray(checkVal) && !checkVal.length) || 
-        (isPlainObject(checkVal) && !Object.keys(checkVal).length) ||
-        (checkVal+"").trim() === 'NaN' ||
-        !(checkVal+"").trim().length
-    ) {
-      delete obj[propName];
-    }
-  }
-  return obj
-}
-
-function isPlainObject(val){
-  return typeof val === 'object' && val !== null && !Array.isArray(val)
-}
-
 function orderRouteConfig(routeConfig) {
   const clonedRouteConfig = JSON.parse(JSON.stringify(routeConfig));
   const order = [

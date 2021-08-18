@@ -84,6 +84,13 @@
     "fetch": "https://jsonplaceholder.typicode.com/{{routePath}}",
     "fetchCount": -1
   },
+  "/mockFirst": {
+    "_config": true,
+    "description": "This route sends the mock data first. If the mock attribute is undefined then It tries to fetch the data from the url. By default mockFirst is set to false.",
+    "mockFirst": true,
+    "mock": "This is response comes from mock attribute",
+    "fetch": "https://jsonplaceholder.typicode.com/todos"
+  },
   "/fetch/posts/customOptions": {
     "_config": true,
     "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",

@@ -22,7 +22,7 @@ import {
   RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware,
   UserRewriters, UserStore
 } from "./model";
-import { clean, flatQuery, getDbSnapShot, replaceObj } from './utils';
+import { cleanRouteConfig, flatQuery, getDbSnapShot, replaceObj } from './utils';
 import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
@@ -300,7 +300,7 @@ export class MockServer extends GettersSetters {
   }
 
   #replaceRouteConfig = (req: express.Request, res: express.Response) => {
-    const updatedRouteConfig = clean([].concat(req.body)[0]) as RouteConfig;
+    const updatedRouteConfig = cleanRouteConfig([].concat(req.body)[0]) as RouteConfig;
     const routePath = _.findKey(this.db, { id: req.params.id });
     routePath && replaceObj(this.db[routePath], updatedRouteConfig)
     res.send(this.db);

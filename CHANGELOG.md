@@ -1,3 +1,8 @@
+# v4.3.2
+
+- `mockFirst` is added to RouteConfig
+- Home Page update Bug Fixed.
+
 # v4.3.1
 
 - Enabled resource url edit in Home Page.

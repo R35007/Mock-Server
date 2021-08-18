@@ -16,7 +16,6 @@ async function init() {
 }
 
 function createResourcesList(resources) {
-  setIFrameSrc("https://r35007.github.io/Mock-Server/");
   $search.value = "";
 
   // collects all expanded list to restore after refresh
