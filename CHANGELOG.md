@@ -1,4 +1,4 @@
-# v4.4.1
+# v4.4.2
 
 - `getJSON` can now able to fetch mock data from `.js` file. Make sure you do `module.exports` the mock object
 # v4.4.0
