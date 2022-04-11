@@ -7,82 +7,78 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
 
 ## Table of contents
 
-- [Getting started](#getting-started)
-- [Using JS Module](#using-js-module)
-- [Route Config](#route-config)
-  - [Set Delay Response](#set-delay-response)
-  - [Set Custom StatusCode](#set-custom-statuscode)
-  - [Fetch Data From URL](#fetch-data-from-url)
-    - [Fetch File](#fetch-file)
-    - [Custom Fetch Options](#custom-fetch-options)
-    - [Use Fetch as Proxy](#use-fetch-as-proxy)
-  - [Fetch Count](#fetch-count)
-  - [Skip Fetch Error](#skip-fetch-error)
-  - [Custom Mock](#custom-mock)
-  - [Add Middleware](#add-middleware)
-- [Middleware Utils](#middleware-utils)
-  - [IterateResponse](#iterateresponse)
-  - [IterateRoutes](#iterateroutes)
-  - [AdvancedSearch](#advancedsearch)
-    - [Filter](#filter)
-    - [Paginate](#paginate)
-    - [Sort](#sort)
-    - [Slice](#slice)
-    - [Operators](#operators)
-    - [Full text search](#full-text-search)
-  - [CrudOperations](#crudoperations)
-  - [FetchTillData](#fetchtilldata)
-  - [SetFetchDataToMock](#setfetchdatatomock)
-  - [SetStoreDataToMock](#setstoredatatomock)
-  - [MockOnly](#mockonly)
-  - [FetchOnly](#fetchonly)
-  - [ReadOnly](#readonly)
-- [Injectors](#injectors)
-  - [Inject Route Configs](#inject-route-configs)
-  - [Override Existing Route Configs](#override-existing-route-configs)
-  - [Common Route Configs](#common-route-configs)
-- [Store Data](#store-data)
-  - [Route Store](#route-store)
-  - [Local Store](#local-store)
-- [Route Rewriters](#route-rewriters)
-- [Locals](#locals)
-  - [Dynamic Route Config](#dynamic-route-config)
-- [Config](#config)
-  - [Alternative Port](#config)
-  - [Set Host](#config)
-  - [Set RootPath to fetch Files](#config)
-  - [Add Base Route](#config)
-  - [Static File Server](#config)
-- [Default Routes](#default-routes)
-- [Home Page](#home-page)
-  - [Details View](#details-view)
-  - [Update Route](#update-route)
-  - [Clone Route](#clone-route)
-  - [Add Route](#add-route)
-- [CLI Usage](#cli-usage)
-- [API](#api)
-  - [MockServer](#mockserver)
-  - [Create](#create)
-  - [Destroy](#destroy)
-  - [launchServer](#launchserver)
-  - [rewriter](#rewriter)
-  - [defaults](#defaults)
-  - [resources](#resources)
-  - [defaultRoutes](#defaultroutes)
-  - [addDbData](#adddbdata)
-  - [getDb](#getdb)
-  - [startServer](#startserver)
-  - [stopServer](#stopserver)
-  - [resetServer](#resetserver)
-  - [resetDb](#resetdb)
-  - [resetStore](#resetstore)
-  - [pageNotFound](#pagenotfound)
-  - [errorHandler](#errorhandler)
-  - [Setters](#setters)
-  - [Variables](#variables)
-  - [Validators](#validators)
-- [Author](#author)
-- [License](#license)
+- [Mock Server [![](https://img.shields.io/npm/v/@r35007/mock-server?label=npm)](https://img.shields.io/npm/v/@r35007/mock-server?label=npm) [![](https://img.shields.io/npm/l/@r35007/mock-server?color=blue)](https://img.shields.io/npm/l/@r35007/mock-server?color=blue) [![](https://img.shields.io/npm/types/@r35007/mock-server)](https://img.shields.io/npm/types/@r35007/mock-server)](#mock-server---)
+  - [Table of contents](#table-of-contents)
+  - [Getting started](#getting-started)
+  - [Using JS Module](#using-js-module)
+  - [**Route Config**](#route-config)
+    - [**Set Delay Response**](#set-delay-response)
+    - [**Set Custom StatusCode**](#set-custom-statuscode)
+    - [**Fetch Data From URL**](#fetch-data-from-url)
+      - [**Fetch File**](#fetch-file)
+      - [**Custom Fetch Options**](#custom-fetch-options)
+      - [**Use Fetch as Proxy**](#use-fetch-as-proxy)
+    - [**Fetch Count**](#fetch-count)
+    - [**Skip Fetch Error**](#skip-fetch-error)
+    - [**Add Middleware**](#add-middleware)
+  - [**Middleware Utils**](#middleware-utils)
+    - [**IterateResponse**](#iterateresponse)
+    - [**IterateRoutes**](#iterateroutes)
+    - [**AdvancedSearch**](#advancedsearch)
+      - [Filter](#filter)
+      - [Paginate](#paginate)
+      - [Sort](#sort)
+      - [Slice](#slice)
+      - [Operators](#operators)
+      - [Full text search](#full-text-search)
+    - [**CrudOperations**](#crudoperations)
+    - [**FetchTillData**](#fetchtilldata)
+    - [**SetFetchDataToMock**](#setfetchdatatomock)
+    - [**SetStoreDataToMock**](#setstoredatatomock)
+    - [**MockOnly**](#mockonly)
+    - [**FetchOnly**](#fetchonly)
+    - [**ReadOnly**](#readonly)
+  - [**Injectors**](#injectors)
+    - [**Inject Route Configs**](#inject-route-configs)
+    - [**Override Existing Route Configs**](#override-existing-route-configs)
+    - [**Common Route Configs**](#common-route-configs)
+  - [**Store Data**](#store-data)
+    - [**Route Store**](#route-store)
+    - [**Local Store**](#local-store)
+  - [**Route Rewriters**](#route-rewriters)
+  - [**Locals**](#locals)
+    - [**Dynamic Route Config**](#dynamic-route-config)
+  - [**Config**](#config)
+  - [Default Routes](#default-routes)
+  - [**Home Page**](#home-page)
+  - [**Details View**](#details-view)
+    - [**Update Route**](#update-route)
+    - [**Clone Route**](#clone-route)
+    - [**Add Route**](#add-route)
+  - [CLI Usage](#cli-usage)
+  - [API](#api)
+    - [**MockServer**](#mockserver)
+    - [**Create**](#create)
+    - [**Destroy**](#destroy)
+    - [**launchServer**](#launchserver)
+    - [**rewriter**](#rewriter)
+    - [**defaults**](#defaults)
+    - [**resources**](#resources)
+    - [**defaultRoutes**](#defaultroutes)
+    - [**addDbData**](#adddbdata)
+    - [**getDb**](#getdb)
+    - [**startServer**](#startserver)
+    - [**stopServer**](#stopserver)
+    - [**resetServer**](#resetserver)
+    - [**resetDb**](#resetdb)
+    - [**resetStore**](#resetstore)
+    - [**pageNotFound**](#pagenotfound)
+    - [**errorHandler**](#errorhandler)
+    - [**Setters**](#setters)
+    - [**Variables**](#variables)
+    - [**Validators**](#validators)
+  - [Author](#author)
+  - [License](#license)
 
 ## Getting started
 
@@ -283,33 +279,27 @@ You can also give a fetch as a axios request object with custom options.
 
 ```jsonc
 {
-  "/fetch/posts/customOptions": {
+  "/fetch/posts/customOptions/:id": {
     "_config": true,
-    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",
+    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith ${<variables>} to pass the req values",
     "fetch": {
       "method": "GET",
       "url": "http://jsonplaceholder.typicode.com/posts",
-      "params": "{{params}}"
+      "params": "${req.params.id}"
     },
     "fetchCount": 5
   }
 }
 ```
 
-[http://localhost:3000/fetch/posts/customOptions](http://localhost:3000/fetch/posts/customOptions).
+[http://localhost:3000/fetch/posts/customOptions/2](http://localhost:3000/fetch/posts/customOptions/2).
 
-Note: The to pass any options from the route set the option value as `{{<option Name>}}`
+Note: The to pass any options from the route set the option value as `${<option Name>}`
 
 reserved key words :
 
-- `{{routePath}}` - sets route path
-- `{{host}}` - sets host
-- `{{base}}` - sets base url
-- `{{port}}` - sets port
-- `{{params}}` / `{{query}}` - sets query params
-- `{{data}}` / `{{body}}` - sets posts body data
-- `{{header}}` - sets header
-- `{{method}}` - sets method
+- `${config}` - get all config values
+- `${req}` - get all req values
 
 #### **Use Fetch as Proxy**
 
@@ -326,12 +316,12 @@ It sends all the options like prams, query params, headers, data etc.. from the 
   },
   "/posts/:id?": {
     "_config": true,
-    "fetch": "http://jsonplaceholder.typicode.com/{{routePath}}" // will become http://jsonplaceholder.typicode.com/posts/1
+    "fetch": "http://jsonplaceholder.typicode.com/${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
   }
 }
 ```
 
-Note: `{{routePath}}` will prepends the route to the url.
+Note: `${req.url}` will prepends the route to the url.
 
 Now try the following url.
 

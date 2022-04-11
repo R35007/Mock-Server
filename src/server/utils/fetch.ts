@@ -126,13 +126,6 @@ export const requireData = (data?: any, root: string = process.cwd()): object | 
   if (_.isEmpty(data)) return;
   if (_.isString(data)) {
     const parsedUrl = parseUrl(data, root);
-    const stats = getStats(parsedUrl);
-    if (!stats) return;
-
-    if (path.extname(parsedUrl) === '.js') {
-      delete require.cache[parsedUrl];
-      return require(parsedUrl);
-    }
     return getJSON(parsedUrl);
   } else if (_.isPlainObject(data)) {
     return data

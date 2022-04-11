@@ -1,3 +1,36 @@
+# v4.5.0
+
+- Now we can access `config` and `req` variable on a fetch url.
+Example : 
+  ```jsonc
+  {
+    "/posts/:id?": {
+    "_config": true,
+    "fetch": "http://jsonplaceholder.typicode.com/${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
+    },
+    "/comments/:id?": {
+      "_config": true,
+      "fetch": "http://jsonplaceholder.typicode.com/comments/${req.params.id}" // will become http://jsonplaceholder.typicode.com/posts/1
+    },
+    "/pageNotFound": {
+      "_config": true,
+      "fetch": "http://${config.host}:${config.port}/404",
+    }
+  }
+  ```
+  - Inject any global middleware at the start of the express app by exporting `globals` in the `middleware.js` file.
+  Example : 
+    ```js
+    /* 
+      Global Middlewares
+      These middlewares will be addded to start of the the express app 
+    */
+    exports.globals = [
+      (req, res, next) => {
+        console.log(req.path);
+      }
+    ]
+    ```
 # v4.4.2
 
 - `getJSON` can now able to fetch mock data from `.js` file. Make sure you do `module.exports` the mock object

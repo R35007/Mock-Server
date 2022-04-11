@@ -63,7 +63,7 @@ const getUrlDetail = (req, res) => {
     request = getValidReq(req, res, request);
     return { request, isFile: false, extension: "" };
   } else {
-    const parsedUrl = parseUrl(request.url, locals.config.root);
+    const parsedUrl = interpolate({ config: locals.config, req }, parseUrl(request.url, locals.config.root));
     console.log(chalk.gray("parsed Fetch url : "), chalk.green(parsedUrl));
     const stats = getStats(parsedUrl) || {} as PathDetails;
     request.url = parsedUrl;
@@ -75,14 +75,7 @@ const getUrlDetail = (req, res) => {
 const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig => {
   const locals = res.locals as Locals;
   const config = locals.config;
-
-  const replacedPath = fetch.url?.
-    replace(/{{port}}/gi, config.port + '')
-    .replace(/{{host}}/gi, config.host)
-    .replace(/{{base}}/gi, config.base)
-    .replace(/\/{{routePath}}|{{routePath}}/gi, req.path)
-    .replace(/\?{{params}}|{{params}}/gi, req.url.replace(req.path, ""))
-    .replace(/\?{{query}}|{{query}}/gi, req.url.replace(req.path, ""));
+  const replacedPath = interpolate({ config, req }, fetch.url)
 
   const expReq = _.fromPairs(Object.entries(req).filter(([key]) => AxiosRequestConfig.includes(key)));
 
@@ -91,38 +84,28 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
     !AxiosHeadersConfig.includes(h) && delete expReq.headers[h];
   })
 
-  if (fetch.headers?.proxy) {
-    const request = {
-      ...expReq,
-      data: req.body,
-      params: req.query,
-      url: replacedPath
-    };
-    delete request.query;
-    delete request.body;
-    cleanObject(request);
+  expReq.data = req.body;
+  expReq.params = req.query;
+  expReq.url = replacedPath;
 
-    return request as AxiosRequestConfig;
+  if (fetch.headers?.proxy) {
+    cleanObject(expReq);
+    return expReq as AxiosRequestConfig;
   }
 
-  const fetchEntries = Object.entries(fetch).map(([key, val]) => {
-    if (val === '{{' + key + '}}') {
-      if (key === 'data') return [key, expReq.body]
-      if (key === 'body') return ['data', expReq.body]
-      if (key === 'params') return [key, expReq.query]
-      if (key === 'query') return ['params', expReq.query]
-      return [key, expReq[key]]
-    };
-    return [key, val]
-  })
-
+  const fetchEntries = Object.entries(fetch).map(([key, val]) => [key, interpolate({ config, req: expReq }, val)])
   const request = { ..._.fromPairs(fetchEntries), url: replacedPath };
-  delete request.query;
-  delete request.body;
   cleanObject(request);
-
   return request as AxiosRequestConfig;
 }
+
+// Helps to convert template literal strings to applied values.
+// Ex : Object = { config: { host: "localhost", port: 3000 } } , format = "${config.host}:${config.port}" -> "localhost:3000"
+const interpolate = (object: Object, format: string = "") => {
+  const keys = Object.keys(object);
+  const values = Object.values(object);
+  return new Function(...keys, `return \`${format}\`;`)(...values);
+};
 
 const AxiosRequestConfig: string[] = [
   "headers",

@@ -81,7 +81,7 @@
   },
   "/posts/:id?": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/{{routePath}}",
+    "fetch": "https://jsonplaceholder.typicode.com/${req.url}",
     "fetchCount": -1
   },
   "/mockFirst": {
@@ -91,13 +91,13 @@
     "mock": "This is response comes from mock attribute",
     "fetch": "https://jsonplaceholder.typicode.com/todos"
   },
-  "/fetch/posts/customOptions": {
+  "/fetch/posts/customOptions/:id": {
     "_config": true,
-    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith {{<attribute name>}} to pass the req values",
+    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith ${<variables>} to pass the req values",
     "fetch": {
       "method": "GET",
       "url": "http://jsonplaceholder.typicode.com/posts",
-      "params": "{{params}}"
+      "params": "${req.params.id}"
     },
     "fetchCount": 5
   },
@@ -183,7 +183,9 @@
   },
   "/middleware/utils/example/_AdvancedSearch/users/:id?": {
     "_config": true,
-    "fetch": { "url": "http://jsonplaceholder.typicode.com/users" },
+    "fetch": {
+      "url": "http://jsonplaceholder.typicode.com/users"
+    },
     "middlewareNames": [
       "_AdvancedSearch"
     ]
@@ -209,11 +211,11 @@
   "/internalRequest": {
     "_config": true,
     "description": "Gets the data from /customMockData/1 route",
-    "fetch": "http://localhost:{{port}}/customMockData/1"
+    "fetch": "http://${config.host}:${config.port}/customMockData/1"
   },
   "/pageNotFound": {
     "_config": true,
-    "fetch": "http://localhost:{{port}}/404",
+    "fetch": "http://${config.host}:${config.port}/404",
     "fetchCount": -1
   }
 }

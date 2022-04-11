@@ -61,6 +61,8 @@ export class MockServer extends GettersSetters {
     app.use(defaults);
 
     const resources = this.resources(db, middleware, injectors, store);
+
+    app.use(([] as any).concat(this.middleware?.globals || []))
     app.use(this.config.base, resources);
 
     const defaultRoutes = this.defaultRoutes();
@@ -193,7 +195,7 @@ export class MockServer extends GettersSetters {
     this.db = {} as Db;
     this.config = { ...Default_Config } as Config;
     this.middleware = { ...Default_Middlewares } as Middleware;
-    this.injectors = {} as { [key: string] : Injector };
+    this.injectors = {} as { [key: string]: Injector };
     this.store = {} as Object;
     this.rewriters = {} as KeyValString;
 

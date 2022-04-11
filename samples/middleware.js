@@ -1,4 +1,15 @@
 /* 
+  Global Middlewares
+  These middlewares will be addded to start of the the express app 
+*/
+exports.globals = [
+  (req, res, next) => {
+    console.log(req.path);
+  }
+]
+
+
+/* 
   Used in VS Code Mock Server extension
   This method is called only on generating db suing MockServer: Generate Db Command
   It will be called for each entry in a HAR formatted data
