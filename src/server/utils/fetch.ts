@@ -9,13 +9,20 @@ import { FetchData, PathDetails } from '../model';
 
 export const getJSON = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
-  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har"].includes(f.extension));
+  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
   const obj = onlyJson.reduce((mock, file) => {
     try {
-      const str = fs.readFileSync(file.filePath, "utf-8");
-      if (_.isEmpty(str)) return {}
-      return { ...mock, ...JPH.parse(str) };
+      if (path.extname(file.filePath) === ".js") {
+        delete require.cache[file.filePath];
+        const obj = require(file.filePath);
+        if (_.isEmpty(obj) || !_.isPlainObject(obj)) return {}
+        return { ...mock, ...obj };
+      } else {
+        const str = fs.readFileSync(file.filePath, "utf-8");
+        if (_.isEmpty(str)) return {}
+        return { ...mock, ...JPH.parse(str) };
+      }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
       throw (error);
