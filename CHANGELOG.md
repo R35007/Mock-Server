@@ -1,4 +1,4 @@
-# v4.5.0
+# v4.5.1
 
 - Now we can access `config` and `req` variable on a fetch url.
 Example : 

@@ -7,10 +7,7 @@ import {
   Config, Db, HAR, HarEntry, Injector, KeyValString, Middleware,
   RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware, UserStore, User_Config
 } from "./model";
-import {
-  getInjectedDb, getDbFromEntries, getDbSnapShot,
-  normalizeRoutes as normalizeDb, validRoute
-} from './utils';
+import { getDbFromEntries, getDbSnapShot, getInjectedDb, normalizeRoutes as normalizeDb, validRoute } from './utils';
 import {
   getStats, parseUrl, requireData
 } from './utils/fetch';
@@ -47,10 +44,12 @@ export class Validators extends Initials {
       return { ...Default_Middlewares }
     }
 
+    const globalMiddlewares = ([] as any).concat(userMiddlewares.globals || [() => { }]).filter(gm => _.isFunction(userMiddlewares[gm]));
+
     const valid_middlewares = Object.keys(userMiddlewares)
       .filter(um => _.isFunction(userMiddlewares[um]))
       .reduce((result, um) => ({ ...result, [um]: userMiddlewares[um] }), {})
-    return { ...Default_Middlewares, ...valid_middlewares };
+    return { globals: globalMiddlewares, ...Default_Middlewares, ...valid_middlewares };
   }
 
   getValidInjectors = (injectors?: UserInjectors): { [key: string]: Injector } => {

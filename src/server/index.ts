@@ -62,7 +62,7 @@ export class MockServer extends GettersSetters {
 
     const resources = this.resources(db, middleware, injectors, store);
 
-    app.use(([] as any).concat(this.middleware?.globals || []))
+    app.use(([] as any).concat(this.middleware?.globals || [() => { }]))
     app.use(this.config.base, resources);
 
     const defaultRoutes = this.defaultRoutes();
