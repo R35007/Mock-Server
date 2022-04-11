@@ -44,7 +44,7 @@ export class Validators extends Initials {
       return { ...Default_Middlewares }
     }
 
-    const globalMiddlewares = ([] as any).concat(userMiddlewares.globals || [() => { }]).filter(gm => _.isFunction(userMiddlewares[gm]));
+    const globalMiddlewares = ([(_req, _res, next) => { next(); }] as any).concat(userMiddlewares.globals || []).filter(gm => _.isFunction(gm));
 
     const valid_middlewares = Object.keys(userMiddlewares)
       .filter(um => _.isFunction(userMiddlewares[um]))

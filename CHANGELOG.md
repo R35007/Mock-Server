@@ -6,11 +6,11 @@ Example :
   {
     "/posts/:id?": {
     "_config": true,
-    "fetch": "http://jsonplaceholder.typicode.com/${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
+    "fetch": "http://jsonplaceholder.typicode.com${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
     },
     "/comments/:id?": {
       "_config": true,
-      "fetch": "http://jsonplaceholder.typicode.com/comments/${req.params.id}" // will become http://jsonplaceholder.typicode.com/posts/1
+      "fetch": "http://jsonplaceholder.typicode.com/comments/${req.params.id}" // will become http://jsonplaceholder.typicode.com/comments/:id
     },
     "/pageNotFound": {
       "_config": true,

@@ -77,10 +77,10 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   const config = locals.config;
   const replacedPath = interpolate({ config, req }, fetch.url)
 
-  const expReq = _.fromPairs(Object.entries(req).filter(([key]) => AxiosRequestConfig.includes(key)));
+  const expReq = _.fromPairs(Object.entries(req).filter(r => AxiosRequestConfig.includes(r[0])));
 
   // removes unwanted headers
-  Object.keys(expReq.headers).forEach(h => {
+  Object.keys(expReq.headers || {}).forEach(h => {
     !AxiosHeadersConfig.includes(h) && delete expReq.headers[h];
   })
 
@@ -89,11 +89,15 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   expReq.url = replacedPath;
 
   if (fetch.headers?.proxy) {
+    delete expReq.query;
+    delete expReq.body;
     cleanObject(expReq);
     return expReq as AxiosRequestConfig;
   }
 
-  const fetchEntries = Object.entries(fetch).map(([key, val]) => [key, interpolate({ config, req: expReq }, val)])
+  const fetchEntries = Object.entries(fetch).map(([key, val]) => {
+    return [key, interpolate({ config, req }, val)]
+  })
   const request = { ..._.fromPairs(fetchEntries), url: replacedPath };
   cleanObject(request);
   return request as AxiosRequestConfig;

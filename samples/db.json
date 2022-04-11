@@ -81,7 +81,7 @@
   },
   "/posts/:id?": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com/${req.url}",
+    "fetch": "https://jsonplaceholder.typicode.com${req.url}",
     "fetchCount": -1
   },
   "/mockFirst": {
@@ -96,8 +96,7 @@
     "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith ${<variables>} to pass the req values",
     "fetch": {
       "method": "GET",
-      "url": "http://jsonplaceholder.typicode.com/posts",
-      "params": "${req.params.id}"
+      "url": "http://jsonplaceholder.typicode.com/posts/${req.params.id}"
     },
     "fetchCount": 5
   },
