@@ -145,7 +145,7 @@ const mergeArray = (newList: string[] = [], existingList: string[] = []): string
       return [...new Set([...result, ...existingList])]
     }
     return [...new Set([...result, im])]
-  }, []).filter(Boolean)
+  }, [] as string[]).filter(Boolean)
 }
 
 export const flatQuery = (data) => {
