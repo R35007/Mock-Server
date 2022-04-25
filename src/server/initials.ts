@@ -2,22 +2,42 @@ import express from 'express';
 import { Server } from "http";
 import Default_Config from './config';
 import Default_Middlewares from './middlewares';
-import { Config, Db, Injector, KeyValString, Middleware } from "./model";
+import { Config, Db, Injectors, Middlewares, Rewriters, Store } from "./model";
 
 export class Initials {
 
-  app: express.Application = express().set("json spaces", 2);
-  router: express.Router = express.Router();
+  app!: express.Application;
+  router!: express.Router;
   server: Server | undefined;
-  routes: string[] = [];
+  routes!: string[];
 
-  db = {} as Db;
-  middleware = { ...Default_Middlewares } as Middleware;
-  injectors = {} as { [key: string]: Injector };
-  store = {} as Object;
-  config = { ...Default_Config } as Config
-  rewriters = {} as KeyValString;
+  db!: Db;
+  middleware!: Middlewares;
+  injectors!: Injectors;
+  store!: Store;
+  config!: Config
+  rewriters!: Rewriters;
 
-  initialDb = {} as Db;
-  initialStore = {} as Object;
+  initialDb!: Db;
+  initialStore!: Store;
+
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.app = express().set("json spaces", 2);
+    this.router = express.Router();
+    this.routes = [];
+
+    this.db = {} as Db;
+    this.middleware = { ...Default_Middlewares } as Middlewares;
+    this.injectors = [] as Injectors;
+    this.store = {} as Store;
+    this.config = { ...Default_Config } as Config
+    this.rewriters = {} as Rewriters;
+
+    this.initialDb = {} as Db;
+    this.initialStore = {} as Store;
+  }
 }

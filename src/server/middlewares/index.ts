@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Locals, Middleware } from '../model';
+import { Default_Middlewares, Locals } from '../model';
 import CRUD from '../utils/crud';
 
 const _IterateResponse = (_req, res, next) => {
@@ -81,8 +81,8 @@ const _AdvancedSearch = (req, res, next) => {
 const _FetchTillData = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  
-  if(!routeConfig.fetchData) return next();
+
+  if (!routeConfig.fetchData) return next();
 
   if (!routeConfig.fetchData.isError) {
     routeConfig.fetchCount = 0;
@@ -128,7 +128,7 @@ const _ReadOnly = (req, res, next) => {
   }
 }
 
-const Default_Middlewares: Middleware = {
+const Default_Middlewares: Default_Middlewares = {
   _IterateResponse,
   _IterateRoutes,
   _CrudOperation,

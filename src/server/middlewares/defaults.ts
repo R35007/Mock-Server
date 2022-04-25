@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import Default_Config from '../config';
 import { Config, Default_Options } from '../model';
 const errorhandler = require('errorhandler');
+var responseTime = require('response-time');
 
 export default (opts: Default_Options) => {
 
@@ -15,6 +16,9 @@ export default (opts: Default_Options) => {
   const _opts = { ...Default_Config, ...opts } as Config;
 
   const arr: any[] = [];
+
+  //
+  arr.push(responseTime({ suffix: false }));
 
   // Compress all requests
   if (!_opts.noGzip) {

@@ -1,0 +1,14 @@
+[
+  {
+    "routes": [
+      "/posts"
+    ],
+    "delay": 1000
+  },
+  {
+    "routes": [
+      "/comments"
+    ],
+    "statusCode": 404
+  }
+]

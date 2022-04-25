@@ -2,14 +2,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { Config } from './model';
 
-const userDir = path.join(process.cwd(), 'public');
-const defaultDir = path.join(__dirname, '../../public');
-const staticDir = fs.existsSync(userDir) ? userDir : defaultDir;
+const userDir = path.join(process.cwd(), 'public').replace(/\\/g, "/");
+const defaultDir = path.join(__dirname, '../../public').replace(/\\/g, "/");
+const staticDir = fs.existsSync(userDir) ? userDir.replace(/\\/g, "/") : defaultDir.replace(/\\/g, "/");
 
 const Default_Config: Config = {
   port: 3000,
   host: "localhost",
-  root: process.cwd(),
+  root: process.cwd().replace(/\\/g, "/"),
   base: "",
   staticDir,
   reverse: false,

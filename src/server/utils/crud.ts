@@ -149,7 +149,7 @@ export default class {
         return 1;
       } else {
         let maxId = _.maxBy(coll, id)[id]; // Increment integer id or generate string id
-        return _.isFinite(maxId) ? ++maxId : "id-"+nanoid(7);
+        return _.isFinite(maxId) ? ++maxId : nanoid(7);
       }
     }
     const body = [].concat(req.body);

@@ -2,7 +2,7 @@
   Global Middlewares
   These middlewares will be addded to start of the the express app 
 */
-exports.globals = [
+exports._globals = [
   (req, res, next) => {
     console.log(req.path);
     next();
@@ -17,7 +17,7 @@ exports.globals = [
   Here you can return your custom route and routeConfig
   `entryCallback` is a reserved word for generating Db 
 */
-exports.entryCallback = (entry, routePath, routeConfig) => {
+exports._entryCallback = (entry, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
@@ -30,7 +30,7 @@ exports.entryCallback = (entry, routePath, routeConfig) => {
   Whatever you return here will be pasted in the file
   `finalCallback` is a reserved word for generating Db
 */
-exports.finalCallback = (data, db) => {
+exports._finalCallback = (data, db) => {
   // your code goes here ...
   return db;
 };

@@ -600,7 +600,7 @@ example : `injectors.json`
 ```jsonc
 [
   {
-    "routeToMatch": "/injectors/:id",
+    "routes": ["/injectors/:id"],
     "description": "This description is injected using the injectors by matching the pattern '/injectors/:id'."
   }
 ]
@@ -617,19 +617,19 @@ For example :
 ```jsonc
 [
   {
-    "routeToMatch": "/injectors/2",
+    "routes": ["/injectors/2"],
     "override": true,
     "mock": "This data is injected using the injectors by matching the pattern '/injectors/2'."
   },
   {
-    "routeToMatch": "/injectors/:id",
+    "routes": ["/injectors/:id"],
     "override": true,
     "exact": true,
     "statusCode": 200,
     "mock": "This data is injected using the injectors by exactly matching the route '/injectors/:id'."
   },
   {
-    "routeToMatch": "/(.*)",
+    "routes": ["/(.*)"],
     "override": true,
     "middlewareNames": ["...", "CustomLog"]
   }
@@ -650,11 +650,11 @@ For example :
 ```jsonc
 [
   {
-    "routeToMatch": "/(.*)",
+    "routes": ["/(.*)"],
     "description": "This Description is injected using the injectors. Set 'Override' flag to true to override the existing config values."
   },
   {
-    "routeToMatch": "/(.*)",
+    "routes": ["/(.*)"],
     "override": true,
     "middlewareNames": ["...", "CustomLog"]
   }

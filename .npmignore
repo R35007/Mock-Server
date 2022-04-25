@@ -7,3 +7,6 @@ preprops.config
 package-lock.json
 *.map
 *.scss
+tests
+jest.config.js
+scripts

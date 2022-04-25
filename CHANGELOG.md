@@ -1,3 +1,34 @@
+# v5.0.0
+
+ - Added more Testcases ans stabalized this version with more minor bug fixes
+ - `UserConfig`, `UserMiddleware`, `UserDb`, `UserInjectors`, `UserStore`, `UserRewriters` types are removed
+   - Instead we can use `Partial<Config>`, `Db`, `Middlewaers`, `Injectors`, `Store`, `Rewriters`
+ - Now we can also provide a `.js` path to any of the data for `db`, `injectors`, `config`, `rewriters`, `store`, `middlewares` 
+ - Now we can get the response time from a response headers of `x-response-time` in milliseconds
+ - The middlewares that are need to be used as a global middleware before start of all middlewares can be given as `_globals : [...your middlewares]` in `middleware.js` file
+ - Now injectors accepts only list as follows
+```json
+[
+  {
+    "routes": [
+      "/injectors/1", 
+      "/injectors/2"
+    ],
+    "override": true,
+    "mock": "This data is injected using the injectors by matching the pattern '/injectors/1', '/injectors/1'."
+  },
+  {
+    "routes": [
+      "/(.*)"
+    ],
+    "override": true,
+    "middlewareNames": [
+      "...",
+      "CustomLog"
+    ]
+  }
+]
+``` 
 # v4.5.1
 
 - Now we can access `config` and `req` variable on a fetch url.

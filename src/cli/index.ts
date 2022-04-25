@@ -5,7 +5,7 @@ import * as Watcher from 'chokidar';
 import * as fs from 'fs';
 import * as path from 'path';
 import { MockServer } from "../server";
-import { UserConfig, User_Config } from '../server/model';
+import { Config } from '../server/model';
 import { createSampleFiles, getDbSnapShot } from "../server/utils";
 import argv from './argv';
 
@@ -14,9 +14,9 @@ const init = async () => {
     id, staticDir, base, noCors, noGzip, readOnly, sample, watch, snapshots, _: [source]
   } = argv();
 
-  const _config: UserConfig = typeof config === 'string' ? path.resolve(process.cwd(), config) : {
+  const _config: string | Config = typeof config === 'string' ? path.resolve(process.cwd(), config) : {
     port, host, id, staticDir, base, noCors, noGzip, readOnly, root: process.cwd()
-  } as User_Config;
+  } as Config;
 
   if (sample) {
     createSampleFiles(process.cwd());
@@ -63,7 +63,7 @@ const startServer = async (
   injectors?: string,
   rewriters?: string,
   store?: string,
-  _config?: UserConfig
+  _config?: string | Config
 ) => {
   const mockServer = new MockServer(_config);
   const filesToWatch = ([

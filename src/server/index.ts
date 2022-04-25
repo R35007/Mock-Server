@@ -3,9 +3,7 @@ import express, { Router } from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
 import enableDestroy from 'server-destroy';
-import Default_Config from './config';
 import { GettersSetters } from './getters-setters';
-import Default_Middlewares from './middlewares';
 import Defaults from './middlewares/defaults';
 import Delay from './middlewares/delay';
 import ErrorHandler from './middlewares/errorHandler';
@@ -14,23 +12,16 @@ import FinalMiddleware from './middlewares/finalMiddleware';
 import InitialMiddleware from './middlewares/initialMiddleware';
 import PageNotFound from './middlewares/pageNotFound';
 import Rewriter from './middlewares/rewriter';
-import {
-  Config, Db, Default_Options,
-  Injector,
-  KeyValString,
-  Middleware,
-  RouteConfig, UserConfig, UserDb, UserInjectors, UserMiddleware,
-  UserRewriters, UserStore
-} from "./model";
+import { Config, Db, Injectors, KeyValString, Middlewares, Rewriters, RouteConfig, Store } from "./model";
 import { cleanRouteConfig, flatQuery, getDbSnapShot, replaceObj } from './utils';
 import CRUD from './utils/crud';
 
 export class MockServer extends GettersSetters {
 
   static #mockServer: MockServer | undefined;
-  constructor(config?: UserConfig) { super(config) }
+  constructor(config?: string | Partial<Config>) { super(config) }
 
-  static Create = (config?: UserConfig) => {
+  static Create = (config?: string | Partial<Config>) => {
     if (!MockServer.#mockServer) {
       MockServer.#mockServer = new MockServer(config);
       return MockServer.#mockServer;
@@ -40,18 +31,34 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  static Destroy = async () => {
-    MockServer.#mockServer?.server && await MockServer.#mockServer.stopServer();
-    MockServer.#mockServer = undefined;
+  static Destroy = async (mockServer?: MockServer) => {
+    if (mockServer) {
+      try {
+        await mockServer.stopServer();
+      } catch (err) {
+        console.log(err);
+      }
+      mockServer.resetServer();
+      return undefined;
+    } else {
+      try {
+        await MockServer.#mockServer?.stopServer();
+      } catch (err) {
+        console.log(err);
+      }
+      MockServer.#mockServer?.resetServer();
+      MockServer.#mockServer = undefined;
+      return undefined;
+    }
   }
 
   launchServer = async (
-    db?: UserDb,
-    middleware?: UserMiddleware,
-    injectors?: UserInjectors,
-    rewriters?: UserRewriters,
-    store?: UserStore
-  ) => {
+    db?: string | Db | { [key: string]: Omit<Object, "__config"> | any[] | string },
+    middleware?: string | Middlewares,
+    injectors?: string | Injectors,
+    rewriters?: string | Rewriters,
+    store?: string | Store
+  ): Promise<Server | undefined> => {
     const app = this.app;
 
     const rewriter = this.rewriter(rewriters);
@@ -61,8 +68,7 @@ export class MockServer extends GettersSetters {
     app.use(defaults);
 
     const resources = this.resources(db, middleware, injectors, store);
-
-    app.use(([(_req, _res, next) => { next(); }] as any).concat(this.middleware?.globals || []))
+    this.middleware._globals && app.use(this.middleware._globals);
     app.use(this.config.base, resources);
 
     const defaultRoutes = this.defaultRoutes();
@@ -71,15 +77,15 @@ export class MockServer extends GettersSetters {
     app.use(this.pageNotFound);
     app.use(this.errorHandler);
 
-    await this.startServer();
+    return await this.startServer();
   };
 
-  defaults = (options?: Default_Options) => {
+  defaults = (options?: Partial<Config>) => {
     options && this.setConfig({ ...this.config, ...options });
     return Defaults(this.config);
   }
 
-  rewriter = (rewriters?: UserRewriters) => {
+  rewriter = (rewriters?: string | KeyValString) => {
     rewriters && this.setRewriters(rewriters);
     return Rewriter(this.rewriters);
   }
@@ -89,10 +95,10 @@ export class MockServer extends GettersSetters {
   errorHandler = ErrorHandler;
 
   resources = (
-    db?: UserDb,
-    middleware?: UserMiddleware,
-    injectors?: UserInjectors,
-    store?: UserStore,
+    db?: string | Db | { [key: string]: Omit<Object, "__config"> | any[] | string },
+    middleware?: string | Middlewares,
+    injectors?: string | Injectors,
+    store?: string | Store,
   ) => {
 
     !_.isEmpty(middleware) && this.setMiddleware(middleware);
@@ -109,7 +115,7 @@ export class MockServer extends GettersSetters {
     return this.router;
   };
 
-  #createRoute = (routePath: string, routeConfig: RouteConfig = {}, router: Router) => {
+  #createRoute = (routePath: string, routeConfig: RouteConfig, router: Router) => {
     if (!this.routes.includes(routePath)) {
       this.routes.push(routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
@@ -129,16 +135,9 @@ export class MockServer extends GettersSetters {
     Object.entries(validRoutes).forEach(([routePath, routeConfig]) => this.#createRoute(routePath, routeConfig, router));
   }
 
-  getDb = (ids: string[] = [], routePaths: string[] = []): Db => {
-    if (!ids.length && !routePaths.length) return _.cloneDeep(this.db) as Db;
-    const _routePaths = ids.map(id => _.findKey(this.db, { id })).filter(Boolean) as string[];
-    const routePathsList = [..._routePaths, ...routePaths];
-    return _.cloneDeep(routePathsList.reduce((res, rp) => ({ ...res, [rp]: this.db[rp] }), {})) as Db;
-  }
-
   #getMiddlewareList = (routePath: string, routeConfig: RouteConfig) => {
     const userMiddlewares = (routeConfig.middlewareNames || [])
-      .filter(middlewareName => _.isFunction(this.middleware?.[middlewareName]))
+      .filter(middlewareName => middlewareName in this.middleware)
       .map(middlewareName => this.middleware?.[middlewareName]);
 
     const middlewares = (routeConfig.middlewares || []).filter(m => _.isFunction(m)) as Array<express.RequestHandler>;
@@ -147,61 +146,66 @@ export class MockServer extends GettersSetters {
       InitialMiddleware(routePath, this.db, this.getDb, this.config, this.store),
       Delay,
       Fetch,
-      ...middlewares,
-      ...userMiddlewares,
+      ..._.flatten(middlewares),
+      ..._.flatten(userMiddlewares),
       FinalMiddleware
     ];
 
     return middlewareList;
   }
 
-  startServer = (_port?: number, _host?: string): Promise<Server> => {
-    const { port, host, base } = this.config;
-    (_port || _host) && this.setConfig({ ...this.config, port: _port || port, host: _host || host });
+  startServer = (port?: number, host?: string): Promise<Server | undefined> => {
+    (port || host) && this.setConfig({ ...this.config, port, host });
+    const { port: _port, host: _host, base: _base } = this.config;
 
     console.log("\n" + chalk.gray("Starting Server..."));
-    return new Promise((resolve) => {
-      this.server = this.app?.listen(port, host, () => {
+    return new Promise((resolve, reject) => {
+
+      if (this.server) {
+        const { port } = this.server.address() as { address: string; family: string; port: number; };
+        console.log("\nServer already listening to port : " + port);
+        return reject(new Error("Server already listening to port : " + port));
+      }
+
+      this.server = this.app.listen(_port, _host, () => {
         console.log(chalk.green.bold("Mock Server Started."));
 
         console.log("\nHome");
-        console.log(`http://${host}:${port}/${base}`);
+        console.log(`http://${_host}:${_port}/${_base}`);
 
         console.log(chalk.gray("listening...") + "\n");
 
         enableDestroy(this.server!); // Enhance with a destroy function
         resolve(this.server!);
+      }).on("error", (err) => {
+        console.error("\nServer Error : " + err.message);
+        reject(err);
       })
     })
   };
 
   stopServer = (): Promise<boolean> => {
     console.log("\n" + chalk.gray("Stopping Server..."));
-    return new Promise((resolve) => {
-      this.server?.destroy(() => {
-        this.resetServer();
+    return new Promise((resolve, reject) => {
+
+      if (!this.server) {
+        console.error("\nNo Server to Stop");
+        return reject(new Error("No Server to Stop"));
+      }
+
+      this.server.destroy((err) => {
+        if (err) {
+          console.error("\nServer Error : " + err.message);
+          return reject(err);
+        }
         console.log(chalk.gray("Mock Server Stopped"));
+        this.server = undefined;
         resolve(true);
       })
     })
   };
 
-  resetServer = () => {
-    this.app = express().set("json spaces", 2);
-    this.router = express.Router();
-    this.server = undefined;
-    this.routes = [];
-
-    this.db = {} as Db;
-    this.config = { ...Default_Config } as Config;
-    this.middleware = { ...Default_Middlewares } as Middleware;
-    this.injectors = {} as { [key: string]: Injector };
-    this.store = {} as Object;
-    this.rewriters = {} as KeyValString;
-
-    this.initialDb = {} as Db;
-    this.initialStore = {} as Object;
-  };
+  resetServer = this.init
 
   resetStore = (keys?: string[]) => {
     if (keys?.length) {
@@ -221,7 +225,7 @@ export class MockServer extends GettersSetters {
       replaceObj(this.db, _.cloneDeep(this.initialDb));
       return this.db;
     } else {
-      const _routePaths = ids.map(id => _.findKey(this.initialDb, { id })).filter(Boolean) as string[];
+      const _routePaths = ids.map(id => Object.keys(this.initialDb).find(r => this.initialDb[r].id == id)).filter(Boolean) as string[];
       const routePathToReset = [..._routePaths, ...routePaths];
       const restoredRoutes = routePathToReset.reduce((result, routePath) => {
         replaceObj(this.db[routePath], _.cloneDeep(this.initialDb[routePath]))
@@ -303,7 +307,7 @@ export class MockServer extends GettersSetters {
 
   #replaceRouteConfig = (req: express.Request, res: express.Response) => {
     const updatedRouteConfig = cleanRouteConfig([].concat(req.body)[0]) as RouteConfig;
-    const routePath = _.findKey(this.db, { id: req.params.id });
+    const routePath = Object.keys(this.db).find(r => this.db[r].id == req.params.id);
     routePath && replaceObj(this.db[routePath], updatedRouteConfig)
     res.send(this.db);
   }

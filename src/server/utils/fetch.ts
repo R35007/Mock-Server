@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import { FetchData, PathDetails } from '../model';
 
-export const getJSON = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
+export const getObject = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
   const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
@@ -16,19 +16,43 @@ export const getJSON = (directoryPath: string, excludeFolders: string[] = [], re
       if (path.extname(file.filePath) === ".js") {
         delete require.cache[file.filePath];
         const obj = require(file.filePath);
-        if (_.isEmpty(obj) || !_.isPlainObject(obj)) return {}
+        if (_.isEmpty(obj) || !_.isPlainObject(obj)) return mock
         return { ...mock, ...obj };
       } else {
         const str = fs.readFileSync(file.filePath, "utf-8");
-        if (_.isEmpty(str)) return {}
+        if (_.isEmpty(str) || !_.isPlainObject(JPH.parse(str))) return mock
         return { ...mock, ...JPH.parse(str) };
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      throw (error);
+      return mock;
     }
   }, {});
   return obj;
+};
+
+export const getList = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): any[] => {
+  const filesList = getFilesList(directoryPath, excludeFolders, recursive);
+  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
+
+  const list = onlyJson.reduce((mock, file) => {
+    try {
+      if (path.extname(file.filePath) === ".js") {
+        delete require.cache[file.filePath];
+        const obj = require(file.filePath);
+        if (_.isEmpty(obj) || !_.isArray(obj)) return mock
+        return [...mock, ...obj];
+      } else {
+        const str = fs.readFileSync(file.filePath, "utf-8");
+        if (_.isEmpty(str) || !_.isArray(JPH.parse(str))) return mock
+        return [...mock, ...JPH.parse(str)];
+      }
+    } catch (error) {
+      console.log(chalk.red(`Error reading ${file.filePath}`));
+      return mock;
+    }
+  }, [] as any[]);
+  return list;
 };
 
 export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true): PathDetails[] => {
@@ -119,16 +143,12 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
   if (!relativeUrl || typeof relativeUrl !== 'string' || !relativeUrl?.trim().length) return '';
   if (relativeUrl.startsWith("http")) return relativeUrl;
   const parsedUrl = decodeURIComponent(path.resolve(root, relativeUrl));
-  return parsedUrl;
+  return parsedUrl.replace(/\\/g, "/");
 };
 
-export const requireData = (data?: any, root: string = process.cwd()): object | undefined => {
+export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false): object | any[] | undefined => {
   if (_.isEmpty(data)) return;
-  if (_.isString(data)) {
-    const parsedUrl = parseUrl(data, root);
-    return getJSON(parsedUrl);
-  } else if (_.isPlainObject(data)) {
-    return data
-  }
+  if (_.isString(data)) return isList ? getList(parseUrl(data, root)) : getObject(parseUrl(data, root));
+  if (_.isPlainObject(data) || _.isArray(data)) return data
   return;
 }

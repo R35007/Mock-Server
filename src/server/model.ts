@@ -1,48 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import * as express from "express";
 
-export type UserDb = string | User_Db | Db;
-export type UserInjectors = string | Injector[] | { [key: string]: Injector };
-export type UserConfig = string | User_Config | Config;
-export type UserMiddleware = string | User_Middleware | Middleware;
-export type UserStore = string | Object;
-export type UserRewriters = string | KeyValString;
-
-export type User_Db = {
-  [key: string]: RouteConfig | any[] | object | string;
-}
-
-export type Db = {
-  [key: string]: RouteConfig
-}
-
-export type RouteConfig = {
-  _config?: boolean;
-  id?: string;
-  description?: string;
-  mock?: any;
-  fetch?: string | AxiosRequestConfig;
-  fetchData?: FetchData;
-  store?: object;
-  statusCode?: number;
-  delay?: number;
-  fetchCount?: number;
-  skipFetchError?: boolean;
-  mockFirst?: boolean;
-  middlewareNames?: string[];
-  middlewares?: Array<express.RequestHandler>;
-  
-  _isFile?: boolean;
-  _request?: AxiosRequestConfig,
-  _extension?: string;
-}
-
-export type Injector = {
-  routeToMatch: string;
-  override?: boolean;
-  exact?: boolean;
-} & RouteConfig
-
 export type Config = {
   port: number;
   host: string;
@@ -57,47 +15,77 @@ export type Config = {
   readOnly: boolean;
   bodyParser: boolean;
 }
+export type Db = { [key: string]: RouteConfig }
+export type Injectors = InjectorConfig[];
+export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & HarMiddleware & User_Middlweares>
 
-export type Default_Options = {
-  base?: string;
-  staticDir?: string;
-  noGzip?: boolean;
-  noCors?: boolean;
-  logger?: boolean;
-  readOnly?: boolean;
-  bodyParser?: boolean;
+export type Rewriters = KeyValString;
+export type Store = Object;
+
+export type Default_Options = Partial<Omit<Config, 'port' | 'host' | 'root' | 'id' | 'reverse'>>
+
+type Global_Middlweares = { _globals: express.RequestHandler | Array<express.RequestHandler> }
+type User_Middlweares = { [x: string]: express.RequestHandler | Array<express.RequestHandler> }
+type HarMiddleware = {
+  _entryCallback?: (entry: HarEntry, routePath: string, routeConfig: RouteConfig) => Db
+  _finalCallback?: (data: string | Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromHAR: Db) => Db
+}
+export type Default_Middlewares = {
+  _IterateResponse: express.RequestHandler;
+  _IterateRoutes: express.RequestHandler;
+  _CrudOperation: express.RequestHandler;
+  _AdvancedSearch: express.RequestHandler;
+  _FetchTillData: express.RequestHandler;
+  _SetFetchDataToMock: express.RequestHandler;
+  _SetStoreDataToMock: express.RequestHandler;
+  _MockOnly: express.RequestHandler;
+  _FetchOnly: express.RequestHandler;
+  _ReadOnly: express.RequestHandler;
 }
 
-export type User_Config = {
-  port?: number;
-  host?: string;
-  root?: string;
-  base?: string;
+export type MiddlewareNames =
+  "_IterateResponse" |
+  "_IterateRoutes" |
+  "_CrudOperation" |
+  "_AdvancedSearch" |
+  "_FetchTillData" |
+  "_SetFetchDataToMock" |
+  "_SetStoreDataToMock" |
+  "_MockOnly" |
+  "_FetchOnly" |
+  "_ReadOnly"
+
+export type RouteConfig = {
+  _config: boolean;
   id?: string;
-  reverse?: boolean;
-} & Default_Options;
+  description?: string;
+  mock?: any;
+  fetch?: string | AxiosRequestConfig;
+  fetchData?: FetchData;
+  store?: object;
+  statusCode?: number;
+  delay?: number;
+  fetchCount?: number;
+  skipFetchError?: boolean;
+  mockFirst?: boolean;
+  middlewareNames?: Array<MiddlewareNames> | string[];
+  middlewares?: Array<express.RequestHandler>;
 
-export type User_Middleware = {
-  [x: string]: express.RequestHandler;
+  _isFile?: boolean;
+  _request?: AxiosRequestConfig,
+  _extension?: string;
 }
 
-export type Middleware = {
-  _IterateResponse?: express.RequestHandler;
-  _IterateRoutes?: express.RequestHandler;
-  _CrudOperation?: express.RequestHandler;
-  _ReadOperation?: express.RequestHandler;
-  _FetchTillData?: express.RequestHandler;
-  _SetFetchDataToMock?: express.RequestHandler;
-  _SetStoreDataToMock?: express.RequestHandler;
-  _SendOnlyMock?: express.RequestHandler;
-} & {
-  [x: string]: express.RequestHandler;
-}
+export type InjectorConfig = {
+  routes: string[];
+  override?: boolean;
+  exact?: boolean;
+} & Partial<RouteConfig>
+
 
 export type KeyValString = {
   [key: string]: string;
 }
-
 export interface Locals {
   routePath: string;
   routeConfig: RouteConfig;
@@ -141,8 +129,8 @@ export type PathDetails = {
 
 export type GetData = {
   db: Db;
-  middleware: Middleware;
-  injectors: Db;
+  middleware: Middlewares;
+  injectors: Injectors;
   rewriters: KeyValString
   store: Object;
   config: Config;

@@ -5,6 +5,7 @@ module.exports = {
   cache: false,
   preset: 'ts-jest',
   testEnvironment: 'node',
+  testTimeout: 100000,
   moduleFileExtensions: ['js', 'json', 'node', 'ts'],
   globals: {
     'ts-jest': {

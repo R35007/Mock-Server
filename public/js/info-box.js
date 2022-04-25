@@ -73,7 +73,7 @@ function getKeyVal(key, val, id) {
     if ((val + "").trim().match(/<img(.*)>$/)) {
       return `
       <div class="row px-3">
-        <label for="inputEmail3" class="key col col-form-label p-0">${key} :</label>
+        <label class="key col col-form-label p-0">${key} :</label>
         <div class="val col">
           <div class="img">${val}</div>
         </div>
@@ -83,11 +83,11 @@ function getKeyVal(key, val, id) {
     <div class="row px-3">
       <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
       <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" 
-      data-bs-toggle="collapse" data-bs-target="#${id}_${key}" 
-      aria-expanded="false" aria-controls="${id}_${key}">
+      data-bs-toggle="collapse" data-bs-target="#id-${id}_${key}" 
+      aria-expanded="false" aria-controls="id-${id}_${key}">
         ${key} :
       </button>  
-      <div class="val col-12 collapse" id="${id}_${key}">
+      <div class="val col-12 collapse" id="id-${id}_${key}">
         <pre class="form-control">${typeof val === 'object' ? JSON.stringify(val, null, 2) : val}</pre>
       </div>
     </div>`;

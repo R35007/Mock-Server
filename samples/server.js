@@ -1,4 +1,4 @@
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require("../dist/server");
 
 // Provide config as a param. If not provided, It uses the default Config.
 const mockServer = MockServer.Create();
@@ -52,8 +52,8 @@ mockServer.addDbData({
       console.log(res.locals.store);
       res.locals.data = res.locals.store?.data;
       next();
-    }
-  }]
+    }]
+  }
 }) 
 */
 
@@ -71,14 +71,14 @@ mockServer.startServer();
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
 
-/* 
+/*
 mockServer.launchServer(
   "./db.json",
   "./middleware.js",
   "./injectors.json",
   "./rewriters.json",
   "./store.json"
-) 
+)
 */
 
 // or
