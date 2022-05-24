@@ -107,6 +107,8 @@ export const cleanDb = (db: ValidTypes.Db | UserTypes.Db) => {
 
 // Removes id, _config ( if only mock is available ) and all other empty values in route configs
 export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes.RouteConfig): UserTypes.RouteConfig => {
+  if (!routeConfig._config) return routeConfig; // clean routeConfig only if _config is set to true
+
   let userTypeRouteConfig = routeConfig as any;
   delete userTypeRouteConfig.id;
 
@@ -115,7 +117,7 @@ export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes
 
   const routeConfigKeys = Object.keys(userTypeRouteConfig);
   if (routeConfigKeys.length === 1 && routeConfigKeys[0] === '_config') { delete userTypeRouteConfig._config; }
-  if (routeConfigKeys.length === 2 && routeConfigKeys.includes("mock")) { userTypeRouteConfig = userTypeRouteConfig.mock; }
+  if (routeConfigKeys.length === 2 && (routeConfigKeys.includes("_config") && routeConfigKeys.includes("mock"))) { userTypeRouteConfig = userTypeRouteConfig.mock; }
 
   return userTypeRouteConfig as UserTypes.RouteConfig;
 }

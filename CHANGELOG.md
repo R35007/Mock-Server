@@ -1,3 +1,6 @@
+# v6.0.1
+
+ - Bug fix in `cleanDb` method.
 # v6.0.0
 
   - Bug Fixes
