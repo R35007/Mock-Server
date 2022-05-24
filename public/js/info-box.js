@@ -11,7 +11,7 @@ function hideInfoBox($li) {
 }
 
 function showInfoBox($li, id) {
-  const [routePath, routeConfig] = findEntry(id);
+  const [_routePath, routeConfig] = findEntry(id);
 
   $li.classList.add("expanded");
   $li.appendChild(
@@ -23,7 +23,7 @@ function showInfoBox($li, id) {
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}">Clone</button>
         <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig.id}')">Refresh</button>
       </div>
-      <div class="route-config">${expandObject(routeConfig, routeConfig.id)}</div>
+      <div class="route-config">${fieldSet(routeConfig, routeConfig.id)}</div>
     </div>`)
   );
 }
@@ -46,10 +46,10 @@ async function refresh(id) {
   showToast(`${routePath} Refreshed Successfully`);
 }
 
-function expandObject(obj, id) {
+function fieldSet(obj, id) {
   return Object.entries(orderRouteConfig(obj)).map(([key, val]) => {
     if (key === "fetchData" && val) {
-      return `<div class="row px-3"><fieldset><legend>Fetch Data</legend>${expandObject(val, id)}</fieldset></div>`
+      return `<div class="row px-3"><fieldset><legend>Fetch Data</legend>${fieldSet(val, id)}</fieldset></div>`
     } else {
       return getKeyVal(key, val, id);
     }
@@ -83,11 +83,11 @@ function getKeyVal(key, val, id) {
     <div class="row px-3">
       <label for="inputEmail3" class="key col col-form-label p-0 mb-2 w-100" style="max-width: 100%">
       <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" 
-      data-bs-toggle="collapse" data-bs-target="#id-${id}_${key}" 
-      aria-expanded="false" aria-controls="id-${id}_${key}">
+      data-bs-toggle="collapse" data-bs-target="#id-${id.replace(/\=/g, "")}_${key}" 
+      aria-expanded="false" aria-controls="id-${id.replace(/\=/g, "")}_${key}">
         ${key} :
       </button>  
-      <div class="val col-12 collapse" id="id-${id}_${key}">
+      <div class="val col-12 collapse" id="id-${id.replace(/\=/g, "")}_${key}">
         <pre class="form-control">${typeof val === 'object' ? JSON.stringify(val, null, 2) : val}</pre>
       </div>
     </div>`;

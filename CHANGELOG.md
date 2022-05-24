@@ -1,9 +1,52 @@
+# v6.0.0
+
+  - Bug Fixes
+  - Added `_Fetch`, `_FetchUrl`, `_FetchFile` middlewares.
+  - Now injectors comes as a second pram in both `launchServer` and `resource` since `db` is dependant on `injectors`.
+  - In `setDb` method we cannot pass the `injectors` and `reverse` option to set the db. both `injectors` and `reverse` are used from internal values. So please make sure you use `setInjectors` first before setting the db.
+  - All the `validators` are moved in to utils. Now instead of `mockServer.getValidDb` please import validator methods from `@r35007/mock-server/dist/server/utils/validators`
+  - `getValidDb` params has been changed to the following 
+  ```ts
+    const getValidDb: (data?: ParamTypes.Db | undefined, injectors?: UserTypes.Injectors, rootPath?: string, { reverse, _harEntryCallback, _harDbCallback }?: GetValidDbOptions) => ValidTypes.Db
+  ```
+  - Introduced more types. Example
+  ```ts
+  // Types that you get in mockServer.data or from validator methods
+  import * as ValidTypes from "@r35007/mock-server/dist/server/types/valid.types"; 
+  // Types that you can give to the methods and apis
+  import * as UserTypes from "@r35007/mock-server/dist/server/types/user.types";
+  // Other Common Types
+  import * as CommonTypes from "@r35007/mock-server/dist/server/types/common.types";
+  // Types that you can give to give to the methods and apis. mostly combination of string and UserTypes
+  import * as ParamTypes from "@r35007/mock-server/dist/server/types/param.types";
+
+  // Example
+  const config: UserTypes.Config = { port: 4000 };
+  const validConfig: ValidTypes.Config = getValidConfig(config) // gives you a valid config type
+  ```
+  - `middlewareNames` is removed. Now we can give both middleware method and middleware reference name in `middlewares`. Example
+  `db.json`
+  ```js
+  const db = {
+    user: {
+      _config: true,
+      mock: [1,2,3,4,5]
+      middlewares: [
+        (req, res, next) => { 
+          console.log(req.path);
+          next() 
+        },
+        "_IterateResponse"
+      ]
+    }
+  }
+  ```
 # v5.0.1
 
  - Readme update
 # v5.0.0
 
- - Added more Testcases ans stabalized this version with more minor bug fixes
+ - Added more Test cases ans stabilized this version with more minor bug fixes
  - `UserConfig`, `UserMiddleware`, `UserDb`, `UserInjectors`, `UserStore`, `UserRewriters` types are removed
    - Instead we can use `Partial<Config>`, `Db`, `Middlewaers`, `Injectors`, `Store`, `Rewriters`
  - Now we can also provide a `.js` path to any of the data for `db`, `injectors`, `config`, `rewriters`, `store`, `middlewares` 
@@ -57,7 +100,7 @@ Example :
     ```js
     /* 
       Global Middlewares
-      These middlewares will be addded to start of the the express app 
+      These middlewares will be added to start of the the express app 
     */
     exports.globals = [
       (req, res, next) => {
@@ -141,7 +184,7 @@ way 2:
 # v4.0.0
 
 - Improved CLI.
-- --snapshot flag in CLI will create a snaphost of db in a .json file
+- --snapshot flag in CLI will create a snapshot of db in a .json file
 - --watch will automatically restarts the db on changes.
 - --sample - creates a sample db.json, middleware.json, injectors.json, rewrites.json files
 - Code refactoring

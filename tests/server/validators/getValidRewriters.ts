@@ -1,17 +1,17 @@
 
 import path from "path";
-import { MockServer } from "../../../src/server/index";
+import * as Defaults from "../../../src/server/defaults";
+import * as ParamTypes from '../../../src/server/types/param.types';
+import { getValidRewriters } from '../../../src/server/utils/validators';
 import { invalidInputChecks } from '../Helpers';
 
-export const getValidRewriters = () => {
-  describe('mockServer.getValidRewriters() : ', () => {
-    let mockServer: MockServer;
-    beforeEach(() => { mockServer = MockServer.Create() });
-    afterEach(async () => { await MockServer.Destroy() });
+
+export const shouldGetValidRewriters = () => {
+  describe('getValidRewriters() : ', () => {
 
     describe('should return Default rewriters on invalid input', () => {
-      test.each(invalidInputChecks({}))('If %s is passed', (_condition, input, expected) => {
-        const rewriters = mockServer.getValidRewriters(input as any);
+      test.each(invalidInputChecks(Defaults.Rewriters))('If %s is passed', (_condition, input, expected) => {
+        const rewriters = getValidRewriters(input as ParamTypes.Rewriters);
         expect(rewriters).toEqual(expected);
       });
     });
@@ -23,11 +23,10 @@ export const getValidRewriters = () => {
 
       test.each([
         ["valid .js file", "./rewriters.js", jsFile],
-        ["valid .json file", "/rewriters.json", jsonFile],
+        ["valid .json file", "./rewriters.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
-      ])('If %s path is passed', (_condition, input, expected) => {
-        const storePath = path.join(__dirname, "../../mock/rewriters", input as string)
-        const rewriters = mockServer.getValidRewriters(storePath);
+      ])('If %s path is passed', (_condition, rewritersPath, expected) => {
+        const rewriters = getValidRewriters(rewritersPath as string, path.join(__dirname, "../../mock/rewriters"));
         expect(rewriters).toEqual(expected);
       });
     });

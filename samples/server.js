@@ -48,11 +48,12 @@ This Route will be listed in Home Page
 mockServer.addDbData({
   "/data":{
     _config: true,
-    middlewares:[(req, res, next) => {
-      console.log(res.locals.store);
-      res.locals.data = res.locals.store?.data;
+    middlewares:(req, res, next) => {
+      const store = res.locals.getStore();
+      console.log(store);
+      res.locals.data = store?.data;
       next();
-    }]
+    }
   }
 }) 
 */

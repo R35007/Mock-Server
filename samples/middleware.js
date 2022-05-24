@@ -1,6 +1,6 @@
 /* 
   Global Middlewares
-  These middlewares will be addded to start of the the express app 
+  These middlewares will be added to start of the the express app 
 */
 exports._globals = [
   (req, res, next) => {
@@ -9,15 +9,14 @@ exports._globals = [
   }
 ]
 
-
 /* 
   Used in VS Code Mock Server extension
   This method is called only on generating db suing MockServer: Generate Db Command
   It will be called for each entry in a HAR formatted data
   Here you can return your custom route and routeConfig
-  `entryCallback` is a reserved word for generating Db 
+  `_harEntryCallback` is a reserved word for generating Db 
 */
-exports._entryCallback = (entry, routePath, routeConfig) => {
+exports._harEntryCallback = (entry, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
@@ -28,9 +27,9 @@ exports._entryCallback = (entry, routePath, routeConfig) => {
   It will be called at last of all entry looping.
   Here you can return your custom db
   Whatever you return here will be pasted in the file
-  `finalCallback` is a reserved word for generating Db
+  `_harDbCallback` is a reserved word for generating Db
 */
-exports._finalCallback = (data, db) => {
+exports._harDbCallback = (data, db) => {
   // your code goes here ...
   return db;
 };
@@ -42,7 +41,7 @@ exports._finalCallback = (data, db) => {
     "/customMiddleware": {
     "_config": true,
     "fetch": "http://jsonplaceholder.typicode.com/users",
-    "middlewareNames": [
+    "middlewares": [
       "DataWrapper"
     ]
   }
@@ -52,7 +51,7 @@ exports._finalCallback = (data, db) => {
 exports.DataWrapper = (req, res, next) => {
   res.locals.data = {
     status: "Success",
-    message: "Retrived Successfully",
+    message: "Retrieved Successfully",
     result: res.locals.data
   }
   next();
@@ -65,6 +64,7 @@ exports.CustomLog = (req, res, next) => {
 
 // Access store value
 exports.GetStoreValue = (req, res, next) => {
-  res.locals.data = "The store value is : " + res.locals.store.data;
+  const store = res.locals.getStore();
+  res.locals.data = "The store value is : " + store.data;
   next();
 };

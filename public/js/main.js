@@ -54,7 +54,7 @@ function setDefaultRoutes(resources) {
   const routesList = Object.keys(resources)
 
   if (!routesList.includes("/_db"))
-    resources["/_db?_snapshot=true"] = {
+    resources["/_db?_clean=true"] = {
       id: "default_1",
       description: "This route gives you the Db snapshot",
       _isDefault: true,
@@ -115,7 +115,7 @@ async function setIframeData($event, routePath) {
     try {
       $iframeData.contentWindow.document.open();
       $iframeData.contentWindow.document.close();
-    } catch{}
+    } catch { }
     $frameloader.style.display = "grid";
     $dataContainer.style.display = "block";
     setIFrameSrc(routePath);
@@ -132,14 +132,14 @@ function clearActiveLink() {
 }
 
 function setIFrameSrc(routePath) {
-  if(routePath.startsWith("http")){
+  if (routePath.startsWith("http")) {
     $resourceRedirect.href = routePath;
     $iframeUrl.value = routePath;
     $iframeData.src = routePath;
     $download.href = routePath;
   } else if (routePath?.trim().length) {
     // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
-    let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1,1000) : r).join("/");
+    let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1, 100) : r).join("/");
     validRoutePath = validRoutePath.replace(/\/$/gi, "") // removing trailing slash. ex: /posts/ -> /posts
 
     const url = localhost + validRoutePath;

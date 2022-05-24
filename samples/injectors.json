@@ -39,7 +39,7 @@
       "/(.*)"
     ],
     "override": true,
-    "middlewareNames": [
+    "middlewares": [
       "...",
       "CustomLog"
     ]

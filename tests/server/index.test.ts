@@ -1,12 +1,12 @@
 
 import { Router } from 'express';
 import ip from "ip";
+import _ from 'lodash';
 import path from "path";
 import request from 'supertest';
-import Default_Config from "../../src/server/config";
+import * as Defaults from "../../src/server/defaults";
 import { MockServer } from "../../src/server/index";
-import { Db, Injectors, KeyValString, Middlewares, Rewriters, Store } from '../../src/server/model';
-import { forwardSlash } from './Helpers';
+import { Db, Injectors, Middlewares, Rewriters, Store } from '../../src/server/types/user.types';
 
 const constructor = () => {
   describe('new MockServer()', () => {
@@ -35,12 +35,12 @@ const create = () => {
 
     it('should create with default config', async () => {
       const mockServer = MockServer.Create();
-      expect(mockServer.data.config).toEqual(Default_Config)
+      expect(mockServer.data.config).toEqual(Defaults.Config)
     });
 
     it('should create with custom config', async () => {
       const mockServer = MockServer.Create({ root: __dirname });
-      expect(mockServer.data.config).toEqual({ ...Default_Config, root: forwardSlash(__dirname) })
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname })
     });
   });
 }
@@ -135,9 +135,9 @@ const resources = () => {
       const resources = mockServer.resources();
       mockServer.app.use(resources);
 
-      const { db, middleware, injectors, store } = mockServer.data;
+      const { db, middlewares, injectors, store } = mockServer.data;
       expect(db).toEqual({});
-      expect(Object.keys(middleware).length).toBe(10);
+      expect(Object.keys(middlewares).length).toBe(Object.keys(Defaults.Middlewares).length);
       expect(injectors).toEqual([]);
       expect(store).toEqual({});
     });
@@ -148,13 +148,13 @@ const resources = () => {
       const mockInjectors: Injectors = [{ routes: ["/post"], delay: 1000 }];
       const mockStore: Store = { post: { id: "2", name: "ram" } };
 
-      const resources = mockServer.resources(mockDb, mockMiddleware, mockInjectors, mockStore);
+      const resources = mockServer.resources(mockDb, mockInjectors, mockMiddleware, mockStore);
       mockServer.app.use(resources);
 
-      const { db, middleware, injectors, store } = mockServer.data;
+      const { db, middlewares, injectors, store } = mockServer.data;
 
       expect(db).toEqual({ "/post": { _config: true, id: "1", delay: 1000, mock: { id: "1", name: "Siva" } } });
-      expect(Object.keys(middleware).length).toBe(11);
+      expect(Object.keys(middlewares).length).toBe(Object.keys(Defaults.Middlewares).length + 1);
       expect(injectors).toEqual(mockInjectors);
       expect(store).toEqual(mockStore);
     });
@@ -167,9 +167,9 @@ const defaultRoutes = () => {
     let defaultRoutes: Router;
 
     let mockDb: Db;
-    let mockMiddleware: Partial<Middlewares>;
-    let mockRewriters: KeyValString;
-    let mockStore: object;
+    let mockMiddleware: Middlewares;
+    let mockRewriters: Rewriters;
+    let mockStore: Store;
 
     const get = async (url: string, expected: any) => {
       const response = await request(mockServer.app).get(url)
@@ -216,26 +216,28 @@ const defaultRoutes = () => {
         "/setStorePost": {
           _config: true,
           id: "3",
-          middlewareNames: ["SetStorePost"]
+          middlewares: ["SetStorePost"]
         },
         "/setStoreComment": {
           _config: true,
           id: "4",
-          middlewareNames: ["SetStoreComment"]
+          middlewares: ["SetStoreComment"]
         }
       };
       mockMiddleware = {
         SetStorePost: (_req, res) => {
-          res.locals.store.post.name = "Sivaraman";
-          res.send({ status: "Store Updated" })
+          const store = res.locals.getStore();
+          store.post.name = "Sivaraman";
+          res.send({ status: "Store Updated" });
         },
         SetStoreComment: (_req, res) => {
-          res.locals.store.comment.name = "Sivaraman";
+          const store = res.locals.getStore();
+          store.comment.name = "Sivaraman";
           res.send({ status: "Store Updated" })
         }
       }
       mockStore = { post: { id: "1", name: "Siva" }, comment: { id: "1", postid: "1", name: "Ram" } };
-      const resources = mockServer.resources(mockDb, mockMiddleware, [], mockStore);
+      const resources = mockServer.resources(mockDb, [], mockMiddleware, mockStore);
       mockServer.app.use(resources);
 
       defaultRoutes = mockServer.defaultRoutes();
@@ -275,10 +277,8 @@ const defaultRoutes = () => {
       });
     });
 
-    describe('/_store/:key', () => {
+    describe('/_store', () => {
       it('should get store', async () => { await get("/_store", mockStore) });
-
-      it('should get store of key comment', async () => { await get("/_store/comment", { "comment": mockStore["comment"] }) });
     });
 
     describe('/_rewriters', () => {
@@ -313,30 +313,15 @@ const defaultRoutes = () => {
       });
     });
 
-    describe('/_reset/store/:key?', () => {
+    describe('/_reset/store', () => {
       it('should reset store', async () => {
         await get("/setStorePost", { status: "Store Updated" });
         const { store } = mockServer.data;
-        const expected: any = { ...mockStore };
-        expected.post.name = "Sivarman"
+        const expected: any = _.cloneDeep(mockStore);
+        expected.post.name = "Sivaraman"
         expect(store).toEqual(expected); //  checking is store is updated by middleware
 
         await get("/_reset/store", mockStore);
-      });
-
-      it('should reset store of key comment', async () => {
-        await get("/setStorePost", { status: "Store Updated" });
-        await get("/setStoreComment", { status: "Store Updated" });
-        const { store } = mockServer.data;
-        const expected: any = { ...mockStore };
-        expected.post.name = "Sivarman"
-        expected.comment.name = "Sivarman"
-        expect(store).toEqual(expected); //  checking is store is updated by middleware
-
-        expected.comment.name = "Ram";
-        await get("/_reset/store/comment", { "comment": expected.comment });
-        const { store: resetedStore } = mockServer.data;
-        expect(resetedStore).toEqual(expected);
       });
     });
   });
@@ -395,11 +380,11 @@ const launchServer = () => {
       const mockRewriters: Rewriters = { "/api/*": "/$1" };
       const mockStore: Store = { post: { id: "1", name: "Siva" } };
 
-      await mockServer.launchServer(mockDb, mockMiddleware, mockInjectors, mockRewriters, mockStore);
+      await mockServer.launchServer(mockDb, mockInjectors, mockMiddleware, mockRewriters, mockStore);
       expect(mockServer.server).toBeDefined();
-      const { db, middleware, injectors, rewriters, store } = mockServer.data;
+      const { db, middlewares, injectors, rewriters, store } = mockServer.data;
       expect(Object.keys(db).length).toBeGreaterThan(0);
-      expect(Object.keys(middleware).length).toBeGreaterThan(10);
+      expect(Object.keys(middlewares).length).toBe(Object.keys(Defaults.Middlewares).length + 1);
       expect(Object.keys(injectors).length).toBeGreaterThan(0);
       expect(Object.keys(rewriters).length).toBeGreaterThan(0);
       expect(Object.keys(store).length).toBeGreaterThan(0);
@@ -508,7 +493,7 @@ const resetServer = () => {
           mock: [{ id: "1", name: "Siva" }]
         }
       };
-      const mockMiddleware: Partial<Middlewares> = {
+      const mockMiddlewares: Middlewares = {
         globals: [(req, _res, next) => {
           console.log(req.path);
           next();
@@ -518,12 +503,12 @@ const resetServer = () => {
       const mockRewriters: Rewriters = { "/api/*": "/$1" };
       const mockStore: Store = { post: { id: "1", name: "Siva" } };
 
-      mockServer.setData(mockDb, mockMiddleware, mockInjectors, mockRewriters, mockStore);
+      mockServer.setData(mockDb, mockInjectors, mockMiddlewares, mockRewriters, mockStore);
       await MockServer.Destroy();
       expect(mockServer.server).toBeUndefined();
-      const { db, middleware, injectors, rewriters, store } = mockServer.data;
+      const { db, middlewares, injectors, rewriters, store } = mockServer.data;
       expect(Object.keys(db).length).toBe(0);
-      expect(Object.keys(middleware).length).toBe(10);
+      expect(Object.keys(middlewares).length).toBe(Object.keys(Defaults.Middlewares).length);
       expect(Object.keys(injectors).length).toBe(0);
       expect(Object.keys(rewriters).length).toBe(0);
       expect(Object.keys(store).length).toBe(0);
@@ -596,61 +581,6 @@ const destroy = () => {
   });
 }
 
-const sample = () => {
-  describe('Sample Testing', () => {
-    it('should run without any exception', async () => {
-      const mockServer = MockServer.Create({ root: path.resolve(__dirname, "../../samples") });
-
-      const app = mockServer.app;
-
-      const rewriter = mockServer.rewriter("./rewriters.json");
-      app.use(rewriter);
-
-      const defaultsMiddlewares = mockServer.defaults();
-      app.use(defaultsMiddlewares);
-
-      app.use((req, res, next) => {
-        if (isAuthorized(req)) { next() } else { res.sendStatus(401) }
-      })
-      const isAuthorized = (_req) => true
-
-      app.get('/echo', (req, res) => {
-        res.jsonp(req.query)
-      })
-
-      const resources = mockServer.resources(
-        "./db.json",
-        "./middleware.js",
-        "./injectors.json",
-        "./store.json"
-      );
-      app.use(mockServer.config.base, resources);
-
-      mockServer.addDbData({
-        "/data": {
-          _config: true,
-          middlewares: [(_req, res, next) => {
-            console.log(res.locals.store);
-            res.locals.data = res.locals.store?.data;
-            next();
-          }]
-        }
-      })
-
-
-      const defaultRoutes = mockServer.defaultRoutes();
-      app.use(mockServer.config.base, defaultRoutes);
-
-      app.use(mockServer.pageNotFound);
-      app.use(mockServer.errorHandler);
-
-      await mockServer.startServer();
-      await mockServer.stopServer();
-      mockServer.resetServer();
-    });
-  });
-}
-
 describe("MockServer", () => {
   constructor(); // Create a new instance of a MockSever
   create(); // Create sinlge instance of a MockServer Instance
@@ -663,5 +593,4 @@ describe("MockServer", () => {
   stopServer() // Stop the mock server
   resetServer() // Stop the mock server
   destroy() // Destroy MockServer Instance
-  sample() // Testing Sample
 })

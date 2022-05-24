@@ -210,8 +210,8 @@
               <label for="mockFirst" class="col-sm-2 col-form-label">Mock First</label>
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
-                  <input class="form-check-input box-shadow-none" type="checkbox" name="mockFirst"
-                    id="mockFirst" value="true">
+                  <input class="form-check-input box-shadow-none" type="checkbox" name="mockFirst" id="mockFirst"
+                    value="true">
                 </div>
               </div>
             </div>
@@ -250,25 +250,26 @@
                     <label for="isError" class="col-sm-2 col-form-label">Is Error</label>
                     <div class="col-sm-10 d-flex align-items-center">
                       <div class="form-check form-switch">
-                        <input class="form-check-input box-shadow-none" type="checkbox" name="isError"
-                          id="isError" value="true">
+                        <input class="form-check-input box-shadow-none" type="checkbox" name="isError" id="isError"
+                          value="true">
                       </div>
                     </div>
                   </div>
                   <div class="row mb-3">
                     <label for="response" class="col-form-label w-100" style="max-width: 100%">
-                      <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#_response" aria-expanded="false" aria-controls="_response">
+                      <button class="btn btn-white text-primary p-0 box-shadow-none" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#_response" aria-expanded="false"
+                        aria-controls="_response">
                         Response
                       </button>
                     </label>
                     <div class="col-12 collapse" id="_response">
                       <textarea class="form-control" name="response" id="response" rows="5"
                         onkeydown="allowTabSpaces(event, this)"></textarea>
-                        <div class="feedback">
-                          This change will only be reflected when FetchCount is 0.
-                          If Fetch Count is not equal to 0 then this data will be overridden by the new fetch call.
-                        </div>
+                      <div class="feedback">
+                        This change will only be reflected when FetchCount is 0.
+                        If Fetch Count is not equal to 0 then this data will be overridden by the new fetch call.
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -290,9 +291,9 @@
               </div>
             </div>
             <div class="row mb-3 no-edit">
-              <label for="middlewareNames" class="col-sm-2 col-form-label">Middleware Names</label>
+              <label for="middlewares" class="col-sm-2 col-form-label">Middlewares</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" name="middlewareNames" id="middlewareNames">
+                <input type="text" class="form-control" name="middlewares" id="middlewares">
                 <div class="feedback">
                   Please provide a comma separated values.
                   Be cautious. Once the route is added then it cannot be modified or removed.

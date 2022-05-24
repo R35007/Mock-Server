@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mock Server&lbrack;&rbrack;&lpar;&num;mock-server&rpar;
+    &lbrack;&excl;&lbrack;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;v&sol;&commat;r35007&sol;mock-server&quest;label&equals;npm&rpar;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;v&sol;&commat;r35007&sol;mock-server&quest;label&equals;npm&rpar;
+    &lbrack;&excl;&lbrack;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;l&sol;&commat;r35007&sol;mock-server&quest;color&equals;blue&rpar;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;l&sol;&commat;r35007&sol;mock-server&quest;color&equals;blue&rpar;
+    &lbrack;&excl;&lbrack;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;types&sol;&commat;r35007&sol;mock-server&rpar;&rbrack;&lpar;https&colon;&sol;&sol;img&period;shields&period;io&sol;npm&sol;types&sol;&commat;r35007&sol;mock-server&rpar;
+  </title>
+  <style>
+    /* From extension vscode.github */
+    /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+    .vscode-dark img[src$=\#gh-light-mode-only],
+    .vscode-light img[src$=\#gh-dark-mode-only] {
+      display: none;
+    }
+
+    /* From extension vscode.markdown-math */
+    @font-face {
+      font-family: KaTeX_AMS;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_AMS-Regular.woff2) format("woff2"), url(fonts/KaTeX_AMS-Regular.woff) format("woff"), url(fonts/KaTeX_AMS-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Caligraphic;
+      font-style: normal;
+      font-weight: 700;
+      src: url(fonts/KaTeX_Caligraphic-Bold.woff2) format("woff2"), url(fonts/KaTeX_Caligraphic-Bold.woff) format("woff"), url(fonts/KaTeX_Caligraphic-Bold.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Caligraphic;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Caligraphic-Regular.woff2) format("woff2"), url(fonts/KaTeX_Caligraphic-Regular.woff) format("woff"), url(fonts/KaTeX_Caligraphic-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Fraktur;
+      font-style: normal;
+      font-weight: 700;
+      src: url(fonts/KaTeX_Fraktur-Bold.woff2) format("woff2"), url(fonts/KaTeX_Fraktur-Bold.woff) format("woff"), url(fonts/KaTeX_Fraktur-Bold.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Fraktur;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Fraktur-Regular.woff2) format("woff2"), url(fonts/KaTeX_Fraktur-Regular.woff) format("woff"), url(fonts/KaTeX_Fraktur-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Main;
+      font-style: normal;
+      font-weight: 700;
+      src: url(fonts/KaTeX_Main-Bold.woff2) format("woff2"), url(fonts/KaTeX_Main-Bold.woff) format("woff"), url(fonts/KaTeX_Main-Bold.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Main;
+      font-style: italic;
+      font-weight: 700;
+      src: url(fonts/KaTeX_Main-BoldItalic.woff2) format("woff2"), url(fonts/KaTeX_Main-BoldItalic.woff) format("woff"), url(fonts/KaTeX_Main-BoldItalic.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Main;
+      font-style: italic;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Main-Italic.woff2) format("woff2"), url(fonts/KaTeX_Main-Italic.woff) format("woff"), url(fonts/KaTeX_Main-Italic.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Main;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Main-Regular.woff2) format("woff2"), url(fonts/KaTeX_Main-Regular.woff) format("woff"), url(fonts/KaTeX_Main-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Math;
+      font-style: italic;
+      font-weight: 700;
+      src: url(fonts/KaTeX_Math-BoldItalic.woff2) format("woff2"), url(fonts/KaTeX_Math-BoldItalic.woff) format("woff"), url(fonts/KaTeX_Math-BoldItalic.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Math;
+      font-style: italic;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Math-Italic.woff2) format("woff2"), url(fonts/KaTeX_Math-Italic.woff) format("woff"), url(fonts/KaTeX_Math-Italic.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: "KaTeX_SansSerif";
+      font-style: normal;
+      font-weight: 700;
+      src: url(fonts/KaTeX_SansSerif-Bold.woff2) format("woff2"), url(fonts/KaTeX_SansSerif-Bold.woff) format("woff"), url(fonts/KaTeX_SansSerif-Bold.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: "KaTeX_SansSerif";
+      font-style: italic;
+      font-weight: 400;
+      src: url(fonts/KaTeX_SansSerif-Italic.woff2) format("woff2"), url(fonts/KaTeX_SansSerif-Italic.woff) format("woff"), url(fonts/KaTeX_SansSerif-Italic.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: "KaTeX_SansSerif";
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_SansSerif-Regular.woff2) format("woff2"), url(fonts/KaTeX_SansSerif-Regular.woff) format("woff"), url(fonts/KaTeX_SansSerif-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Script;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Script-Regular.woff2) format("woff2"), url(fonts/KaTeX_Script-Regular.woff) format("woff"), url(fonts/KaTeX_Script-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Size1;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Size1-Regular.woff2) format("woff2"), url(fonts/KaTeX_Size1-Regular.woff) format("woff"), url(fonts/KaTeX_Size1-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Size2;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Size2-Regular.woff2) format("woff2"), url(fonts/KaTeX_Size2-Regular.woff) format("woff"), url(fonts/KaTeX_Size2-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Size3;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Size3-Regular.woff2) format("woff2"), url(fonts/KaTeX_Size3-Regular.woff) format("woff"), url(fonts/KaTeX_Size3-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Size4;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Size4-Regular.woff2) format("woff2"), url(fonts/KaTeX_Size4-Regular.woff) format("woff"), url(fonts/KaTeX_Size4-Regular.ttf) format("truetype")
+    }
+
+    @font-face {
+      font-family: KaTeX_Typewriter;
+      font-style: normal;
+      font-weight: 400;
+      src: url(fonts/KaTeX_Typewriter-Regular.woff2) format("woff2"), url(fonts/KaTeX_Typewriter-Regular.woff) format("woff"), url(fonts/KaTeX_Typewriter-Regular.ttf) format("truetype")
+    }
+
+    .katex {
+      text-rendering: auto;
+      font: normal 1.21em KaTeX_Main, Times New Roman, serif;
+      line-height: 1.2;
+      text-indent: 0
+    }
+
+    .katex * {
+      -ms-high-contrast-adjust: none !important;
+      border-color: currentColor
+    }
+
+    .katex .katex-version:after {
+      content: "0.13.24"
+    }
+
+    .katex .katex-mathml {
+      clip: rect(1px, 1px, 1px, 1px);
+      border: 0;
+      height: 1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px
+    }
+
+    .katex .katex-html>.newline {
+      display: block
+    }
+
+    .katex .base {
+      position: relative;
+      white-space: nowrap;
+      width: -webkit-min-content;
+      width: -moz-min-content;
+      width: min-content
+    }
+
+    .katex .base,
+    .katex .strut {
+      display: inline-block
+    }
+
+    .katex .textbf {
+      font-weight: 700
+    }
+
+    .katex .textit {
+      font-style: italic
+    }
+
+    .katex .textrm {
+      font-family: KaTeX_Main
+    }
+
+    .katex .textsf {
+      font-family: KaTeX_SansSerif
+    }
+
+    .katex .texttt {
+      font-family: KaTeX_Typewriter
+    }
+
+    .katex .mathnormal {
+      font-family: KaTeX_Math;
+      font-style: italic
+    }
+
+    .katex .mathit {
+      font-family: KaTeX_Main;
+      font-style: italic
+    }
+
+    .katex .mathrm {
+      font-style: normal
+    }
+
+    .katex .mathbf {
+      font-family: KaTeX_Main;
+      font-weight: 700
+    }
+
+    .katex .boldsymbol {
+      font-family: KaTeX_Math;
+      font-style: italic;
+      font-weight: 700
+    }
+
+    .katex .amsrm,
+    .katex .mathbb,
+    .katex .textbb {
+      font-family: KaTeX_AMS
+    }
+
+    .katex .mathcal {
+      font-family: KaTeX_Caligraphic
+    }
+
+    .katex .mathfrak,
+    .katex .textfrak {
+      font-family: KaTeX_Fraktur
+    }
+
+    .katex .mathtt {
+      font-family: KaTeX_Typewriter
+    }
+
+    .katex .mathscr,
+    .katex .textscr {
+      font-family: KaTeX_Script
+    }
+
+    .katex .mathsf,
+    .katex .textsf {
+      font-family: KaTeX_SansSerif
+    }
+
+    .katex .mathboldsf,
+    .katex .textboldsf {
+      font-family: KaTeX_SansSerif;
+      font-weight: 700
+    }
+
+    .katex .mathitsf,
+    .katex .textitsf {
+      font-family: KaTeX_SansSerif;
+      font-style: italic
+    }
+
+    .katex .mainrm {
+      font-family: KaTeX_Main;
+      font-style: normal
+    }
+
+    .katex .vlist-t {
+      border-collapse: collapse;
+      display: inline-table;
+      table-layout: fixed
+    }
+
+    .katex .vlist-r {
+      display: table-row
+    }
+
+    .katex .vlist {
+      display: table-cell;
+      position: relative;
+      vertical-align: bottom
+    }
+
+    .katex .vlist>span {
+      display: block;
+      height: 0;
+      position: relative
+    }
+
+    .katex .vlist>span>span {
+      display: inline-block
+    }
+
+    .katex .vlist>span>.pstrut {
+      overflow: hidden;
+      width: 0
+    }
+
+    .katex .vlist-t2 {
+      margin-right: -2px
+    }
+
+    .katex .vlist-s {
+      display: table-cell;
+      font-size: 1px;
+      min-width: 2px;
+      vertical-align: bottom;
+      width: 2px
+    }
+
+    .katex .vbox {
+      align-items: baseline;
+      display: inline-flex;
+      flex-direction: column
+    }
+
+    .katex .hbox {
+      width: 100%
+    }
+
+    .katex .hbox,
+    .katex .thinbox {
+      display: inline-flex;
+      flex-direction: row
+    }
+
+    .katex .thinbox {
+      max-width: 0;
+      width: 0
+    }
+
+    .katex .msupsub {
+      text-align: left
+    }
+
+    .katex .mfrac>span>span {
+      text-align: center
+    }
+
+    .katex .mfrac .frac-line {
+      border-bottom-style: solid;
+      display: inline-block;
+      width: 100%
+    }
+
+    .katex .hdashline,
+    .katex .hline,
+    .katex .mfrac .frac-line,
+    .katex .overline .overline-line,
+    .katex .rule,
+    .katex .underline .underline-line {
+      min-height: 1px
+    }
+
+    .katex .mspace {
+      display: inline-block
+    }
+
+    .katex .clap,
+    .katex .llap,
+    .katex .rlap {
+      position: relative;
+      width: 0
+    }
+
+    .katex .clap>.inner,
+    .katex .llap>.inner,
+    .katex .rlap>.inner {
+      position: absolute
+    }
+
+    .katex .clap>.fix,
+    .katex .llap>.fix,
+    .katex .rlap>.fix {
+      display: inline-block
+    }
+
+    .katex .llap>.inner {
+      right: 0
+    }
+
+    .katex .clap>.inner,
+    .katex .rlap>.inner {
+      left: 0
+    }
+
+    .katex .clap>.inner>span {
+      margin-left: -50%;
+      margin-right: 50%
+    }
+
+    .katex .rule {
+      border: 0 solid;
+      display: inline-block;
+      position: relative
+    }
+
+    .katex .hline,
+    .katex .overline .overline-line,
+    .katex .underline .underline-line {
+      border-bottom-style: solid;
+      display: inline-block;
+      width: 100%
+    }
+
+    .katex .hdashline {
+      border-bottom-style: dashed;
+      display: inline-block;
+      width: 100%
+    }
+
+    .katex .sqrt>.root {
+      margin-left: .27777778em;
+      margin-right: -.55555556em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size1,
+    .katex .sizing.reset-size1.size1 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size2,
+    .katex .sizing.reset-size1.size2 {
+      font-size: 1.2em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size3,
+    .katex .sizing.reset-size1.size3 {
+      font-size: 1.4em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size4,
+    .katex .sizing.reset-size1.size4 {
+      font-size: 1.6em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size5,
+    .katex .sizing.reset-size1.size5 {
+      font-size: 1.8em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size6,
+    .katex .sizing.reset-size1.size6 {
+      font-size: 2em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size7,
+    .katex .sizing.reset-size1.size7 {
+      font-size: 2.4em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size8,
+    .katex .sizing.reset-size1.size8 {
+      font-size: 2.88em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size9,
+    .katex .sizing.reset-size1.size9 {
+      font-size: 3.456em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size10,
+    .katex .sizing.reset-size1.size10 {
+      font-size: 4.148em
+    }
+
+    .katex .fontsize-ensurer.reset-size1.size11,
+    .katex .sizing.reset-size1.size11 {
+      font-size: 4.976em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size1,
+    .katex .sizing.reset-size2.size1 {
+      font-size: .83333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size2,
+    .katex .sizing.reset-size2.size2 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size3,
+    .katex .sizing.reset-size2.size3 {
+      font-size: 1.16666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size4,
+    .katex .sizing.reset-size2.size4 {
+      font-size: 1.33333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size5,
+    .katex .sizing.reset-size2.size5 {
+      font-size: 1.5em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size6,
+    .katex .sizing.reset-size2.size6 {
+      font-size: 1.66666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size7,
+    .katex .sizing.reset-size2.size7 {
+      font-size: 2em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size8,
+    .katex .sizing.reset-size2.size8 {
+      font-size: 2.4em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size9,
+    .katex .sizing.reset-size2.size9 {
+      font-size: 2.88em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size10,
+    .katex .sizing.reset-size2.size10 {
+      font-size: 3.45666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size2.size11,
+    .katex .sizing.reset-size2.size11 {
+      font-size: 4.14666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size1,
+    .katex .sizing.reset-size3.size1 {
+      font-size: .71428571em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size2,
+    .katex .sizing.reset-size3.size2 {
+      font-size: .85714286em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size3,
+    .katex .sizing.reset-size3.size3 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size4,
+    .katex .sizing.reset-size3.size4 {
+      font-size: 1.14285714em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size5,
+    .katex .sizing.reset-size3.size5 {
+      font-size: 1.28571429em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size6,
+    .katex .sizing.reset-size3.size6 {
+      font-size: 1.42857143em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size7,
+    .katex .sizing.reset-size3.size7 {
+      font-size: 1.71428571em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size8,
+    .katex .sizing.reset-size3.size8 {
+      font-size: 2.05714286em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size9,
+    .katex .sizing.reset-size3.size9 {
+      font-size: 2.46857143em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size10,
+    .katex .sizing.reset-size3.size10 {
+      font-size: 2.96285714em
+    }
+
+    .katex .fontsize-ensurer.reset-size3.size11,
+    .katex .sizing.reset-size3.size11 {
+      font-size: 3.55428571em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size1,
+    .katex .sizing.reset-size4.size1 {
+      font-size: .625em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size2,
+    .katex .sizing.reset-size4.size2 {
+      font-size: .75em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size3,
+    .katex .sizing.reset-size4.size3 {
+      font-size: .875em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size4,
+    .katex .sizing.reset-size4.size4 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size5,
+    .katex .sizing.reset-size4.size5 {
+      font-size: 1.125em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size6,
+    .katex .sizing.reset-size4.size6 {
+      font-size: 1.25em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size7,
+    .katex .sizing.reset-size4.size7 {
+      font-size: 1.5em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size8,
+    .katex .sizing.reset-size4.size8 {
+      font-size: 1.8em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size9,
+    .katex .sizing.reset-size4.size9 {
+      font-size: 2.16em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size10,
+    .katex .sizing.reset-size4.size10 {
+      font-size: 2.5925em
+    }
+
+    .katex .fontsize-ensurer.reset-size4.size11,
+    .katex .sizing.reset-size4.size11 {
+      font-size: 3.11em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size1,
+    .katex .sizing.reset-size5.size1 {
+      font-size: .55555556em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size2,
+    .katex .sizing.reset-size5.size2 {
+      font-size: .66666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size3,
+    .katex .sizing.reset-size5.size3 {
+      font-size: .77777778em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size4,
+    .katex .sizing.reset-size5.size4 {
+      font-size: .88888889em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size5,
+    .katex .sizing.reset-size5.size5 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size6,
+    .katex .sizing.reset-size5.size6 {
+      font-size: 1.11111111em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size7,
+    .katex .sizing.reset-size5.size7 {
+      font-size: 1.33333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size8,
+    .katex .sizing.reset-size5.size8 {
+      font-size: 1.6em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size9,
+    .katex .sizing.reset-size5.size9 {
+      font-size: 1.92em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size10,
+    .katex .sizing.reset-size5.size10 {
+      font-size: 2.30444444em
+    }
+
+    .katex .fontsize-ensurer.reset-size5.size11,
+    .katex .sizing.reset-size5.size11 {
+      font-size: 2.76444444em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size1,
+    .katex .sizing.reset-size6.size1 {
+      font-size: .5em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size2,
+    .katex .sizing.reset-size6.size2 {
+      font-size: .6em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size3,
+    .katex .sizing.reset-size6.size3 {
+      font-size: .7em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size4,
+    .katex .sizing.reset-size6.size4 {
+      font-size: .8em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size5,
+    .katex .sizing.reset-size6.size5 {
+      font-size: .9em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size6,
+    .katex .sizing.reset-size6.size6 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size7,
+    .katex .sizing.reset-size6.size7 {
+      font-size: 1.2em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size8,
+    .katex .sizing.reset-size6.size8 {
+      font-size: 1.44em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size9,
+    .katex .sizing.reset-size6.size9 {
+      font-size: 1.728em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size10,
+    .katex .sizing.reset-size6.size10 {
+      font-size: 2.074em
+    }
+
+    .katex .fontsize-ensurer.reset-size6.size11,
+    .katex .sizing.reset-size6.size11 {
+      font-size: 2.488em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size1,
+    .katex .sizing.reset-size7.size1 {
+      font-size: .41666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size2,
+    .katex .sizing.reset-size7.size2 {
+      font-size: .5em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size3,
+    .katex .sizing.reset-size7.size3 {
+      font-size: .58333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size4,
+    .katex .sizing.reset-size7.size4 {
+      font-size: .66666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size5,
+    .katex .sizing.reset-size7.size5 {
+      font-size: .75em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size6,
+    .katex .sizing.reset-size7.size6 {
+      font-size: .83333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size7,
+    .katex .sizing.reset-size7.size7 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size8,
+    .katex .sizing.reset-size7.size8 {
+      font-size: 1.2em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size9,
+    .katex .sizing.reset-size7.size9 {
+      font-size: 1.44em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size10,
+    .katex .sizing.reset-size7.size10 {
+      font-size: 1.72833333em
+    }
+
+    .katex .fontsize-ensurer.reset-size7.size11,
+    .katex .sizing.reset-size7.size11 {
+      font-size: 2.07333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size1,
+    .katex .sizing.reset-size8.size1 {
+      font-size: .34722222em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size2,
+    .katex .sizing.reset-size8.size2 {
+      font-size: .41666667em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size3,
+    .katex .sizing.reset-size8.size3 {
+      font-size: .48611111em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size4,
+    .katex .sizing.reset-size8.size4 {
+      font-size: .55555556em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size5,
+    .katex .sizing.reset-size8.size5 {
+      font-size: .625em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size6,
+    .katex .sizing.reset-size8.size6 {
+      font-size: .69444444em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size7,
+    .katex .sizing.reset-size8.size7 {
+      font-size: .83333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size8,
+    .katex .sizing.reset-size8.size8 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size9,
+    .katex .sizing.reset-size8.size9 {
+      font-size: 1.2em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size10,
+    .katex .sizing.reset-size8.size10 {
+      font-size: 1.44027778em
+    }
+
+    .katex .fontsize-ensurer.reset-size8.size11,
+    .katex .sizing.reset-size8.size11 {
+      font-size: 1.72777778em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size1,
+    .katex .sizing.reset-size9.size1 {
+      font-size: .28935185em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size2,
+    .katex .sizing.reset-size9.size2 {
+      font-size: .34722222em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size3,
+    .katex .sizing.reset-size9.size3 {
+      font-size: .40509259em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size4,
+    .katex .sizing.reset-size9.size4 {
+      font-size: .46296296em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size5,
+    .katex .sizing.reset-size9.size5 {
+      font-size: .52083333em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size6,
+    .katex .sizing.reset-size9.size6 {
+      font-size: .5787037em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size7,
+    .katex .sizing.reset-size9.size7 {
+      font-size: .69444444em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size8,
+    .katex .sizing.reset-size9.size8 {
+      font-size: .83333333em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size9,
+    .katex .sizing.reset-size9.size9 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size10,
+    .katex .sizing.reset-size9.size10 {
+      font-size: 1.20023148em
+    }
+
+    .katex .fontsize-ensurer.reset-size9.size11,
+    .katex .sizing.reset-size9.size11 {
+      font-size: 1.43981481em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size1,
+    .katex .sizing.reset-size10.size1 {
+      font-size: .24108004em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size2,
+    .katex .sizing.reset-size10.size2 {
+      font-size: .28929605em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size3,
+    .katex .sizing.reset-size10.size3 {
+      font-size: .33751205em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size4,
+    .katex .sizing.reset-size10.size4 {
+      font-size: .38572806em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size5,
+    .katex .sizing.reset-size10.size5 {
+      font-size: .43394407em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size6,
+    .katex .sizing.reset-size10.size6 {
+      font-size: .48216008em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size7,
+    .katex .sizing.reset-size10.size7 {
+      font-size: .57859209em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size8,
+    .katex .sizing.reset-size10.size8 {
+      font-size: .69431051em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size9,
+    .katex .sizing.reset-size10.size9 {
+      font-size: .83317261em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size10,
+    .katex .sizing.reset-size10.size10 {
+      font-size: 1em
+    }
+
+    .katex .fontsize-ensurer.reset-size10.size11,
+    .katex .sizing.reset-size10.size11 {
+      font-size: 1.19961427em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size1,
+    .katex .sizing.reset-size11.size1 {
+      font-size: .20096463em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size2,
+    .katex .sizing.reset-size11.size2 {
+      font-size: .24115756em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size3,
+    .katex .sizing.reset-size11.size3 {
+      font-size: .28135048em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size4,
+    .katex .sizing.reset-size11.size4 {
+      font-size: .32154341em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size5,
+    .katex .sizing.reset-size11.size5 {
+      font-size: .36173633em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size6,
+    .katex .sizing.reset-size11.size6 {
+      font-size: .40192926em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size7,
+    .katex .sizing.reset-size11.size7 {
+      font-size: .48231511em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size8,
+    .katex .sizing.reset-size11.size8 {
+      font-size: .57877814em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size9,
+    .katex .sizing.reset-size11.size9 {
+      font-size: .69453376em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size10,
+    .katex .sizing.reset-size11.size10 {
+      font-size: .83360129em
+    }
+
+    .katex .fontsize-ensurer.reset-size11.size11,
+    .katex .sizing.reset-size11.size11 {
+      font-size: 1em
+    }
+
+    .katex .delimsizing.size1 {
+      font-family: KaTeX_Size1
+    }
+
+    .katex .delimsizing.size2 {
+      font-family: KaTeX_Size2
+    }
+
+    .katex .delimsizing.size3 {
+      font-family: KaTeX_Size3
+    }
+
+    .katex .delimsizing.size4 {
+      font-family: KaTeX_Size4
+    }
+
+    .katex .delimsizing.mult .delim-size1>span {
+      font-family: KaTeX_Size1
+    }
+
+    .katex .delimsizing.mult .delim-size4>span {
+      font-family: KaTeX_Size4
+    }
+
+    .katex .nulldelimiter {
+      display: inline-block;
+      width: .12em
+    }
+
+    .katex .delimcenter,
+    .katex .op-symbol {
+      position: relative
+    }
+
+    .katex .op-symbol.small-op {
+      font-family: KaTeX_Size1
+    }
+
+    .katex .op-symbol.large-op {
+      font-family: KaTeX_Size2
+    }
+
+    .katex .accent>.vlist-t,
+    .katex .op-limits>.vlist-t {
+      text-align: center
+    }
+
+    .katex .accent .accent-body {
+      position: relative
+    }
+
+    .katex .accent .accent-body:not(.accent-full) {
+      width: 0
+    }
+
+    .katex .overlay {
+      display: block
+    }
+
+    .katex .mtable .vertical-separator {
+      display: inline-block;
+      min-width: 1px
+    }
+
+    .katex .mtable .arraycolsep {
+      display: inline-block
+    }
+
+    .katex .mtable .col-align-c>.vlist-t {
+      text-align: center
+    }
+
+    .katex .mtable .col-align-l>.vlist-t {
+      text-align: left
+    }
+
+    .katex .mtable .col-align-r>.vlist-t {
+      text-align: right
+    }
+
+    .katex .svg-align {
+      text-align: left
+    }
+
+    .katex svg {
+      fill: currentColor;
+      stroke: currentColor;
+      fill-rule: nonzero;
+      fill-opacity: 1;
+      stroke-width: 1;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+      stroke-miterlimit: 4;
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+      stroke-opacity: 1;
+      display: block;
+      height: inherit;
+      position: absolute;
+      width: 100%
+    }
+
+    .katex svg path {
+      stroke: none
+    }
+
+    .katex img {
+      border-style: none;
+      max-height: none;
+      max-width: none;
+      min-height: 0;
+      min-width: 0
+    }
+
+    .katex .stretchy {
+      display: block;
+      overflow: hidden;
+      position: relative;
+      width: 100%
+    }
+
+    .katex .stretchy:after,
+    .katex .stretchy:before {
+      content: ""
+    }
+
+    .katex .hide-tail {
+      overflow: hidden;
+      position: relative;
+      width: 100%
+    }
+
+    .katex .halfarrow-left {
+      left: 0;
+      overflow: hidden;
+      position: absolute;
+      width: 50.2%
+    }
+
+    .katex .halfarrow-right {
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      width: 50.2%
+    }
+
+    .katex .brace-left {
+      left: 0;
+      overflow: hidden;
+      position: absolute;
+      width: 25.1%
+    }
+
+    .katex .brace-center {
+      left: 25%;
+      overflow: hidden;
+      position: absolute;
+      width: 50%
+    }
+
+    .katex .brace-right {
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      width: 25.1%
+    }
+
+    .katex .x-arrow-pad {
+      padding: 0 .5em
+    }
+
+    .katex .cd-arrow-pad {
+      padding: 0 .55556em 0 .27778em
+    }
+
+    .katex .mover,
+    .katex .munder,
+    .katex .x-arrow {
+      text-align: center
+    }
+
+    .katex .boxpad {
+      padding: 0 .3em
+    }
+
+    .katex .fbox,
+    .katex .fcolorbox {
+      border: .04em solid;
+      box-sizing: border-box
+    }
+
+    .katex .cancel-pad {
+      padding: 0 .2em
+    }
+
+    .katex .cancel-lap {
+      margin-left: -.2em;
+      margin-right: -.2em
+    }
+
+    .katex .sout {
+      border-bottom-style: solid;
+      border-bottom-width: .08em
+    }
+
+    .katex .angl {
+      border-right: .049em solid;
+      border-top: .049em solid;
+      box-sizing: border-box;
+      margin-right: .03889em
+    }
+
+    .katex .anglpad {
+      padding: 0 .03889em
+    }
+
+    .katex .eqn-num:before {
+      content: "(" counter(katexEqnNo) ")";
+      counter-increment: katexEqnNo
+    }
+
+    .katex .mml-eqn-num:before {
+      content: "(" counter(mmlEqnNo) ")";
+      counter-increment: mmlEqnNo
+    }
+
+    .katex .mtr-glue {
+      width: 50%
+    }
+
+    .katex .cd-vert-arrow {
+      display: inline-block;
+      position: relative
+    }
+
+    .katex .cd-label-left {
+      display: inline-block;
+      position: absolute;
+      right: calc(50% + .3em);
+      text-align: left
+    }
+
+    .katex .cd-label-right {
+      display: inline-block;
+      left: calc(50% + .3em);
+      position: absolute;
+      text-align: right
+    }
+
+    .katex-display {
+      display: block;
+      margin: 1em 0;
+      text-align: center
+    }
+
+    .katex-display>.katex {
+      display: block;
+      text-align: center;
+      white-space: nowrap
+    }
+
+    .katex-display>.katex>.katex-html {
+      display: block;
+      position: relative
+    }
+
+    .katex-display>.katex>.katex-html>.tag {
+      position: absolute;
+      right: 0
+    }
+
+    .katex-display.leqno>.katex>.katex-html>.tag {
+      left: 0;
+      right: auto
+    }
+
+    .katex-display.fleqn>.katex {
+      padding-left: 2em;
+      text-align: left
+    }
+
+    body {
+      counter-reset: katexEqnNo mmlEqnNo
+    }
+
+    /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+    .katex-error {
+      color: var(--vscode-editorError-foreground);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet"
+    type="text/css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+  <style>
+    .task-list-item {
+      list-style-type: none;
+    }
+
+    .task-list-item-checkbox {
+      margin-left: -20px;
+      vertical-align: middle;
+    }
+  </style>
+  <style>
+    :root {
+      --color: rgb(149, 0, 168);
+      --rgba: 149, 0, 168;
+      --primary: rgba(var(--rgba));
+      --primary-bg-light: rgba(var(--rgba), 0.07);
+      --secondary: rgba(var(--rgba), 0.2);
+      --vscode-editorError-foreground: #e2e2e2;
+      --vscode-editor-foreground: #e2e2e2;
+    }
+
+    body {
+      font-size: 15px;
+      color: #333;
+      background: #fff;
+      font-family: Helvetica, Arial, "PingFang SC", "Microsoft YaHei", "WenQuanYi Micro Hei", "tohoma,sans-serif";
+      margin: 0;
+      padding: 20px 25%;
+    }
+
+    .markdown-body {
+      background-color: #fff !important;
+    }
+
+    h1 {
+      font-size: 2.2em;
+      font-weight: 700;
+      line-height: 1.1;
+      padding-top: 16px;
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      margin: 40px 10px 20px 0;
+      padding-left: 9px;
+      border-left: 6px solid var(--primary);
+      font-weight: 700;
+      padding: 5px 10px;
+      line-height: 1.4;
+    }
+
+    h3 {
+      background-color: var(--primary-bg-light);
+      border-left: 3px solid var(--primary);
+      margin: 10px 0 5px;
+      padding: 3px 10px;
+      font-weight: 700;
+      font-size: 1.2em;
+    }
+
+    h4 {
+      display: inline-block;
+      background-color: var(--secondary);
+      font-weight: 700;
+      font-size: 1em;
+      line-height: 1.4;
+      margin: 10px 0 5px;
+      padding: 3px 5px;
+      border-radius: 4px;
+    }
+
+    a {
+      color: var(--primary) !important;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    a:focus,
+    a:active,
+    a:hover,
+    a {
+      outline: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    h1:first-child>a:empty:after {
+      content: "\25B2";
+    }
+
+    h1:first-child>a:empty {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: white !important;
+      text-decoration: none;
+      font-family: "Courier New", Courier, monospace;
+      text-align: center;
+      display: inline-block;
+      border-radius: 50px;
+      font-size: 20px;
+      line-height: unset;
+      background-color: #000;
+      z-index: 10;
+      margin: 0;
+      padding: 5px 10px;
+      opacity: 0.4;
+      transition: 0.2s all ease-in;
+    }
+
+    h1:first-child>a:empty:hover {
+      opacity: 0.8;
+    }
+
+    code {
+      color: var(--primary);
+      background-color: var(--primary-bg-light);
+      border-radius: 4px;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 90%;
+    }
+
+    pre,
+    div {
+      background-color: #000 !important;
+      border-radius: 4px !important;
+    }
+
+    table thead {
+      background-color: #dbdbdb;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="mock-server"><a style="text-decoration: none;" href="https://github.com/R35007/mock-server"
+      target="_blank">Mock Server</a><a href="#mock-server"></a> <a
+      href="https://img.shields.io/npm/v/@r35007/mock-server?label=npm"><img
+        src="https://img.shields.io/npm/v/@r35007/mock-server?label=npm" alt=""></a> <a
+      href="https://img.shields.io/npm/l/@r35007/mock-server?color=blue"><img
+        src="https://img.shields.io/npm/l/@r35007/mock-server?color=blue" alt=""></a> <a
+      href="https://img.shields.io/npm/types/@r35007/mock-server"><img
+        src="https://img.shields.io/npm/types/@r35007/mock-server" alt=""></a></h1>
+  <p>Get a full REST API with <strong>zero coding</strong> in <strong>less than 30 seconds</strong> (seriously)</p>
+  <p>Created with &lt;3 for front-end developers who need a quick back-end for prototyping and mocking.
+    Now also available as a VSCodeExtension <a target="_blank"
+      href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server"><code>thinker.mock-server</code></a>.
+  </p>
+  <h2 id="table-of-contents">Table of contents</h2>
+  <ul>
+    <li><a href="#getting-started">Getting started</a></li>
+    <li><a href="#using-js-module">Using JS Module</a></li>
+    <li><a href="#route-config">Route Config</a>
+      <ul>
+        <li><a href="#set-delay-response">Set Delay Response</a></li>
+        <li><a href="#set-custom-statuscode">Set Custom StatusCode</a></li>
+        <li><a href="#fetch-data-from-url">Fetch Data From URL</a>
+          <ul>
+            <li><a href="#fetch-file">Fetch File</a></li>
+            <li><a href="#custom-fetch-options">Custom Fetch Options</a></li>
+            <li><a href="#use-fetch-as-proxy">Use Fetch as Proxy</a></li>
+          </ul>
+        </li>
+        <li><a href="#fetch-count">Fetch Count</a></li>
+        <li><a href="#skip-fetch-error">Skip Fetch Error</a></li>
+        <li><a href="#add-middleware">Add Middleware</a></li>
+      </ul>
+    </li>
+    <li><a href="#middleware-utils">Middleware Utils</a>
+      <ul>
+        <li><a href="#iterateresponse">IterateResponse</a></li>
+        <li><a href="#iterateroutes">IterateRoutes</a></li>
+        <li><a href="#advancedsearch">AdvancedSearch</a>
+          <ul>
+            <li><a href="#filter">Filter</a></li>
+            <li><a href="#paginate">Paginate</a></li>
+            <li><a href="#sort">Sort</a></li>
+            <li><a href="#slice">Slice</a></li>
+            <li><a href="#operators">Operators</a></li>
+            <li><a href="#full-text-search">Full text search</a></li>
+          </ul>
+        </li>
+        <li><a href="#crudoperations">CrudOperations</a></li>
+        <li><a href="#fetchtilldata">FetchTillData</a></li>
+        <li><a href="#setfetchdatatomock">SetFetchDataToMock</a></li>
+        <li><a href="#setstoredatatomock">SetStoreDataToMock</a></li>
+        <li><a href="#mockonly">MockOnly</a></li>
+        <li><a href="#fetchonly">FetchOnly</a></li>
+        <li><a href="#readonly">ReadOnly</a></li>
+        <li><a href="#fetch">Fetch</a></li>
+        <li><a href="#fetchfile">FetchFile</a></li>
+        <li><a href="#fetchurl">FetchUrl</a></li>
+      </ul>
+    </li>
+    <li><a href="#injectors">Injectors</a>
+      <ul>
+        <li><a href="#inject-route-configs">Inject Route Configs</a></li>
+        <li><a href="#override-existing-route-configs">Override Existing Route Configs</a></li>
+        <li><a href="#common-route-configs">Common Route Configs</a></li>
+      </ul>
+    </li>
+    <li><a href="#store-data">Store Data</a>
+      <ul>
+        <li><a href="#route-store">Route Store</a></li>
+        <li><a href="#local-store">Local Store</a></li>
+      </ul>
+    </li>
+    <li><a href="#route-rewriters">Route Rewriters</a></li>
+    <li><a href="#locals">Locals</a>
+      <ul>
+        <li><a href="#dynamic-route-config">Dynamic Route Config</a></li>
+      </ul>
+    </li>
+    <li><a href="#config">Config</a></li>
+    <li><a href="#default-routes">Default Routes</a></li>
+    <li><a href="#home-page">Home Page</a></li>
+    <li><a href="#details-view">Details View</a>
+      <ul>
+        <li><a href="#update-route">Update Route</a></li>
+        <li><a href="#clone-route">Clone Route</a></li>
+        <li><a href="#add-route">Add Route</a></li>
+      </ul>
+    </li>
+    <li><a href="#cli-usage">CLI Usage</a></li>
+    <li><a href="#api">API</a>
+      <ul>
+        <li><a href="#mockserver">MockServer</a></li>
+        <li><a href="#create">Create</a></li>
+        <li><a href="#destroy">Destroy</a></li>
+        <li><a href="#launchserver">launchServer</a></li>
+        <li><a href="#rewriter">rewriter</a></li>
+        <li><a href="#defaults">defaults</a></li>
+        <li><a href="#resources">resources</a></li>
+        <li><a href="#defaultroutes">defaultRoutes</a></li>
+        <li><a href="#adddbdata">addDbData</a></li>
+        <li><a href="#startserver">startServer</a></li>
+        <li><a href="#stopserver">stopServer</a></li>
+        <li><a href="#resetserver">resetServer</a></li>
+        <li><a href="#resetdb">resetDb</a></li>
+        <li><a href="#resetstore">resetStore</a></li>
+        <li><a href="#pagenotfound">pageNotFound</a></li>
+        <li><a href="#errorhandler">errorHandler</a></li>
+        <li><a href="#setters">Setters</a></li>
+        <li><a href="#variables">Variables</a></li>
+        <li><a href="#validators">Validators</a></li>
+      </ul>
+    </li>
+    <li><a href="#author">Author</a></li>
+    <li><a href="#license">License</a></li>
+  </ul>
+  <h2 id="getting-started">Getting started</h2>
+  <p>Install Mock Server</p>
+  <pre><code class="language-sh"><div>npm install -g @r35007/mock-server
+</div></code></pre>
+  <p>Create a <code>db.json</code> file with some data.</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;posts&quot;</span>: [{ <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;mock-server&quot;</span>, <span class="hljs-attr">&quot;author&quot;</span>: <span class="hljs-string">&quot;r35007&quot;</span> }],
+  <span class="hljs-attr">&quot;comments&quot;</span>: [{ <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">&quot;body&quot;</span>: <span class="hljs-string">&quot;some comment&quot;</span>, <span class="hljs-attr">&quot;postId&quot;</span>: <span class="hljs-number">1</span> }],
+  <span class="hljs-attr">&quot;profile&quot;</span>: { <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;r35007&quot;</span> }
+}
+</div></code></pre>
+  <p>Start Mock Server</p>
+  <pre><code class="language-sh"><div>mock-server --watch ./db.json
+</div></code></pre>
+  <p>Now if you go to <a href="http://localhost:3000/posts/1">http://localhost:3000/posts/1</a>, you'll get</p>
+  <pre><code class="language-json"><div>{ <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;mock-server&quot;</span>, <span class="hljs-attr">&quot;author&quot;</span>: <span class="hljs-string">&quot;r35007&quot;</span> }
+</div></code></pre>
+  <h2 id="using-js-module">Using JS Module</h2>
+  <p>First install nodemon for watching changes</p>
+  <pre><code class="language-sh"><div>npm install -g nodemon
+</div></code></pre>
+  <p>Create <code>server.js</code> File</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>); <span class="hljs-comment">// use import if using ES6 module</span>
+
+<span class="hljs-keyword">const</span> mockServer = <span class="hljs-keyword">new</span> MockServer(<span class="hljs-string">&quot;./config.json&quot;</span>); <span class="hljs-comment">// Creates a Mock Server instance</span>
+<span class="hljs-comment">// or</span>
+<span class="hljs-comment">// const mockServer = MockServer.Create(&quot;./config.json&quot;); // Creates a Mock Server single instance</span>
+
+mockServer.launchServer(
+  <span class="hljs-string">&quot;./db.json&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+  <span class="hljs-string">&quot;./store.json&quot;</span>
+); <span class="hljs-comment">// Starts the Mock Server.</span>
+
+<span class="hljs-comment">//or</span>
+
+<span class="hljs-keyword">const</span> app = mockServer.app;
+
+<span class="hljs-keyword">const</span> rewriter = mockServer.rewriter(<span class="hljs-string">&quot;./rewriters.json&quot;</span>);
+app.use(rewriter); <span class="hljs-comment">// make sure to add this before defaults and resources</span>
+
+<span class="hljs-keyword">const</span> defaults = mockServer.defaults({ <span class="hljs-attr">noGzip</span>: <span class="hljs-literal">true</span> });
+app.use(defaults);
+
+<span class="hljs-keyword">const</span> resources = mockServer.resources(
+  <span class="hljs-string">&quot;./db.json&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./store.json&quot;</span>
+);
+app.use(resources);
+
+<span class="hljs-keyword">const</span> defaultRoutes = mockServer.defaultRoutes();
+app.use(defaultRoutes);
+
+<span class="hljs-comment">// make sure to add this at last</span>
+app.use(mockServer.pageNotFound);
+app.use(mockServer.errorHandler);
+
+mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-string">&quot;localhost&quot;</span>);
+</div></code></pre>
+  <p>Now go to terminal and type the following command to start the Mock Server.</p>
+  <pre><code class="language-sh"><div>nodemon server.js
+</div></code></pre>
+  <h2 id="route-config"><strong>Route Config</strong></h2>
+  <p>Create a db.json file. Pay attention to start every route with /.
+    For Example:</p>
+  <p><code>db.json</code></p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/route/1, /route/2&quot;</span>: {
+    <span class="hljs-comment">// /route/1 and /route/2 shares the same config and mock data</span>
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Make sure to set this to true to use this object as a route configuration.</span>
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;id-unique&quot;</span>, <span class="hljs-comment">// sets a base64 encoded route</span>
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Description about this Route.</span>
+    <span class="hljs-attr">&quot;delay&quot;</span>: <span class="hljs-number">2000</span>, <span class="hljs-comment">// in milliseconds</span>
+    <span class="hljs-attr">&quot;statusCode&quot;</span>: <span class="hljs-number">200</span>, <span class="hljs-comment">// in number between 100 to 600</span>
+    <span class="hljs-attr">&quot;mockFirst&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true, It sends the mock first else try to fetch first.</span>
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateResponse&quot;</span>], <span class="hljs-comment">// list of middleware names to be called</span>
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Can give a list of express Middlewares If using in .js file</span>
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;./myFile.json&quot;</span>, <span class="hljs-comment">// this path will be relative to `config.root`</span>
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">// Set to -1 to fetch infinite times.</span>
+    <span class="hljs-attr">&quot;mock&quot;</span>: [{ <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;foo&quot;</span> }, { <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;bar&quot;</span> }],
+    <span class="hljs-attr">&quot;skipFetchError&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If True it skips any fetch error and send the mock data</span>
+    <span class="hljs-attr">&quot;fetchData&quot;</span>: {
+      <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-number">200</span>,
+      <span class="hljs-attr">&quot;isError&quot;</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">&quot;response&quot;</span>: <span class="hljs-string">&quot;&quot;</span> <span class="hljs-comment">// contains the fetch response</span>
+    },
+    <span class="hljs-attr">&quot;store&quot;</span>: {}, <span class="hljs-comment">// helps to store any values for later use</span>
+
+    <span class="hljs-comment">// System generated.</span>
+    <span class="hljs-comment">//Please don&#x27;t set any values to the below attributes.</span>
+    <span class="hljs-attr">&quot;_isFile&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// sets to true if the given fetch url is a file type url</span>
+    <span class="hljs-attr">&quot;_request&quot;</span>: {}, <span class="hljs-comment">// give the actual axios request object of the fetch call</span>
+    <span class="hljs-attr">&quot;_extension&quot;</span>: <span class="hljs-string">&quot;&quot;</span> <span class="hljs-comment">// If the given url is a file type url then it give the extension of the file.</span>
+  },
+  <span class="hljs-attr">&quot;/routeName3&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;foo&quot;</span>,
+    <span class="hljs-attr">&quot;age&quot;</span>: <span class="hljs-string">&quot;bar&quot;</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Note: Since _config attribute is not set to true this whole object will be sent as a response&quot;</span>
+  }
+}
+</div></code></pre>
+  <p>Note : <code>fetch</code> can be either <code>string</code> type or <code>AxiosRouteConfig</code> type.
+    see <a href="#fetch-data-from-url">Fetch Data From URL</a> for more configuration.</p>
+  <h3 id="set-delay-response"><strong>Set Delay Response</strong></h3>
+  <p><code>delay</code> helps you to set a custom delay to your routes.
+    Note : The delay yo set must be in milliseconds and of type number</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/customDelay&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;delay&quot;</span>: <span class="hljs-number">2000</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Note: give delay in milliseconds&quot;</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: <span class="hljs-string">&quot;This is response is received with a delay of 2000 milliseconds&quot;</span>
+  }
+}
+</div></code></pre>
+  <p>Now if you go to <a href="http://localhost:3000/customDelay">http://localhost:3000/customDelay</a>, you'll get the
+    response in a delay of 2 seconds.</p>
+  <h3 id="set-custom-statuscode"><strong>Set Custom StatusCode</strong></h3>
+  <p><code>statusCode</code> helps you set a custom statusCode to your routes.
+    It must be of type number and between 100 to 600.</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/customStatusCode&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;statusCode&quot;</span>: <span class="hljs-number">500</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: <span class="hljs-string">&quot;This is response is received with a statusCode of 500&quot;</span>
+  }
+}
+</div></code></pre>
+  <p>Now if you go to <a href="http://localhost:3000/customStatusCode">http://localhost:3000/customStatusCode</a>,
+    you'll get the response with a <code>500</code> statusCode</p>
+  <h3 id="fetch-data-from-url"><strong>Fetch Data From URL</strong></h3>
+  <p><code>fetch</code> helps you get data from url.
+    The url can either be a http server or a local file server.</p>
+  <h4 id="fetch-file"><strong>Fetch File</strong></h4>
+  <p>Give a absolute or a relative path to fetch any file and get as a response.
+    Note: The given relative path will be relative to <code>config.root</code>.</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/local/file&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;The given fetch path will be relative to the root path given in config&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;./data/users.json&quot;</span>
+  }
+}
+</div></code></pre>
+  <p><a href="http://localhost:3000/fetch/local/file">http://localhost:3000/fetch/local/file</a>.</p>
+  <h4 id="custom-fetch-options"><strong>Custom Fetch Options</strong></h4>
+  <p>You can also give a fetch as a axios request object with custom options.</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/posts/customOptions/:id&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Give the `fetch` attribute as a axios request object. enclose the value with ${&lt;variables&gt;} to pass the req values&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: {
+      <span class="hljs-attr">&quot;method&quot;</span>: <span class="hljs-string">&quot;GET&quot;</span>,
+      <span class="hljs-attr">&quot;url&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/posts&quot;</span>,
+      <span class="hljs-attr">&quot;params&quot;</span>: <span class="hljs-string">&quot;${req.params.id}&quot;</span>
+    },
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">5</span>
+  }
+}
+</div></code></pre>
+  <p><a href="http://localhost:3000/fetch/posts/customOptions/2">http://localhost:3000/fetch/posts/customOptions/2</a>.
+  </p>
+  <p>Note: The to pass any options from the route set the option value as <code>${&lt;option Name&gt;}</code></p>
+  <p>reserved key words :</p>
+  <ul>
+    <li><code>${config}</code> - get all config values</li>
+    <li><code>${req}</code> - get all req values</li>
+  </ul>
+  <h4 id="use-fetch-as-proxy"><strong>Use Fetch as Proxy</strong></h4>
+  <p>By directly giving a url it acts like a proxy.
+    It sends all the options like prams, query params, headers, data etc.. from the mock route</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/comments/proxy&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;When you directly give the url, all the request query params and posted body data will also to sent to the given url&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/comments&quot;</span>,
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">-1</span>
+  },
+  <span class="hljs-attr">&quot;/posts/:id?&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/${req.url}&quot;</span> <span class="hljs-comment">// will become http://jsonplaceholder.typicode.com/posts/1</span>
+  }
+}
+</div></code></pre>
+  <p>Note: <code>${req.url}</code> will prepends the route to the url.</p>
+  <p>Now try the following url.</p>
+  <p><a href="http://localhost:3000/posts">http://localhost:3000/posts</a>.</p>
+  <p><a href="http://localhost:3000/posts/1">http://localhost:3000/posts/1</a>.</p>
+  <p><a
+      href="http://localhost:3000/fetch/comments/proxy?postId=1">http://localhost:3000/fetch/comments/proxy?postId=1</a>.
+  </p>
+  <h3 id="fetch-count"><strong>Fetch Count</strong></h3>
+  <p>In Route Config setting <code>fetchCount</code> will helps to limit the number of fetch calls.
+    By Default the <code>fetchCount</code> is set to <code>1</code>.
+    The fetch data will be set to <code>fetchData</code>.</p>
+  <p><code>db.json</code></p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/todos/fetchCount/3/times&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;By default the fetch will be called only one time. You can limit or extend the number of fetch calls using &#x27;fetchCount&#x27; attribute&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/todos&quot;</span>,
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">3</span>
+  },
+  <span class="hljs-attr">&quot;/fetch/albums/fetchCount/Infinite/times&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Setting &#x27;fetchCount&#x27; to -1 time will helps to make a fetch call on each and every url hit without any limit. By This way you always get a new fresh data from the fetch url.&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/albums&quot;</span>,
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">-1</span>
+  }
+}
+</div></code></pre>
+  <p><a
+      href="http://localhost:3000/fetch/todos/fetchCount/3/times">http://localhost:3000/fetch/todos/fetchCount/3/times</a>.
+    - Makes fetch call only for 3 times.</p>
+  <p><a
+      href="http://localhost:3000/fetch/todos/fetchCount/Infinite/times">http://localhost:3000/fetch/todos/fetchCount/Infinite/times</a>.
+    - Makes fetch call Infinite times.</p>
+  <h3 id="skip-fetch-error"><strong>Skip Fetch Error</strong></h3>
+  <p>If <code>skipFetchError</code> is set to true, It will skip any error in fetch call and instead of returning that
+    fetch error it gives you the mock data.</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/404/skipFetchError&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Bu default fetch returns the actual error if occur. If you set `skipFetchError` flag to true. the If any error occur in fetch call it will then skips the fetch error and return you the mock data&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://localhost:3000/404&quot;</span>,
+    <span class="hljs-attr">&quot;skipFetchError&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: <span class="hljs-string">&quot;This data is returned due to some error in fetch call. You can see the error in &#x27;fetchError&#x27; attribute&quot;</span>,
+    <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">-1</span>
+  }
+}
+</div></code></pre>
+  <p><a href="http://localhost:3000/fetch/404/skipFetchError">http://localhost:3000/fetch/404/skipFetchError</a>.</p>
+  <h3 id="add-middleware"><strong>Add Middleware</strong></h3>
+  <p>You can add n number of middleware to a route which helps you to manipulate or log the data.</p>
+  <p><code>middleware.js</code></p>
+  <pre><code class="language-js"><div><span class="hljs-built_in">exports</span>.DataWrapper = <span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
+  res.locals.data = {
+    <span class="hljs-attr">status</span>: <span class="hljs-string">&quot;Success&quot;</span>,
+    <span class="hljs-attr">message</span>: <span class="hljs-string">&quot;Retrieved Successfully&quot;</span>,
+    <span class="hljs-attr">result</span>: res.locals.data,
+  };
+  next();
+};
+</div></code></pre>
+  <p><code>db.json</code></p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/fetch/users/customMiddleware&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Note: This middleware must be available in the &#x27;middleware.js&#x27; by the below given names. This &#x27;DataWrapper&#x27; will be called on every hit of this route.&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/users&quot;</span>,
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;DataWrapper&quot;</span>]
+  }
+}
+</div></code></pre>
+  <p>Note: A middleware must be available at the name of the middlewares given in <code>db.json</code>
+    <a href="http://localhost:3000/fetch/users/customMiddleware">http://localhost:3000/fetch/users/customMiddleware</a>.
+  </p>
+  <h2 id="middleware-utils"><strong>Middleware Utils</strong></h2>
+  <p>Use the predefined middleware to speedup your development and for ease of access.</p>
+  <h3 id="iterateresponse"><strong>IterateResponse</strong></h3>
+  <p>setting middleware to <code>_IterateResponse</code> helps to send you a iterate the response one after the other in
+    the mock array for each url hit.</p>
+  <p>example:</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/middleware/utils/example/_IterateResponse&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;This route iterates through each data. Try to hit again to see the data change. Note: The data must be of type array&quot;</span>,
+    <span class="hljs-attr">&quot;fetch&quot;</span>: {
+      <span class="hljs-attr">&quot;url&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/photos&quot;</span>
+    },
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateResponse&quot;</span>]
+  }
+}
+</div></code></pre>
+  <p>Now go and hit <a
+      href="http://localhost:3000/middleware/utils/example/_IterateResponse">http://localhost:3000/middleware/utils/example/_IterateResponse</a>.
+    For each hit you will get the next object in an array from the photos data.</p>
+  <h3 id="iterateroutes"><strong>IterateRoutes</strong></h3>
+  <p>setting middleware to <code>_IterateRoutes</code> helps to send you a iterate the route one after the other in the
+    mock array for each url hit.</p>
+  <p>example:</p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/middleware/utils/example/_IterateRoutes&quot;</span>: {
+    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;This route iterates through each route provide in the mock. Try to hit again to see the route change. Note: The data must be of type array&quot;</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: [<span class="hljs-string">&quot;/injectors/1&quot;</span>, <span class="hljs-string">&quot;/injectors/2&quot;</span>],
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateRoutes&quot;</span>]
+  },
+  <span class="hljs-attr">&quot;/injectors/1&quot;</span>: <span class="hljs-string">&quot;/injectors/1 data&quot;</span>,
+  <span class="hljs-attr">&quot;/injectors/2&quot;</span>: <span class="hljs-string">&quot;/injectors/2 data&quot;</span>
+}
+</div></code></pre>
+  <p>Now go and hit <a
+      href="http://localhost:3000/middleware/utils/example/_IterateRoutes">http://localhost:3000/middleware/utils/example/_IterateRoutes</a>.
+    For each hit the route is passed to next matching url provided in the mock list.</p>
+  <h3 id="advancedsearch"><strong>AdvancedSearch</strong></h3>
+  <p><code>_AdvancedSearch</code> middleware helps to filter and do the advanced search from data.Following are the
+    operations performed by this method.</p>
+  <h4 id="filter">Filter</h4>
+  <p>Use <code>.</code> to access deep properties</p>
+  <pre><code><code><div>GET /posts?title=mock-server&amp;author=sivaraman
+GET /posts?id=1&amp;id=2
+GET /comments?author.name=sivaraman
+</div></code></code></pre>
+  <h4 id="paginate">Paginate</h4>
+  <p>Use <code>_page</code> and optionally <code>_limit</code> to paginate returned data.</p>
+  <p>In the <code>Link</code> header you'll get <code>first</code>, <code>prev</code>, <code>next</code> and
+    <code>last</code> links.
+  </p>
+  <pre><code><code><div>GET /posts?_page=7
+GET /posts?_page=7&amp;_limit=20
+</div></code></code></pre>
+  <p><em>10 items are returned by default</em></p>
+  <h4 id="sort">Sort</h4>
+  <p>Add <code>_sort</code> and <code>_order</code> (ascending order by default)</p>
+  <pre><code><code><div>GET /posts?_sort=views&amp;_order=asc
+GET /posts/1/comments?_sort=votes&amp;_order=asc
+</div></code></code></pre>
+  <p>For multiple fields, use the following format:</p>
+  <pre><code><code><div>GET /posts?_sort=user,views&amp;_order=desc,asc
+</div></code></code></pre>
+  <h4 id="slice">Slice</h4>
+  <p>Add <code>_start</code> and <code>_end</code> or <code>_limit</code> (an <code>X-Total-Count</code> header is
+    included in the response)</p>
+  <pre><code><code><div>GET /posts?_start=20&amp;_end=30
+GET /posts/1/comments?_start=20&amp;_end=30
+GET /posts/1/comments?_start=20&amp;_limit=10
+</div></code></code></pre>
+  <p><em>Works exactly as <a
+        href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">Array.slice</a>
+      (i.e. <code>_start</code> is inclusive and <code>_end</code> exclusive)</em></p>
+  <h4 id="operators">Operators</h4>
+  <p>Add <code>_gte</code> or <code>_lte</code> for getting a range</p>
+  <pre><code><code><div>GET /posts?views_gte=10&amp;views_lte=20
+</div></code></code></pre>
+  <p>Add <code>_ne</code> to exclude a value</p>
+  <pre><code><code><div>GET /posts?id_ne=1
+</div></code></code></pre>
+  <p>Add <code>_like</code> to filter (RegExp supported)</p>
+  <pre><code><code><div>GET /posts?title_like=server
+</div></code></code></pre>
+  <h4 id="full-text-search">Full text search</h4>
+  <p>Add <code>q</code> or <code>_text</code></p>
+  <pre><code><code><div>GET /posts?q=internet&amp;_text=success
+</div></code></code></pre>
+  <h3 id="crudoperations"><strong>CrudOperations</strong></h3>
+  <p><code>_CrudOperations</code> middleware handles all the crud operations of the given data.
+    By default it also handles the <code>_AdvancedSearch</code> operations.
+    Note : the mock must of type Array of objects and must contain a unique value of attribute <code>id</code>.
+    this <code>id</code> attribute can also be changes using <code>config.id</code>.</p>
+  <p>For example: <code>config.json</code></p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;_id&quot;</span>
+}
+</div></code></pre>
+  <h3 id="fetchtilldata"><strong>FetchTillData</strong></h3>
+  <p><code>_FetchTillData</code> helps to fetch the data from url until it get a success data. Once its get the data the
+    fetch call stops and returns the existing data for other route hit.</p>
+  <h3 id="setfetchdatatomock"><strong>SetFetchDataToMock</strong></h3>
+  <p><code>_SetFetchDataToMock</code> sets every fetchData to Mock.
+    This overrides the existing mock with the <code>fetchData</code>.</p>
+  <h3 id="setstoredatatomock"><strong>SetStoreDataToMock</strong></h3>
+  <p><code>_SetStoreDataToMock</code> sets every store data to Mock data.
+    This overrides the existing mock with the <code>store</code>.</p>
+  <h3 id="mockonly"><strong>MockOnly</strong></h3>
+  <p><code>_MockOnly</code> sends you only Mock data even if there is any <code>fetchData</code> or <code>store</code>
+    data.</p>
+  <h3 id="fetchonly"><strong>FetchOnly</strong></h3>
+  <p><code>_FetchOnly</code> sends you only Fetch data even if there is any <code>_mock</code> or <code>store</code>
+    data.</p>
+  <h3 id="readonly"><strong>ReadOnly</strong></h3>
+  <p><code>_ReadOnly</code> forbidden every Http method calls except <code>GET</code> call.</p>
+  <h3 id="fetch"><strong>Fetch</strong></h3>
+  <p><code>_Fetch</code> Helps to fetch from file path or from the url.</p>
+  <p>Note : <code>locals.routeConfig.fetch</code> must contain a valid file path or http url to fetch the data.</p>
+  <p>For Example:
+    <code>db.json</code>
+  </p>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/user&quot;</span>: <span class="hljs-string">&quot;./mock/user.json&quot;</span> <span class="hljs-comment">// directly setting the path instead of setting it as a fetch config </span>
+}
+</div></code></pre>
+  <p><code>injectors.js</code></p>
+  <pre><code class="language-js"><div><span class="hljs-built_in">module</span>.exports = [
+  {
+    <span class="hljs-attr">routes</span>: [<span class="hljs-string">&quot;/user&quot;</span>],
+    <span class="hljs-attr">middlewares</span>: [
+      <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> routeConfig = res.locals.routeConfig;
+        routeConfig.fetch = routeConfig.mock;
+      },
+      <span class="hljs-string">&quot;_Fetch&quot;</span> <span class="hljs-comment">// helps to fetch the file from routeConfig.fetch path</span>
+    ]
+  }
+]
+</div></code></pre>
+  <h3 id="fetchfile"><strong>FetchFile</strong></h3>
+  <p><code>_FetchFile</code> Helps to fetch from file path.</p>
+  <p>Note : <code>locals.routeConfig.fetch</code> must contain a valid file path to fetch the data.</p>
+  <h3 id="fetchurl"><strong>FetchUrl</strong></h3>
+  <p><code>_FetchUrl</code> Helps to fetch from http url.</p>
+  <p>Note : <code>locals.routeConfig.fetch</code> must contain a valid http url to fetch the data.</p>
+  <h2 id="injectors"><strong>Injectors</strong></h2>
+  <p>Injectors helps to inject a Route Configs explicitly.
+    This also helps to provide a common route configs.
+    Injector uses <a href="https://github.com/pillarjs/path-to-regexp"><code>path-to-regexp</code></a> pattern
+    recognition to set config for multiple routes.</p>
+  <h3 id="inject-route-configs"><strong>Inject Route Configs</strong></h3>
+  <p>Here we are explicitly injecting <code>delay</code>, <code>middlewares</code>, <code>statusCode</code> to the
+    <code>/posts</code> route.
+    You can any route configs to a specific or to a group of routes using Injectors.
+  </p>
+  <ul>
+    <li>Injectors use <code>path-to-regexp</code> package for route pattern recognition.</li>
+    <li>Click <a href="https://www.npmjs.com/package/path-to-regexp">path-to-regexp</a> for more details.</li>
+  </ul>
+  <p>example : <code>injectors.json</code></p>
+  <pre><code class="language-jsonc"><div>[
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/injectors/:id&quot;</span>],
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;This description is injected using the injectors by matching the pattern &#x27;/injectors/:id&#x27;.&quot;</span>
+  }
+]
+</div></code></pre>
+  <h3 id="override-existing-route-configs"><strong>Override Existing Route Configs</strong></h3>
+  <p>Setting <code>override</code> flag to true helps to override the existing config of that route.</p>
+  <p>For example :</p>
+  <p><code>injectors.json</code></p>
+  <pre><code class="language-jsonc"><div>[
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/injectors/2&quot;</span>],
+    <span class="hljs-attr">&quot;override&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: <span class="hljs-string">&quot;This data is injected using the injectors by matching the pattern &#x27;/injectors/2&#x27;.&quot;</span>
+  },
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/injectors/:id&quot;</span>],
+    <span class="hljs-attr">&quot;override&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;exact&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;statusCode&quot;</span>: <span class="hljs-number">200</span>,
+    <span class="hljs-attr">&quot;mock&quot;</span>: <span class="hljs-string">&quot;This data is injected using the injectors by exactly matching the route &#x27;/injectors/:id&#x27;.&quot;</span>
+  },
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/(.*)&quot;</span>],
+    <span class="hljs-attr">&quot;override&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;...&quot;</span>, <span class="hljs-string">&quot;CustomLog&quot;</span>]
+  }
+]
+</div></code></pre>
+  <p>Note: Use <code>[&quot;...&quot;]</code> If you want to add the existing middlewares.</p>
+  <h3 id="common-route-configs"><strong>Common Route Configs</strong></h3>
+  <p>Using wildcards you can set a common route configs to all the routes.
+    <code>/(.*)</code> - matches all the routes.
+  </p>
+  <p>For example :</p>
+  <p><code>injectors.json</code></p>
+  <pre><code class="language-jsonc"><div>[
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/(.*)&quot;</span>],
+    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;This Description is injected using the injectors. Set &#x27;Override&#x27; flag to true to override the existing config values.&quot;</span>
+  },
+  {
+    <span class="hljs-attr">&quot;routes&quot;</span>: [<span class="hljs-string">&quot;/(.*)&quot;</span>],
+    <span class="hljs-attr">&quot;override&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;...&quot;</span>, <span class="hljs-string">&quot;CustomLog&quot;</span>]
+  }
+]
+</div></code></pre>
+  <p>Make sure you give <code>/(.*)</code> at the end of the <code>injectors.json</code> object to set route configs to
+    all the routes.</p>
+  <h2 id="store-data"><strong>Store Data</strong></h2>
+  <p>Store used to store any values which can be used later for any purpose like response manipulation or logging etc..
+  </p>
+  <h3 id="route-store"><strong>Route Store</strong></h3>
+  <p>Route store helps to store any values which can be accessed on by that particular route.
+    This stores values cannot be able to accessed by the other routes.
+    Route Store can be accessed using <code>res.locals.routeConfig.store</code> inside the middleware.</p>
+  <p>The middlewares <code>_CrudOperations</code>, <code>_IterateRoutes</code>, <code>_IterateResponse</code> uses the
+    Route store to manipulate response.</p>
+  <h3 id="local-store"><strong>Local Store</strong></h3>
+  <p>Local Store helps to store and share data between routes.
+    This can be accessed using <code>res.locals.getStore()</code> inside the middleware.</p>
+  <h2 id="route-rewriters"><strong>Route Rewriters</strong></h2>
+  <p>Create a <code>rewriters.json</code> file. Pay attention to start every route with <code>/</code>.</p>
+  <ul>
+    <li>Rewriters use <code>express-urlrewrite</code> package to rewrite the urls.</li>
+    <li>Click <a href="https://www.npmjs.com/package/express-urlrewrite">here</a> for more information about url
+      rewrite.</li>
+  </ul>
+  <pre><code class="language-jsonc"><div>{
+  <span class="hljs-attr">&quot;/api/*&quot;</span>: <span class="hljs-string">&quot;/$1&quot;</span>,
+  <span class="hljs-attr">&quot;/:resource/:id/show&quot;</span>: <span class="hljs-string">&quot;/:resource/:id&quot;</span>,
+  <span class="hljs-attr">&quot;/posts/:category&quot;</span>: <span class="hljs-string">&quot;/posts?category=:category&quot;</span>,
+  <span class="hljs-attr">&quot;/articles?id=:id&quot;</span>: <span class="hljs-string">&quot;/posts/:id&quot;</span>
+}
+</div></code></pre>
+  <p><code>server.js</code></p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> mockServer = MockServer.Create();
+mockServer.launchServer(
+  <span class="hljs-string">&quot;./db.json&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./rewriters.json&quot;</span>
+);
+</div></code></pre>
+  <p>Now you can access resources using additional routes.</p>
+  <pre><code class="language-sh"><div>/api/posts <span class="hljs-comment"># → /posts</span>
+/api/posts/1  <span class="hljs-comment"># → /posts/1</span>
+/posts/1/show <span class="hljs-comment"># → /posts/1</span>
+/posts/javascript <span class="hljs-comment"># → /posts?category=javascript</span>
+/articles?id=1 <span class="hljs-comment"># → /posts/1</span>
+</div></code></pre>
+  <h2 id="locals"><strong>Locals</strong></h2>
+  <p><code>res.locals</code> helps to access the current route config, <code>fetchData</code>, <code>store</code> etc..
+    Here are the available options in <code>res.locals</code></p>
+  <pre><code class="language-ts"><div><span class="hljs-keyword">interface</span> Locals {
+  <span class="hljs-attr">routePath</span>: <span class="hljs-built_in">string</span>;
+  routeConfig: {
+    _config?: <span class="hljs-built_in">boolean</span>;
+    id?: <span class="hljs-built_in">string</span>;
+    description?: <span class="hljs-built_in">string</span>;
+    mock?: <span class="hljs-built_in">any</span>;
+    mockFirst?: <span class="hljs-built_in">boolean</span>;
+    fetch?: <span class="hljs-built_in">string</span> | AxiosRequestConfig;
+    fetchData?: {
+      status?: <span class="hljs-built_in">number</span>;
+      message?: <span class="hljs-built_in">string</span>;
+      isError?: <span class="hljs-built_in">boolean</span>;
+      headers?: <span class="hljs-built_in">any</span>;
+      response?: <span class="hljs-built_in">any</span>;
+      stack?: <span class="hljs-built_in">any</span>;
+    };
+    store?: <span class="hljs-built_in">object</span>;
+    statusCode?: <span class="hljs-built_in">number</span>;
+    delay?: <span class="hljs-built_in">number</span>;
+    fetchCount?: <span class="hljs-built_in">number</span>;
+    skipFetchError?: <span class="hljs-built_in">boolean</span>;
+    middlewares?: <span class="hljs-built_in">string</span>[];
+    middlewares?: <span class="hljs-built_in">Array</span>&lt;express.RequestHandler&gt;;
+
+    <span class="hljs-comment">// System generated attributes. Please avoid modifying these attribute values</span>
+    _isFile?: <span class="hljs-built_in">boolean</span>;
+    _request?: AxiosRequestConfig;
+    _extension?: <span class="hljs-built_in">string</span>;
+  };
+  data: <span class="hljs-built_in">any</span>; <span class="hljs-comment">// response will be sent using this attribute value.</span>
+  config: Config; <span class="hljs-comment">// gives you the current mock server configuration.</span>
+  getStore: <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">object</span>;
+  getDb: <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">object</span>;
+}
+</div></code></pre>
+  <h3 id="dynamic-route-config"><strong>Dynamic Route Config</strong></h3>
+  <p>RouteConfigs are mutable. Means we can able to modify the routeConfigs in runtime using middleware.
+    For Example:</p>
+  <p><code>middleware.js</code></p>
+  <pre><code class="language-js"><div><span class="hljs-built_in">exports</span>._FetchTillData = <span class="hljs-function">(<span class="hljs-params">_req, res, next</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> locals = res.locals;
+  <span class="hljs-keyword">const</span> routeConfig = locals.routeConfig;
+
+  <span class="hljs-keyword">if</span> (!routeConfig.fetchData) <span class="hljs-keyword">return</span> next();
+
+  <span class="hljs-keyword">if</span> (!routeConfig.fetchData.isError) {
+    <span class="hljs-comment">// If fetchData has no error then stop fetching anymore</span>
+    routeConfig.fetchCount = <span class="hljs-number">0</span>; <span class="hljs-comment">// setting fetchCount to zero stops fetching</span>
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (
+    routeConfig.fetchCount !== <span class="hljs-literal">undefined</span> &amp;&amp;
+    routeConfig.fetchCount == <span class="hljs-number">0</span>
+  ) {
+    <span class="hljs-comment">// If fetchData has any error then keep on fetching</span>
+    routeConfig.fetchCount = -<span class="hljs-number">1</span>; <span class="hljs-comment">// setting fetchCount to -1 does an infinite fetch</span>
+  }
+  next();
+};
+</div></code></pre>
+  <p>The above middleware helps to fetch the data from url until it gets a valid success response.</p>
+  <h2 id="config"><strong>Config</strong></h2>
+  <p>you can provide your own config by passing the config object in the <code>MockServer</code> constructor. For
+    Example :</p>
+  <p><code>server.js</code> :</p>
+  <pre><code class="language-js"><div><span class="hljs-comment">// These are default config. You can provide your custom config as well.</span>
+<span class="hljs-keyword">const</span> config = {
+  <span class="hljs-attr">port</span>: <span class="hljs-number">3000</span>, <span class="hljs-comment">// by default mock will be launched at this port. http://localhost:3000/</span>
+  <span class="hljs-attr">host</span>: <span class="hljs-string">&quot;localhost&quot;</span>,
+  <span class="hljs-attr">root</span>: process.cwd(), <span class="hljs-comment">// all paths will be relative to this path. Please provide a absolute path here.</span>
+  <span class="hljs-attr">base</span>: <span class="hljs-string">&quot;/&quot;</span>, <span class="hljs-comment">// all routes will be prefixed with the given baseUrl.</span>
+  <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;public&quot;</span>, <span class="hljs-comment">// Please provide a folder path. This will be hosted locally and all files will be statically accessed</span>
+  <span class="hljs-attr">reverse</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true routes will be generated in reverse order</span>
+  <span class="hljs-attr">bodyParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Sets the bodyParser</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-comment">// Set the id attribute here. Helps to do Crud Operations. For example: &#x27;id&#x27;: &quot;_id&quot;</span>
+  <span class="hljs-attr">logger</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If False no logger will be shown</span>
+  <span class="hljs-attr">noCors</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If false cross origin will not be handled</span>
+  <span class="hljs-attr">noGzip</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If False response will not be compressed</span>
+  <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true only GET call is allowed</span>
+};
+
+<span class="hljs-keyword">new</span> MockServer(config).launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>);
+</div></code></pre>
+  <h2 id="default-routes">Default Routes</h2>
+  <ul>
+    <li><code>Home Page</code> - <a href="http://localhost:3000">http://localhost:3000</a></li>
+    <li><code>Db</code> - <a href="http://localhost:3000/_db">http://localhost:3000/_db</a></li>
+    <li><code>Rewriters</code> - <a href="http://localhost:3000/_rewriters">http://localhost:3000/_rewriters</a></li>
+    <li><code>Store</code> - <a href="http://localhost:3000/_store">http://localhost:3000/_store</a></li>
+    <li><code>Reset Db</code> - <a href="http://localhost:3000/_reset/db">http://localhost:3000/_reset/db</a></li>
+    <li><code>Reset Store</code> - <a href="http://localhost:3000/_reset/store">http://localhost:3000/_reset/store</a>
+    </li>
+  </ul>
+  <h2 id="home-page"><strong>Home Page</strong></h2>
+  <p><img src="https://r35007.github.io/Mock-Server/src/img/homePage.png" alt="Home Page"></p>
+  <h2 id="details-view"><strong>Details View</strong></h2>
+  <p><img src="https://r35007.github.io/Mock-Server/src/img/detailsView.png" alt="Details View"></p>
+  <h3 id="update-route"><strong>Update Route</strong></h3>
+  <p><img src="https://r35007.github.io/Mock-Server/src/img/updateRoute.png" alt="Update Route"></p>
+  <h3 id="clone-route"><strong>Clone Route</strong></h3>
+  <p><img src="https://r35007.github.io/Mock-Server/src/img/cloneRoute.png" alt="Clone Route"></p>
+  <h3 id="add-route"><strong>Add Route</strong></h3>
+  <p><img src="https://r35007.github.io/Mock-Server/src/img/addRoute.png" alt="Add Route"></p>
+  <h2 id="cli-usage">CLI Usage</h2>
+  <pre><code class="language-sh"><div>$ mock-server --<span class="hljs-built_in">help</span>
+Options:
+  -c, --config           Path to config file                            [string]
+  -P, --port             Set port                                [default: 3000]
+  -H, --host             Set host                         [default: <span class="hljs-string">&quot;localhost&quot;</span>]
+  -m, --middleware       Paths to middleware file                      [string]
+  -i, --injectors        Path to Injectors file                         [string]
+  -s, --store            Path to Store file                             [string]
+  -r, --rewriters        Path to Rewriter file                          [string]
+      --staticDir, --sd  Set static files directory                     [string]
+  -b, --base             Set base route path                            [string]
+      --readOnly, --ro   Allow only GET requests                       [boolean]
+      --noCors, --nc     Disable Cross-Origin Resource Sharing         [boolean]
+      --noGzip, --ng     Disable GZIP Content-Encoding                 [boolean]
+  -l, --logger           Enable logger                 [boolean] [default: <span class="hljs-literal">true</span>]
+      --sample, --ex     Create Sample                [boolean] [default: <span class="hljs-literal">false</span>]
+  -w, --watch            Watch file(s)                [boolean] [default: <span class="hljs-literal">false</span>]
+  -S, --snapshots        Set snapshots directory                  [default: <span class="hljs-string">&quot;.&quot;</span>]
+  -h, --<span class="hljs-built_in">help</span>             Show <span class="hljs-built_in">help</span>                                     [boolean]
+  -v, --version          Show version number                           [boolean]
+
+Examples:
+  index.js db.json
+  index.js --watch db.json
+  index.js --sample --watch
+  index.js http://jsonplaceholder.typicode.com/db
+
+https://r35007.github.io/Mock-Server/
+</div></code></pre>
+  <h2 id="api">API</h2>
+  <h3 id="mockserver"><strong>MockServer</strong></h3>
+  <p>returns the instance of the mockServer.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
+<span class="hljs-keyword">const</span> mockServer = <span class="hljs-keyword">new</span> MockServer(<span class="hljs-string">&quot;./config.json&quot;</span>);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>config</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>This object sets the port, host etc..</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="create"><strong>Create</strong></h3>
+  <p>returns the single instance of the mockServer.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
+<span class="hljs-keyword">const</span> mockServer = MockServer.Create(<span class="hljs-string">&quot;./config.json&quot;</span>);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>config</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>This object sets the port, host etc..</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="destroy"><strong>Destroy</strong></h3>
+  <p>stops the server and clears the instance of the mockServer.
+    returns promise</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
+<span class="hljs-keyword">const</span> mockServer = MockServer.Create();
+<span class="hljs-keyword">await</span> MockServer.Destroy();
+
+<span class="hljs-comment">// or </span>
+<span class="hljs-comment">// pass a mock server instance to destroy</span>
+<span class="hljs-keyword">await</span> MockServer.Destroy(mockServer);
+</div></code></pre>
+  <h3 id="launchserver"><strong>launchServer</strong></h3>
+  <p>It validates all the params in the MockServer, loads the resources and starts the server.</p>
+  <pre><code class="language-js"><div>mockServer.launchServer(
+  <span class="hljs-string">&quot;./db.json&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+  <span class="hljs-string">&quot;./store.json&quot;</span>
+);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>db</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>This object generates the local rest api.</td>
+      </tr>
+      <tr>
+        <td>injectors</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Helps to inject a route configs for the existing routes</td>
+      </tr>
+      <tr>
+        <td>middleware</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Here you initialize the needed custom middleware</td>
+      </tr>
+      <tr>
+        <td>rewriters</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Helps to set route rewriters</td>
+      </tr>
+      <tr>
+        <td>store</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Helps to store values and share between routes</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="rewriter"><strong>rewriter</strong></h3>
+  <p>Sets the route rewrites and return the router of the rewriters;</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> rewriters = mockServer.rewriter(<span class="hljs-string">&quot;./rewriters.json&quot;</span>);
+app.use(rewriters);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>rewriters</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Give the Rewrites</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="defaults"><strong>defaults</strong></h3>
+  <p>returns the list of default middlewares.
+    Also helps to host a static directory.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaults = mockServer.defaults({ <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;./public&quot;</span>, <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">true</span> });
+app.use(defaults);
+</div></code></pre>
+  <ul>
+    <li>options
+      <ul>
+        <li><code>staticDir</code> path to static files</li>
+        <li><code>logger</code> enable logger middleware (default: true)</li>
+        <li><code>bodyParser</code> enable body-parser middleware (default: true)</li>
+        <li><code>noGzip</code> disable Compression (default: false)</li>
+        <li><code>noCors</code> disable CORS (default: false)</li>
+        <li><code>readOnly</code> accept only GET requests (default: false)</li>
+      </ul>
+    </li>
+  </ul>
+  <h3 id="resources"><strong>resources</strong></h3>
+  <p>Sets the routes and returns the resources router.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> resources = mockServer.resources(
+  <span class="hljs-string">&quot;./db.json&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./store.json&quot;</span>
+);
+app.use(resources);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>db</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>This object generates the local rest api.</td>
+      </tr>
+      <tr>
+        <td>injectors</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Helps to inject a route configs for the existing routes</td>
+      </tr>
+      <tr>
+        <td>middleware</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Here you initialize the needed custom middleware</td>
+      </tr>
+      <tr>
+        <td>store</td>
+        <td>string / object</td>
+        <td>No</td>
+        <td>Helps to store values and share between routes</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="defaultroutes"><strong>defaultRoutes</strong></h3>
+  <p>Returns router with some default routes.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaultsRoutes = mockServer.defaultRoutes();
+app.use(defaultsRoutes);
+</div></code></pre>
+  <h3 id="adddbdata"><strong>addDbData</strong></h3>
+  <p>adds a new data to the existing db.</p>
+  <pre><code class="language-js"><div>mockServer.addDbData(db);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>db</td>
+        <td>object</td>
+        <td>No</td>
+        <td>Give the new data to add to existing Db</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="startserver"><strong>startServer</strong></h3>
+  <p>Returns a Promise of <code>Server</code>. - helps to start the app server externally</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> server = <span class="hljs-keyword">await</span> mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-string">&quot;localhost&quot;</span>);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>port</td>
+        <td>number</td>
+        <td>No</td>
+        <td>Set custom Port</td>
+      </tr>
+      <tr>
+        <td>host</td>
+        <td>string</td>
+        <td>No</td>
+        <td>Set custom Host</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="stopserver"><strong>stopServer</strong></h3>
+  <p>Returns a Promise of Boolean. - helps to stop the app server externally</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> isStopped = <span class="hljs-keyword">await</span> mockServer.stopServer();
+</div></code></pre>
+  <h3 id="resetserver"><strong>resetServer</strong></h3>
+  <p>Clears out all values and resets the server for a fresh start.
+    By default this method will be called on <code>mockServer.stopServer()</code> method.</p>
+  <pre><code class="language-js"><div>mockServer.resetServer();
+</div></code></pre>
+  <h3 id="resetdb"><strong>resetDb</strong></h3>
+  <p>Returns the routes that are reset.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> routes = mockServer.resetDb(); <span class="hljs-comment">// If param is not present, it resets all the routes.</span>
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ids</td>
+        <td>string[]</td>
+        <td>No</td>
+        <td>Give List of route ids to reset</td>
+      </tr>
+      <tr>
+        <td>routePaths</td>
+        <td>string[]</td>
+        <td>No</td>
+        <td>Give List of routePaths to reset</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="resetstore"><strong>resetStore</strong></h3>
+  <p>Returns the store values that are reset.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> store = mockServer.resetStore(); <span class="hljs-comment">// It resets all the store values.</span>
+</div></code></pre>
+  <h3 id="pagenotfound"><strong>pageNotFound</strong></h3>
+  <p>It is a middleware to handle a page not found error.
+    Please use it at the end of all routes.</p>
+  <pre><code class="language-js"><div>app.use(mockServer.pageNotFound);
+</div></code></pre>
+  <h3 id="errorhandler"><strong>errorHandler</strong></h3>
+  <p>It is a middleware to handle a any error occur in server.
+    Please use it at the end of all routes.</p>
+  <pre><code class="language-js"><div>app.use(mockServer.errorHandler);
+</div></code></pre>
+  <h3 id="setters"><strong>Setters</strong></h3>
+  <p>set the db, middleware, injectors, rewriters, config, store</p>
+  <pre><code class="language-js"><div>mockServer.setData(db, middleware, injectors, rewriters, store, config);
+
+<span class="hljs-comment">//or</span>
+
+mockServer.setConfig(config);
+mockServer.setMiddlewares(middlewares);
+mockServer.setInjectors(injectors);
+mockServer.setRewriters(rewriters);
+mockServer.setStore(store);
+mockServer.setDb(Db, { _harEntryCallback, _harDbCallback });
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <p>The same as the <a href="#mockserver">MockServer</a></p>
+  <h3 id="variables"><strong>Variables</strong></h3>
+  <p>Other useful variables.</p>
+  <pre><code class="language-js"><div><span class="hljs-comment">// Please avoid directly modify or setting values to these variable.</span>
+<span class="hljs-comment">// Use Setter method to modify or set any values to these variables.</span>
+<span class="hljs-keyword">const</span> app = mockServer.app;
+<span class="hljs-keyword">const</span> server = mockServer.server;
+<span class="hljs-keyword">const</span> router = mockServer.router;
+<span class="hljs-keyword">const</span> data = mockServer.data;
+
+<span class="hljs-keyword">const</span> db = mockServer.db;
+<span class="hljs-keyword">const</span> middleware = mockServer.middleware;
+<span class="hljs-keyword">const</span> injectors = mockServer.injectors;
+<span class="hljs-keyword">const</span> rewriters = mockServer.rewriters;
+<span class="hljs-keyword">const</span> config = mockServer.config;
+<span class="hljs-keyword">const</span> store = mockServer.store;
+<span class="hljs-keyword">const</span> initialDb = mockServer.initialDb;
+<span class="hljs-keyword">const</span> initialStore = mockServer.initialStore;
+</div></code></pre>
+  <h3 id="validators"><strong>Validators</strong></h3>
+  <p>These helps to return a valid data from provided file path or object.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { 
+  getValidDb, 
+  getValidMiddlewares, 
+  getValidInjectors,
+  getValidRewriters,
+  getValidConfig,
+  getValidStore,
+  getValidRouteConfig
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server/dist/server/utils/validators&quot;</span>);
+
+<span class="hljs-comment">// called only when the given data is in .Har format and called at each entry</span>
+<span class="hljs-keyword">const</span> _harEntryCallback = <span class="hljs-function">(<span class="hljs-params">entry, routePath, routeConfig</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> { [routePath]: routeConfig };
+};
+<span class="hljs-comment">// called only when the given data is in .Har format and called at end of the entry loop</span>
+<span class="hljs-keyword">const</span> _harDbCallback = <span class="hljs-function">(<span class="hljs-params">data, db</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> db; <span class="hljs-comment">// what ever you return here will be given back</span>
+};
+
+<span class="hljs-keyword">const</span> options = {
+  <span class="hljs-attr">reverse</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If true the db will be generated in reverse order</span>
+  _harEntryCallback,
+  _harDbCallback
+};
+
+<span class="hljs-keyword">const</span> rootPath = <span class="hljs-string">&quot;./&quot;</span>;
+
+<span class="hljs-keyword">const</span> db = getValidDb(
+  <span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
+  [], <span class="hljs-comment">// injectors</span>
+  rootPath, <span class="hljs-comment">// Root path to fetch the db.json file</span>
+  options
+); <span class="hljs-comment">// returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig</span>
+<span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, rootPath); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
+<span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, rootPath); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
+<span class="hljs-keyword">const</span> rewriters = getValidRewriters(rewriters, rootPath); <span class="hljs-comment">// returns a valid rewriters</span>
+<span class="hljs-keyword">const</span> config = getValidConfig(config, rootPath); <span class="hljs-comment">// returns a valid config combined with the default configs</span>
+<span class="hljs-keyword">const</span> store = getValidStore(store, rootPath); <span class="hljs-comment">// returns a valid store</span>
+<span class="hljs-keyword">const</span> routeConfig = getValidRouteConfig(route, routeConfig); <span class="hljs-comment">// returns a valid routeconfig used by getValidDb</span>
+<span class="hljs-keyword">const</span> injectorConfig = getValidInjectorConfig(route, routeConfig); <span class="hljs-comment">// returns a valid injectorsConfig used by getValidInjectors</span>
+<span class="hljs-keyword">const</span> route = getValidRoute(route); <span class="hljs-comment">// splits route by comma and adds a slash (&#x27;/&#x27;) prefix to the routes</span>
+</div></code></pre>
+  <h2 id="author">Author</h2>
+  <p><strong>Sivaraman</strong> - <a href="sendmsg2siva.siva@gmail.com">sendmsg2siva.siva@gmail.com</a></p>
+  <ul>
+    <li><em>GitHub</em> - <a href="https://github.com/R35007/Mock-Server">https://github.com/R35007/Mock-Server</a></li>
+  </ul>
+  <h2 id="license">License</h2>
+  <p>MIT</p>
+
+  <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+
+</body>
+
+</html>

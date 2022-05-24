@@ -5,8 +5,8 @@ import * as Watcher from 'chokidar';
 import * as fs from 'fs';
 import * as path from 'path';
 import { MockServer } from "../server";
-import { Config } from '../server/model';
-import { createSampleFiles, getDbSnapShot } from "../server/utils";
+import * as ParamTypes from '../server/types/param.types';
+import { createSampleFiles } from "../server/utils";
 import argv from './argv';
 
 const init = async () => {
@@ -14,9 +14,9 @@ const init = async () => {
     id, staticDir, base, noCors, noGzip, readOnly, sample, watch, snapshots, _: [source]
   } = argv();
 
-  const _config: string | Config = typeof config === 'string' ? path.resolve(process.cwd(), config) : {
+  const _config: ParamTypes.Config = typeof config === 'string' ? path.resolve(process.cwd(), config) as ParamTypes.Config : {
     port, host, id, staticDir, base, noCors, noGzip, readOnly, root: process.cwd()
-  } as Config;
+  } as ParamTypes.Config;
 
   if (sample) {
     createSampleFiles(process.cwd());
@@ -59,18 +59,18 @@ const startServer = async (
   snapshots: string,
   watch: boolean,
   db?: string,
-  middleware?: string,
+  middlewares?: string,
   injectors?: string,
   rewriters?: string,
   store?: string,
-  _config?: string | Config
+  _config?: ParamTypes.Config
 ) => {
   const mockServer = new MockServer(_config);
   const filesToWatch = ([
     _config,
     store,
     db,
-    middleware,
+    middlewares,
     injectors,
     rewriters,
   ]).filter(x => typeof x === 'string').filter(Boolean) as string[];
@@ -82,16 +82,16 @@ const startServer = async (
         try {
           console.log("\n" + chalk.yellow(_path) + chalk.gray(` has changed, reloading...`));
           mockServer.server && await mockServer.stopServer();
-          !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
+          !mockServer.server && await mockServer.launchServer(db, middlewares, injectors, rewriters, store);
           console.log(chalk.gray('watching for changes...'));
           console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
         } catch (err) {
           console.log(err.message);
         }
       });
-      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
+      !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
     } else {
-      !mockServer.server && await mockServer.launchServer(db, middleware, injectors, rewriters, store);
+      !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
     }
   } catch (err) {
     console.log(err.message);
@@ -120,7 +120,7 @@ const startServer = async (
     if (chunk.toString().trim().toLowerCase() === 's') {
       const filename = `db-${Date.now()}.json`;
       const file = path.join(snapshots, filename);
-      fs.writeFileSync(file, JSON.stringify(getDbSnapShot(mockServer.db), null, 2), 'utf-8');
+      fs.writeFileSync(file, JSON.stringify(mockServer.db, null, 2), 'utf-8');
       console.log(`Saved snapshot to ${path.relative(process.cwd(), file)}\n`);
     }
   });

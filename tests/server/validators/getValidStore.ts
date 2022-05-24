@@ -1,17 +1,17 @@
 
 import path from "path";
-import { MockServer } from "../../../src/server/index";
+import * as Defaults from "../../../src/server/defaults";
+import * as ParamTypes from '../../../src/server/types/param.types';
+import { getValidStore } from '../../../src/server/utils/validators';
 import { invalidInputChecks } from '../Helpers';
 
-export const getValidStore = () => {
-  describe('mockServer.getValidStore() : ', () => {
-    let mockServer: MockServer;
-    beforeEach(() => { mockServer = MockServer.Create() });
-    afterEach(async () => { await MockServer.Destroy() });
+
+export const shouldGetValidStore = () => {
+  describe('getValidStore() : ', () => {
 
     describe('should return Default store on invalid input', () => {
-      test.each(invalidInputChecks({}))('If %s is passed', (_condition, input, expected) => {
-        const store = mockServer.getValidStore(input as any);
+      test.each(invalidInputChecks(Defaults.Store))('If %s is passed', (_condition, input, expected) => {
+        const store = getValidStore(input as ParamTypes.Store);
         expect(store).toEqual(expected);
       });
     });
@@ -23,11 +23,10 @@ export const getValidStore = () => {
 
       test.each([
         ["valid .js file", "./store.js", jsFile],
-        ["valid .json file", "/store.json", jsonFile],
+        ["valid .json file", "./store.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
-      ])('If %s path is passed', (_condition, input, expected) => {
-        const storePath = path.join(__dirname, "../../mock/store", input as string)
-        const store = mockServer.getValidStore(storePath);
+      ])('If %s path is passed', (_condition, storePath, expected) => {
+        const store = getValidStore(storePath as string, path.join(__dirname, "../../mock/store"));
         expect(store).toEqual(expected);
       });
     });

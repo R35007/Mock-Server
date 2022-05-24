@@ -5,7 +5,8 @@ import * as fs from 'fs';
 import JPH from 'json-parse-helpfulerror';
 import * as _ from 'lodash';
 import * as path from 'path';
-import { FetchData, PathDetails } from '../model';
+import { PathDetails } from '../types/common.types';
+import * as ValidTypes from '../types/valid.types';
 
 export const getObject = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
@@ -14,7 +15,7 @@ export const getObject = (directoryPath: string, excludeFolders: string[] = [], 
   const obj = onlyJson.reduce((mock, file) => {
     try {
       if (path.extname(file.filePath) === ".js") {
-        delete require.cache[file.filePath];
+        delete require.cache[require.resolve(file.filePath)];
         const obj = require(file.filePath);
         if (_.isEmpty(obj) || !_.isPlainObject(obj)) return mock
         return { ...mock, ...obj };
@@ -25,6 +26,7 @@ export const getObject = (directoryPath: string, excludeFolders: string[] = [], 
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
+      console.log(error);
       return mock;
     }
   }, {});
@@ -38,7 +40,7 @@ export const getList = (directoryPath: string, excludeFolders: string[] = [], re
   const list = onlyJson.reduce((mock, file) => {
     try {
       if (path.extname(file.filePath) === ".js") {
-        delete require.cache[file.filePath];
+        delete require.cache[require.resolve(file.filePath)];
         const obj = require(file.filePath);
         if (_.isEmpty(obj) || !_.isArray(obj)) return mock
         return [...mock, ...obj];
@@ -49,6 +51,7 @@ export const getList = (directoryPath: string, excludeFolders: string[] = [], re
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
+      console.log(error);
       return mock;
     }
   }, [] as any[]);
@@ -57,9 +60,10 @@ export const getList = (directoryPath: string, excludeFolders: string[] = [], re
 
 export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true): PathDetails[] => {
   const stats = getStats(directoryPath);
-  if (stats?.isFile) {
+  if (!stats) return [];
+  if (stats.isFile) {
     return [stats];
-  } else if (stats?.isDirectory && foldersToExclude.indexOf(directoryPath) < 0) {
+  } else if (stats.isDirectory && foldersToExclude.indexOf(directoryPath) < 0) {
     const files = fs.readdirSync(directoryPath);
     const filteredFiles = files.filter((file) => foldersToExclude.indexOf(file) < 0);
     const filesList = filteredFiles.reduce((res: PathDetails[], file: string) => {
@@ -75,17 +79,15 @@ export const getFilesList = (directoryPath: string, foldersToExclude: string[] =
 };
 
 export const getStats = (directoryPath: string): PathDetails | undefined => {
-  if (fs.existsSync(directoryPath)) {
-    const stats = fs.statSync(directoryPath);
-    const extension = path.extname(directoryPath);
-    const fileName = path.basename(directoryPath, extension);
-    return { fileName, extension, filePath: directoryPath, isFile: stats.isFile(), isDirectory: stats.isDirectory() };
-  }
-  return;
+  if (!fs.existsSync(directoryPath)) return;
+  const stats = fs.statSync(directoryPath);
+  const extension = path.extname(directoryPath);
+  const fileName = path.basename(directoryPath, extension);
+  return { fileName, extension, filePath: directoryPath, isFile: stats.isFile(), isDirectory: stats.isDirectory() };
 };
 
-export const getFileData = (filePath: string, extension: string): FetchData => {
-  let fetchData: FetchData = {};
+export const getFileData = (filePath: string, extension: string): ValidTypes.FetchData => {
+  let fetchData: ValidTypes.FetchData = { isError: false };
   try {
     if (extension === ".json" || extension === ".har") {
       console.log(chalk.gray("Fetch request : "), filePath);
@@ -97,19 +99,20 @@ export const getFileData = (filePath: string, extension: string): FetchData => {
     }
   } catch (err) {
     console.log(chalk.red(`Error reading ${filePath}`));
+    console.log(err);
     fetchData = {
       isError: true,
       stack: err.stack,
       message: err.message,
-      response: {}
+      response: {},
     };
   }
 
   return fetchData;
 }
 
-export const getUrlData = async (request: AxiosRequestConfig): Promise<FetchData> => {
-  let fetchData: FetchData = {};
+export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidTypes.FetchData> => {
+  let fetchData: ValidTypes.FetchData = { isError: false, };
   console.log(chalk.gray("Fetch request : "), request);
   try {
     if (request.url?.match(/\.(jpeg|jpg|gif|png)$/gi)) {
@@ -117,6 +120,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<FetchData
     } else {
       const response = await axios(request);
       fetchData = {
+        isError: false,
         status: response.status,
         headers: response.headers
       };
@@ -127,13 +131,14 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<FetchData
       }
     }
   } catch (err) {
+    console.log(err);
     fetchData = {
       isError: true,
       stack: err.stack,
       message: err.message || err.response?.statusText || "Internal Server Error",
+      response: err.response?.data ?? {},
       headers: err.response?.headers,
       status: err.response?.status,
-      response: err.response?.data ?? {}
     };
   }
   return fetchData;
@@ -143,12 +148,12 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
   if (!relativeUrl || typeof relativeUrl !== 'string' || !relativeUrl?.trim().length) return '';
   if (relativeUrl.startsWith("http")) return relativeUrl;
   const parsedUrl = decodeURIComponent(path.resolve(root, relativeUrl));
-  return parsedUrl.replace(/\\/g, "/");
+  return parsedUrl;
 };
 
 export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false): object | any[] | undefined => {
   if (_.isEmpty(data)) return;
   if (_.isString(data)) return isList ? getList(parseUrl(data, root)) : getObject(parseUrl(data, root));
-  if (_.isPlainObject(data) || _.isArray(data)) return data
+  if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data)
   return;
 }

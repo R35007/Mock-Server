@@ -1,25 +1,28 @@
 import express from 'express';
 import * as _ from 'lodash';
-import * as lodashDashId from "lodash-id";
+import * as lodashIdMixin from "lodash-id";
 import { nanoid } from 'nanoid';
 import { flatQuery } from '.';
-_.mixin(lodashDashId);
+
+const lodashId = _ as any; // just to remove type when using mixin
+lodashId.mixin(lodashIdMixin);
+
 export default class {
 
   static search = (req: express.Request, res: express.Response, data: any[]) => {
-    _.id = res.locals?.config?.id || 'id';
+    lodashId.id = res.locals?.config?.id || 'id';
 
     let _data = _.cloneDeep(data);
     const query = req.query;
     const params = req.params;
 
-    const ids = flatQuery(params.id || query.id);
+    const ids = flatQuery(params.id || query.id, true) as number[];
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
-    const _start = flatQuery(query._start)[0];
-    const _end = flatQuery(query._end)[0];
-    const _limit = flatQuery(query._limit)[0];
-    const _page = flatQuery(query._page)[0];
+    const _start = flatQuery(query._start, true)[0] as number;
+    const _end = flatQuery(query._end, true)[0] as number;
+    const _limit = flatQuery(query._limit, true)[0] as number;
+    const _page = flatQuery(query._page, true)[0] as number;
     const _first = flatQuery(query._first)[0];
     const _last = flatQuery(query._last)[0];
     const _text = flatQuery(query._text);
@@ -39,7 +42,7 @@ export default class {
 
     // Filters By Id
     if (ids.length) {
-      _data = ids.map(id => _.getById(_data, id)).filter(Boolean);
+      _data = ids.map(id => lodashId.getById(_data, id)).filter(Boolean);
     }
 
     // Automatically delete query parameters that can't be found in database
@@ -53,22 +56,23 @@ export default class {
 
     // Makes query.id=1,2 to query.id=[1,2]
     for (let key in query) {
-      query[key] = flatQuery(query[key])
+      query[key] = flatQuery(query[key]) as string[]
     }
 
     // Partial Text Search
     const searchTexts = [..._text, ...q].filter(Boolean);
     if (searchTexts.filter(Boolean).length) {
-      _data = _data.filter(d => searchTexts.some(_t => _.values(d).join(", ")?.toLowerCase().indexOf(_t?.toLowerCase()) >= 0));
+      _data = _data.filter(d => searchTexts.some(_t => _.values(d).join(", ")?.toLowerCase().indexOf((`${_t || ''}`)?.toLowerCase()) >= 0));
     }
 
     // Attribute Filter
     _.toPairs(query).forEach(([key, val]) => {
-      const _val = [].concat(val);
+      const _val = ([] as any).concat(val);
       const isDifferent = /_ne$/.test(key);
       const isRange = /_lte$/.test(key) || /_gte$/.test(key);
       const isLike = /_like$/.test(key);
       const path = key.replace(/(_lte|_gte|_ne|_like)$/, '');
+
 
       _data = _data.filter(obj => {
         const objVal = _.get(obj, path);
@@ -93,13 +97,13 @@ export default class {
     })
 
     // Sort and Order
-    _data = _.orderBy(_data, _sort, _order.map(o => o.toLowerCase()));
+    _data = _.orderBy(_data, _sort, _order.map(o => (`${o || ''}`).toLowerCase()) as Array<"asc" | "desc">);
 
     // Ranging
     if (isRange) {
       const startIndex = _start ?? 0;
       const endIndex = _end ?? _data.length;
-      _data = _data.slice(parseInt(startIndex), parseInt(endIndex))
+      _data = _data.slice(startIndex, endIndex)
     }
 
     // Pagination
@@ -143,57 +147,57 @@ export default class {
 
   static insert = (req: express.Request, res: express.Response, data: any[]) => {
     const id = res.locals?.config?.id || 'id';
-    _.id = id;
-    _.createId = (coll) => {
+    lodashId.id = id;
+    lodashId.createId = (coll) => {
       if (_.isEmpty(coll)) {
         return 1;
       } else {
-        let maxId = _.maxBy(coll, id)[id]; // Increment integer id or generate string id
+        let maxId = lodashId.maxBy(coll, id)[id]; // Increment integer id or generate string id
         return _.isFinite(maxId) ? ++maxId : nanoid(7);
       }
     }
     const body = [].concat(req.body);
     if (_.isEmpty(body)) return;
     body.forEach((b: any) => delete b.id);
-    const insertedData = body.reduce((res, b) => res.concat(_.insert(data, b)), []);
+    const insertedData = body.reduce((res, b) => res.concat(lodashId.insert(data, b)), []);
     return insertedData;
   }
 
   static remove = (req: express.Request, res: express.Response, data: any[]) => {
-    _.id = res.locals?.config?.id || 'id';
+    lodashId.id = res.locals?.config?.id || 'id';
     if (req.params.id) {
-      return _.removeById(data, req.params.id)
+      return lodashId.removeById(data, req.params.id)
     } else if (!_.isEmpty(req.query)) {
-      return _.removeWhere(data, req.query)
+      return lodashId.removeWhere(data, req.query)
     }
     return;
   }
 
   static update = (req: express.Request, res: express.Response, data: any[]) => {
-    _.id = res.locals?.config?.id || 'id';
+    lodashId.id = res.locals?.config?.id || 'id';
     const body = [].concat(req.body)[0];
     if (_.isEmpty(body)) return;
 
     if (req.params.id) {
-      return _.updateById(data, req.params.id, body)
+      return lodashId.updateById(data, req.params.id, body)
     } else if (!_.isEmpty(req.query)) {
-      return _.updateWhere(data, req.query, body)
+      return lodashId.updateWhere(data, req.query, body)
     }
     return;
   }
 
   static replace = (req: express.Request, res: express.Response, data: any[]) => {
     const id = res.locals?.config?.id || 'id';
-    _.id = id;
+    lodashId.id = id;
     const body = [].concat(req.body)[0];
 
     if (_.isEmpty(body)) return;
 
     if (req.params.id) {
-      return _.replaceById(data, req.params.id, body)
+      return lodashId.replaceById(data, req.params.id, body)
     } else if (!_.isEmpty(req.query)) {
       const matchedIds = _.filter(data, req.query).map(d => d[id]);
-      return matchedIds.reduce((res, matchedId) => res.concat(_.replaceById(data, matchedId, body)), [])
+      return matchedIds.reduce((res, matchedId) => res.concat(lodashId.replaceById(data, matchedId, body)), [])
     }
     return;
   }

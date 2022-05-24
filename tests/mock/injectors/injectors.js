@@ -1,7 +1,7 @@
 module.exports = [
   {
-    routes: ["/(.*)"],
-    delay: 2000
+    routes: "/(.*)",
+    delay: 2000,
   },
   {
     routes: ["/posts", "/comments"],

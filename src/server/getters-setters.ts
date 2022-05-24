@@ -1,29 +1,73 @@
 import chalk from "chalk";
+import express from "express";
+import { Server } from "http";
 import * as _ from 'lodash';
-import { Config, Db, GetData, HAR, Injectors, Middlewares, Rewriters, RouteConfig, Store } from './model';
-import { Validators } from './validators';
+import * as Defaults from './defaults';
+import { GetData, GetValidDbOptions } from "./types/common.types";
+import * as Params from "./types/param.types";
+import * as ValidTypes from "./types/valid.types";
+import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidStore } from './utils/validators';
 
-export class GettersSetters extends Validators {
+export class GettersSetters {
 
-  constructor(
-    config?: string | Partial<Config>,
-  ) {
-    super();
+  app!: express.Application;
+  router!: express.Router;
+  server: Server | undefined;
+  routes!: string[];
+
+  initialDb!: ValidTypes.Db;
+  initialStore!: ValidTypes.Store;
+
+  #config!: ValidTypes.Config;
+  #db!: ValidTypes.Db;
+  #middlewares!: ValidTypes.Middlewares;
+  #injectors!: ValidTypes.Injectors;
+  #store!: ValidTypes.Store;
+  #rewriters!: ValidTypes.Rewriters;
+
+  constructor(config?: Params.Config) {
     console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
+    this.init();
     this.setConfig(config);
   }
 
+  get config() { return _.cloneDeep(this.#config) };
+  get db() { return _.cloneDeep(this.#db) };
+  get middlewares() { return _.cloneDeep(this.#middlewares) };
+  get injectors() { return _.cloneDeep(this.#injectors) };
+  get rewriters() { return _.cloneDeep(this.#rewriters) };
+  get store() { return _.cloneDeep(this.#store) };
+
+  protected _db = () => this.#db;
+  protected _store = () => this.#store;
+
+  init() {
+    this.app = express().set("json spaces", 2);
+    this.router = express.Router();
+    this.routes = [];
+
+    this.#config = _.cloneDeep(Defaults.Config);
+    this.#middlewares = _.cloneDeep(Defaults.Middlewares);
+    this.#injectors = _.cloneDeep(Defaults.Injectors);
+    this.#rewriters = _.cloneDeep(Defaults.Rewriters);
+    this.#db = _.cloneDeep(Defaults.Db);
+    this.#store = _.cloneDeep(Defaults.Store);
+
+    this.initialDb = _.cloneDeep(Defaults.Db);
+    this.initialStore = _.cloneDeep(Defaults.Store);
+  }
+
   setData(
-    db?: string | Db | { [key: string]: Omit<Object, "__config"> | any[] | string },
-    middleware?: string | Partial<Middlewares>,
-    injectors?: string | Injectors,
-    rewriters?: string | Rewriters,
-    store?: string | Store,
-    config?: string | Partial<Config>,
+    db?: Params.Db,
+    injectors?: Params.Injectors,
+    middlewares?: Params.Middlewares,
+    rewriters?: Params.Rewriters,
+    store?: Params.Store,
+    config?: Params.Config,
   ) {
     !_.isEmpty(config) && this.setConfig(config);
     !_.isEmpty(rewriters) && this.setRewriters(rewriters);
-    !_.isEmpty(middleware) && this.setMiddleware(middleware);
+    !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
     !_.isEmpty(injectors) && this.setInjectors(injectors);
     !_.isEmpty(store) && this.setStore(store);
     !_.isEmpty(db) && this.setDb(db);
@@ -33,60 +77,51 @@ export class GettersSetters extends Validators {
     return {
       db: this.db,
       injectors: this.injectors,
-      middleware: this.middleware,
+      middlewares: this.middlewares,
       rewriters: this.rewriters,
       store: this.store,
       config: this.config
     } as GetData;
   };
 
-  setConfig(config?: string | Partial<Config>) {
+  setConfig(config?: Params.Config) {
     console.log("\n" + chalk.gray("Setting Config..."));
-    this.config = this.getValidConfig(config);
+    this.#config = getValidConfig(config, this.#config.root);
     console.log(chalk.gray("Done."));
   }
 
-  setMiddleware(middleware?: string | Partial<Middlewares>) {
+  setRewriters(rewriters?: Params.Rewriters) {
+    console.log("\n" + chalk.gray("Setting Rewriters..."));
+    this.#rewriters = getValidRewriters(rewriters, this.#config.root);
+    console.log(chalk.gray("Done."));
+  }
+
+  setMiddlewares(middleware?: Params.Middlewares) {
     console.log("\n" + chalk.gray("Setting Middleware..."));
-    this.middleware = this.getValidMiddleware(middleware);
+    this.#middlewares = getValidMiddlewares(middleware, this.#config.root);
     console.log(chalk.gray("Done."));
   }
 
-  setInjectors(injectors?: string | Injectors) {
+  setInjectors(injectors?: Params.Injectors) {
     console.log("\n" + chalk.gray("Setting Injectors..."));
-    this.injectors = this.getValidInjectors(injectors);
+    this.#injectors = getValidInjectors(injectors, this.#config.root);
     console.log(chalk.gray("Done."));
   }
 
-  setDb(db?: string | Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR,
-    injectors: string | Injectors = this.injectors,
-    options: { reverse?: boolean, isSnapshot?: boolean } = this.config,
-    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig) => Db,
-    finalCallback?: (data: any, db: Db) => Db
+  setStore(store?: Params.Store) {
+    console.log("\n" + chalk.gray("Setting Store..."));
+    this.#store = getValidStore(store, this.#config.root);
+    this.initialStore = _.cloneDeep(this.#store);
+    console.log(chalk.gray("Done."));
+  }
+
+  setDb(
+    db?: Params.Db,
+    options: GetValidDbOptions = {},
   ) {
     console.log("\n" + chalk.gray("Setting Db..."));
-    this.db = this.getValidDb(db, injectors, options, entryCallback, finalCallback);
-    this.initialDb = _.cloneDeep(this.db);
-    console.log(chalk.gray("Done."));
-  }
-
-  getDb = (ids: string[] = [], routePaths: string[] = []): Db => {
-    if (!ids.length && !routePaths.length) return _.cloneDeep(this.db) as Db;
-    const _routePaths = ids.map(id => Object.keys(this.db).find(r => this.db[r].id == id)).filter(Boolean) as string[];
-    const routePathsList = [..._routePaths, ...routePaths];
-    return _.cloneDeep(routePathsList.reduce((res, rp) => ({ ...res, [rp]: this.db[rp] }), {})) as Db;
-  }
-
-  setStore(store?: string | Store) {
-    console.log("\n" + chalk.gray("Setting Store..."));
-    this.store = this.getValidStore(store);
-    this.initialStore = _.cloneDeep(this.store);
-    console.log(chalk.gray("Done."));
-  }
-
-  setRewriters(rewriters?: string | Rewriters) {
-    console.log("\n" + chalk.gray("Setting Rewriters..."));
-    this.rewriters = this.getValidRewriters(rewriters);
+    this.#db = getValidDb(db, this.#injectors, this.#config.root, { ...options, reverse: this.config.reverse });
+    this.initialDb = _.cloneDeep(this.#db);
     console.log(chalk.gray("Done."));
   }
 }

@@ -13,5 +13,3 @@ export const invalidInputChecks = (expected) => [
   ["invalid .js file", "./xxx.js", expected],
   ["invalid folder", "./xxx", expected],
 ]
-
-export const forwardSlash = (path: string) => path.replace(/\\/g, "/");

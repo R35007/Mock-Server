@@ -1,4 +1,4 @@
 module.exports = {
-  root: __dirname.replace(/\\/g, "/"),
+  root: __dirname,
   base: "/api"
 }

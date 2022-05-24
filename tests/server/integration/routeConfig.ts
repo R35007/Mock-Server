@@ -19,6 +19,16 @@ export const routeConfig = () => {
       expect(response.type).toBe("text/html");
     });
 
+    it('should get string response if a mock is a number', async () => {
+      const db = { "/Hi": 1234 }
+      await mockServer.launchServer(db);
+      const response = await request(mockServer.app).get("/Hi");
+      expect(response.text).toBe("1234");
+      expect(typeof response.text).toBe("string");
+      expect(response.statusCode).toBe(200)
+      expect(response.type).toBe("text/html");
+    });
+
     it('should get json object response', async () => {
       const mock = { id: "1", name: "Siva" };
       const db = { "/user": mock };
@@ -74,7 +84,7 @@ export const routeConfig = () => {
     it('should fetch data only once', async () => {
       const mock = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const db = {
-        "/user": { _config: true, mock, middlewareNames: ["_IterateResponse"] },
+        "/user": { _config: true, mock, middlewares: ["_IterateResponse"] },
         "/customer": { _config: true, fetch: "http://${config.host}:${config.port}/user" }
       }
       await mockServer.launchServer(db);
@@ -85,7 +95,7 @@ export const routeConfig = () => {
     it('should fetch data from http url not more than twice', async () => {
       const mock = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const db = {
-        "/user": { _config: true, mock, middlewareNames: ["_IterateResponse"] },
+        "/user": { _config: true, mock, middlewares: ["_IterateResponse"] },
         "/customer": { _config: true, fetch: "http://${config.host}:${config.port}/user", fetchCount: 2 }
       }
       await mockServer.launchServer(db);
@@ -97,7 +107,7 @@ export const routeConfig = () => {
     it('should fetch data from http url infinete times', async () => {
       const mock = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const db = {
-        "/user": { _config: true, mock, middlewareNames: ["_IterateResponse"] },
+        "/user": { _config: true, mock, middlewares: ["_IterateResponse"] },
         "/customer": { _config: true, fetch: "http://${config.host}:${config.port}/user", fetchCount: -1 }
       }
       await mockServer.launchServer(db);
@@ -111,7 +121,7 @@ export const routeConfig = () => {
       const users = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const mock = { data: "Its Working !" };
       const db = {
-        "/user": { _config: true, mock: users, middlewareNames: ["_IterateResponse"] },
+        "/user": { _config: true, mock: users, middlewares: ["_IterateResponse"] },
         "/customer": { _config: true, mock, fetch: "http://${config.host}:${config.port}/user", mockFirst: true }
       }
       await mockServer.launchServer(db);
@@ -121,7 +131,7 @@ export const routeConfig = () => {
     it('should fetch instead of mock if there is no mock an mockFirst is true', async () => {
       const users = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const db = {
-        "/user": { _config: true, mock: users, middlewareNames: ["_IterateResponse"] },
+        "/user": { _config: true, mock: users, middlewares: ["_IterateResponse"] },
         "/customer": { _config: true, fetch: "http://${config.host}:${config.port}/user", mockFirst: true }
       }
       await mockServer.launchServer(db);
@@ -132,7 +142,7 @@ export const routeConfig = () => {
       const users = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const mock = { data: "Its Working !" };
       const db = {
-        "/user": { _config: true, mock: users, middlewareNames: ["_IterateResponse"], statusCode: 404 },
+        "/user": { _config: true, mock: users, middlewares: ["_IterateResponse"], statusCode: 404 },
         "/customer": { _config: true, mock, fetch: "http://${config.host}:${config.port}/user" }
       }
       await mockServer.launchServer(db);
@@ -145,7 +155,7 @@ export const routeConfig = () => {
       const users = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const mock = { data: "Its Working !" };
       const db = {
-        "/user": { _config: true, mock: users, middlewareNames: ["_IterateResponse"], statusCode: 404 },
+        "/user": { _config: true, mock: users, middlewares: ["_IterateResponse"], statusCode: 404 },
         "/customer": { _config: true, mock, fetch: "http://${config.host}:${config.port}/user", skipFetchError: true }
       }
       await mockServer.launchServer(db);
@@ -156,9 +166,9 @@ export const routeConfig = () => {
 
     it('should run the given middleware name', async () => {
       const mock = { id: "1", name: "Siva" };
-      const db = { "/user": { _config: true, middlewareNames: ["getUser"] } };
-      const middleware = { "getUser": (_req, res) => { res.send(mock) } }
-      await mockServer.launchServer(db, middleware);
+      const db = { "/user": { _config: true, middlewares: ["getUser"] } };
+      const middlewares = { "getUser": (_req, res) => { res.send(mock) } }
+      await mockServer.launchServer(db, [], middlewares);
       const response = await request(mockServer.app).get("/user");
       expect(response.body).toEqual(mock);
       expect(response.statusCode).toEqual(200);

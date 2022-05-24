@@ -5,19 +5,20 @@ import cors from 'cors';
 import express from 'express';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
-import Default_Config from '../config';
-import { Config, Default_Options } from '../model';
+import * as Defaults from '../defaults';
+import { Default_Options } from '../types/common.types';
+import * as ValidTypes from '../types/valid.types';
 const errorhandler = require('errorhandler');
 var responseTime = require('response-time');
 
 export default (opts: Default_Options) => {
 
 
-  const _opts = { ...Default_Config, ...opts } as Config;
+  const _opts = { ...Defaults.Config, ...opts } as ValidTypes.Config;
 
   const arr: any[] = [];
 
-  //
+  // gives response time in Response Header X-Response-Time
   arr.push(responseTime({ suffix: false }));
 
   // Compress all requests

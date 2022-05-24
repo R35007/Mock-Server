@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
-import { Default_Middlewares, Locals } from '../model';
+import { Locals } from "../types/common.types";
 import CRUD from '../utils/crud';
+import { Fetch, FetchFile, FetchUrl, setRequestUrl } from './fetch';
 
 const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
@@ -127,8 +128,23 @@ const _ReadOnly = (req, res, next) => {
     res.sendStatus(403); // Forbidden
   }
 }
+const _Fetch = (req, res, next) => {
+  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
+  setRequestUrl(req, res);
+  Fetch(req, res, next);
+}
+const _FetchUrl = (req, res, next) => {
+  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
+  setRequestUrl(req, res);
+  FetchUrl(req, res, next);
+}
+const _FetchFile = (req, res, next) => {
+  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
+  setRequestUrl(req, res);
+  FetchFile(req, res, next);
+}
 
-const Default_Middlewares: Default_Middlewares = {
+const DefaultMiddlewares = {
   _IterateResponse,
   _IterateRoutes,
   _CrudOperation,
@@ -138,7 +154,10 @@ const Default_Middlewares: Default_Middlewares = {
   _SetStoreDataToMock,
   _MockOnly,
   _FetchOnly,
-  _ReadOnly
+  _ReadOnly,
+  _Fetch,
+  _FetchFile,
+  _FetchUrl
 }
 
-export default Default_Middlewares;
+export default DefaultMiddlewares;

@@ -1,6 +1,6 @@
 {
   "/customMockData/1": {
-    "descrption": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
+    "description": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
     "mock": [
       {
         "userId": 1,
@@ -93,7 +93,7 @@
   },
   "/fetch/posts/customOptions/:id": {
     "_config": true,
-    "description": "Give the `fetch` attribute as a axios request object. enclose the valuewith ${<variables>} to pass the req values",
+    "description": "Give the `fetch` attribute as a axios request object. enclose the value with ${<variables>} to pass the req values",
     "fetch": {
       "method": "GET",
       "url": "http://jsonplaceholder.typicode.com/posts/${req.params.id}"
@@ -139,17 +139,17 @@
     "_config": true,
     "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
     "fetch": "http://jsonplaceholder.typicode.com/users",
-    "middlewareNames": [
+    "middlewares": [
       "DataWrapper"
     ]
   },
   "/middleware/utils/list": {
     "_config": true,
-    "description": "These are the list of predined middleware that are available for ease of use. For Example: This route uses the '_IterateResponse' middleware to iterate the mock data",
+    "description": "These are the list of predefined middleware that are available for ease of use. For Example: This route uses the '_IterateResponse' middleware to iterate the mock data",
     "mock": [
       "_IterateResponse - Iterates to each response in an array for each hit. Note: the data must be an array",
       "_IterateRoutes - Iterates to each route in a mock data. Note: mock data contains the list of routes to be redirected",
-      "_AdvancedSearch - This middleware helps to retrive the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a uniquid id",
+      "_AdvancedSearch - This middleware helps to retrieve the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a uniquid id",
       "_CrudOperation - Helps to do all the CRUD operations like Create, Read, Update, Delete using GET, PUT, PATCH, POST, DELETE method. Note: Id values are not mutable. Any id value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already take",
       "_FetchTillData - Helps to keep on make fetch calls until it gets a valid success data",
       "_SetFetchDataToMock - This middleware sets the 'fetchData' to 'mock' attribute. Note: The existing data in mock will be overridden",
@@ -165,7 +165,7 @@
     "fetch": {
       "url": "http://jsonplaceholder.typicode.com/photos"
     },
-    "middlewareNames": [
+    "middlewares": [
       "_IterateResponse"
     ]
   },
@@ -176,7 +176,7 @@
       "/injectors/1",
       "/injectors/2"
     ],
-    "middlewareNames": [
+    "middlewares": [
       "_IterateRoutes"
     ]
   },
@@ -185,7 +185,7 @@
     "fetch": {
       "url": "http://jsonplaceholder.typicode.com/users"
     },
-    "middlewareNames": [
+    "middlewares": [
       "_AdvancedSearch"
     ]
   },
@@ -193,7 +193,7 @@
     "_config": true,
     "description": "This route keeps on making fetch call until it gets a success data.",
     "fetch": "http://jsonplaceholder.typicode.com/dbs",
-    "middlewareNames": [
+    "middlewares": [
       "_FetchTillData"
     ]
   },
@@ -203,7 +203,7 @@
   "/getStoreValue": {
     "_config": true,
     "description": "This will call the below middleware and send the store value.",
-    "middlewareNames": [
+    "middlewares": [
       "GetStoreValue"
     ]
   },

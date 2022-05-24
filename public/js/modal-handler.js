@@ -46,7 +46,7 @@ function setFormValues(routeConfig, routePath) {
     mock,
     fetchData,
     store,
-    middlewareNames
+    middlewares
   } = routeConfig;
 
   $routeConfigForm.id.value = id || '';
@@ -60,7 +60,7 @@ function setFormValues(routeConfig, routePath) {
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
   $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
   $routeConfigForm.description.value = description ?? '';
-  $routeConfigForm.middlewareNames.value = middlewareNames?.join(',') ?? '';
+  $routeConfigForm.middlewares.value = middlewares?.join(',') ?? '';
 
   // Setting Fetch Data value
   $routeConfigForm.status.value = fetchData?.status ?? '';
@@ -96,7 +96,7 @@ $routeConfigForm.addEventListener("submit", function (e) {
     fetchCount: parseInt($routeConfigForm.fetchCount.value),
     skipFetchError: $routeConfigForm.skipFetchError.checked,
     mockFirst: $routeConfigForm.mockFirst.checked,
-    middlewareNames: $routeConfigForm.middlewareNames?.value?.split(",").filter(Boolean) || [],
+    middlewares: $routeConfigForm.middlewares?.value?.split(",").filter(Boolean) || [],
     fetch,
     mock,
     fetchData: {

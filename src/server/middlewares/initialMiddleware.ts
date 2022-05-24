@@ -1,23 +1,21 @@
-import { AxiosRequestConfig } from 'axios';
-import chalk from 'chalk';
 import express from "express";
 import * as _ from "lodash";
-import { Config, Db, Locals, PathDetails } from '../model';
-import { cleanObject } from '../utils';
-import { getStats, parseUrl } from '../utils/fetch';
+import { Locals } from '../types/common.types';
+import * as ValidTypes from '../types/valid.types';
+import { setRequestUrl } from './fetch';
 
-export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: string[]) => Db, config: Config, store: object) => {
+export default (routePath: string, getDb: () => ValidTypes.Db, config: ValidTypes.Config, getStore: () => ValidTypes.Store) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-      const routeConfig = db[routePath];
+      const routeConfig = getDb()[routePath];
       routeConfig.store && !_.isPlainObject(routeConfig.store) && (routeConfig.store = {});
 
       const locals = res.locals as Locals
       locals.routePath = routePath;
       locals.routeConfig = routeConfig;
       locals.getDb = getDb;
-      locals.store = store;
-      locals.config = _.cloneDeep(config);
+      locals.getStore = getStore;
+      locals.config = config;
 
       locals.data = undefined;
 
@@ -29,14 +27,7 @@ export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: 
         locals.data = routeConfig.mock;
         next();
       } else if (!_.isEmpty(routeConfig.fetch)) {
-        const fetchCount = parseInt(routeConfig.fetchCount + "");
-        routeConfig.fetchCount = isNaN(fetchCount) ? 1 : fetchCount;
-        const fetch = getUrlDetail(req, res);
-        if (fetch) {
-          locals.routeConfig._request = fetch.request;
-          locals.routeConfig._isFile = fetch.isFile;
-          locals.routeConfig._extension = fetch.extension;
-        }
+        setRequestUrl(req, res);
         next();
       } else {
         locals.data = routeConfig.mock;
@@ -48,107 +39,3 @@ export default (routePath: string, db: Db, getDb: (ids?: string[], routePaths?: 
     }
   };
 };
-
-const getUrlDetail = (req, res) => {
-
-  const locals = res.locals as Locals;
-  const fetch = locals.routeConfig.fetch;
-
-  let request = {} as AxiosRequestConfig;
-  if (typeof fetch === 'string') {
-    request = { url: fetch, headers: { proxy: true } }
-  } else if (_.isPlainObject(fetch)) {
-    request = _.cloneDeep(fetch) as AxiosRequestConfig;
-  } else {
-    return;
-  }
-
-  if (request.url?.startsWith("http")) {
-    request = getValidReq(req, res, request);
-    return { request, isFile: false, extension: "" };
-  } else {
-    const parsedUrl = interpolate({ config: locals.config, req: _.cloneDeep(req) }, parseUrl(request.url, locals.config.root));
-    console.log(chalk.gray("parsed Fetch url : "), chalk.green(parsedUrl));
-    const stats = getStats(parsedUrl) || {} as PathDetails;
-    request.url = parsedUrl;
-    delete request.headers;
-    return { request, ...stats };
-  }
-}
-
-const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig => {
-  const locals = res.locals as Locals;
-  const config = locals.config;
-  const replacedPath = interpolate({ config, req: _.cloneDeep(req) }, fetch.url)
-
-  const expReq = _.fromPairs(Object.entries(req).filter(r => AxiosRequestConfig.includes(r[0])));
-
-  // removes unwanted headers
-  Object.keys(expReq.headers || {}).forEach(h => {
-    !AxiosHeadersConfig.includes(h) && delete expReq.headers[h];
-  })
-
-  expReq.data = req.body;
-  expReq.params = req.query;
-  expReq.url = replacedPath;
-
-  if (fetch.headers?.proxy) {
-    delete expReq.query;
-    delete expReq.body;
-    cleanObject(expReq);
-    return expReq as AxiosRequestConfig;
-  }
-
-  const fetchEntries = Object.entries(fetch).map(([key, val]) => {
-    return [key, interpolate({ config, req: _.cloneDeep(req) }, val)]
-  })
-  const request = { ..._.fromPairs(fetchEntries), url: replacedPath };
-  cleanObject(request);
-  return request as AxiosRequestConfig;
-}
-
-// Helps to convert template literal strings to applied values.
-// Ex : Object = { config: { host: "localhost", port: 3000 } } , format = "${config.host}:${config.port}" -> "localhost:3000"
-const interpolate = (object: Object, format: string = "") => {
-  try {
-    const keys = Object.keys(object);
-    const values = Object.values(object);
-    return new Function(...keys, `return \`${format}\`;`)(...values);
-  } catch (error) {
-    console.error(error);
-    return format;
-  }
-};
-
-const AxiosRequestConfig: string[] = [
-  "headers",
-  "method",
-  "baseURL",
-  "params",
-  "query",
-  "data",
-  "body",
-  "adapter",
-  "auth",
-  "responseType",
-  "maxContentLength",
-  "validateStatus",
-  "maxBodyLength",
-  "maxRedirects",
-  "socketPath",
-  "httpAgent",
-  "httpsAgent",
-  "proxy",
-  "cancelToken",
-  "decompress"
-]
-
-const AxiosHeadersConfig: string[] = [
-  "Content-Type",
-  "Content-Disposition",
-  "X-REQUEST-TYPE",
-  "Content-Length",
-  "Accept-Language",
-  "Accept",
-  "Authorization"
-]

@@ -1,17 +1,17 @@
 
 import path from "path";
-import { MockServer } from "../../../src/server/index";
+import * as Defaults from "../../../src/server/defaults";
+import * as ParamTypes from "../../../src/server/types/param.types";
+import { toBase64 } from '../../../src/server/utils';
+import { getValidDb } from "../../../src/server/utils/validators";
 import { invalidInputChecks } from '../Helpers';
 
-export const getValidDb = () => {
-  describe('mockServer.getValidDb() : ', () => {
-    let mockServer: MockServer;
-    beforeEach(() => { mockServer = MockServer.Create() });
-    afterEach(async () => { await MockServer.Destroy() });
+export const shouldGetValidDb = () => {
+  describe('getValidDb() : ', () => {
 
     describe('should return Default db on invalid input', () => {
-      test.each(invalidInputChecks({}))('If %s is passed', (_condition, dbInput, expected) => {
-        const db = mockServer.getValidDb(dbInput as any);
+      test.each(invalidInputChecks(Defaults.Db))('If %s is passed', (_condition, dbInput, expected) => {
+        const db = getValidDb(dbInput as ParamTypes.Db);
         expect(db).toEqual(expected);
       });
     });
@@ -22,119 +22,221 @@ export const getValidDb = () => {
 
       test.each([
         ["valid .js file", "./db.js", jsFile],
-        ["valid .json file", "/db.json", jsonFile],
+        ["valid .json file", "./db.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
-      ])('If %s path is passed', (_condition, dbInput, expected) => {
-        const storePath = path.join(__dirname, "../../mock/db", dbInput as string)
-        const db = mockServer.getValidDb(storePath);
+      ])('If %s path is passed', (_condition, dbPath, expected) => {
+        const db = getValidDb(dbPath as string, [], path.join(__dirname, "../../mock/db"));
         expect(db).toEqual(expected);
       });
     });
 
     describe('should return valid db', () => {
-      test.each([
-        ["direct string", { post: "Working" }, { "/post": { _config: true, id: "1", mock: "Working" } }],
-        ["direct object", { post: { id: "1", name: "Siva" } }, { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" } } }],
-        ["direct List", { posts: [{ id: "1", name: "Siva" }] }, { "/posts": { _config: true, id: "1", mock: [{ id: "1", name: "Siva" }] } }],
-        ["multiple routes", { "/post1,/post2": { id: "1", name: "Siva" } }, {
-          "/post1": { _config: true, id: "1", mock: { id: "1", name: "Siva" } },
-          "/post2": { _config: true, id: "2", mock: { id: "1", name: "Siva" } }
-        }],
-        ["multiple routes overallaping", { "/post1,/post2": { id: "1", name: "Siva" }, "/post1": { id: "1", name: "Ram" } }, {
-          "/post1": { _config: true, id: "3", mock: { id: "1", name: "Ram" } },
-          "/post2": { _config: true, id: "2", mock: { id: "1", name: "Siva" } }
-        }],
-        ["no id", { "/post": { _config: true, mock: "Working" } }, { "/post": { _config: true, id: "1", mock: "Working" } }],
-        ["id", { "/post": { _config: true, id: "1", mock: "Working" } }, { "/post": { _config: true, id: "1", mock: "Working" } }],
-        ["no slash prefix for route", { "post,comment": "Working" }, {
-          "/post": { _config: true, id: "1", mock: "Working" },
-          "/comment": { _config: true, id: "2", mock: "Working" },
-        }],
-      ])('If db with %s', (_condition, input, expected) => {
-        const db = mockServer.getValidDb(input);
-        expect(db).toEqual(expected);
+
+      test('If db with direct response string', () => {
+        const db = { post: "Working" };
+        const expectedDb = { "/post": { _config: true, id: toBase64("/post"), mock: "Working" } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with direct response object', () => {
+        const db = { post: { id: "1", name: "Siva" } };
+        const expectedDb = { "/post": { _config: true, id: toBase64("/post"), mock: { id: "1", name: "Siva" } } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with direct response List', () => {
+        const db = { posts: [{ id: "1", name: "Siva" }] };
+        const expectedDb = { "/posts": { _config: true, id: toBase64("/posts"), mock: [{ id: "1", name: "Siva" }] } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with config', () => {
+        const db = { post: { _config: true, id: 1, mock: { id: "1", name: "Siva" }, description: "testing" } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" }, description: "testing" } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with single middlewares', () => {
+        const testMiddleware = () => { };
+        const db = { post: { _config: true, id: 1, mock: { id: "1", name: "Siva" }, middlewares: testMiddleware } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" }, middlewares: [testMiddleware] } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with multiple middlewares', () => {
+        const testMiddleware = () => { };
+        const db = { post: { _config: true, id: 1, mock: { id: "1", name: "Siva" }, middlewares: ["_MockOnly", testMiddleware] } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" }, middlewares: ["_MockOnly", testMiddleware] } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with empty middlewares', () => {
+        const db = { post: { _config: true, id: 1, mock: { id: "1", name: "Siva" }, middlewares: [] } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" } } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db without middlewares', () => {
+        const db = { post: { _config: true, id: 1, mock: { id: "1", name: "Siva" } } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: { id: "1", name: "Siva" } } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with comma seperated routes', () => {
+        const db = { "/post1,/post2": { id: "1", name: "Siva" } };
+        const expectedDb = {
+          "/post1": { _config: true, id: toBase64("/post1"), mock: { id: "1", name: "Siva" } },
+          "/post2": { _config: true, id: toBase64("/post2"), mock: { id: "1", name: "Siva" } }
+        };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with comma seperated routes and overriding rotes', () => {
+        const db = {
+          "/post1,/post2": { id: "1", name: "Siva" },
+          "/post1": { id: "1", name: "Ram", age: 27 }
+        };
+        const expectedDb = {
+          "/post2": { _config: true, id: toBase64("/post2"), mock: { id: "1", name: "Siva" } },
+          "/post1": { _config: true, id: toBase64("/post1"), mock: { id: "1", name: "Ram", age: 27 } },
+        };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with no id', () => {
+        const db = { "/post": { _config: true, mock: "Working" } };
+        const expectedDb = { "/post": { _config: true, id: toBase64("/post"), mock: "Working" } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db with custom id', () => {
+        const db = { "/post": { _config: true, id: 1, mock: "Working" } };
+        const expectedDb = { "/post": { _config: true, id: "1", mock: "Working" } };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      test('If db without slash prefix for route path', () => {
+        const db = { "post,comment": "Working" };
+        const expectedDb = {
+          "/post": { _config: true, id: toBase64("/post"), mock: "Working" },
+          "/comment": { _config: true, id: toBase64("/comment"), mock: "Working" },
+        };
+        const validDb = getValidDb(db as ParamTypes.Db);
+        expect(validDb).toEqual(expectedDb);
       });
     });
 
     describe('Db with Injectors', () => {
-      it.each([
-        [
-          "inject delay only to post",
-          { "post,comment": "Working" },
-          [{ routes: ["/post"], delay: 1000 }],
-          { "/post": { _config: true, id: "1", delay: 1000, mock: "Working" }, "/comment": { _config: true, id: "2", mock: "Working" } }
-        ],
-        [
-          "inject delay to all routes and not override the exisitng delay",
-          { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } },
-          [{ routes: ["/(.*)"], delay: 1000 }],
-          {
-            "/post": { _config: true, id: "1", delay: 1000, mock: "Working" },
-            "/comment": { _config: true, id: "2", delay: 1000, mock: "Working" },
-            "/user": { _config: true, id: "3", delay: 2000, mock: "Working" }
-          }
-        ],
-        [
-          "inject delay to all routes and override the exisitng delay",
-          { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } },
-          [{ routes: ["/(.*)"], delay: 1000, override: true }],
-          {
-            "/post": { _config: true, id: "1", delay: 1000, mock: "Working" },
-            "/comment": { _config: true, id: "2", delay: 1000, mock: "Working" },
-            "/user": { _config: true, id: "3", delay: 1000, mock: "Working" }
-          }
-        ],
-        [
-          "inject statusCode only to exact matching routes",
-          {
-            "/post/1": { _config: true, id: "1", mock: "Working" },
-            "/post/2": { _config: true, id: "2", mock: "Working" },
-            "/post/:id": { _config: true, id: "3", mock: "Working" }
-          },
-          [{ routes: ["/post/:id"], statusCode: 500, exact: true }],
-          {
-            "/post/1": { _config: true, id: "1", mock: "Working" },
-            "/post/2": { _config: true, id: "2", mock: "Working" },
-            "/post/:id": { _config: true, id: "3", mock: "Working", statusCode: 500 }
-          },
-        ],
-        [
-          "inject statusCode all pattern matching routes",
-          {
-            "/post/1": { _config: true, id: "1", mock: "Working" },
-            "/post/2": { _config: true, id: "2", mock: "Working" },
-            "/post/3/comment": { _config: true, id: "3", mock: "Working" }
-          },
-          [{ routes: ["/post/:id(.*)"], statusCode: 500 }],
-          {
-            "/post/1": { _config: true, id: "1", mock: "Working", statusCode: 500 },
-            "/post/2": { _config: true, id: "2", mock: "Working", statusCode: 500 },
-            "/post/3/comment": { _config: true, id: "3", mock: "Working", statusCode: 500 }
-          },
-        ],
-        [
-          "inject middlewareNames and override the existing middlewareNames",
-          {
-            "/post": { _config: true, id: "1", mock: "Working", middlewareNames: ["_MockOnly"] },
-          },
-          [{ routes: ["/post"], middlewareNames: ["_ReadOnly"] }],
-          {
-            "/post": { _config: true, id: "1", mock: "Working", middlewareNames: ["_ReadOnly"] },
-          },
-        ],
-        [
-          "inject middlewareNames and merge the existing middlewareNames",
-          {
-            "/post": { _config: true, id: "1", mock: "Working", middlewareNames: ["_MockOnly"] },
-          },
-          [{ routes: ["/post"], middlewareNames: ["...", "_ReadOnly"] }],
-          {
-            "/post": { _config: true, id: "1", mock: "Working", middlewareNames: ["_MockOnly", "_ReadOnly"] },
-          },
-        ],
-      ])('should %s', (_condition, dbInput, injectorInput, expected) => {
-        const db = mockServer.getValidDb(dbInput, injectorInput);
-        expect(db).toEqual(expected);
+
+      it('should inject delay only to post', () => {
+        const db = { "post,comment": "Working" };
+        const injectors = [{ routes: ["/post"], delay: 1000 }];
+        const expectedDb = {
+          "/post": { _config: true, id: toBase64("/post"), delay: 1000, mock: "Working" },
+          "/comment": { _config: true, id: toBase64("/comment"), mock: "Working" }
+        }
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject delay to all routes and not override the exisitng delay', () => {
+        const db = { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } };
+        const injectors = [{ routes: ["/(.*)"], delay: 1000 }];
+        const expectedDb = {
+          "/post": { _config: true, id: toBase64("/post"), delay: 1000, mock: "Working" },
+          "/comment": { _config: true, id: toBase64("/comment"), delay: 1000, mock: "Working" },
+          "/user": { _config: true, id: toBase64("/user"), delay: 2000, mock: "Working" }
+        }
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject delay to all routes and override the exisitng delay', () => {
+        const db = { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } };
+        const injectors = [{ routes: ["/(.*)"], delay: 1000, override: true }];
+        const expectedDb = {
+          "/post": { _config: true, id: toBase64("/post"), delay: 1000, mock: "Working" },
+          "/comment": { _config: true, id: toBase64("/comment"), delay: 1000, mock: "Working" },
+          "/user": { _config: true, id: toBase64("/user"), delay: 1000, mock: "Working" }
+        }
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject statusCode only to exact matching routes', () => {
+        const db = {
+          "/post/1": { _config: true, id: "1", mock: "Working" },
+          "/post/2": { _config: true, id: "2", mock: "Working" },
+          "/post/:id": { _config: true, id: "3", mock: "Working" }
+        };
+        const injectors = [{ routes: ["/post/:id"], statusCode: 500, exact: true }];
+        const expectedDb = {
+          "/post/1": { _config: true, id: "1", mock: "Working" },
+          "/post/2": { _config: true, id: "2", mock: "Working" },
+          "/post/:id": { _config: true, id: "3", mock: "Working", statusCode: 500 }
+        }
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject statusCode all pattern matching routes', () => {
+        const db = {
+          "/post/1": { _config: true, id: "1", mock: "Working" },
+          "/post/2": { _config: true, id: "2", mock: "Working" },
+          "/post/3/comment": { _config: true, id: "3", mock: "Working" }
+        };
+        const injectors = [{ routes: ["/post/:id"], statusCode: 500 }];
+        const expectedDb = {
+          "/post/1": { _config: true, id: "1", mock: "Working", statusCode: 500 },
+          "/post/2": { _config: true, id: "2", mock: "Working", statusCode: 500 },
+          "/post/3/comment": { _config: true, id: "3", mock: "Working" }
+        };
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject middlewares and override the existing middlewares', () => {
+        const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
+        const injectors = [{ routes: ["/post"], middlewares: ["_ReadOnly"] }];
+        const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_ReadOnly"] } };
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject middlewares and merge the existing middlewares', () => {
+        const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
+        const injectors = [{ routes: ["/post"], middlewares: ["...", "_ReadOnly"] }];
+        const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly", "_ReadOnly"] } };
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject middlewares and merge the existing middlewares', () => {
+        const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
+        const injectors = [{ routes: ["/post"], middlewares: ["...", "_ReadOnly"] }];
+        const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly", "_ReadOnly"] } };
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
+      });
+
+      it('should inject empty middlewares and remove existing middlewares', () => {
+        const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
+        const injectors = [{ routes: ["/post"], middlewares: [] }];
+        const expectedDb = { "/post": { _config: true, id: "1", mock: "Working" } };
+        const validDb = getValidDb(db, injectors);
+        expect(validDb).toEqual(expectedDb);
       });
     });
   });

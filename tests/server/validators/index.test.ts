@@ -1,16 +1,16 @@
 
-import { getValidConfig } from './getValidConfig';
-import { getValidDb } from './getValidDb';
-import { getValidInjectors } from './getValidInjectors';
-import { getValidMiddleware } from './getValidMiddleware';
-import { getValidRewriters } from './getValidRewriters';
-import { getValidStore } from './getValidStore';
+import { shouldGetValidConfig } from './getValidConfig';
+import { shouldGetValidDb } from './getValidDb';
+import { shouldGetValidInjectors } from './getValidInjectors';
+import { shouldGetValidMiddleware } from './getValidMiddleware';
+import { shouldGetValidRewriters } from './getValidRewriters';
+import { shouldGetValidStore } from './getValidStore';
 
 describe("Validators", () => {
-  getValidConfig(); // return valid Config
-  getValidInjectors(); // return valid Injectors
-  getValidMiddleware(); // return valid Middlewares
-  getValidStore(); // return valid Store
-  getValidRewriters(); // return valid rewriters
-  getValidDb(); // return valid db
+  shouldGetValidConfig(); // return valid Config
+  shouldGetValidInjectors(); // return valid Injectors
+  shouldGetValidMiddleware(); // return valid Middlewares
+  shouldGetValidStore(); // return valid Store
+  shouldGetValidRewriters(); // return valid rewriters
+  shouldGetValidDb(); // return valid db
 })
