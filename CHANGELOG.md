@@ -1,92 +1,104 @@
-# v6.0.1
+## v6.0.2
 
- - Bug fix in `cleanDb` method.
-# v6.0.0
+- Now `getValidDb` can't transform HAR to db instead we need to use `extractDbFromHAR` method explicitly fom utils.
+- Added `extractDbFromKibana` method in utils which helps to extract db from Kibana response.
 
-  - Bug Fixes
-  - Added `_Fetch`, `_FetchUrl`, `_FetchFile` middlewares.
-  - Now injectors comes as a second pram in both `launchServer` and `resource` since `db` is dependant on `injectors`.
-  - In `setDb` method we cannot pass the `injectors` and `reverse` option to set the db. both `injectors` and `reverse` are used from internal values. So please make sure you use `setInjectors` first before setting the db.
-  - All the `validators` are moved in to utils. Now instead of `mockServer.getValidDb` please import validator methods from `@r35007/mock-server/dist/server/utils/validators`
-  - `getValidDb` params has been changed to the following 
-  ```ts
-    const getValidDb: (data?: ParamTypes.Db | undefined, injectors?: UserTypes.Injectors, rootPath?: string, { reverse, _harEntryCallback, _harDbCallback }?: GetValidDbOptions) => ValidTypes.Db
-  ```
-  - Introduced more types. Example
-  ```ts
-  // Types that you get in mockServer.data or from validator methods
-  import * as ValidTypes from "@r35007/mock-server/dist/server/types/valid.types"; 
-  // Types that you can give to the methods and apis
-  import * as UserTypes from "@r35007/mock-server/dist/server/types/user.types";
-  // Other Common Types
-  import * as CommonTypes from "@r35007/mock-server/dist/server/types/common.types";
-  // Types that you can give to give to the methods and apis. mostly combination of string and UserTypes
-  import * as ParamTypes from "@r35007/mock-server/dist/server/types/param.types";
+## v6.0.1
 
-  // Example
-  const config: UserTypes.Config = { port: 4000 };
-  const validConfig: ValidTypes.Config = getValidConfig(config) // gives you a valid config type
-  ```
-  - `middlewareNames` is removed. Now we can give both middleware method and middleware reference name in `middlewares`. Example
+- Bug fix in `cleanDb` method.
+
+## v6.0.0
+
+- Bug Fixes
+- Added `_Fetch`, `_FetchUrl`, `_FetchFile` middlewares.
+- Now injectors comes as a second pram in both `launchServer` and `resource` since `db` is dependant on `injectors`.
+- In `setDb` method we cannot pass the `injectors` and `reverse` option to set the db. both `injectors` and `reverse` are used from internal values. So please make sure you use `setInjectors` first before setting the db.
+- All the `validators` are moved in to utils. Now instead of `mockServer.getValidDb` please import validator methods from `@r35007/mock-server/dist/server/utils/validators`
+- `getValidDb` params has been changed to the following
+
+```ts
+const getValidDb: (
+  data?: ParamTypes.Db | undefined,
+  injectors?: UserTypes.Injectors,
+  rootPath?: string,
+  { reverse, _harEntryCallback, _harDbCallback }?: GetValidDbOptions
+) => ValidTypes.Db;
+```
+
+- Introduced more types. Example
+
+```ts
+// Types that you get in mockServer.data or from validator methods
+import * as ValidTypes from "@r35007/mock-server/dist/server/types/valid.types";
+// Types that you can give to the methods and apis
+import * as UserTypes from "@r35007/mock-server/dist/server/types/user.types";
+// Other Common Types
+import * as CommonTypes from "@r35007/mock-server/dist/server/types/common.types";
+// Types that you can give to give to the methods and apis. mostly combination of string and UserTypes
+import * as ParamTypes from "@r35007/mock-server/dist/server/types/param.types";
+
+// Example
+const config: UserTypes.Config = { port: 4000 };
+const validConfig: ValidTypes.Config = getValidConfig(config); // gives you a valid config type
+```
+
+- `middlewareNames` is removed. Now we can give both middleware method and middleware reference name in `middlewares`. Example
   `db.json`
-  ```js
-  const db = {
-    user: {
-      _config: true,
-      mock: [1,2,3,4,5]
-      middlewares: [
-        (req, res, next) => { 
-          console.log(req.path);
-          next() 
-        },
-        "_IterateResponse"
-      ]
-    }
+
+```js
+const db = {
+  user: {
+    _config: true,
+    mock: [1,2,3,4,5]
+    middlewares: [
+      (req, res, next) => {
+        console.log(req.path);
+        next()
+      },
+      "_IterateResponse"
+    ]
   }
-  ```
-# v5.0.1
+}
+```
 
- - Readme update
-# v5.0.0
+## v5.0.1
 
- - Added more Test cases ans stabilized this version with more minor bug fixes
- - `UserConfig`, `UserMiddleware`, `UserDb`, `UserInjectors`, `UserStore`, `UserRewriters` types are removed
-   - Instead we can use `Partial<Config>`, `Db`, `Middlewaers`, `Injectors`, `Store`, `Rewriters`
- - Now we can also provide a `.js` path to any of the data for `db`, `injectors`, `config`, `rewriters`, `store`, `middlewares` 
- - Now we can get the response time from a response headers of `x-response-time` in milliseconds
- - The middlewares that are need to be used as a global middleware before start of all middlewares can be given as `_globals : [...your middlewares]` in `middleware.js` file
- - Now injectors accepts only list as follows
+- Readme update
+
+## v5.0.0
+
+- Added more Test cases ans stabilized this version with more minor bug fixes
+- `UserConfig`, `UserMiddleware`, `UserDb`, `UserInjectors`, `UserStore`, `UserRewriters` types are removed
+  - Instead we can use `Partial<Config>`, `Db`, `Middlewaers`, `Injectors`, `Store`, `Rewriters`
+- Now we can also provide a `.js` path to any of the data for `db`, `injectors`, `config`, `rewriters`, `store`, `middlewares`
+- Now we can get the response time from a response headers of `x-response-time` in milliseconds
+- The middlewares that are need to be used as a global middleware before start of all middlewares can be given as `_globals : [...your middlewares]` in `middleware.js` file
+- Now injectors accepts only list as follows
+
 ```json
 [
   {
-    "routes": [
-      "/injectors/1", 
-      "/injectors/2"
-    ],
+    "routes": ["/injectors/1", "/injectors/2"],
     "override": true,
     "mock": "This data is injected using the injectors by matching the pattern '/injectors/1', '/injectors/1'."
   },
   {
-    "routes": [
-      "/(.*)"
-    ],
+    "routes": ["/(.*)"],
     "override": true,
-    "middlewareNames": [
-      "...",
-      "CustomLog"
-    ]
+    "middlewareNames": ["...", "CustomLog"]
   }
 ]
-``` 
-# v4.5.1
+```
+
+## v4.5.1
 
 - Now we can access `config` and `req` variable on a fetch url.
-Example : 
+  Example :
   ```jsonc
   {
     "/posts/:id?": {
-    "_config": true,
-    "fetch": "http://jsonplaceholder.typicode.com${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
+      "_config": true,
+      "fetch": "http://jsonplaceholder.typicode.com${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
     },
     "/comments/:id?": {
       "_config": true,
@@ -94,12 +106,12 @@ Example :
     },
     "/pageNotFound": {
       "_config": true,
-      "fetch": "http://${config.host}:${config.port}/404",
+      "fetch": "http://${config.host}:${config.port}/404"
     }
   }
   ```
   - Inject any global middleware at the start of the express app by exporting `globals` in the `middleware.js` file.
-  Example : 
+    Example :
     ```js
     /* 
       Global Middlewares
@@ -108,18 +120,20 @@ Example :
     exports.globals = [
       (req, res, next) => {
         console.log(req.path);
-      }
-    ]
+      },
+    ];
     ```
-# v4.4.2
+
+## v4.4.2
 
 - `getJSON` can now able to fetch mock data from `.js` file. Make sure you do `module.exports` the mock object
-# v4.4.0
+
+## v4.4.0
 
 - `mockFirst` is added to RouteConfig
 - Home Page update Bug Fixed.
 
-# v4.3.1
+## v4.3.1
 
 - Enabled resource url edit in Home Page.
 - removed `fetchError` attribute in routeConfig.
@@ -127,7 +141,7 @@ Example :
 - If any fetch error the `isError` flag is set to true in `fetchData`.
 - Sample Files are updated with more examples.
 
-# v4.3.0
+## v4.3.0
 
 - Rewriters list, ui issue in Home page resolved.
 - Set `exact` flag to true in injectors to exactly match the route.
@@ -168,23 +182,23 @@ way 2:
 ]
 ```
 
-# v4.2.0
+## v4.2.0
 
 - added `server.js` in samples
 - removed `id` attribute in db snapshot.
 
-# v4.1.2
+## v4.1.2
 
 - added `isSnapshot` options in `getValidDb` method.
 - Bug Fix
 
-# v4.1.0
+## v4.1.0
 
 - Injectors not applied properly- Bug Fixed.
 - added `Create` method which returns the single instance of the MockServer.
 - added `Destroy` method which stops the server and clears the instance of the MockServer.
 
-# v4.0.0
+## v4.0.0
 
 - Improved CLI.
 - --snapshot flag in CLI will create a snapshot of db in a .json file
@@ -193,23 +207,23 @@ way 2:
 - Code refactoring
 - Set `_config` to true to set any route config like delay, statusCode etc...
 
-# v3.0.9
+## v3.0.9
 
 - Home Page Bug Fix
 - Implemented Home Page Screen inside the VS Code
 
-# v3.0.8
+## v3.0.8
 
 - Bug Fix
 - Ui update in Home Page
 - Implemented Route Config Clone in Home page
 
-# v3.0.7
+## v3.0.7
 
 - Bug Fix
 - Readme Update
 
-# v3.0.0
+## v3.0.0
 
 - `generateMockFromHAR` - removed. instead use `getValidRoutes` method
 - specific method handler is removed in routeConfigs
@@ -223,11 +237,11 @@ way 2:
 - many options are added to CLI
 - Now can able to modify routeConfig and add new routes using the new Home Page.
 
-# v2.4.2
+## v2.4.2
 
 - drag handle has been provided in homepage to resize the routes view an data view.
 
-# v2.4.1
+## v2.4.1
 
 - Now has ability to render image and other files as a response in homepage
 - Download option is given near the redirect link in homepage.
@@ -256,11 +270,11 @@ way 2:
 - The `finalCallback` will always be called even if it went to catch block if anything went wrong.
 - CLI default routes is changed from `https://jsonplaceholder.typicode.com/db` to `http://jsonplaceholder.typicode.com/db`
 
-# v2.3.1
+## v2.3.1
 
 - `transformHar` bug fix
 
-# v2.3.0
+## v2.3.0
 
 - Bug Fix
 - added CLI Usage with options.
@@ -284,11 +298,11 @@ way 2:
 
 ```
 
-# v2.2.2
+## v2.2.2
 
 - Readme update
 
-# v2.2.0
+## v2.2.0
 
 - added
   - `methods` in routeConfig. Now we can set a route to a specific methods.
@@ -316,11 +330,11 @@ way 2:
   ) => Routes;
   ```
 
-# v2.1.1
+## v2.1.1
 
 - Bug Fix
 
-# v2.1.0
+## v2.1.0
 
 - removed
   - `res.locals.store.get`
@@ -332,25 +346,25 @@ way 2:
   - Dynamic routConfig - Now the routeConfigs are mutable - means you can change the routeConfig inside a middleware using `res.locals.routeConfig`
   - `fetchOnce` - predefined middleware. Helps to get fetchData only once and returns the existing fetchData for every other api hit.
 
-# v2.0.7,v2.0.8,v2.0.9,v2.0.10
+## v2.0.7,v2.0.8,v2.0.9,v2.0.10
 
 - Bug Fix.
 - Now we can also send empty string as a response.
 
-# v2.0.6
+## v2.0.6
 
 - added `res.locals.store.remove("")` && `res.locals.store.clear()`
 - Bug fix.
 
-# v2.0.3,v2.0.4,v2.0.5
+## v2.0.3,v2.0.4,v2.0.5
 
 - Bug fix.
 
-# v2.0.1,v2.0.2
+## v2.0.1,v2.0.2
 
 - Readme Update.
 
-# v2.0.0
+## v2.0.0
 
 _Welcome to v2.0. There are many major changes and bug fix has been done. Please follow the list below_
 
@@ -366,19 +380,19 @@ _Welcome to v2.0. There are many major changes and bug fix has been done. Please
   - `res.locals.store.get(key?)` and `res.locals.store.store(key, value)` - Helps to store the and share the values between routes inside a middleware.
   - transformHar method now accepts config of `{ routesToLoop?: string[], routesToGroup?: string[] } ` as a second param. It helps to set loop and group mock as per the routes provided.
 
-# v1.0.3
+## v1.0.3
 
 - bug fix
 
-# v1.0.2
+## v1.0.2
 
 - added `statusCode` to `entryCallBack` in transformHar
 
-# v1.0.1
+## v1.0.1
 
 - `transformHar` Bug fix.
 - added `finalCallBack` to `transformHar(harData, entryCallBack, finalCallBack)`
 
-# v1.0.0
+## v1.0.0
 
 - initial release

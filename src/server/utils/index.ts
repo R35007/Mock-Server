@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 import * as path from 'path';
 import { match } from 'path-to-regexp';
-import { HAR, HarEntry, HarMiddleware } from '../types/common.types';
+import { HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } from '../types/common.types';
 import * as UserTypes from '../types/user.types';
 import * as ValidTypes from '../types/valid.types';
 import { getValidRoute, getValidRouteConfig } from './validators';
@@ -128,7 +128,7 @@ export const isCollection = (arr: any[]): boolean => {
   return true;
 }
 
-export const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddleware["_harEntryCallback"]) => {
+const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddleware["_harEntryCallback"], allowDuplicates: boolean = false) => {
 
   let generatedDb = {};
 
@@ -150,7 +150,7 @@ export const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: Har
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
       routeConfig = getValidRouteConfig(routePath, routeConfig);
     }
-    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig);
+    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
   });
 
   cleanDb(generatedDb as UserTypes.Db);
@@ -158,8 +158,38 @@ export const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: Har
   return generatedDb as UserTypes.Db;
 }
 
-const setRouteRedirects = (db: object, routePath: string, currentRouteConfig: UserTypes.RouteConfig) => {
-  if (db[routePath]) {
+const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware["_kibanaHitCallback"], allowDuplicates: boolean = false) => {
+
+  let generatedDb = {};
+
+  hits.forEach((hit: HIT) => {
+    const route = new URL(hit?._source?.requestURI)?.pathname;
+    const responseText = hit?._source?.response || "";
+
+    let mock;
+    try { mock = JSON.parse(responseText) } catch { mock = responseText }
+
+    let routePath: string = getValidRoute(route || '');
+    let routeConfig: UserTypes.RouteConfig = {
+      _config: true,
+      mock
+    }
+
+    if (_.isFunction(_kibanaHitCallback)) {
+      const routes = _kibanaHitCallback(hit, routePath, routeConfig) || {};
+      [routePath, routeConfig] = Object.entries(routes)[0] || [];
+      routeConfig = getValidRouteConfig(routePath, routeConfig);
+    }
+    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
+  });
+
+  cleanDb(generatedDb as UserTypes.Db);
+
+  return generatedDb as UserTypes.Db;
+}
+
+const setRouteRedirects = (db: object, routePath: string, currentRouteConfig: UserTypes.RouteConfig, allowDuplicates: boolean = false) => {
+  if (allowDuplicates && db[routePath]) {
     const existingConfig = db[routePath];
     if (db[routePath].middlewares?.[0] !== "_IterateRoutes") {
       const iterateRoute1 = getValidRoute(routePath + "/" + nanoid(5))
@@ -193,13 +223,36 @@ const mergeMiddlewares = (prevMiddlewares?: UserTypes.Middleware_Config[], currM
   return [...new Set(mergedMiddlewares)];
 }
 
-export const extractDbFromHAR = (har: HAR, _harEntryCallback: HarMiddleware["_harEntryCallback"], _harDbCallback: HarMiddleware["_harDbCallback"]) => {
+export const extractDbFromHAR = (
+  har: HAR,
+  _harEntryCallback: HarMiddleware["_harEntryCallback"],
+  _harDbCallback: HarMiddleware["_harDbCallback"],
+  allowDuplicates: boolean = false,
+) => {
   try {
     const entries: HarEntry[] = har?.log?.entries;
     const isHAR: boolean = entries?.length > 0;
     if (!isHAR) return;
-    const dbFromEntries: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback);
-    return _harDbCallback?.(har, dbFromEntries) || dbFromEntries
+    const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback, allowDuplicates);
+    return _harDbCallback?.(har, dbFromHar) || dbFromHar
+  } catch (err) {
+    console.log(err);
+    return
+  }
+}
+
+export const extractDbFromKibana = (
+  kibana: KIBANA,
+  _kibanaHitCallback: KibanaMiddleware["_kibanaHitCallback"],
+  _KibanaDbCallback: KibanaMiddleware["_KibanaDbCallback"],
+  allowDuplicates: boolean = false
+) => {
+  try {
+    const hits: HIT[] = kibana?.rawResponse?.hits?.hits;
+    const isKibana: boolean = hits?.length > 0;
+    if (!isKibana) return;
+    const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, _kibanaHitCallback, allowDuplicates);
+    return _KibanaDbCallback?.(kibana, dbFromHits) || dbFromHits
   } catch (err) {
     console.log(err);
     return

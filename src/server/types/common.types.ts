@@ -14,12 +14,14 @@ export type HarMiddleware = {
   _harEntryCallback?: (entry: HarEntry, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
   _harDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromHAR: UserTypes.Db) => UserTypes.Db
 }
+export type KibanaMiddleware = {
+  _kibanaHitCallback?: (hit: HIT, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
+  _KibanaDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromKibana: UserTypes.Db) => UserTypes.Db
+}
 export type MiddlewareNames = keyof Default_Middlewares
 
 export type GetValidDbOptions = {
   reverse?: boolean,
-  _harEntryCallback?: HarMiddleware["_harEntryCallback"],
-  _harDbCallback?: HarMiddleware["_harDbCallback"]
 }
 
 export interface Locals {
@@ -29,6 +31,24 @@ export interface Locals {
   config: ValidTypes.Config;
   getStore: () => ValidTypes.Store;
   getDb: () => ValidTypes.Db;
+}
+
+export type HIT = {
+  [key: string]: any;
+  _source: {
+    requestURI: string;
+    response?: string;
+    e2eRequestId?: string;
+    session_id?: string;
+    request: string;
+    status_code: string;
+  }
+}
+
+export type KIBANA = {
+  rawResponse: {
+    hits: { hits: HIT[] }
+  }
 }
 
 export type HAR = {

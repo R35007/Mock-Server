@@ -115,12 +115,9 @@ export class GettersSetters {
     console.log(chalk.gray("Done."));
   }
 
-  setDb(
-    db?: Params.Db,
-    options: GetValidDbOptions = {},
-  ) {
+  setDb(db?: Params.Db, { reverse = this.config.reverse }: GetValidDbOptions = {}) {
     console.log("\n" + chalk.gray("Setting Db..."));
-    this.#db = getValidDb(db, this.#injectors, this.#config.root, { ...options, reverse: this.config.reverse });
+    this.#db = getValidDb(db, this.#injectors, this.#config.root, { reverse });
     this.initialDb = _.cloneDeep(this.#db);
     console.log(chalk.gray("Done."));
   }

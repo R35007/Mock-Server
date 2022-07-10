@@ -12,11 +12,15 @@ exports._globals = [
 /* 
   Used in VS Code Mock Server extension
   This method is called only on generating db suing MockServer: Generate Db Command
-  It will be called for each entry in a HAR formatted data
+  It will be called for each entry/hits in a HAR/Kibana formatted data
   Here you can return your custom route and routeConfig
-  `_harEntryCallback` is a reserved word for generating Db 
+  `_harEntryCallback`, `_kibanaHitCallback` is a reserved word for generating Db 
 */
 exports._harEntryCallback = (entry, routePath, routeConfig) => {
+  // your code goes here ...
+  return { [routePath]: routeConfig }
+};
+exports._kibanaHitCallback = (hit, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
@@ -24,12 +28,15 @@ exports._harEntryCallback = (entry, routePath, routeConfig) => {
 /* 
   Used in VS Code Mock Server extension
   This method is called only on generating db suing MockServer: Generate Db Command
-  It will be called at last of all entry looping.
+  It will be called at last of all entry/hits looping.
   Here you can return your custom db
-  Whatever you return here will be pasted in the file
-  `_harDbCallback` is a reserved word for generating Db
+  `_harDbCallback`, `_KibanaDbCallback` is a reserved word for generating Db
 */
 exports._harDbCallback = (data, db) => {
+  // your code goes here ...
+  return db;
+};
+exports._KibanaDbCallback = (data, db) => {
   // your code goes here ...
   return db;
 };

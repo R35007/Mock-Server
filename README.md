@@ -7,78 +7,78 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
 
 ## Table of contents
 
-  - [Getting started](#getting-started)
-  - [Using JS Module](#using-js-module)
-  - [Route Config](#route-config)
-    - [Set Delay Response](#set-delay-response)
-    - [Set Custom StatusCode](#set-custom-statuscode)
-    - [Fetch Data From URL](#fetch-data-from-url)
-      - [Fetch File](#fetch-file)
-      - [Custom Fetch Options](#custom-fetch-options)
-      - [Use Fetch as Proxy](#use-fetch-as-proxy)
-    - [Fetch Count](#fetch-count)
-    - [Skip Fetch Error](#skip-fetch-error)
-    - [Add Middleware](#add-middleware)
-  - [Middleware Utils](#middleware-utils)
-    - [IterateResponse](#iterateresponse)
-    - [IterateRoutes](#iterateroutes)
-    - [AdvancedSearch](#advancedsearch)
-      - [Filter](#filter)
-      - [Paginate](#paginate)
-      - [Sort](#sort)
-      - [Slice](#slice)
-      - [Operators](#operators)
-      - [Full text search](#full-text-search)
-    - [CrudOperations](#crudoperations)
-    - [FetchTillData](#fetchtilldata)
-    - [SetFetchDataToMock](#setfetchdatatomock)
-    - [SetStoreDataToMock](#setstoredatatomock)
-    - [MockOnly](#mockonly)
-    - [FetchOnly](#fetchonly)
-    - [ReadOnly](#readonly)
-    - [Fetch](#fetch)
-    - [FetchFile](#fetchfile)
-    - [FetchUrl](#fetchurl)
-  - [Injectors](#injectors)
-    - [Inject Route Configs](#inject-route-configs)
-    - [Override Existing Route Configs](#override-existing-route-configs)
-    - [Common Route Configs](#common-route-configs)
-  - [Store Data](#store-data)
-    - [Route Store](#route-store)
-    - [Local Store](#local-store)
-  - [Route Rewriters](#route-rewriters)
-  - [Locals](#locals)
-    - [Dynamic Route Config](#dynamic-route-config)
-  - [Config](#config)
-  - [Default Routes](#default-routes)
-  - [Home Page](#home-page)
-  - [Details View](#details-view)
-    - [Update Route](#update-route)
-    - [Clone Route](#clone-route)
-    - [Add Route](#add-route)
-  - [CLI Usage](#cli-usage)
-  - [API](#api)
-    - [MockServer](#mockserver)
-    - [Create](#create)
-    - [Destroy](#destroy)
-    - [launchServer](#launchserver)
-    - [rewriter](#rewriter)
-    - [defaults](#defaults)
-    - [resources](#resources)
-    - [defaultRoutes](#defaultroutes)
-    - [addDbData](#adddbdata)
-    - [startServer](#startserver)
-    - [stopServer](#stopserver)
-    - [resetServer](#resetserver)
-    - [resetDb](#resetdb)
-    - [resetStore](#resetstore)
-    - [pageNotFound](#pagenotfound)
-    - [errorHandler](#errorhandler)
-    - [Setters](#setters)
-    - [Variables](#variables)
-    - [Validators](#validators)
-  - [Author](#author)
-  - [License](#license)
+- [Getting started](#getting-started)
+- [Using JS Module](#using-js-module)
+- [Route Config](#route-config)
+  - [Set Delay Response](#set-delay-response)
+  - [Set Custom StatusCode](#set-custom-statuscode)
+  - [Fetch Data From URL](#fetch-data-from-url)
+    - [Fetch File](#fetch-file)
+    - [Custom Fetch Options](#custom-fetch-options)
+    - [Use Fetch as Proxy](#use-fetch-as-proxy)
+  - [Fetch Count](#fetch-count)
+  - [Skip Fetch Error](#skip-fetch-error)
+  - [Add Middleware](#add-middleware)
+- [Middleware Utils](#middleware-utils)
+  - [IterateResponse](#iterateresponse)
+  - [IterateRoutes](#iterateroutes)
+  - [AdvancedSearch](#advancedsearch)
+    - [Filter](#filter)
+    - [Paginate](#paginate)
+    - [Sort](#sort)
+    - [Slice](#slice)
+    - [Operators](#operators)
+    - [Full text search](#full-text-search)
+  - [CrudOperations](#crudoperations)
+  - [FetchTillData](#fetchtilldata)
+  - [SetFetchDataToMock](#setfetchdatatomock)
+  - [SetStoreDataToMock](#setstoredatatomock)
+  - [MockOnly](#mockonly)
+  - [FetchOnly](#fetchonly)
+  - [ReadOnly](#readonly)
+  - [Fetch](#fetch)
+  - [FetchFile](#fetchfile)
+  - [FetchUrl](#fetchurl)
+- [Injectors](#injectors)
+  - [Inject Route Configs](#inject-route-configs)
+  - [Override Existing Route Configs](#override-existing-route-configs)
+  - [Common Route Configs](#common-route-configs)
+- [Store Data](#store-data)
+  - [Route Store](#route-store)
+  - [Local Store](#local-store)
+- [Route Rewriters](#route-rewriters)
+- [Locals](#locals)
+  - [Dynamic Route Config](#dynamic-route-config)
+- [Config](#config)
+- [Default Routes](#default-routes)
+- [Home Page](#home-page)
+- [Details View](#details-view)
+  - [Update Route](#update-route)
+  - [Clone Route](#clone-route)
+  - [Add Route](#add-route)
+- [CLI Usage](#cli-usage)
+- [API](#api)
+  - [MockServer](#mockserver)
+  - [Create](#create)
+  - [Destroy](#destroy)
+  - [launchServer](#launchserver)
+  - [rewriter](#rewriter)
+  - [defaults](#defaults)
+  - [resources](#resources)
+  - [defaultRoutes](#defaultroutes)
+  - [addDbData](#adddbdata)
+  - [startServer](#startserver)
+  - [stopServer](#stopserver)
+  - [resetServer](#resetserver)
+  - [resetDb](#resetdb)
+  - [resetStore](#resetstore)
+  - [pageNotFound](#pagenotfound)
+  - [errorHandler](#errorhandler)
+  - [Setters](#setters)
+  - [Variables](#variables)
+  - [Validators](#validators)
+- [Author](#author)
+- [License](#license)
 
 ## Getting started
 
@@ -587,15 +587,17 @@ This overrides the existing mock with the `store`.
 
 Note : `locals.routeConfig.fetch` must contain a valid file path or http url to fetch the data.
 
-For Example: 
+For Example:
 `db.json`
+
 ```jsonc
 {
-  "/user": "./mock/user.json" // directly setting the path instead of setting it as a fetch config 
+  "/user": "./mock/user.json" // directly setting the path instead of setting it as a fetch config
 }
 ```
 
 `injectors.js`
+
 ```js
 module.exports = [
   {
@@ -605,10 +607,10 @@ module.exports = [
         const routeConfig = res.locals.routeConfig;
         routeConfig.fetch = routeConfig.mock;
       },
-      "_Fetch" // helps to fetch the file from routeConfig.fetch path
-    ]
-  }
-]
+      "_Fetch", // helps to fetch the file from routeConfig.fetch path
+    ],
+  },
+];
 ```
 
 ### **FetchFile**
@@ -963,7 +965,7 @@ const { MockServer } = require("@r35007/mock-server");
 const mockServer = MockServer.Create();
 await MockServer.Destroy();
 
-// or 
+// or
 // pass a mock server instance to destroy
 await MockServer.Destroy(mockServer);
 ```
@@ -1158,7 +1160,7 @@ mockServer.setMiddlewares(middlewares);
 mockServer.setInjectors(injectors);
 mockServer.setRewriters(rewriters);
 mockServer.setStore(store);
-mockServer.setDb(Db, { _harEntryCallback, _harDbCallback });
+mockServer.setDb(Db, { reverse });
 ```
 
 **`Params`**
@@ -1192,29 +1194,18 @@ const initialStore = mockServer.initialStore;
 These helps to return a valid data from provided file path or object.
 
 ```js
-const { 
-  getValidDb, 
-  getValidMiddlewares, 
+const {
+  getValidDb,
+  getValidMiddlewares,
   getValidInjectors,
   getValidRewriters,
   getValidConfig,
   getValidStore,
-  getValidRouteConfig
+  getValidRouteConfig,
 } = require("@r35007/mock-server/dist/server/utils/validators");
-
-// called only when the given data is in .Har format and called at each entry
-const _harEntryCallback = (entry, routePath, routeConfig) => {
-  return { [routePath]: routeConfig };
-};
-// called only when the given data is in .Har format and called at end of the entry loop
-const _harDbCallback = (data, db) => {
-  return db; // what ever you return here will be given back
-};
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
-  _harEntryCallback,
-  _harDbCallback
 };
 
 const rootPath = "./";
@@ -1238,6 +1229,7 @@ const route = getValidRoute(route); // splits route by comma and adds a slash ('
 ## Author
 
 **Sivaraman** - [sendmsg2siva.siva@gmail.com](sendmsg2siva.siva@gmail.com)
+
 - _GitHub_ - [https://github.com/R35007/Mock-Server](https://github.com/R35007/Mock-Server)
 
 ## License

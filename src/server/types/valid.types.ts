@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { Default_Middlewares, Global_Middlweares, HarMiddleware, RoutePairs, User_Middlweares } from './common.types';
+import { Default_Middlewares, Global_Middlweares, HarMiddleware, KibanaMiddleware, RoutePairs, User_Middlweares } from './common.types';
 import * as UserTypes from "./user.types";
 
 export type Config = {
@@ -18,7 +18,7 @@ export type Config = {
 };
 export type Db = { [key: string]: RouteConfig }
 export type Injectors = InjectorConfig[];
-export type Middlewares = Default_Middlewares & Global_Middlweares & HarMiddleware & User_Middlweares
+export type Middlewares = Default_Middlewares & Global_Middlweares & HarMiddleware & KibanaMiddleware & User_Middlweares
 export type Rewriters = RoutePairs;
 export type Store = Object;
 

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import * as _ from "lodash";
-import { extractDbFromHAR, getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
+import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
 import * as Defaults from '../defaults';
 import { GetValidDbOptions, HAR } from '../types/common.types';
 import * as ParamTypes from "../types/param.types";
@@ -98,7 +98,7 @@ export const getValidRewriters = (rewriters?: ParamTypes.Rewriters, rootPath: st
 export const getValidDb = (
   data?: ParamTypes.Db, injectors: UserTypes.Injectors = Defaults.Injectors,
   rootPath: string = Defaults.Config.root,
-  { reverse, _harEntryCallback, _harDbCallback }: GetValidDbOptions = {},
+  { reverse }: GetValidDbOptions = {},
 ): ValidTypes.Db => {
   const userData = requireData(data, rootPath) as HAR;
 
@@ -107,8 +107,7 @@ export const getValidDb = (
     return _.cloneDeep(Defaults.Db);
   }
 
-  const dbFromHar = extractDbFromHAR(userData as HAR, _harEntryCallback, _harDbCallback) || userData;
-  const normalizedDb = normalizeDb(dbFromHar);
+  const normalizedDb = normalizeDb(userData);
   const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors));
 
   const validDb = reverse
