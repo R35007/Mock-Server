@@ -8,11 +8,34 @@ import * as path from 'path';
 import { PathDetails } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 
-export const getObject = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): object => {
+export const requireFile = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true, isList: boolean = false) => {
   const filesList = getFilesList(directoryPath, excludeFolders, recursive);
-  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
+  const files = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
-  const obj = onlyJson.reduce((mock, file) => {
+  if (!files.length) return;
+
+  if (files.length > 1)
+    return isList ? getList(files) : getObject(files)
+
+
+  const file = files[0];
+  try {
+    if (path.extname(file.filePath) === ".js") {
+      delete require.cache[require.resolve(file.filePath)];
+      return require(file.filePath);
+    } else {
+      const str = fs.readFileSync(file.filePath, "utf-8");
+      return JPH.parse(str)
+    }
+  } catch (error) {
+    console.log(chalk.red(`Error reading ${file.filePath}`));
+    console.log(error);
+    return;
+  }
+};
+
+export const getObject = (files: PathDetails[]): object => {
+  const obj = files.reduce((mock, file) => {
     try {
       if (path.extname(file.filePath) === ".js") {
         delete require.cache[require.resolve(file.filePath)];
@@ -33,11 +56,8 @@ export const getObject = (directoryPath: string, excludeFolders: string[] = [], 
   return obj;
 };
 
-export const getList = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true): any[] => {
-  const filesList = getFilesList(directoryPath, excludeFolders, recursive);
-  const onlyJson = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
-
-  const list = onlyJson.reduce((mock, file) => {
+export const getList = (files: PathDetails[]): any[] => {
+  const list = files.reduce((mock, file) => {
     try {
       if (path.extname(file.filePath) === ".js") {
         delete require.cache[require.resolve(file.filePath)];
@@ -151,9 +171,9 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
   return parsedUrl;
 };
 
-export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false): object | any[] | undefined => {
+export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false) => {
   if (_.isEmpty(data)) return;
-  if (_.isString(data)) return isList ? getList(parseUrl(data, root)) : getObject(parseUrl(data, root));
+  if (_.isString(data)) return requireFile(parseUrl(data, root), [], true, isList)
   if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data)
   return;
 }

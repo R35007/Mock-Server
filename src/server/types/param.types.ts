@@ -1,4 +1,3 @@
-import { HAR } from './common.types';
 import * as UserTypes from "./user.types";
 
 export type Config = string | UserTypes.Config;

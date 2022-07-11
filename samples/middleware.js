@@ -14,13 +14,13 @@ exports._globals = [
   This method is called only on generating db suing MockServer: Generate Db Command
   It will be called for each entry/hits in a HAR/Kibana formatted data
   Here you can return your custom route and routeConfig
-  `_harEntryCallback`, `_kibanaHitCallback` is a reserved word for generating Db 
+  `_harEntryCallback`, `_kibanaHitsCallback` is a reserved word for generating Db 
 */
 exports._harEntryCallback = (entry, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
-exports._kibanaHitCallback = (hit, routePath, routeConfig) => {
+exports._kibanaHitsCallback = (hit, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
