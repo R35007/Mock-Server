@@ -1498,6 +1498,18 @@
       background-color: #f0f0f0;
     }
   </style>
+  <style>
+    /* Overrides */
+    html {
+      padding: 0 !important;
+    }
+
+    body {
+      max-width: 1024px;
+      padding: 20px;
+      margin: auto;
+    }
+  </style>
 </head>
 
 <body>
@@ -2245,16 +2257,6 @@ mockServer.launchServer(
       <li><code>Reset Store</code> - <a href="http://localhost:3000/_reset/store">http://localhost:3000/_reset/store</a>
       </li>
     </ul>
-    <h2 id="home-page"><strong>Home Page</strong></h2>
-    <p><img src="https://r35007.github.io/Mock-Server/src/img/homePage.png" alt="Home Page"></p>
-    <h2 id="details-view"><strong>Details View</strong></h2>
-    <p><img src="https://r35007.github.io/Mock-Server/src/img/detailsView.png" alt="Details View"></p>
-    <h3 id="update-route"><strong>Update Route</strong></h3>
-    <p><img src="https://r35007.github.io/Mock-Server/src/img/updateRoute.png" alt="Update Route"></p>
-    <h3 id="clone-route"><strong>Clone Route</strong></h3>
-    <p><img src="https://r35007.github.io/Mock-Server/src/img/cloneRoute.png" alt="Clone Route"></p>
-    <h3 id="add-route"><strong>Add Route</strong></h3>
-    <p><img src="https://r35007.github.io/Mock-Server/src/img/addRoute.png" alt="Add Route"></p>
     <h2 id="cli-usage">CLI Usage</h2>
     <pre><code class="language-sh"><div>$ mock-server --<span class="hljs-built_in">help</span>
 Options:
@@ -2607,7 +2609,7 @@ mockServer.setMiddlewares(middlewares);
 mockServer.setInjectors(injectors);
 mockServer.setRewriters(rewriters);
 mockServer.setStore(store);
-mockServer.setDb(Db, { _harEntryCallback, _harDbCallback });
+mockServer.setDb(Db, { reverse });
 </div></code></pre>
     <p><strong><code>Params</code></strong></p>
     <p>The same as the <a href="#mockserver">MockServer</a></p>
@@ -2641,19 +2643,8 @@ mockServer.setDb(Db, { _harEntryCallback, _harDbCallback });
   getValidRouteConfig
 } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server/dist/server/utils/validators&quot;</span>);
 
-<span class="hljs-comment">// called only when the given data is in .Har format and called at each entry</span>
-<span class="hljs-keyword">const</span> _harEntryCallback = <span class="hljs-function">(<span class="hljs-params">entry, routePath, routeConfig</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> { [routePath]: routeConfig };
-};
-<span class="hljs-comment">// called only when the given data is in .Har format and called at end of the entry loop</span>
-<span class="hljs-keyword">const</span> _harDbCallback = <span class="hljs-function">(<span class="hljs-params">data, db</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> db; <span class="hljs-comment">// what ever you return here will be given back</span>
-};
-
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">reverse</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If true the db will be generated in reverse order</span>
-  _harEntryCallback,
-  _harDbCallback
 };
 
 <span class="hljs-keyword">const</span> rootPath = <span class="hljs-string">&quot;./&quot;</span>;
