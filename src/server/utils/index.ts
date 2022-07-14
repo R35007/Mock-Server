@@ -128,16 +128,31 @@ export const isCollection = (arr: any[]): boolean => {
   return true;
 }
 
+const getURLPathName = (url = '') => {
+  try {
+    return new URL(url)?.pathname || '';
+  } catch (error) {
+    return '';
+  }
+}
+
+const getParsedJSON = (json = '') => {
+  try {
+    return JSON.parse(json)
+  } catch (error) {
+    return json;
+  }
+}
+
 const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddleware["_harEntryCallback"], allowDuplicates: boolean = false) => {
 
   let generatedDb = {};
 
   entries.forEach((entry: HarEntry) => {
-    const route = new URL(entry?.request?.url)?.pathname;
-    const responseText = entry?.response?.content?.text || "";
+    const route = getURLPathName(entry?.request?.url);
+    const mock = getParsedJSON(entry?.response?.content?.text);
 
-    let mock;
-    try { mock = JSON.parse(responseText) } catch { mock = responseText }
+    if (!route) return;
 
     let routePath: string = getValidRoute(route || '');
     let routeConfig: UserTypes.RouteConfig = {
@@ -163,11 +178,10 @@ const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware[
   let generatedDb = {};
 
   hits.forEach((hit: HIT) => {
-    const route = new URL(hit?._source?.requestURI)?.pathname;
-    const responseText = hit?._source?.response || "";
+    const route = getURLPathName(hit?._source?.requestURI);
+    const mock = getParsedJSON(hit?._source?.response);
 
-    let mock;
-    try { mock = JSON.parse(responseText) } catch { mock = responseText }
+    if (!route) return;
 
     let routePath: string = getValidRoute(route || '');
     let routeConfig: UserTypes.RouteConfig = {

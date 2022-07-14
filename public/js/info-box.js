@@ -17,16 +17,21 @@ function showInfoBox($li, id) {
   $li.appendChild(
     parseHTML(`
     <div class="info-box position-relative overflow=hidden">
-      <div class="actions justify-content-end p-2 position-absolute" style="display: ${routeConfig._isDefault ? 'none' : 'flex'}">
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="reset('${routeConfig.id}')">Reset</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}">Edit</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}">Clone</button>
-        <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig.id}')">Refresh</button>
-      </div>
       <div class="route-config">${fieldSet(routeConfig, routeConfig.id)}</div>
-    </div>`)
-  );
-}
+      <div class="actions justify-content-end p-2" style="display: ${routeConfig._isDefault ? 'none' : 'flex'}">
+        <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i class="fas fa-undo"></i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i class="fas fa-pen"></i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="clone" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}"><i class="fas fa-clone"></i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="refresh('${routeConfig.id}')"><i class="fas fa-sync-alt"></i></span>
+        
+        </div>
+        </div>`)
+        );
+      }
+      // <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="reset('${routeConfig.id}')">Reset</button>
+      // <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}">Edit</button>
+      // <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}">Clone</button>
+      // <button type="button" class="btn btn-outline-primary box-shadow-none btn-sm ms-2" onclick="refresh('${routeConfig.id}')">Refresh</button>
 
 async function reset(id) {
   const restoredRoutes = await window.fetch(localhost + "/_reset/db/" + id).then((res) => res.json());

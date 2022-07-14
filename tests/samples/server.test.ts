@@ -3,6 +3,9 @@ import { MockServer } from '../../src/server';
 
 const server = () => {
   describe('Server Testing', () => {
+
+    beforeEach(async () => await MockServer.Destroy())
+
     it('should run without any exception', async () => {
       const mockServer = MockServer.Create({ root: path.resolve(__dirname, "../../samples") });
 
@@ -25,8 +28,8 @@ const server = () => {
 
       const resources = mockServer.resources(
         "./db.json",
-        "./middleware.js",
         "./injectors.json",
+        "./middleware.js",
         "./store.json"
       );
       app.use(mockServer.config.base, resources);
@@ -34,12 +37,12 @@ const server = () => {
       mockServer.addDbData({
         "/data": {
           _config: true,
-          middlewares: [(_req, res, next) => {
+          middlewares: (_req, res, next) => {
             const store = res.locals.getStore();
             console.log(store);
             res.locals.data = store?.data;
             next();
-          }]
+          }
         }
       })
 
@@ -50,20 +53,16 @@ const server = () => {
       app.use(mockServer.errorHandler);
 
       await mockServer.startServer();
-      await mockServer.stopServer();
-      mockServer.resetServer();
-
-      MockServer.Destroy();
     });
   });
 }
 
-// TODO: Write Testcases for sample db routes
+// TODO: Write Test cases for sample db routes
 const sampleDb = () => {
 }
 
 
-describe("Testin Samples", () => {
+describe("Test in Samples", () => {
   server() // Testing Server.js file
   sampleDb() // Testing all routes in sample db
 })

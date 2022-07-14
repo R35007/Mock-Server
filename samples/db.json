@@ -154,8 +154,8 @@
       "_FetchTillData - Helps to keep on make fetch calls until it gets a valid success data",
       "_SetFetchDataToMock - This middleware sets the 'fetchData' to 'mock' attribute. Note: The existing data in mock will be overridden",
       "_SetStoreDataToMock - This is similar to '_FetchTillData'. This sets the 'store' value to 'mock' attribute",
-      "_MockOnly - Always send only the mock data the even If it has a 'fetchdata'.",
-      "_FetchOnly - Always send only the 'fetchdata'",
+      "_MockOnly - Always send only the mock data the even If it has a 'fetchData'.",
+      "_FetchOnly - Always send only the 'fetchData'",
       "_ReadOnly - Only GET methods calls are allowed."
     ]
   },
@@ -197,8 +197,8 @@
       "_FetchTillData"
     ]
   },
-  "/injectors/1": {},
-  "/injectors/2": {},
+  "/injectors/1": "I am from /injectors/1",
+  "/injectors/2": "I am from /injectors/2",
   "/injectors/:id": {},
   "/getStoreValue": {
     "_config": true,

@@ -15,11 +15,13 @@ const _IterateResponse = (_req, res, next) => {
     return next();
   }
 
-  if (!(store[storeKey]?.length)) {
-    store[storeKey] = _.cloneDeep(locals.data || '');
+  if (!store[storeKey]?.nextIndex || (store[storeKey].nextIndex > locals.data.length - 1)) {
+    store[storeKey] = { currentIndex: -1, nextIndex: 0 };
   }
+  locals.data = locals.data[store[storeKey].nextIndex];
+  store[storeKey].currentIndex++;
+  store[storeKey].nextIndex++;
 
-  locals.data = store[storeKey].shift();
   next();
 }
 const _IterateRoutes = (req, res, next) => {
@@ -34,11 +36,14 @@ const _IterateRoutes = (req, res, next) => {
     return next();
   }
 
-  if (!(store[storeKey]?.length)) {
-    store[storeKey] = _.cloneDeep(locals.data || '');
+  if (!store[storeKey]?.nextIndex || (store[storeKey].nextIndex > locals.data.length - 1)) {
+    store[storeKey] = { currentIndex: -1, nextIndex: 0 };
   }
 
-  req.url = store[storeKey].shift();
+  req.url = locals.data[store[storeKey].nextIndex];
+  store[storeKey].currentIndex++;
+  store[storeKey].nextIndex++;
+
   next("route");
 }
 const _CrudOperation = (req, res, next) => {

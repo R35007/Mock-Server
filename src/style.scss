@@ -1,6 +1,8 @@
 :root {
-  --color-primary: 216, 98%; /* 0d6efd */
-  --l: 52%; /*the initial lightness*/
+  --color-primary: 216, 98%;
+  /* 0d6efd */
+  --l: 52%;
+  /*the initial lightness*/
 
   --bs-primary-rgb: 13, 110, 253;
   --bs-primary-darker: hsl(var(--color-primary), calc(var(--l) - 10%));
@@ -28,6 +30,7 @@
 
 .form-control {
   box-shadow: none;
+
   &:focus {
     box-shadow: none;
   }
@@ -38,132 +41,171 @@
   flex: 1;
   min-width: 30rem;
 
-  .search {
-    background-color: var(--background);
-    max-width: 500px;
-    width: 100%;
-    border: none;
-    padding: 0.2rem 0.8rem;
-
-    &:focus {
-      border: none;
-      outline: none;
-      box-shadow: none !important;
-    }
-  }
-
-  #routes-list {
-    min-height: calc(100vh - 21rem);
-    #resources-list {
-      margin: 1rem 1.5rem;
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      #add-resource {
-        background: rgba(var(--bs-primary-rgb), 3%);
-        transition: all 0.2s linear;
-        &:hover {
-          background: rgba(var(--bs-primary-rgb), 7%);
-        }
-      }
-    }
-
-    #rewriters-list {
-      .nav-item {
-        .nav-link {
-          text-decoration: none !important;
-        }
-      }
-    }
-
-    .nav-item {
-      position: relative;
-      border-radius: 0.2rem;
-      &.expanded {
-        box-shadow: 0 -2px 1px rgb(0 0 0 / 0%), 0 2px 2px rgb(0 0 0 / 14%),
-          0 1px 5px rgb(0 0 0 / 14%);
-        .header {
-          background-color: rgba(var(--bs-primary-rgb), 0.1);
-        }
-        .info-icon {
-          opacity: 1 !important;
-          padding: 0.5rem 0.6rem !important;
-        }
-      }
-      .header {
-        transition: all 0.15s linear;
-        color: var(--bs-primary);
-        .info-icon {
-          padding: 0;
-          padding-left: 0.5rem;
-          opacity: 0;
-          transition: all 0.15s linear;
-          .icon {
-            background: var(--bs-blue);
-            display: inline-block;
-            width: 1rem;
-            color: white;
-            text-align: center;
-            border-radius: 50%;
-            font-size: 0.7rem;
-            font-weight: bolder;
-          }
-          &:hover {
-            opacity: 0.9;
-            padding: 0.5rem 0.6rem;
-          }
-        }
-        .nav-link {
-          transition: none;
-          display: block;
-          text-decoration: underline;
-          flex: 1;
-        }
-        &:hover {
-          background-color: rgba(var(--bs-primary-rgb), 0.1);
-          .info-icon {
-            opacity: 0.5;
-            padding: 0.5rem 0.6rem !important;
-          }
-        }
-        &.active {
-          background-color: rgba(var(--bs-primary-rgb), 0.2);
-        }
-        &.default {
-          filter: grayscale(0.7);
-        }
-      }
-      .info-box {
-        .actions {
-          z-index: 2;
-          right: 1rem;
-          button {
-            font-size: 0.8rem;
-          }
-        }
-        .img {
-          width: 8rem;
-          img {
-            width: 100%;
-          }
-        }
-      }
-    }
-  }
-
-  .footer {
-    padding: 1rem 1.5rem;
-    p {
-      margin-bottom: 1rem;
-    }
-  }
-
   .toast {
     box-shadow: 0 0 10px black;
     bottom: 0.5rem;
     z-index: 10;
     right: 0.5rem;
   }
+
+  main {
+    .main-content-wrapper {
+      max-width: 1100px;
+      margin: auto;
+
+      nav {
+        transition: 0.3s all ease-in-out;
+        z-index: 3;
+
+        .search {
+          background-color: var(--background);
+          max-width: 500px;
+          width: 100%;
+          border: none;
+          padding: 0.2rem 0.8rem;
+
+          &:focus {
+            border: none;
+            outline: none;
+            box-shadow: none !important;
+          }
+        }
+      }
+
+      #routes-list {
+        background: #ffffff;
+        min-height: calc(100vh - 20rem);
+
+        #resources-list {
+          margin: 1rem 1.5rem;
+          list-style: none;
+          display: flex;
+          flex-wrap: wrap;
+
+          #add-resource {
+            background: rgba(var(--bs-primary-rgb), 3%);
+            transition: all 0.2s linear;
+
+            &:hover {
+              background: rgba(var(--bs-primary-rgb), 7%);
+            }
+          }
+        }
+
+        #rewriters-list {
+          .nav-item {
+            .nav-link {
+              text-decoration: none !important;
+            }
+          }
+        }
+
+        .nav-item {
+          position: relative;
+          border-radius: 0.2rem;
+
+          &.expanded {
+            box-shadow: 0 -2px 1px rgb(0 0 0 / 0%), 0 2px 2px rgb(0 0 0 / 14%),
+              0 1px 5px rgb(0 0 0 / 14%);
+              margin-bottom: 10px;
+
+            .header {
+              background-color: rgba(var(--bs-primary-rgb), 0.1);
+            }
+
+            .info-icon {
+              opacity: 1 !important;
+              padding: 0.5rem 0.6rem !important;
+            }
+          }
+
+          .header {
+            transition: all 0.15s linear;
+            color: var(--bs-primary);
+
+            .info-icon {
+              padding: 0;
+              padding-left: 0.5rem;
+              opacity: 0;
+              transition: all 0.15s linear;
+
+              .icon {
+                background: var(--bs-blue);
+                display: inline-block;
+                width: 1rem;
+                color: white;
+                text-align: center;
+                border-radius: 50%;
+                font-size: 0.7rem;
+                font-weight: bolder;
+              }
+
+              &:hover {
+                opacity: 0.9;
+                padding: 0.5rem 0.6rem;
+              }
+            }
+
+            .nav-link {
+              transition: none;
+              display: block;
+              text-decoration: underline;
+              flex: 1;
+            }
+
+            &:hover {
+              .info-icon {
+                opacity: 0.5;
+                padding: 0.5rem 0.6rem !important;
+              }
+            }
+
+            &.active {
+              background-color: rgba(var(--bs-primary-rgb), 0.2);
+            }
+
+            &.default {
+              filter: grayscale(0.7);
+            }
+          }
+
+          .info-box {
+            .actions {
+              z-index: 2;
+              right: 1rem;
+              border-radius: 0.2rem;
+              position: absolute;
+              top: -3rem;
+              right: 0;
+              background: #ffffff;
+              
+              button {
+                font-size: 0.8rem;
+              }
+            }
+
+            .img {
+              width: 8rem;
+
+              img {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+
+      footer {
+        background: #ffffff;
+        padding: 1rem 1.5rem;
+
+        p {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+
 }
 
 #separator {
@@ -181,6 +223,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
   &:hover {
     opacity: 0.5;
   }
@@ -190,16 +233,19 @@
   height: 100vh;
   background: #000000;
   min-width: 30rem;
+
   #iframe-header {
     #iframe-url {
       &::selection {
         background-color: #000000;
       }
+
       &::placeholder {
         color: #ffffff;
         opacity: 0.7;
       }
     }
+
     #download {
       color: #fff;
       opacity: 0.7;
@@ -211,6 +257,11 @@
       opacity: 0.9;
     }
   }
+
+  #iframe-data {
+    background: #000000;
+  }
+
   .spinner-border {
     width: 3.5rem;
     height: 3.5rem;
@@ -222,6 +273,7 @@ main {
   height: #{"calc(100vh - 2.8rem)"};
   overflow-x: hidden;
   overflow-y: auto;
+  background: #f0f0f0;
 }
 
 .loader-backdrop {
@@ -244,13 +296,16 @@ main {
 
 .row {
   margin: 0.5rem 0;
+
   .key {
     max-width: 10rem;
     color: var(--bs-dark);
   }
+
   .val {
     word-break: break-word;
   }
+
   textarea,
   pre {
     word-break: break-all;
@@ -269,6 +324,7 @@ main {
 span.action-icon {
   opacity: 0.5;
   cursor: pointer;
+
   &:hover {
     opacity: 1;
   }
@@ -280,11 +336,13 @@ span.action-icon {
       display: none;
     }
   }
+
   .add-form {
     .no-add {
       display: none;
     }
   }
+
   .feedback {
     font-size: 0.9rem;
     margin-top: 0.25rem;
@@ -293,8 +351,10 @@ span.action-icon {
   select[multiple] {
     height: 13.5rem;
     overflow: hidden;
+
     option {
       transition: all 0.2s linear;
+
       &:hover {
         background-color: #dae6f7;
       }
@@ -304,6 +364,7 @@ span.action-icon {
 
 fieldset {
   border: 1px solid #d2d2d2;
+
   legend {
     font-size: 1.2rem;
     float: unset;

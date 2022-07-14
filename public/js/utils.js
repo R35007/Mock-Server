@@ -90,3 +90,7 @@ function orderRouteConfig(routeConfig) {
 function random(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
+
+function setFormDataType(name, type){
+  document.getElementById(`${name}-badge`).innerHTML = type;
+}

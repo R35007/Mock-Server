@@ -1,5 +1,6 @@
 let resources = {};
 let rewriters = {};
+let formValues = {}
 
 let totalRoutesCount = 0;
 let filteredRoutesCount = 0;
@@ -12,7 +13,7 @@ const $resourcesList = document.getElementById("resources-list");
 const $rewritersList = document.getElementById("rewriters-list");
 const $resourcesCount = document.getElementById("resources-count");
 const $search = document.getElementById("search");
-const $frameloader = document.getElementById("iframe-loader");
+const $frameLoader = document.getElementById("iframe-loader");
 const $iframeData = document.getElementById("iframe-data");
 const $download = document.getElementById("download");
 const $routeModal = document.getElementById("routeModal");
@@ -27,10 +28,10 @@ const $iframeUrl = document.getElementById("iframe-url");
 let $routeBsModal;
 let $bsToast;
 
-try{
+try {
   $routeBsModal = new bootstrap.Modal($routeModal);
   $bsToast = new bootstrap.Toast($toast, { animation: true, delay: 2000 });
-}catch{
+} catch {
   $routeBsModal = {};
   $bsToast = {};
 }

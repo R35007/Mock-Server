@@ -116,7 +116,7 @@ async function setIframeData($event, routePath) {
       $iframeData.contentWindow.document.open();
       $iframeData.contentWindow.document.close();
     } catch { }
-    $frameloader.style.display = "grid";
+    $frameLoader.style.display = "grid";
     $dataContainer.style.display = "block";
     setIFrameSrc(routePath);
   } catch (err) {

@@ -51,11 +51,6 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Dynamic Route Config](#dynamic-route-config)
 - [Config](#config)
 - [Default Routes](#default-routes)
-- [Home Page](#home-page)
-- [Details View](#details-view)
-  - [Update Route](#update-route)
-  - [Clone Route](#clone-route)
-  - [Add Route](#add-route)
 - [CLI Usage](#cli-usage)
 - [API](#api)
   - [MockServer](#mockserver)
@@ -869,26 +864,6 @@ new MockServer(config).launchServer("./db.json");
 - `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
 - `Reset Db` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
 - `Reset Store` - [http://localhost:3000/\_reset/store](http://localhost:3000/_reset/store)
-
-## **Home Page**
-
-![Home Page](https://r35007.github.io/Mock-Server/src/img/homePage.png)
-
-## **Details View**
-
-![Details View](https://r35007.github.io/Mock-Server/src/img/detailsView.png)
-
-### **Update Route**
-
-![Update Route](https://r35007.github.io/Mock-Server/src/img/updateRoute.png)
-
-### **Clone Route**
-
-![Clone Route](https://r35007.github.io/Mock-Server/src/img/cloneRoute.png)
-
-### **Add Route**
-
-![Add Route](https://r35007.github.io/Mock-Server/src/img/addRoute.png)
 
 ## CLI Usage
 

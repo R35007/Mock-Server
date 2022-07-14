@@ -1,3 +1,7 @@
+function toggleDataContainer(shouldOpen) {
+  $dataContainer.style.display = shouldOpen ? "block" : "none";
+}
+
 // A function is used for dragging and moving
 function dragElement(element) {
   var md; // remember mouse down info
@@ -31,8 +35,8 @@ function dragElement(element) {
     // Prevent negative-sized elements
     const deltaX = Math.min(Math.max(delta.x, -md.resourcesContainerWidth), md.dataContainerWidth);
     let dataContainerWidth = md.dataContainerWidth - deltaX;
-    let dataContainerMinWidth = (md.dataContainerWidth/100)*35;
-    
+    let dataContainerMinWidth = (md.dataContainerWidth / 100) * 35;
+
     if(dataContainerWidth < dataContainerMinWidth) {
       $dataContainer.style.display = "none"
     }else{

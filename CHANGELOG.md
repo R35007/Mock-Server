@@ -1,3 +1,9 @@
+## v6.0.3
+
+- Performance improvement.
+- Homepage ui improvements.
+- Removed editing `Fetch Data Response` in homepage.
+
 ## v6.0.2
 
 - Now `getValidDb` can't transform HAR to db instead we need to use `extractDbFromHAR` method explicitly fom utils.
