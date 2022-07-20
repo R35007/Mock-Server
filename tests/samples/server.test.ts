@@ -53,6 +53,9 @@ const server = () => {
       app.use(mockServer.errorHandler);
 
       await mockServer.startServer();
+
+      console.log(mockServer);
+      
     });
   });
 }

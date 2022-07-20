@@ -1,3 +1,11 @@
+## v6.0.4
+
+- Implemented Dark and Light mode in Homepage.
+- Added page loader in Homepage.
+- Performance improvement.
+- Added editing `Fetch Data Response` in homepage.
+- removed resetting store
+
 ## v6.0.3
 
 - Performance improvement.

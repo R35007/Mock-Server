@@ -2,7 +2,7 @@ function getBadges(badgeList) {
   return badgeList.map(
     (badge) =>
       `<h6 class="m-0">
-        <span class="badge bg-secondary">${badge}</span>
+        <span class="badge bg-secondary fw-normal">${badge}</span>
       </h6>`
   );
 }
@@ -59,23 +59,23 @@ function orderRouteConfig(routeConfig) {
     "middlewares",
     "statusCode",
     "delay",
-    "fetch",
     "fetchCount",
     "skipFetchError",
     "mock",
-    "_request",
-    "_isFile",
-    "_extension",
-    "fetchData",
+    "fetch",
     "fetchError",
     "store",
+    "fetchData",
     "status",
     "message",
     "isImage",
     "isError",
     "headers",
     "stack",
-    "response"
+    "response",
+    "_request",
+    "_isFile",
+    "_extension",
   ]
 
   const routeConfigKeys = Object.keys(routeConfig);
@@ -91,6 +91,40 @@ function random(min, max) { // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-function setFormDataType(name, type){
+function setFormDataType(name, type) {
   document.getElementById(`${name}-badge`).innerHTML = type;
 }
+
+function togglePageLoader(showLoader) {
+  if (showLoader) {
+    $pageLoader.classList.add("d-block");
+    $pageLoader.classList.remove("d-none");
+  } else {
+    $pageLoader.classList.add("d-none");
+    $pageLoader.classList.remove("d-block");
+  }
+}
+
+async function request(url, options) {
+  togglePageLoader(true);
+  const response = await window.fetch(url, options).then((res) => res.json());
+  togglePageLoader(false);
+  return response;
+}
+
+// Lodash implementation of _.set method
+const set = (obj, path, value) => {
+  if (Object(obj) !== obj) return obj; // When obj is not an object
+  // If not yet an array, get the keys from the string-path
+  if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || []; 
+  path.slice(0,-1).reduce((a, c, i) => // Iterate all of them except the last one
+       Object(a[c]) === a[c] // Does the key exist and is its value an object?
+           // Yes: then follow that path
+           ? a[c] 
+           // No: create the key. Is the next key a potential array-index?
+           : a[c] = Math.abs(path[i+1])>>0 === +path[i+1] 
+                 ? [] // Yes: assign a new array object
+                 : {}, // No: assign a new plain object
+       obj)[path[path.length-1]] = value; // Finally assign the value to the last key
+  return obj; // Return the top-level object to allow chaining
+};

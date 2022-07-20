@@ -17,7 +17,7 @@ import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
 import { cleanDb, flatQuery, replaceObj } from './utils';
-import { getValidDb, getValidRouteConfig } from './utils/validators';
+import { getValidDb } from './utils/validators';
 
 export class MockServer extends GettersSetters {
 
@@ -112,13 +112,6 @@ export class MockServer extends GettersSetters {
     if (!this.routes.includes(routePath)) {
       this.routes.push(routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
-
-      // adding new Routes
-      if (!Object.keys(this._db()).includes(routePath)) {
-        this._db()[routePath] = routeConfig;
-        this.initialDb[routePath] = _.cloneDeep(routeConfig);
-      }
-
       router?.all(routePath, middlewareList);
     };
   }
@@ -126,10 +119,19 @@ export class MockServer extends GettersSetters {
   addDbData = (db: UserTypes.Db, router: express.Router = this.router) => {
     const config = this.config;
     const validDb = getValidDb(db, this.injectors, config.root, { reverse: config.reverse });
+    
+    const existingRoutes = Object.keys(this._db());
+    const newDbEntries = Object.entries(validDb).filter(([routePath]) => !existingRoutes.includes(routePath));
+    
     if (!this.router) this.router = express.Router();
-    Object.entries(validDb).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
+
+    newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
+      this._db()[routePath] = routeConfig;
+      this.initialDb[routePath] = _.cloneDeep(routeConfig);
       this.#createRoute(routePath, routeConfig, router)
-    );
+    });
+
+    return this.router;
   }
 
   #getMiddlewareList = (routePath: string, routeConfig: ValidTypes.RouteConfig) => {
@@ -202,11 +204,6 @@ export class MockServer extends GettersSetters {
 
   errorHandler = ErrorHandler;
 
-  resetStore = () => {
-    replaceObj(this._store(), _.cloneDeep(this.initialStore));
-    return this.store;
-  }
-
   resetDb = (ids: string[] = [], routePaths: string[] = []) => {
     if (!ids.length && !routePaths.length) {
       replaceObj(this._db(), _.cloneDeep(this.initialDb));
@@ -228,7 +225,11 @@ export class MockServer extends GettersSetters {
       ["/_db/:id?", (req: express.Request, res: express.Response) => {
         if (req.method === 'POST') {
           this.addDbData(req.body);
-          res.send(this.db);
+          const response = {};
+          Object.keys(req.body).forEach(key => {
+            if (this.db[key]) response[key] = this.db[key]
+          });
+          res.send(response);
         } else if (req.method === 'PUT') {
           this.#updateRouteConfig(req, res);
         } else {
@@ -236,13 +237,12 @@ export class MockServer extends GettersSetters {
         }
       }],
       ["/_rewriters", (_req, res) => res.send(this.rewriters)],
-      ["/_store/:key?", (_req, res) => res.send(this.store)],
+      ["/_store", (_req, res) => res.send(this.store)],
       ["/_reset/db/:id?", (req, res) => {
         const ids = flatQuery(req.params.id || req.query.id) as string[];
         const restoredRoutes = this.resetDb(ids);
         res.send(restoredRoutes);
       }],
-      ["/_reset/store", (_req, res) => res.send(this.resetStore())]
     ]
 
     defaultRoutes.forEach(([routePath, middleware]) => {
@@ -268,12 +268,18 @@ export class MockServer extends GettersSetters {
   }
 
   #updateRouteConfig = (req: express.Request, res: express.Response) => {
-    const routePath = Object.keys(this.db).find(r => this.db[r].id == req.params.id);
-    if (!routePath) return res.send(this.db);
-    const updatedRouteConfig = getValidRouteConfig(routePath, [].concat(req.body)[0]) as UserTypes.RouteConfig;
-    delete updatedRouteConfig.id;
-    delete updatedRouteConfig.middlewares;
-    routePath && replaceObj(this._db()[routePath], { ...this._db()[routePath], ...updatedRouteConfig })
-    res.send(this.db);
+    const dbToUpdate = req.body as ValidTypes.Db;
+
+    const response = {};
+    const db = this._db();
+
+    Object.entries(dbToUpdate).forEach(([routePath, routeConfig]) => {
+      delete routeConfig.middlewares;
+      if (db[routePath]) {
+        replaceObj(db[routePath], { ...db[routePath], ...routeConfig });
+        response[routePath] = db[routePath]
+      }
+    })
+    res.send(response);
   }
 }

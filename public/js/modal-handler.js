@@ -8,6 +8,7 @@ function openModal($button) {
   setFormDataType('mock', '');
   setFormDataType('fetch', '');
   setFormDataType('store', '');
+  setFormDataType('fetchData.response', '');
 
   modalType === "update" && updateRoute(id);
   modalType === "clone" && cloneRoute(id);
@@ -16,9 +17,10 @@ function openModal($button) {
 };
 
 async function updateRoute(id) {
-  const refreshedRoute = await window.fetch(localhost + "/_db/" + id).then((res) => res.json());
+  const refreshedRoute = await request(localhost + "/_db/" + id);
   const [routePath, routeConfig = {}] = Object.entries(refreshedRoute)?.[0] || [];
 
+  $routeConfig.value = JSON.stringify(routeConfig);
   $routeConfigForm.classList.add("update-form");
   $routeConfigForm.classList.remove("add-form");
   $modalTitle.textContent = routePath;
@@ -27,7 +29,7 @@ async function updateRoute(id) {
 }
 
 async function cloneRoute(id) {
-  const refreshedRoute = await window.fetch(localhost + "/_db/" + id).then((res) => res.json());
+  const refreshedRoute = await request(localhost + "/_db/" + id);
   const [routePath, routeConfig = {}] = Object.entries(refreshedRoute)?.[0] || [];
   delete routeConfig.id;
 
@@ -58,39 +60,57 @@ function setFormValues(routeConfig, routePath) {
     skipFetchError,
     mock,
     store,
-    middlewares
+    middlewares,
+    fetchData = {}
   } = routeConfig;
+
+  const fetchResp = fetchData.response;
 
   $routeConfigForm.id.value = id || '';
   $routeConfigForm.routePath.value = routePath || '';
   $routeConfigForm.statusCode.value = statusCode ?? '';
   $routeConfigForm.delay.value = delay ?? '';
-  $routeConfigForm.fetch.value = typeof fetch === 'object' ? JSON.stringify(fetch, null, 8) : fetch ?? '';
   $routeConfigForm.fetchCount.value = fetchCount ?? '';
   $routeConfigForm.skipFetchError.checked = (skipFetchError + "") == 'true';
   $routeConfigForm.mockFirst.checked = (mockFirst + "") == 'true';
-  $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
-  $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
   $routeConfigForm.description.value = description ?? '';
   $routeConfigForm.middlewares.value = middlewares?.join(',') ?? '';
+
+  $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
+  $routeConfigForm.fetch.value = typeof fetch === 'object' ? JSON.stringify(fetch, null, 8) : fetch ?? '';
+  $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
+  $routeConfigForm["fetchData.response"].value = typeof fetchResp === 'object' ? JSON.stringify(fetchResp, null, 8) : fetchResp ?? '';
 
   setFormDataType('mock', typeof mock === 'object' ? 'JSON' : 'STRING');
   setFormDataType('fetch', typeof fetch === 'object' ? 'JSON' : 'STRING');
   setFormDataType('store', typeof store === 'object' ? 'JSON' : 'STRING');
+  setFormDataType('fetchData.response', typeof fetchResp === 'object' ? 'JSON' : 'STRING');
 }
 
 async function updateRouteConfig(updatedRouteConfig) {
-  const routePath = $routeConfigForm.routePath?.value?.trim();
-  const id = updatedRouteConfig.id;
+  const existingRouteConfig = parseJson($routeConfig.value) || {};
 
-  resources = await window.fetch(localhost + "/_db/" + id, {
+  const routePath = $routeConfigForm.routePath?.value?.trim();
+
+  const fetchData = {
+    ...(existingRouteConfig.fetchData || {}),
+    ...(updatedRouteConfig.fetchData || {})
+  }
+
+  const payload = { [routePath]: { ...updatedRouteConfig, fetchData } };
+
+  const response = await request(localhost + "/_db/", {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(updatedRouteConfig)
-  }).then((res) => res.json());
+    body: JSON.stringify(payload)
+  });
+
+  Object.entries(response).forEach(([routePath, routeConfig]) => {
+    resources[routePath] = routeConfig;
+  })
 
   createResourcesList(resources);
   $routeBsModal?.hide?.();
@@ -98,14 +118,18 @@ async function updateRouteConfig(updatedRouteConfig) {
 }
 
 async function addNewRoute(updatedRouteConfig) {
-  const existingRouteConfig = JSON.parse($routeConfig.value);
+  const existingRouteConfig = parseJson($routeConfig.value) || {};
 
   const routePath = $routeConfigForm.routePath?.value?.trim();
   const middlewares = $routeConfigForm.middlewares?.value?.split(',') || [];
+  const fetchData = {
+    ...(existingRouteConfig.fetchData || {}),
+    ...(updatedRouteConfig.fetchData || {})
+  }
 
-  const _routeConfig = { ...existingRouteConfig, ...updatedRouteConfig, middlewares };
-  delete _routeConfig.routePath;
-  delete _routeConfig.id;
+  const routeConfig = { ...existingRouteConfig, ...updatedRouteConfig, middlewares, fetchData };
+  delete routeConfig.routePath;
+  delete routeConfig.id;
 
   if (!routePath?.trim()?.length) {
     const error = "Please Provide Route Path";
@@ -118,17 +142,20 @@ async function addNewRoute(updatedRouteConfig) {
     return false;
   }
 
-  const request = { [routePath]: _routeConfig };
+  const payload = { [routePath]: routeConfig };
 
-  console.log("Add Fetch request :", request);
-  resources = await window.fetch(localhost + "/_db", {
+  const response = await request(localhost + "/_db", {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(request)
-  }).then((res) => res.json());
+    body: JSON.stringify(payload)
+  });
+
+  Object.entries(response).forEach(([routePath, routeConfig]) => {
+    resources[routePath] = routeConfig;
+  })
 
   createResourcesList(resources);
   $routeBsModal?.hide?.();

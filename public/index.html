@@ -26,6 +26,11 @@
 </head>
 
 <body>
+  <div id="page-loader" class="backdrop">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
   <div id="container" class="d-flex w-100 h-100 overflow-hidden">
     <div id="resources-container" class="position-relative">
       <div id="toast" class="toast hide align-items-center text-white bg-success border-0 position-absolute"
@@ -38,13 +43,17 @@
       </div>
       <nav id="mock-server-nav-header" class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand d-flex align-items-center text-light p-0" href="https://github.com/R35007/Mock-Server"
+          <a class="navbar-brand d-flex align-items-center p-0" href="https://github.com/R35007/Mock-Server"
             target="blank">
             <img src="./mockserverlogo.png" class="d-inline-block align-text-top me-2" style="width: 1.5rem">
             Mock Server
           </a>
-          <div>
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex flex-row">
+          <div class="form-check form-switch text-light">
+            <input class="form-check-input shadow-none" type="checkbox" name="darkMode" id="darkMode-switch"
+              value="true"> Dark
+          </div>
+          <div class="flex-1">
+            <ul class="float-end navbar-nav ms-auto mb-2 mb-lg-0 d-flex flex-row">
               <li class="nav-item me-3">
                 <a class="nav-link py-0" href="https://github.com/R35007/Mock-Server" target="blank">
                   <i class="fab fa-github-alt me-2"></i>GitHub
@@ -99,7 +108,7 @@
               </span>
             </p>
             <h2>Documentation</h2>
-            <p><a href="https://r35007.github.io/Mock-Server/" class="text-primary" style="text-decoration: underline;"
+            <p><a href="https://r35007.github.io/Mock-Server/" style="text-decoration: underline;"
                 target="blank">README</a></p>
             <p>
               To replace this page, create a <code>./public/index.html</code> file.
@@ -126,7 +135,7 @@
         </div>
       </nav>
       <main>
-        <div id="iframe-loader" class="loader-backdrop" style="display: none;">
+        <div id="iframe-loader" style="display: none;">
           <div class="loader-wrapper">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
@@ -150,12 +159,14 @@
         </div>
         <div class="modal-body">
           <form id="route-config-form" name="route-config-form">
+            <!-- id -->
             <div class="row mb-3 no-add">
               <label for="id" class="col-sm-2 col-form-label">id</label>
               <div class="col-sm-10">
                 <input type="text" disabled class="form-control" name="id" id="id">
               </div>
             </div>
+            <!-- routePath -->
             <div class="row mb-3 no-edit">
               <label for="routePath" class="col-sm-2 col-form-label">Route path</label>
               <div class="col-sm-10">
@@ -163,18 +174,21 @@
                 <div id="form-error" class="feedback text-danger" style="display: none"></div>
               </div>
             </div>
+            <!-- description -->
             <div class="row mb-3">
               <label for="description" class="col-sm-2 col-form-label">Description</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" name="description" id="description">
               </div>
             </div>
+            <!-- statusCode -->
             <div class="row mb-3">
               <label for="statusCode" class="col-sm-2 col-form-label">Status Code</label>
               <div class="col-sm-10">
                 <input type="number" class="form-control" min="100" max="600" name="statusCode" id="statusCode">
               </div>
             </div>
+            <!-- delay -->
             <div class="row mb-3">
               <label for="delay" class="col-sm-2 col-form-label">Delay</label>
               <div class="col-sm-10">
@@ -184,69 +198,95 @@
                 </div>
               </div>
             </div>
-            <div class="row mb-3">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
-                  Mock
-                </button>
-                <span id="mock-badge" class="badge bg-secondary ms-4"></span>
-              </label>
-              <div class="col-12 collapse" id="_mock">
-                <textarea class="form-control" name="mock" id="mock" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
-                  Fetch
-                </button>
-                <span id="fetch-badge" class="badge bg-secondary ms-4"></span>
-              </label>
-              <div class="col-12 collapse" id="_fetch">
-                <textarea class="form-control" name="fetch" id="fetch" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-              </div>
-            </div>
+            <!-- mockFirst -->
             <div class="row mb-3">
               <label for="mockFirst" class="col-sm-2 col-form-label">Mock First</label>
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
-                  <input class="form-check-input box-shadow-none" type="checkbox" name="mockFirst"
-                    id="mockFirst" value="true">
+                  <input class="form-check-input shadow-none" type="checkbox" name="mockFirst" id="mockFirst"
+                    value="true">
                 </div>
               </div>
             </div>
+            <!-- fetchCount -->
             <div class="row mb-3">
               <label for="fetchCount" class="col-sm-2 col-form-label">Fetch Count</label>
               <div class="col-sm-10">
                 <input type="number" class="form-control" name="fetchCount" id="fetchCount">
               </div>
             </div>
+            <!-- skipFetchError -->
             <div class="row mb-3">
               <label for="skipFetchError" class="col-sm-2 col-form-label">Skip Fetch Error</label>
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
-                  <input class="form-check-input box-shadow-none" type="checkbox" name="skipFetchError"
+                  <input class="form-check-input shadow-none" type="checkbox" name="skipFetchError"
                     id="skipFetchError" value="true" onclick="function setValue(){console.log(this); }; setValue();">
                 </div>
               </div>
             </div>
+            <!-- mock -->
+            <div class="row mb-3">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
+                  Mock <i class="fa-solid fa-caret-right"></i>
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_mock">
+                <span id="mock-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="mock" id="mock" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- fetch -->
+            <div class="row mb-3">
+              <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
+                  Fetch <i class="fa-solid fa-caret-right"></i>
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_fetch">
+                <span id="fetch-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="fetch" id="fetch" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- fetchData response -->
+            <div class="row mb-3">
+              <label for="fetchResponse" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_fetchResponse" aria-expanded="false"
+                  aria-controls="_fetchResponse">
+                  Fetch Response <i class="fa-solid fa-caret-right"></i>
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_fetchResponse">
+                <span id="fetchData.response-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="fetchData.response" id="fetchResponse" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- store -->
             <div class="row mb-3">
               <label for="store" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white text-primary p-0 box-shadow-none" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#__store" aria-expanded="false" aria-controls="__store">
-                  Store
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#__store" aria-expanded="false" aria-controls="__store">
+                  Store <i class="fa-solid fa-caret-right"></i>
                 </button>
-                <span id="store-badge" class="badge bg-secondary ms-4"></span>
               </label>
-              <div class="col-12 collapse" id=__store>
+              <div class="col-12 collapse position-relative" id=__store>
+                <span id="store-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
                 <textarea class="form-control" name="store" id="store" rows="5"
                   onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
             </div>
+            <!-- middlewares -->
             <div class="row mb-3 no-edit">
               <label for="middlewares" class="col-sm-2 col-form-label">Middlewares</label>
               <div class="col-sm-10">
@@ -261,8 +301,8 @@
           <textarea name="routeConfig" id="routeConfig" class="d-none"></textarea>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary box-shadow-none" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary box-shadow-none" form="route-config-form">Save</button>
+          <button type="button" class="btn btn-secondary shadow-none" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary shadow-none" form="route-config-form">Save</button>
         </div>
       </div>
     </div>

@@ -16,7 +16,6 @@ export class GettersSetters {
   routes!: string[];
 
   initialDb!: ValidTypes.Db;
-  initialStore!: ValidTypes.Store;
 
   #config!: ValidTypes.Config;
   #db!: ValidTypes.Db;
@@ -54,7 +53,6 @@ export class GettersSetters {
     this.#store = _.cloneDeep(Defaults.Store);
 
     this.initialDb = _.cloneDeep(Defaults.Db);
-    this.initialStore = _.cloneDeep(Defaults.Store);
   }
 
   setData(
@@ -111,7 +109,6 @@ export class GettersSetters {
   setStore(store?: Params.Store) {
     console.log("\n" + chalk.gray("Setting Store..."));
     this.#store = getValidStore(store, this.#config.root);
-    this.initialStore = _.cloneDeep(this.#store);
     console.log(chalk.gray("Done."));
   }
 

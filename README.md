@@ -863,7 +863,6 @@ new MockServer(config).launchServer("./db.json");
 - `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
 - `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
 - `Reset Db` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
-- `Reset Store` - [http://localhost:3000/\_reset/store](http://localhost:3000/_reset/store)
 
 ## CLI Usage
 

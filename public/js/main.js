@@ -1,12 +1,12 @@
 async function init() {
   try {
-    resources = await window.fetch(localhost + "/_db").then((res) => res.json());
+    resources = await request(localhost + "/_db");
   } catch (err) {
     console.log(err);
   }
 
   try {
-    rewriters = await window.fetch(localhost + "/_rewriters").then((res) => res.json());
+    rewriters = await request(localhost + "/_rewriters");
   } catch (err) {
     console.log(err);
   }
@@ -75,12 +75,12 @@ function ResourceList(resources) {
   return `
     ${Object.entries(resources).map((routesEntry) => ResourceItem(...routesEntry)).join("")}
     <li id="no-resource" class="nav-item w-100 mt-2" style="display: none">
-      <span class="nav-link p-2 px-3 d-block bg-dark text-light text-center">
+      <span class="p-2 px-3 d-block bg-light text-center">
         <span> No Resources Found</span>
       </span>
     </li>
     <li id="add-resource" role="button" class="nav-item w-100 mt-2 d-block" data-type="add" onclick="openModal(this)">
-      <span class="nav-link p-2 px-3 me-3 text-primary text-center">
+      <span class="nav-link p-2 px-3 me-3 text-center">
         <span role="button" class="action-icon"><i class="fas fa-plus-circle"></i></span>
         <span> Click here To add new Resource </span>
       </span>
@@ -88,8 +88,8 @@ function ResourceList(resources) {
     <li class="nav-item w-100 mt-2 d-block">
       <div class="d-flex align-items-center justify-content-end">
         <button style="margin-top:-3.6rem" 
-        class="btn btn-secondary box-shadow-none btn-sm" 
-        onclick="resetAll('db')"> Reset Resources</button>
+        class="btn btn-secondary shadow-none btn-sm" 
+        onclick="resetAll()"> Reset Resources</button>
       </div>
     </li>
   `;
@@ -187,14 +187,9 @@ function showNoResource(show) {
     : "none";
 }
 
-async function resetAll(type) {
-  if (type === 'db') {
-    resources = await window.fetch(localhost + "/_reset/db").then(res => res.json());
-    showToast("Routes Restored Successfully");
-  } else {
-    await window.fetch(localhost + "/_reset/store").then(res => res.json());
-    showToast("Store Restored Successfully");
-  }
+async function resetAll() {
+  resources = await request(localhost + "/_reset/db");
+  showToast("Routes Restored Successfully");
   createResourcesList(resources);
 }
 

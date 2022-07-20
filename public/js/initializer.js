@@ -5,6 +5,8 @@ let formValues = {}
 let totalRoutesCount = 0;
 let filteredRoutesCount = 0;
 
+const $pageLoader = document.getElementById("page-loader");
+const $darkModeSwitch = document.getElementById("darkMode-switch");
 const $container = document.getElementById("container");
 const $resourcesContainer = document.getElementById("resources-container");
 const $dataContainer = document.getElementById("data-container");
@@ -34,4 +36,8 @@ try {
 } catch {
   $routeBsModal = {};
   $bsToast = {};
-}
+};
+
+const theme = localStorage.getItem("theme");
+$darkModeSwitch.checked = theme == "dark";
+document.getElementsByTagName("html")[0].dataset.theme = theme;

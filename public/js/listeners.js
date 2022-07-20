@@ -43,31 +43,53 @@ const modalSwitchControls = document.querySelectorAll('#route-config-form .form-
 
 modalTextControls.forEach(formControl => {
   formControl.addEventListener('input', ({ target }) => {
-    if (['mock', 'fetch', 'store'].includes(target.name)) {
+    if (['mock', 'fetch', 'store', 'fetchData.response'].includes(target.name)) {
       let type = 'JSON';
       try {
-        formValues[target.name] = JSON.parse(target.value);
+        const value = JSON.parse(target.value);
+        set(formValues, target.name, value);
         type = 'JSON';
       } catch (err) {
-        formValues[target.name] = target.value
+        const value = target.value;
+        set(formValues, target.name, value);
         type = 'STRING';
       };
       setFormDataType(target.name, type);
     } else {
-      formValues[target.name] = target.value;
+      const value = target.value;
+      set(formValues, target.name, value);
     }
   });
 })
 modalSwitchControls.forEach(formControl => {
   formControl.addEventListener('click', ({ target }) => {
-    formValues[target.name] = target.checked;
+    const value = target.value;
+    set(formValues, target.name, value);
   });
 })
 
 // On Modal Submit Listener
 $routeConfigForm.addEventListener("submit", function (e) {
   e.preventDefault();
+
+  if (!Object.keys(formValues).length) {
+    $routeBsModal?.hide?.();
+    return showToast(`No Changes`);
+  }
+
   const id = $routeConfigForm.id?.value?.trim();
   const updatedRouteConfig = { _config: true, ...formValues, id };
   updatedRouteConfig.id ? updateRouteConfig(updatedRouteConfig) : addNewRoute(updatedRouteConfig)
+})
+
+// Set Dark mode
+$darkModeSwitch.addEventListener("click", function (event) {
+  const isChecked = event.target.checked;
+  if (isChecked) {
+    localStorage.setItem("theme", "dark");
+    document.getElementsByTagName("html")[0].dataset.theme = "dark";
+  } else {
+    localStorage.removeItem("theme")
+    document.getElementsByTagName("html")[0].dataset.theme = "";
+  }
 })

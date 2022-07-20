@@ -81,7 +81,7 @@
   },
   "/posts/:id?": {
     "_config": true,
-    "fetch": "https://jsonplaceholder.typicode.com${req.url}",
+    "fetch": "http://jsonplaceholder.typicode.com${req.url}",
     "fetchCount": -1
   },
   "/mockFirst": {
@@ -89,7 +89,7 @@
     "description": "This route sends the mock data first. If the mock attribute is undefined then It tries to fetch the data from the url. By default mockFirst is set to false.",
     "mockFirst": true,
     "mock": "This is response comes from mock attribute",
-    "fetch": "https://jsonplaceholder.typicode.com/todos"
+    "fetch": "http://jsonplaceholder.typicode.com/todos"
   },
   "/fetch/posts/customOptions/:id": {
     "_config": true,
@@ -113,7 +113,7 @@
   },
   "/fetch/image/url": {
     "_config": true,
-    "fetch": "https://via.placeholder.com/600/771796"
+    "fetch": "http://via.placeholder.com/600/771796"
   },
   "/fetch/todos/fetchCount/3/times": {
     "_config": true,
