@@ -91,13 +91,19 @@ async function updateRouteConfig(updatedRouteConfig) {
   const existingRouteConfig = parseJson($routeConfig.value) || {};
 
   const routePath = $routeConfigForm.routePath?.value?.trim();
+  delete updatedRouteConfig.middlewares;
 
   const fetchData = {
     ...(existingRouteConfig.fetchData || {}),
     ...(updatedRouteConfig.fetchData || {})
   }
 
-  const payload = { [routePath]: { ...updatedRouteConfig, fetchData } };
+  const payload = { 
+    [routePath]: { 
+      ...updatedRouteConfig, 
+      ...(Object.keys(fetchData) ? { fetchData } : {}) 
+    } 
+};
 
   const response = await request(localhost + "/_db/", {
     method: 'PUT',
@@ -121,13 +127,18 @@ async function addNewRoute(updatedRouteConfig) {
   const existingRouteConfig = parseJson($routeConfig.value) || {};
 
   const routePath = $routeConfigForm.routePath?.value?.trim();
-  const middlewares = $routeConfigForm.middlewares?.value?.split(',') || [];
+  const middlewares = $routeConfigForm.middlewares?.value?.split(',').filter(Boolean) || [];
   const fetchData = {
     ...(existingRouteConfig.fetchData || {}),
     ...(updatedRouteConfig.fetchData || {})
   }
 
-  const routeConfig = { ...existingRouteConfig, ...updatedRouteConfig, middlewares, fetchData };
+  const routeConfig = {
+    ...existingRouteConfig,
+    ...updatedRouteConfig,
+    ...(middlewares.length ? { middlewares } : {}),
+    ...(Object.keys(fetchData) ? { fetchData } : {})
+  };
   delete routeConfig.routePath;
   delete routeConfig.id;
 

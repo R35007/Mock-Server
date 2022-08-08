@@ -22,6 +22,10 @@
     const fontSize = urlParams.get("_fontSize");
     $html.style.fontSize = fontSize;
   </script>
+  <script>
+    const theme = localStorage.getItem("theme");
+    document.getElementsByTagName("html")[0].dataset.theme = theme;
+  </script>
   <script src="./js/iframe-OnLoad-handler.js"></script>
 </head>
 
@@ -221,7 +225,7 @@
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
                   <input class="form-check-input shadow-none" type="checkbox" name="skipFetchError"
-                    id="skipFetchError" value="true" onclick="function setValue(){console.log(this); }; setValue();">
+                    id="skipFetchError" value="true">
                 </div>
               </div>
             </div>

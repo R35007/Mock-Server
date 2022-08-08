@@ -61,7 +61,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [defaults](#defaults)
   - [resources](#resources)
   - [defaultRoutes](#defaultroutes)
-  - [addDbData](#adddbdata)
+  - [addDb](#adddb)
   - [startServer](#startserver)
   - [stopServer](#stopserver)
   - [resetServer](#resetserver)
@@ -1033,12 +1033,12 @@ const defaultsRoutes = mockServer.defaultRoutes();
 app.use(defaultsRoutes);
 ```
 
-### **addDbData**
+### **addDb**
 
 adds a new data to the existing db.
 
 ```js
-mockServer.addDbData(db);
+mockServer.addDb(db);
 ```
 
 **`Params`**

@@ -34,7 +34,7 @@ const server = () => {
       );
       app.use(mockServer.config.base, resources);
 
-      mockServer.addDbData({
+      mockServer.addDb({
         "/data": {
           _config: true,
           middlewares: (_req, res, next) => {

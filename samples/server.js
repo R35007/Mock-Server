@@ -44,7 +44,7 @@ app.use(mockServer.config.base, resources);
 
 // Add Custom Routes to existing default router
 // This Route will be listed in Home Page
-mockServer.addDbData({
+mockServer.addDb({
   "/data": {
     _config: true,
     middlewares: (req, res, next) => {

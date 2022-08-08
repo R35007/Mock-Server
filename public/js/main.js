@@ -1,4 +1,6 @@
 async function init() {
+  $search.value = "";
+
   try {
     resources = await request(localhost + "/_db");
   } catch (err) {
@@ -12,12 +14,12 @@ async function init() {
   }
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);
+
   showToast("Resources Loaded Successfully");
 }
+0.
 
 function createResourcesList(resources) {
-  $search.value = "";
-
   // collects all expanded list to restore after refresh
   const expandedList = [];
   $resourcesList.querySelectorAll("li.expanded").forEach(li => expandedList.push(li.id));
@@ -31,6 +33,8 @@ function createResourcesList(resources) {
   $resourcesList.innerHTML = ResourceList(resources);
 
   expandedList.forEach(toggleInfoBox);
+
+  filterRoutes();
 }
 
 function createRewritersList(rewriters) {

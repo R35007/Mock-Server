@@ -1,3 +1,8 @@
+## v6.0.5
+
+- Renamed `addDbData` to `addDb`
+- Home page ui improvements
+
 ## v6.0.4
 
 - Implemented Dark and Light mode in Homepage.

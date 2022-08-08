@@ -118,7 +118,7 @@ function getKeyVal(key, val, id) {
         </button>  
       </label>
       <div class="val col-12 collapse p-0 mt-2 position-relative" id="id-${id.replace(/\=/g, "")}_${key}">
-        <span id="fetch-badge" style="top: -1.8rem; right: 1rem;" class="position-absolute badge bg-secondary ms-4">${typeof val === 'object' ? "JSON" : "STRING"}</span>
+        <span style="top: -1.8rem; right: 1rem;" class="position-absolute badge bg-secondary ms-4">${typeof val === 'object' ? "JSON" : "STRING"}</span>
         <textarea class="form-control" rows="5">${typeof val === 'object' ? JSON.stringify(val, null, 2) : val}</textarea>
       </div>
     </div>`;

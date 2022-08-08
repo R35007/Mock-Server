@@ -38,6 +38,4 @@ try {
   $bsToast = {};
 };
 
-const theme = localStorage.getItem("theme");
 $darkModeSwitch.checked = theme == "dark";
-document.getElementsByTagName("html")[0].dataset.theme = theme;

@@ -594,4 +594,22 @@ html[data-theme="dark"] {
     -webkit-box-shadow: 0 0 0px 1000px var(--bs-white) inset !important;
     box-shadow: 0 0 0px 1000px var(--bs-white) inset !important;
   }
+
+  ::-webkit-scrollbar {
+    width: 13px;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 50px rgb(0 0 0);
+    box-shadow: inset 0 0 50px rgb(0 0 0);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #4d5258;
+  }
+
+  ::selection {
+    color: var(--bs-black) !important;
+    background-color: var(--bs-primary) !important;
+  }
 }

@@ -116,13 +116,13 @@ export class MockServer extends GettersSetters {
     };
   }
 
-  addDbData = (db: UserTypes.Db, router: express.Router = this.router) => {
+  addDb = (db: UserTypes.Db, router: express.Router = this.router) => {
     const config = this.config;
     const validDb = getValidDb(db, this.injectors, config.root, { reverse: config.reverse });
-    
+
     const existingRoutes = Object.keys(this._db());
     const newDbEntries = Object.entries(validDb).filter(([routePath]) => !existingRoutes.includes(routePath));
-    
+
     if (!this.router) this.router = express.Router();
 
     newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
@@ -224,12 +224,7 @@ export class MockServer extends GettersSetters {
     const defaultRoutes: Array<[string, express.RequestHandler]> = [
       ["/_db/:id?", (req: express.Request, res: express.Response) => {
         if (req.method === 'POST') {
-          this.addDbData(req.body);
-          const response = {};
-          Object.keys(req.body).forEach(key => {
-            if (this.db[key]) response[key] = this.db[key]
-          });
-          res.send(response);
+          this.#addDb(req, res);
         } else if (req.method === 'PUT') {
           this.#updateRouteConfig(req, res);
         } else {
@@ -253,6 +248,17 @@ export class MockServer extends GettersSetters {
     })
 
     return router;
+  }
+
+  #addDb = (req: express.Request, res: express.Response) => {
+    const config = this.config;
+    const validDb = getValidDb(req.body, this.injectors, config.root, { reverse: config.reverse });
+    this.addDb(validDb);
+    const response = {};
+    Object.keys(validDb).forEach(key => {
+      if (this.db[key]) response[key] = this.db[key]
+    });
+    res.send(response);
   }
 
   #getDb = (req: express.Request, res: express.Response) => {
