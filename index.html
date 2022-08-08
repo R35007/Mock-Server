@@ -1602,6 +1602,7 @@
           <li><a href="#dynamic-route-config">Dynamic Route Config</a></li>
         </ul>
       </li>
+      </li>
       <li><a href="#config">Config</a></li>
       <li><a href="#default-routes">Default Routes</a></li>
       <li><a href="#cli-usage">CLI Usage</a></li>
@@ -1615,7 +1616,7 @@
           <li><a href="#defaults">defaults</a></li>
           <li><a href="#resources">resources</a></li>
           <li><a href="#defaultroutes">defaultRoutes</a></li>
-          <li><a href="#adddbdata">addDbData</a></li>
+          <li><a href="#addDb">addDb</a></li>
           <li><a href="#startserver">startServer</a></li>
           <li><a href="#stopserver">stopServer</a></li>
           <li><a href="#resetserver">resetServer</a></li>
@@ -2487,9 +2488,9 @@ app.use(resources);
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaultsRoutes = mockServer.defaultRoutes();
 app.use(defaultsRoutes);
 </div></code></pre>
-    <h3 id="adddbdata"><strong>addDbData</strong></h3>
+    <h3 id="addDb"><strong>addDb</strong></h3>
     <p>adds a new data to the existing db.</p>
-    <pre><code class="language-js"><div>mockServer.addDbData(db);
+    <pre><code class="language-js"><div>mockServer.addDb(db);
 </div></code></pre>
     <p><strong><code>Params</code></strong></p>
     <table>
