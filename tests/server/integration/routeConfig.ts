@@ -6,8 +6,11 @@ import { MockServer } from '../../../src/server';
 export const routeConfig = () => {
   describe('Testing all Route Configs', () => {
     let mockServer: MockServer;
+    
+    beforeAll(async () => { await MockServer.Destroy() });
     beforeEach(() => { mockServer = MockServer.Create({ root: path.join(__dirname, "../../../") }) });
     afterEach(async () => { await MockServer.Destroy() });
+    afterAll(async () => { await MockServer.Destroy() });
 
     it('should get string response', async () => {
       const mock = "Working !"

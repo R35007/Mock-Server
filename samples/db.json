@@ -113,7 +113,7 @@
   },
   "/fetch/image/url": {
     "_config": true,
-    "fetch": "http://via.placeholder.com/600/771796"
+    "fetch": "https://via.placeholder.com/600/771796"
   },
   "/fetch/todos/fetchCount/3/times": {
     "_config": true,

@@ -4,7 +4,9 @@ import { MockServer } from '../../src/server';
 const server = () => {
   describe('Server Testing', () => {
 
-    beforeEach(async () => await MockServer.Destroy())
+    beforeAll(async () => await MockServer.Destroy())
+    afterEach(async () => await MockServer.Destroy())
+    afterAll(async () => await MockServer.Destroy())
 
     it('should run without any exception', async () => {
       const mockServer = MockServer.Create({ root: path.resolve(__dirname, "../../samples") });

@@ -19,7 +19,8 @@ export const Config: ValidTypes.Config = {
   logger: true,
   noCors: false,
   noGzip: false,
-  readOnly: false
+  readOnly: false,
+  mode: 'mock'
 };
 export const Middlewares: ValidTypes.Middlewares = DefaultMiddlewares;
 export const Injectors: ValidTypes.Injectors = [];

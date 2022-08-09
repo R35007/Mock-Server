@@ -1,8 +1,9 @@
 import chalk from "chalk";
+import express from "express";
 import * as _ from "lodash";
 import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
 import * as Defaults from '../defaults';
-import { GetValidDbOptions, HAR } from '../types/common.types';
+import { DbMode, GetValidDbOptions, HAR } from '../types/common.types';
 import * as ParamTypes from "../types/param.types";
 import * as UserTypes from "../types/user.types";
 import * as ValidTypes from "../types/valid.types";
@@ -24,6 +25,7 @@ export const getValidConfig = (config?: ParamTypes.Config, rootPath: string = De
   const validConfig = {
     ...userConfig,
     root,
+    mode: userConfig.mode === 'fetch' ? 'fetch' : Defaults.Config.mode,
     port: isPortNaN ? Defaults.Config.port : parseInt(userConfig.port as any),
     host: userConfig.host && _.isString(userConfig.host) ? userConfig.host : Defaults.Config.host,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
@@ -98,7 +100,7 @@ export const getValidRewriters = (rewriters?: ParamTypes.Rewriters, rootPath: st
 export const getValidDb = (
   data?: ParamTypes.Db, injectors: UserTypes.Injectors = Defaults.Injectors,
   rootPath: string = Defaults.Config.root,
-  { reverse }: GetValidDbOptions = {},
+  { reverse, mode = Defaults.Config.mode }: GetValidDbOptions = {},
 ): ValidTypes.Db => {
   const userData = requireData(data, rootPath) as HAR;
 
@@ -107,7 +109,7 @@ export const getValidDb = (
     return _.cloneDeep(Defaults.Db);
   }
 
-  const normalizedDb = normalizeDb(userData);
+  const normalizedDb = normalizeDb(userData, mode);
   const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors));
 
   const validDb = reverse
@@ -117,8 +119,9 @@ export const getValidDb = (
   return validDb;
 };
 
-export const getValidRouteConfig = (route: string, routeConfig: UserTypes.RouteConfig): ValidTypes.RouteConfig => {
-  if (!_.isPlainObject(routeConfig) || !routeConfig._config) return { _config: true, id: toBase64(route), mock: routeConfig }
+export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, mode: DbMode = Defaults.Config.mode): ValidTypes.RouteConfig => {
+  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler] };
+  if (!_.isPlainObject(routeConfig) || !routeConfig._config) return { _config: true, id: toBase64(route), [mode]: routeConfig };
   routeConfig.id = `${routeConfig.id || ''}` || toBase64(route)
   if (routeConfig.middlewares) {
     routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);

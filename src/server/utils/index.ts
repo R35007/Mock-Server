@@ -3,20 +3,21 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 import * as path from 'path';
+import * as Defaults from '../defaults';
 import { match } from 'path-to-regexp';
-import { HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } from '../types/common.types';
+import { DbMode, HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } from '../types/common.types';
 import * as UserTypes from '../types/user.types';
 import * as ValidTypes from '../types/valid.types';
 import { getValidRoute, getValidRouteConfig } from './validators';
 
 // { "/route1,/route2": { ... } } -> { "/route1": {...}, "/route2": { ... } }
-export const normalizeDb = <T>(object: T): T => {
+export const normalizeDb = <T>(object: T, mode: DbMode = Defaults.Config.mode): T => {
   const flattenedRoutes = {} as T;
   Object.entries(object)
     .forEach(([routePath, routeConfig]: [string, UserTypes.RouteConfig]) => {
       const routesChunk = routePath.split(",");
       routesChunk.map(getValidRoute).forEach(route => {
-        flattenedRoutes[route] = getValidRouteConfig(route, routeConfig);
+        flattenedRoutes[route] = getValidRouteConfig(route, routeConfig, mode);
       })
     })
   return flattenedRoutes;
@@ -163,7 +164,7 @@ const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddlew
     if (_.isFunction(_harEntryCallback)) {
       const routes = _harEntryCallback(entry, routePath, routeConfig) || {};
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
-      routeConfig = getValidRouteConfig(routePath, routeConfig);
+      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
     }
     routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
   });
@@ -192,7 +193,7 @@ const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware[
     if (_.isFunction(_kibanaHitCallback)) {
       const routes = _kibanaHitCallback(hit, routePath, routeConfig) || {};
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
-      routeConfig = getValidRouteConfig(routePath, routeConfig);
+      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
     }
     routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
   });

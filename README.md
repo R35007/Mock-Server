@@ -181,8 +181,7 @@ For Example:
     "delay": 2000, // in milliseconds
     "statusCode": 200, // in number between 100 to 600
     "mockFirst": false, // If true, It sends the mock first else try to fetch first.
-    "middlewares": ["_IterateResponse"], // list of middleware names to be called
-    "middlewares": "", // Can give a list of express Middlewares If using in .js file
+    "middlewares": ["_IterateResponse"], // list of middleware names and methods to be called
     "fetch": "./myFile.json", // this path will be relative to `config.root`
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
@@ -785,7 +784,6 @@ interface Locals {
     delay?: number;
     fetchCount?: number;
     skipFetchError?: boolean;
-    middlewares?: string[];
     middlewares?: Array<express.RequestHandler>;
 
     // System generated attributes. Please avoid modifying these attribute values
@@ -839,6 +837,7 @@ you can provide your own config by passing the config object in the `MockServer`
 ```js
 // These are default config. You can provide your custom config as well.
 const config = {
+  mode: 'mock', // The diract value to a route will be set to this attribute ('mock'). For example: If mode is "fetch" then db = { posts: "https://jsonplaceholder.typicode.com/posts" } -> { _config:true, fetch: "https://jsonplaceholder.typicode.com/posts" }
   port: 3000, // by default mock will be launched at this port. http://localhost:3000/
   host: "localhost",
   root: process.cwd(), // all paths will be relative to this path. Please provide a absolute path here.
@@ -1134,7 +1133,7 @@ mockServer.setMiddlewares(middlewares);
 mockServer.setInjectors(injectors);
 mockServer.setRewriters(rewriters);
 mockServer.setStore(store);
-mockServer.setDb(Db, { reverse });
+mockServer.setDb(Db, { reverse, mode });
 ```
 
 **`Params`**
@@ -1180,6 +1179,7 @@ const {
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
+  mode: 'fetch', // The direct route value will be set to fetch
 };
 
 const rootPath = "./";

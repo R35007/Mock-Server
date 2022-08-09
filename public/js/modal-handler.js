@@ -28,6 +28,15 @@ async function updateRoute(id) {
   setFormValues(routeConfig, routePath);
 }
 
+function addRoute() {
+  $routeConfig.value = JSON.stringify({ routePath: $search.value });
+  $routeConfigForm.routePath.value = $search.value || '';
+  formValues.routePath = $search.value || '';
+  $routeConfigForm.classList.remove("update-form");
+  $routeConfigForm.classList.add("add-form");
+  $modalTitle.textContent = "Add new Route";
+}
+
 async function cloneRoute(id) {
   const refreshedRoute = await request(localhost + "/_db/" + id);
   const [routePath, routeConfig = {}] = Object.entries(refreshedRoute)?.[0] || [];
@@ -39,13 +48,6 @@ async function cloneRoute(id) {
   $modalTitle.textContent = `Clone: ${routePath}`;
 
   setFormValues(routeConfig, routePath);
-}
-
-function addRoute() {
-  $routeConfig.value = JSON.stringify({});
-  $routeConfigForm.classList.remove("update-form");
-  $routeConfigForm.classList.add("add-form");
-  $modalTitle.textContent = "Add new Route";
 }
 
 function setFormValues(routeConfig, routePath) {
@@ -98,12 +100,12 @@ async function updateRouteConfig(updatedRouteConfig) {
     ...(updatedRouteConfig.fetchData || {})
   }
 
-  const payload = { 
-    [routePath]: { 
-      ...updatedRouteConfig, 
-      ...(Object.keys(fetchData) ? { fetchData } : {}) 
-    } 
-};
+  const payload = {
+    [routePath]: {
+      ...updatedRouteConfig,
+      ...(Object.keys(fetchData) ? { fetchData } : {})
+    }
+  };
 
   const response = await request(localhost + "/_db/", {
     method: 'PUT',

@@ -7,8 +7,11 @@ import { MockServer } from '../../../src/server';
 export const config = () => {
   describe('Testing all Configs', () => {
     let mockServer: MockServer;
+
+    beforeAll(async () => { await MockServer.Destroy() });
     beforeEach(() => { mockServer = MockServer.Create() });
     afterEach(async () => { await MockServer.Destroy() });
+    afterAll(async () => { await MockServer.Destroy() });
 
     it('should start server at custom port', async () => {
       const mock = "Working !"

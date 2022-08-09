@@ -45,14 +45,10 @@ app.use(mockServer.config.base, resources);
 // Add Custom Routes to existing default router
 // This Route will be listed in Home Page
 mockServer.addDb({
-  "/data": {
-    _config: true,
-    middlewares: (req, res, next) => {
-      const store = res.locals.getStore();
-      console.log(store);
-      res.locals.data = store?.data;
-      next();
-    }
+  "/data": (req, res, next) => {
+    const store = res.locals.getStore();
+    res.locals.data = store?.data;
+    next();
   }
 })
 

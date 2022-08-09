@@ -1,3 +1,69 @@
+## v6.1.0
+
+- Implemented `mode` in config. This helps to define on what attribute does the direct route value to be set.
+  For Example:
+
+  - If mode is `mock` by default
+
+    ```js
+    const db = { route1: "My Response" };
+
+    // The above db will be transformed to
+    const validDb = getValidDb(db);
+    console.log(validDb);
+    /* 
+    { 
+      "/route1":{
+        _config: true,
+        mock: "My Response"
+      } 
+    }
+    */
+    ```
+
+  - If mode is `fetch`
+
+    ```js
+    // Note: If the mode is `fetch` then the direct route value will be set to fetch attribute in the routeConfig
+
+    const db = { posts: "https://jsonplaceholder.typicode.com/" };
+
+    // The above db will be transformed to
+    const validDb = getValidDb(db, "./", { mode: "fetch" });
+    console.log(validDb);
+    /* 
+    { 
+      "/posts":{
+        _config: true,
+        fetch: "https://jsonplaceholder.typicode.com/"
+      } 
+    }
+    */
+    ```
+
+- Now we can give middlware directly to the route.
+  For Example:
+
+  ```js
+  const db = {
+    route1: (req, res) => {
+      res.send("My Response");
+    },
+  };
+
+  // The above db will be transformed to
+  const validDb = getValidDb(db);
+  console.log(validDb);
+  /*
+  {
+    "/route1":{
+      _config: true,
+      middlewares: [(req, res) => { res.send("My Response") }]
+    }
+  }
+  */
+  ```
+
 ## v6.0.5
 
 - Renamed `addDbData` to `addDb`

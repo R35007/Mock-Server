@@ -1,8 +1,6 @@
 
 import { Router } from 'express';
 import ip from "ip";
-import _ from 'lodash';
-import path from "path";
 import request from 'supertest';
 import * as Defaults from "../../src/server/defaults";
 import { MockServer } from "../../src/server/index";
@@ -181,14 +179,14 @@ const defaultRoutes = () => {
       const response = await request(mockServer.app).put(url).send(payload);
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(expected);
-      mockDb = expected as Db;
+      mockDb = { ...mockDb, ...expected } as Db;
     }
 
     const post = async (url: string, payload: object, expected: any) => {
       const response = await request(mockServer.app).post(url).send(payload);
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(expected);
-      mockDb = expected as Db;
+      mockDb = { ...mockDb, ...expected } as Db;
     }
 
 
@@ -259,19 +257,17 @@ const defaultRoutes = () => {
 
       it('should get db of id 2', async () => { await get("/_db/2", { "/comments": mockDb["/comments"] }) });
 
-      it('should update route config of db id 2', async () => {
-        const updatedComments = { _config: true, id: "2", mock: [{ id: "1", postid: "1", name: "Ram" }] };
-        const expected = { ...mockDb, "/comments": updatedComments };
-
-        await put("/_db/2", updatedComments, expected); // updating /comments route
-        await get("/comments", updatedComments.mock) // checking /comments
+      it('should update route config of db in /comments route', async () => {
+        const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", postid: "1", name: "Ram" }] } };
+        await put("/_db", updatedComments, updatedComments); // updating /comments route
+        await get("/comments", updatedComments["/comments"].mock) // checking /comments
       });
 
       it('should add new route to db', async () => {
         const newRoute = { "/user": { _config: true, id: "5", mock: { id: "1", name: "Siva" } } };
         const expected = { ...mockDb, ...newRoute };
 
-        await post("/_db", newRoute, expected); // adding /user route
+        await post("/_db", newRoute, newRoute); // adding /user route
         await get("/_db", expected); // checking /_db
         await get("/user", newRoute["/user"].mock); // checking /user route
       });
@@ -287,41 +283,24 @@ const defaultRoutes = () => {
 
     describe('/_reset/db/:id?', () => {
       it('should reset db', async () => {
-        const updatedUser = { _config: true, id: "5", mock: { id: "1", name: "Ram", action: "Updated" } };
-        let expected: Db = { ...mockDb, "/user": updatedUser };
-        await put("/_db/5", updatedUser, expected); // updating /user
+        const updatedUser = { "/user": { _config: true, id: "5", mock: { id: "1", name: "Ram", action: "Updated" } } };
+        await put("/_db", updatedUser, updatedUser); // updating /user
 
-        const updatedComments = { _config: true, id: "2", mock: [{ id: "1", name: "Ram", action: "Updated" }] };
-        expected = { ...expected, "/comments": updatedComments };
-        await put("/_db/2", updatedComments, expected); // updating /comments 
+        const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", name: "Ram", action: "Updated" }] } };
+        await put("/_db", updatedComments, updatedComments); // updating /comments 
 
-        await get("/_reset/db", mockServer.initialDb); // resetiing db to initial state
-        mockDb = mockServer.initialDb;
+        await post("/_reset/db", mockServer.initialDb, mockServer.initialDb); // resetiing db to initial state
       });
 
       it('should reset db of id 5', async () => {
-        const updatedUser = { _config: true, id: "5", mock: { id: "1", name: "Ram", action: "Updated2" } };
-        let expected: Db = { ...mockDb, "/user": updatedUser };
-        await put("/_db/5", updatedUser, expected); // updating /user
+        const updatedUser = { "/user": { _config: true, id: "5", mock: { id: "1", name: "Ram", action: "Updated2" } } };
+        await put("/_db/5", updatedUser, updatedUser); // updating /user
 
-        const updatedComments = { _config: true, id: "2", mock: [{ id: "1", name: "Sivaraman", action: "Updated2" }] };
-        expected = { ...expected, "/comments": updatedComments };
-        await put("/_db/2", updatedComments, expected); // updating /comments 
+        const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", name: "Sivaraman", action: "Updated2" }] } };
+        await put("/_db/2", updatedComments, updatedComments); // updating /comments 
 
         await get("/_reset/db/2", { "/comments": mockServer.initialDb["/comments"] }); // reset only /comments
         mockDb = { ...mockDb, "/comments": mockServer.initialDb["/comments"] }
-      });
-    });
-
-    describe('/_reset/store', () => {
-      it('should reset store', async () => {
-        await get("/setStorePost", { status: "Store Updated" });
-        const { store } = mockServer.data;
-        const expected: any = _.cloneDeep(mockStore);
-        expected.post.name = "Sivaraman"
-        expect(store).toEqual(expected); //  checking is store is updated by middleware
-
-        await get("/_reset/store", mockStore);
       });
     });
   });
@@ -389,7 +368,6 @@ const launchServer = () => {
       expect(Object.keys(rewriters).length).toBeGreaterThan(0);
       expect(Object.keys(store).length).toBeGreaterThan(0);
       expect(Object.keys(mockServer.initialDb).length).toBeGreaterThan(0);
-      expect(Object.keys(mockServer.initialStore).length).toBeGreaterThan(0);
     });
   });
 }
@@ -513,7 +491,6 @@ const resetServer = () => {
       expect(Object.keys(rewriters).length).toBe(0);
       expect(Object.keys(store).length).toBe(0);
       expect(Object.keys(mockServer.initialDb).length).toBe(0);
-      expect(Object.keys(mockServer.initialStore).length).toBe(0);
     });
   });
 }
