@@ -35,7 +35,7 @@ app.get('/echo', (req, res) => {
 
 // Loaded all the resources and returns the default router
 const resources = mockServer.resources(
-  "./db.json",
+  "./db.js",
   "./injectors.json",
   "./middleware.js",
   "./store.json"
@@ -45,10 +45,13 @@ app.use(mockServer.config.base, resources);
 // Add Custom Routes to existing default router
 // This Route will be listed in Home Page
 mockServer.addDb({
-  "/data": (req, res, next) => {
-    const store = res.locals.getStore();
-    res.locals.data = store?.data;
-    next();
+  "/data": {
+    _config: true,
+    middlewares: (req, res, next) => {
+      const store = res.locals.getStore();
+      res.locals.data = store?.data;
+      next();
+    }
   }
 })
 

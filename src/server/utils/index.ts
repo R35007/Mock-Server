@@ -145,7 +145,7 @@ const getParsedJSON = (json = '') => {
   }
 }
 
-const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddleware["_harEntryCallback"], allowDuplicates: boolean = false) => {
+const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddleware["_harEntryCallback"], iterateDuplicateRoutes: boolean = false) => {
 
   let generatedDb = {};
 
@@ -166,7 +166,7 @@ const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddlew
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
       routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
     }
-    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
+    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, iterateDuplicateRoutes);
   });
 
   cleanDb(generatedDb as UserTypes.Db);
@@ -174,7 +174,7 @@ const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddlew
   return generatedDb as UserTypes.Db;
 }
 
-const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware["_kibanaHitsCallback"], allowDuplicates: boolean = false) => {
+const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware["_kibanaHitsCallback"], iterateDuplicateRoutes: boolean = false) => {
 
   let generatedDb = {};
 
@@ -195,7 +195,7 @@ const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware[
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
       routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
     }
-    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, allowDuplicates);
+    routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, iterateDuplicateRoutes);
   });
 
   cleanDb(generatedDb as UserTypes.Db);
@@ -203,8 +203,8 @@ const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware[
   return generatedDb as UserTypes.Db;
 }
 
-const setRouteRedirects = (db: object, routePath: string, currentRouteConfig: UserTypes.RouteConfig, allowDuplicates: boolean = false) => {
-  if (allowDuplicates && db[routePath]) {
+const setRouteRedirects = (db: object, routePath: string, currentRouteConfig: UserTypes.RouteConfig, iterateDuplicateRoutes: boolean = false) => {
+  if (iterateDuplicateRoutes && db[routePath]) {
     const existingConfig = db[routePath];
     if (db[routePath].middlewares?.[0] !== "_IterateRoutes") {
       const iterateRoute1 = getValidRoute(routePath + "/" + nanoid(5))

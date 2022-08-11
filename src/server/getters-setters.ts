@@ -10,6 +10,7 @@ import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, get
 
 export class GettersSetters {
 
+  listeningTo: string | undefined;
   app!: express.Application;
   router!: express.Router;
   server: Server | undefined;
@@ -41,6 +42,7 @@ export class GettersSetters {
   protected _store = () => this.#store;
 
   init() {
+    this.listeningTo = undefined;
     this.app = express().set("json spaces", 2);
     this.router = express.Router();
     this.routes = [];

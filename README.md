@@ -19,6 +19,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Fetch Count](#fetch-count)
   - [Skip Fetch Error](#skip-fetch-error)
   - [Add Middleware](#add-middleware)
+  - [Ignore Middleware Wrappers](#ignore-middleware-wrappers)
 - [Middleware Utils](#middleware-utils)
   - [IterateResponse](#iterateresponse)
   - [IterateRoutes](#iterateroutes)
@@ -69,9 +70,10 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [resetStore](#resetstore)
   - [pageNotFound](#pagenotfound)
   - [errorHandler](#errorhandler)
+  - [Getters](#getters)
   - [Setters](#setters)
-  - [Variables](#variables)
   - [Validators](#validators)
+- [VS Code Extension](#vs-code-extension)
 - [Author](#author)
 - [License](#license)
 
@@ -182,6 +184,7 @@ For Example:
     "statusCode": 200, // in number between 100 to 600
     "mockFirst": false, // If true, It sends the mock first else try to fetch first.
     "middlewares": ["_IterateResponse"], // list of middleware names and methods to be called
+    "ignoreMiddlewareWrappers": false, // !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...
     "fetch": "./myFile.json", // this path will be relative to `config.root`
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
@@ -390,21 +393,50 @@ exports.DataWrapper = (req, res, next) => {
 };
 ```
 
-`db.json`
+`db.js`
 
-```jsonc
-{
-  "/fetch/users/customMiddleware": {
-    "_config": true,
-    "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
-    "fetch": "http://jsonplaceholder.typicode.com/users",
-    "middlewares": ["DataWrapper"]
-  }
+```js
+const db = {
+  "/fetch/users1/customMiddleware": {
+    _config: true,
+    fetch: "http://jsonplaceholder.typicode.com/users",
+    middlewares: ["DataWrapper"], // Picks the DataWrapper middleware from middleware.js
+  },
+  "/fetch/users2/customMiddleware": {
+    _config: true,
+    fetch: "http://jsonplaceholder.typicode.com/users",
+    middlewares: [
+      (req, res, next) => {
+        res.locals.data = {
+          status: "Success",
+          message: "Retrieved Successfully",
+          result: res.locals.data,
+        };
+        next();
+      },
+    ],
+  },
+};
+```
+
+[http://localhost:3000/fetch/users/customMiddleware](http://localhost:3000/fetch/users/customMiddleware).
+
+### **Ignore Middleware Wrappers**
+
+Usually all the middewares in the route will be wrapped by some helper middlewares to set delay, get fetch data, set locals etc..
+If we wish to provide a middlewares without any wrappers set `ignoreMiddlewareWrappers` to `true`.
+For Example:
+`db.js`
+
+```js
+const db = {
+  "/static/app1": express.static("./path/to/build/folder/app1") // will ignore helper middleware wrappers
+  "/static/app2": { _config: true, middlewares: express.static("./path/to/build/folder/app2"), ignoreMiddlewareWrappers: true }
+  "/fetch/users": { _config: true, fetch: "http://jsonplaceholder.typicode.com/users", ignoreMiddlewareWrappers: true }
 }
 ```
 
-Note: A middleware must be available at the name of the middlewares given in `db.json`
-[http://localhost:3000/fetch/users/customMiddleware](http://localhost:3000/fetch/users/customMiddleware).
+Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
 
 ## **Middleware Utils**
 
@@ -837,7 +869,9 @@ you can provide your own config by passing the config object in the `MockServer`
 ```js
 // These are default config. You can provide your custom config as well.
 const config = {
-  mode: 'mock', // The diract value to a route will be set to this attribute ('mock'). For example: If mode is "fetch" then db = { posts: "https://jsonplaceholder.typicode.com/posts" } -> { _config:true, fetch: "https://jsonplaceholder.typicode.com/posts" }
+  mode: "mock", // The direct value to a route will be set to this attribute ('mock').
+  //For example: If mode is "fetch" then
+  //   db = { posts: "https://jsonplaceholder.typicode.com/posts" } -> { _config: true, fetch: "https://jsonplaceholder.typicode.com/posts" }
   port: 3000, // by default mock will be launched at this port. http://localhost:3000/
   host: "localhost",
   root: process.cwd(), // all paths will be relative to this path. Please provide a absolute path here.
@@ -1119,9 +1153,29 @@ Please use it at the end of all routes.
 app.use(mockServer.errorHandler);
 ```
 
-### **Setters**
+### **Getters**
 
-set the db, middleware, injectors, rewriters, config, store
+```js
+// Please avoid directly modify or setting values to these variable.
+// Use Setter method to modify or set any values.
+
+const listeningTo = mockServer.listeningTo; // will be undefined if server is not running.
+const app = mockServer.app;
+const server = mockServer.server;
+const router = mockServer.router;
+const { db, injectors, middlewares, rewriters, config, store } =
+  mockServer.data;
+
+const db = mockServer.db;
+const middleware = mockServer.middleware;
+const injectors = mockServer.injectors;
+const rewriters = mockServer.rewriters;
+const config = mockServer.config;
+const store = mockServer.store;
+const initialDb = mockServer.initialDb;
+```
+
+### **Setters**
 
 ```js
 mockServer.setData(db, middleware, injectors, rewriters, store, config);
@@ -1134,32 +1188,6 @@ mockServer.setInjectors(injectors);
 mockServer.setRewriters(rewriters);
 mockServer.setStore(store);
 mockServer.setDb(Db, { reverse, mode });
-```
-
-**`Params`**
-
-The same as the [MockServer](#mockserver)
-
-### **Variables**
-
-Other useful variables.
-
-```js
-// Please avoid directly modify or setting values to these variable.
-// Use Setter method to modify or set any values to these variables.
-const app = mockServer.app;
-const server = mockServer.server;
-const router = mockServer.router;
-const data = mockServer.data;
-
-const db = mockServer.db;
-const middleware = mockServer.middleware;
-const injectors = mockServer.injectors;
-const rewriters = mockServer.rewriters;
-const config = mockServer.config;
-const store = mockServer.store;
-const initialDb = mockServer.initialDb;
-const initialStore = mockServer.initialStore;
 ```
 
 ### **Validators**
@@ -1179,7 +1207,7 @@ const {
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
-  mode: 'fetch', // The direct route value will be set to fetch
+  mode: "fetch", // The direct route value will be set to fetch
 };
 
 const rootPath = "./";
@@ -1199,6 +1227,12 @@ const routeConfig = getValidRouteConfig(route, routeConfig); // returns a valid 
 const injectorConfig = getValidInjectorConfig(route, routeConfig); // returns a valid injectorsConfig used by getValidInjectors
 const route = getValidRoute(route); // splits route by comma and adds a slash ('/') prefix to the routes
 ```
+
+## VS Code Extension
+
+[Thinker.mock-server](https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server)
+
+![thinker.mock-server](src/img/VSCode_Extension.gif)
 
 ## Author
 

@@ -1,3 +1,9 @@
+## v7.0.0
+
+ - added `ignoreMiddleWrappers` in routeConfig. If a direct method is set to route, then it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
+ - added `mockServer.listeningTo` - give the homepage path only if the server is running.
+ - updated sample `db.json` to `db.js`
+
 ## v6.1.0
 
 - Implemented `mode` in config. This helps to define on what attribute does the direct route value to be set.
@@ -6,17 +12,18 @@
   - If mode is `mock` by default
 
     ```js
-    const db = { route1: "My Response" };
+    const db = {
+      route1: "My Response",
+      route2: { _config: true, fetch: "./path/to/fetch/data" },
+    };
 
     // The above db will be transformed to
-    const validDb = getValidDb(db);
+    const validDb = getValidDb(db, "./", { mode: "mock" });
     console.log(validDb);
     /* 
     { 
-      "/route1":{
-        _config: true,
-        mock: "My Response"
-      } 
+      "/route1":{ _config: true, mock: "My Response" },
+      "/route2":{ _config: true, fetch: "./path/to/fetch/data" } ,
     }
     */
     ```
@@ -26,17 +33,18 @@
     ```js
     // Note: If the mode is `fetch` then the direct route value will be set to fetch attribute in the routeConfig
 
-    const db = { posts: "https://jsonplaceholder.typicode.com/" };
+    const db = {
+      route1: "./path/to/fetch/data",
+      route2: { _config: true, mock: "My Response" },
+    };
 
     // The above db will be transformed to
     const validDb = getValidDb(db, "./", { mode: "fetch" });
     console.log(validDb);
     /* 
     { 
-      "/posts":{
-        _config: true,
-        fetch: "https://jsonplaceholder.typicode.com/"
-      } 
+      "/route1":{ _config: true, fetch: "./path/to/fetch/data" } ,
+      "/route2":{ _config: true, mock: "My Response" },
     }
     */
     ```

@@ -1,4 +1,4 @@
-{
+module.exports = {
   "/customMockData/1": {
     "description": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
     "mock": [
@@ -143,13 +143,39 @@
       "DataWrapper"
     ]
   },
+  "/fetch/users/customMiddleware2": {
+    "_config": true,
+    "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
+    "fetch": "http://jsonplaceholder.typicode.com/users",
+    "middlewares": (req, res, next) => {
+      res.locals.data = {
+        status: "Success",
+        message: "Retrieved Successfully",
+        result: res.locals.data
+      }
+      next();
+    }
+  },
+  "/addDirectMiddleware": (req, res) => {
+    // this route will ignoreMiddlewareWrappers
+    // In this route we cannot access res.locals.data or res.locals.getStore() etc...
+    // This route is similar to /ignoreMiddlewareWrappers route given below
+    res.send('This route cannot access res.locals.data or res.locals.getStore() etc... It ignores all helper middleware wrappers.');
+  },
+  "/ignoreMiddlewareWrappers": {
+    "_config": true,
+    "ignoreMiddlewareWrappers": true,
+    "middlewares": (req, res) => {
+      res.send('This route cannot access res.locals.data or res.locals.getStore() etc... It ignores all helper middleware wrappers.');
+    }
+  },
   "/middleware/utils/list": {
     "_config": true,
     "description": "These are the list of predefined middleware that are available for ease of use. For Example: This route uses the '_IterateResponse' middleware to iterate the mock data",
     "mock": [
       "_IterateResponse - Iterates to each response in an array for each hit. Note: the data must be an array",
       "_IterateRoutes - Iterates to each route in a mock data. Note: mock data contains the list of routes to be redirected",
-      "_AdvancedSearch - This middleware helps to retrieve the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a uniquid id",
+      "_AdvancedSearch - This middleware helps to retrieve the data using filter, sort, pagination etc... Note: data must be an array of objects and contains a unique id",
       "_CrudOperation - Helps to do all the CRUD operations like Create, Read, Update, Delete using GET, PUT, PATCH, POST, DELETE method. Note: Id values are not mutable. Any id value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already take",
       "_FetchTillData - Helps to keep on make fetch calls until it gets a valid success data",
       "_SetFetchDataToMock - This middleware sets the 'fetchData' to 'mock' attribute. Note: The existing data in mock will be overridden",

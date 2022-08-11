@@ -120,7 +120,7 @@ export const getValidDb = (
 };
 
 export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, mode: DbMode = Defaults.Config.mode): ValidTypes.RouteConfig => {
-  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler] };
+  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], ignoreMiddlewareWrappers: true };
   if (!_.isPlainObject(routeConfig) || !routeConfig._config) return { _config: true, id: toBase64(route), [mode]: routeConfig };
   routeConfig.id = `${routeConfig.id || ''}` || toBase64(route)
   if (routeConfig.middlewares) {

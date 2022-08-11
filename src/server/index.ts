@@ -112,6 +112,12 @@ export class MockServer extends GettersSetters {
     if (!this.routes.includes(routePath)) {
       this.routes.push(routePath);
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
+
+      if (routeConfig.ignoreMiddlewareWrappers) {
+        this.app.use(routePath, middlewareList);
+        return;
+      }
+      
       router?.all(routePath, middlewareList);
     };
   }
@@ -138,6 +144,9 @@ export class MockServer extends GettersSetters {
     const middlewares = (routeConfig.middlewares || [])
       .map(middleware => _.isString(middleware) ? this.middlewares[middleware] : middleware)
       .filter(_.isFunction)
+
+    if (routeConfig.ignoreMiddlewareWrappers) return middlewares;
+
     return [
       InitialMiddleware(routePath, this._db, this.config, this._store),
       Delay,
@@ -155,6 +164,7 @@ export class MockServer extends GettersSetters {
     return new Promise((resolve, reject) => {
 
       if (this.server) {
+        this.listeningTo = undefined;
         const { port } = this.server.address() as { address: string; family: string; port: number; };
         console.log("\nServer already listening to port : " + port);
         return reject(new Error("Server already listening to port : " + port));
@@ -164,13 +174,14 @@ export class MockServer extends GettersSetters {
         console.log(chalk.green.bold("Mock Server Started."));
 
         console.log("\nHome");
-        console.log(`http://${_host}:${_port}/${_base}`);
-
+        this.listeningTo = `http://${_host}:${_port}${_base}`
+        console.log(this.listeningTo);
         console.log(chalk.gray("listening...") + "\n");
 
         enableDestroy(this.server!); // Enhance with a destroy function
         resolve(this.server!);
       }).on("error", (err) => {
+        this.listeningTo = undefined;
         console.error("\nServer Error : " + err.message);
         reject(err);
       })
@@ -186,11 +197,12 @@ export class MockServer extends GettersSetters {
         return reject(new Error("No Server to Stop"));
       }
 
-      this.server.destroy((err) => {
+      this.server?.destroy((err) => {
         if (err) {
           console.error("\nServer Error : " + err.message);
           return reject(err);
         }
+        this.listeningTo = undefined;
         console.log(chalk.gray("Mock Server Stopped"));
         this.server = undefined;
         resolve(true);

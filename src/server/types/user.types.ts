@@ -31,6 +31,7 @@ export type RouteConfig = {
   skipFetchError?: boolean;
   mockFirst?: boolean;
   middlewares?: Middleware_Config | Middleware_Config[];
+  ignoreMiddlewareWrappers?: boolean
 }
 
 export type InjectorConfig = {

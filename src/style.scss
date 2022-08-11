@@ -267,7 +267,7 @@
 #data-container {
   height: 100vh;
   background: #000000;
-  min-width: 30rem;
+  min-width: 40rem;
 
   main {
     height: #{"calc(100vh - 2.8rem)"};
@@ -331,7 +331,8 @@
   margin: 0.5rem 0;
 
   .key {
-    max-width: 10rem;
+    min-width: max-content;
+    max-width: 8rem;
   }
 
   .val {
