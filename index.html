@@ -1555,6 +1555,7 @@
           <li><a href="#fetch-count">Fetch Count</a></li>
           <li><a href="#skip-fetch-error">Skip Fetch Error</a></li>
           <li><a href="#add-middleware">Add Middleware</a></li>
+          <li><a href="#ignore-middleware-wrappers">Ignore Middleware Wrappers</a></li>
         </ul>
       </li>
       <li><a href="#middleware-utils">Middleware Utils</a>
@@ -1602,7 +1603,6 @@
           <li><a href="#dynamic-route-config">Dynamic Route Config</a></li>
         </ul>
       </li>
-      </li>
       <li><a href="#config">Config</a></li>
       <li><a href="#default-routes">Default Routes</a></li>
       <li><a href="#cli-usage">CLI Usage</a></li>
@@ -1616,19 +1616,19 @@
           <li><a href="#defaults">defaults</a></li>
           <li><a href="#resources">resources</a></li>
           <li><a href="#defaultroutes">defaultRoutes</a></li>
-          <li><a href="#addDb">addDb</a></li>
+          <li><a href="#adddb">addDb</a></li>
           <li><a href="#startserver">startServer</a></li>
           <li><a href="#stopserver">stopServer</a></li>
           <li><a href="#resetserver">resetServer</a></li>
           <li><a href="#resetdb">resetDb</a></li>
-          <li><a href="#resetstore">resetStore</a></li>
           <li><a href="#pagenotfound">pageNotFound</a></li>
           <li><a href="#errorhandler">errorHandler</a></li>
+          <li><a href="#getters">Getters</a></li>
           <li><a href="#setters">Setters</a></li>
-          <li><a href="#variables">Variables</a></li>
           <li><a href="#validators">Validators</a></li>
         </ul>
       </li>
+      <li><a href="#vs-code-extension">VS Code Extension</a></li>
       <li><a href="#author">Author</a></li>
       <li><a href="#license">License</a></li>
     </ul>
@@ -1711,8 +1711,8 @@ mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-
     <span class="hljs-attr">&quot;delay&quot;</span>: <span class="hljs-number">2000</span>, <span class="hljs-comment">// in milliseconds</span>
     <span class="hljs-attr">&quot;statusCode&quot;</span>: <span class="hljs-number">200</span>, <span class="hljs-comment">// in number between 100 to 600</span>
     <span class="hljs-attr">&quot;mockFirst&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true, It sends the mock first else try to fetch first.</span>
-    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateResponse&quot;</span>], <span class="hljs-comment">// list of middleware names to be called</span>
-    <span class="hljs-attr">&quot;middlewares&quot;</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Can give a list of express Middlewares If using in .js file</span>
+    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateResponse&quot;</span>], <span class="hljs-comment">// list of middleware names and methods to be called</span>
+    <span class="hljs-attr">&quot;ignoreMiddlewareWrappers&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...</span>
     <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;./myFile.json&quot;</span>, <span class="hljs-comment">// this path will be relative to `config.root`</span>
     <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">// Set to -1 to fetch infinite times.</span>
     <span class="hljs-attr">&quot;mock&quot;</span>: [{ <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;foo&quot;</span> }, { <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;bar&quot;</span> }],
@@ -1751,9 +1751,7 @@ mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-
   }
 }
 </div></code></pre>
-    <p>Now if you go to <a href="http://localhost:3000/customDelay">http://localhost:3000/customDelay</a>, you'll get
-      the
-      response in a delay of 2 seconds.</p>
+    <p>Now if you go to <a href="http://localhost:3000/customDelay">http://localhost:3000/customDelay</a>, you'll get the response in a delay of 2 seconds.</p>
     <h3 id="set-custom-statuscode"><strong>Set Custom StatusCode</strong></h3>
     <p><code>statusCode</code> helps you set a custom statusCode to your routes.
       It must be of type number and between 100 to 600.</p>
@@ -1797,8 +1795,7 @@ mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-
   }
 }
 </div></code></pre>
-    <p><a
-        href="http://localhost:3000/fetch/posts/customOptions/2">http://localhost:3000/fetch/posts/customOptions/2</a>.
+    <p><a href="http://localhost:3000/fetch/posts/customOptions/2">http://localhost:3000/fetch/posts/customOptions/2</a>.
     </p>
     <p>Note: The to pass any options from the route set the option value as <code>${&lt;option Name&gt;}</code></p>
     <p>reserved key words :</p>
@@ -1882,26 +1879,52 @@ mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-
   next();
 };
 </div></code></pre>
-    <p><code>db.json</code></p>
-    <pre><code class="language-jsonc"><div>{
-  <span class="hljs-attr">&quot;/fetch/users/customMiddleware&quot;</span>: {
-    <span class="hljs-attr">&quot;_config&quot;</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;Note: This middleware must be available in the &#x27;middleware.js&#x27; by the below given names. This &#x27;DataWrapper&#x27; will be called on every hit of this route.&quot;</span>,
-    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/users&quot;</span>,
-    <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;DataWrapper&quot;</span>]
-  }
-}
+<p><code>db.js</code></p>
+<pre><code class="language-js"><div><span class="hljs-keyword">const</span> db = {
+<span class="hljs-string">&quot;/fetch/users1/customMiddleware&quot;</span>: {
+  <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">fetch</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/users&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: [<span class="hljs-string">&quot;DataWrapper&quot;</span>], <span class="hljs-comment">// Picks the DataWrapper middleware from middleware.js</span>
+},
+<span class="hljs-string">&quot;/fetch/users2/customMiddleware&quot;</span>: {
+  <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">fetch</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/users&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: [
+    <span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
+      res.locals.data = {
+        <span class="hljs-attr">status</span>: <span class="hljs-string">&quot;Success&quot;</span>,
+        <span class="hljs-attr">message</span>: <span class="hljs-string">&quot;Retrieved Successfully&quot;</span>,
+        <span class="hljs-attr">result</span>: res.locals.data,
+      };
+      next();
+    },
+  ],
+},
+};
 </div></code></pre>
-    <p>Note: A middleware must be available at the name of the middlewares given in <code>db.json</code>
-      <a
+    <p><a
         href="http://localhost:3000/fetch/users/customMiddleware">http://localhost:3000/fetch/users/customMiddleware</a>.
     </p>
+    <h3 id="ignore-middleware-wrappers"><strong>Ignore Middleware Wrappers</strong></h3>
+  <p>Usually all the middewares in the route will be wrapped by some helper middlewares to set delay, get fetch data,
+    set locals etc..
+    If we wish to provide a middlewares without any wrappers set <code>ignoreMiddlewareWrappers</code> to
+    <code>true</code>.
+    For Example:
+    <code>db.js</code>
+  </p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> db = {
+  <span class="hljs-string">&quot;/static/app1&quot;</span>: express.static(<span class="hljs-string">&quot;./path/to/build/folder/app1&quot;</span>) <span class="hljs-comment">// will ignore helper middleware wrappers</span>
+  <span class="hljs-string">&quot;/static/app2&quot;</span>: { <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">middlewares</span>: express.static(<span class="hljs-string">&quot;./path/to/build/folder/app2&quot;</span>), <span class="hljs-attr">ignoreMiddlewareWrappers</span>: <span class="hljs-literal">true</span> }
+  <span class="hljs-string">&quot;/fetch/users&quot;</span>: { <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">fetch</span>: <span class="hljs-string">&quot;http://jsonplaceholder.typicode.com/users&quot;</span>, <span class="hljs-attr">ignoreMiddlewareWrappers</span>: <span class="hljs-literal">true</span> }
+}
+</div></code></pre>
+  <p>Note: <code>/fetch/users</code> wont work since it wont be wrapped by helper middlewares and so no other route
+    config would work except the given middleware if provided.</p>
     <h2 id="middleware-utils"><strong>Middleware Utils</strong></h2>
     <p>Use the predefined middleware to speedup your development and for ease of access.</p>
     <h3 id="iterateresponse"><strong>IterateResponse</strong></h3>
-    <p>setting middleware to <code>_IterateResponse</code> helps to send you a iterate the response one after the other
-      in
-      the mock array for each url hit.</p>
+    <p>setting middleware to <code>_IterateResponse</code> helps to send you a iterate the response one after the other in the mock array for each url hit.</p>
     <p>example:</p>
     <pre><code class="language-jsonc"><div>{
   <span class="hljs-attr">&quot;/middleware/utils/example/_IterateResponse&quot;</span>: {
@@ -1918,9 +1941,7 @@ mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-
         href="http://localhost:3000/middleware/utils/example/_IterateResponse">http://localhost:3000/middleware/utils/example/_IterateResponse</a>.
       For each hit you will get the next object in an array from the photos data.</p>
     <h3 id="iterateroutes"><strong>IterateRoutes</strong></h3>
-    <p>setting middleware to <code>_IterateRoutes</code> helps to send you a iterate the route one after the other in
-      the
-      mock array for each url hit.</p>
+    <p>setting middleware to <code>_IterateRoutes</code> helps to send you a iterate the route one after the other in the mock array for each url hit.</p>
     <p>example:</p>
     <pre><code class="language-jsonc"><div>{
   <span class="hljs-attr">&quot;/middleware/utils/example/_IterateRoutes&quot;</span>: {
@@ -1948,8 +1969,7 @@ GET /comments?author.name=sivaraman
     <h4 id="paginate">Paginate</h4>
     <p>Use <code>_page</code> and optionally <code>_limit</code> to paginate returned data.</p>
     <p>In the <code>Link</code> header you'll get <code>first</code>, <code>prev</code>, <code>next</code> and
-      <code>last</code> links.
-    </p>
+      <code>last</code> links.</p>
     <pre><code><code><div>GET /posts?_page=7
 GET /posts?_page=7&amp;_limit=20
 </div></code></code></pre>
@@ -1997,9 +2017,7 @@ GET /posts/1/comments?_start=20&amp;_limit=10
 }
 </div></code></pre>
     <h3 id="fetchtilldata"><strong>FetchTillData</strong></h3>
-    <p><code>_FetchTillData</code> helps to fetch the data from url until it get a success data. Once its get the data
-      the
-      fetch call stops and returns the existing data for other route hit.</p>
+    <p><code>_FetchTillData</code> helps to fetch the data from url until it get a success data. Once its get the data the fetch call stops and returns the existing data for other route hit.</p>
     <h3 id="setfetchdatatomock"><strong>SetFetchDataToMock</strong></h3>
     <p><code>_SetFetchDataToMock</code> sets every fetchData to Mock.
       This overrides the existing mock with the <code>fetchData</code>.</p>
@@ -2021,7 +2039,7 @@ GET /posts/1/comments?_start=20&amp;_limit=10
       <code>db.json</code>
     </p>
     <pre><code class="language-jsonc"><div>{
-  <span class="hljs-attr">&quot;/user&quot;</span>: <span class="hljs-string">&quot;./mock/user.json&quot;</span> <span class="hljs-comment">// directly setting the path instead of setting it as a fetch config </span>
+  <span class="hljs-attr">&quot;/user&quot;</span>: <span class="hljs-string">&quot;./mock/user.json&quot;</span> <span class="hljs-comment">// directly setting the path instead of setting it as a fetch config</span>
 }
 </div></code></pre>
     <p><code>injectors.js</code></p>
@@ -2033,10 +2051,10 @@ GET /posts/1/comments?_start=20&amp;_limit=10
         <span class="hljs-keyword">const</span> routeConfig = res.locals.routeConfig;
         routeConfig.fetch = routeConfig.mock;
       },
-      <span class="hljs-string">&quot;_Fetch&quot;</span> <span class="hljs-comment">// helps to fetch the file from routeConfig.fetch path</span>
-    ]
-  }
-]
+      <span class="hljs-string">&quot;_Fetch&quot;</span>, <span class="hljs-comment">// helps to fetch the file from routeConfig.fetch path</span>
+    ],
+  },
+];
 </div></code></pre>
     <h3 id="fetchfile"><strong>FetchFile</strong></h3>
     <p><code>_FetchFile</code> Helps to fetch from file path.</p>
@@ -2109,12 +2127,9 @@ GET /posts/1/comments?_start=20&amp;_limit=10
   }
 ]
 </div></code></pre>
-    <p>Make sure you give <code>/(.*)</code> at the end of the <code>injectors.json</code> object to set route configs
-      to
-      all the routes.</p>
+    <p>Make sure you give <code>/(.*)</code> at the end of the <code>injectors.json</code> object to set route configs to all the routes.</p>
     <h2 id="store-data"><strong>Store Data</strong></h2>
-    <p>Store used to store any values which can be used later for any purpose like response manipulation or logging
-      etc..
+    <p>Store used to store any values which can be used later for any purpose like response manipulation or logging etc..
     </p>
     <h3 id="route-store"><strong>Route Store</strong></h3>
     <p>Route store helps to store any values which can be accessed on by that particular route.
@@ -2156,9 +2171,7 @@ mockServer.launchServer(
 /articles?id=1 <span class="hljs-comment"># → /posts/1</span>
 </div></code></pre>
     <h2 id="locals"><strong>Locals</strong></h2>
-    <p><code>res.locals</code> helps to access the current route config, <code>fetchData</code>, <code>store</code>
-      etc..
-      Here are the available options in <code>res.locals</code></p>
+    <p><code>res.locals</code> helps to access the current route config, <code>fetchData</code>, <code>store</code> etc.. Here are the available options in <code>res.locals</code></p>
     <pre><code class="language-ts"><div><span class="hljs-keyword">interface</span> Locals {
   <span class="hljs-attr">routePath</span>: <span class="hljs-built_in">string</span>;
   routeConfig: {
@@ -2181,7 +2194,6 @@ mockServer.launchServer(
     delay?: <span class="hljs-built_in">number</span>;
     fetchCount?: <span class="hljs-built_in">number</span>;
     skipFetchError?: <span class="hljs-built_in">boolean</span>;
-    middlewares?: <span class="hljs-built_in">string</span>[];
     middlewares?: <span class="hljs-built_in">Array</span>&lt;express.RequestHandler&gt;;
 
     <span class="hljs-comment">// System generated attributes. Please avoid modifying these attribute values</span>
@@ -2225,6 +2237,9 @@ mockServer.launchServer(
     <p><code>server.js</code> :</p>
     <pre><code class="language-js"><div><span class="hljs-comment">// These are default config. You can provide your custom config as well.</span>
 <span class="hljs-keyword">const</span> config = {
+  <span class="hljs-attr">mode</span>: <span class="hljs-string">&quot;mock&quot;</span>, <span class="hljs-comment">// The direct value to a route will be set to this attribute (&#x27;mock&#x27;).</span>
+  <span class="hljs-comment">//For example: If mode is &quot;fetch&quot; then</span>
+  <span class="hljs-comment">//   db = { posts: &quot;https://jsonplaceholder.typicode.com/posts&quot; } -&gt; { _config: true, fetch: &quot;https://jsonplaceholder.typicode.com/posts&quot; }</span>
   <span class="hljs-attr">port</span>: <span class="hljs-number">3000</span>, <span class="hljs-comment">// by default mock will be launched at this port. http://localhost:3000/</span>
   <span class="hljs-attr">host</span>: <span class="hljs-string">&quot;localhost&quot;</span>,
   <span class="hljs-attr">root</span>: process.cwd(), <span class="hljs-comment">// all paths will be relative to this path. Please provide a absolute path here.</span>
@@ -2248,8 +2263,6 @@ mockServer.launchServer(
       <li><code>Rewriters</code> - <a href="http://localhost:3000/_rewriters">http://localhost:3000/_rewriters</a></li>
       <li><code>Store</code> - <a href="http://localhost:3000/_store">http://localhost:3000/_store</a></li>
       <li><code>Reset Db</code> - <a href="http://localhost:3000/_reset/db">http://localhost:3000/_reset/db</a></li>
-      <li><code>Reset Store</code> - <a href="http://localhost:3000/_reset/store">http://localhost:3000/_reset/store</a>
-      </li>
     </ul>
     <h2 id="cli-usage">CLI Usage</h2>
     <pre><code class="language-sh"><div>$ mock-server --<span class="hljs-built_in">help</span>
@@ -2337,7 +2350,7 @@ https://r35007.github.io/Mock-Server/
 <span class="hljs-keyword">const</span> mockServer = MockServer.Create();
 <span class="hljs-keyword">await</span> MockServer.Destroy();
 
-<span class="hljs-comment">// or </span>
+<span class="hljs-comment">// or</span>
 <span class="hljs-comment">// pass a mock server instance to destroy</span>
 <span class="hljs-keyword">await</span> MockServer.Destroy(mockServer);
 </div></code></pre>
@@ -2488,7 +2501,7 @@ app.use(resources);
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaultsRoutes = mockServer.defaultRoutes();
 app.use(defaultsRoutes);
 </div></code></pre>
-    <h3 id="addDb"><strong>addDb</strong></h3>
+    <h3 id="adddb"><strong>addDb</strong></h3>
     <p>adds a new data to the existing db.</p>
     <pre><code class="language-js"><div>mockServer.addDb(db);
 </div></code></pre>
@@ -2578,10 +2591,6 @@ app.use(defaultsRoutes);
         </tr>
       </tbody>
     </table>
-    <h3 id="resetstore"><strong>resetStore</strong></h3>
-    <p>Returns the store values that are reset.</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> store = mockServer.resetStore(); <span class="hljs-comment">// It resets all the store values.</span>
-</div></code></pre>
     <h3 id="pagenotfound"><strong>pageNotFound</strong></h3>
     <p>It is a middleware to handle a page not found error.
       Please use it at the end of all routes.</p>
@@ -2592,29 +2601,15 @@ app.use(defaultsRoutes);
       Please use it at the end of all routes.</p>
     <pre><code class="language-js"><div>app.use(mockServer.errorHandler);
 </div></code></pre>
-    <h3 id="setters"><strong>Setters</strong></h3>
-    <p>set the db, middleware, injectors, rewriters, config, store</p>
-    <pre><code class="language-js"><div>mockServer.setData(db, middleware, injectors, rewriters, store, config);
+<h3 id="getters"><strong>Getters</strong></h3>
+<pre><code class="language-js"><div><span class="hljs-comment">// Please avoid directly modify or setting values to these variable.</span>
+<span class="hljs-comment">// Use Setter method to modify or set any values.</span>
 
-<span class="hljs-comment">//or</span>
-
-mockServer.setConfig(config);
-mockServer.setMiddlewares(middlewares);
-mockServer.setInjectors(injectors);
-mockServer.setRewriters(rewriters);
-mockServer.setStore(store);
-mockServer.setDb(Db, { reverse });
-</div></code></pre>
-    <p><strong><code>Params</code></strong></p>
-    <p>The same as the <a href="#mockserver">MockServer</a></p>
-    <h3 id="variables"><strong>Variables</strong></h3>
-    <p>Other useful variables.</p>
-    <pre><code class="language-js"><div><span class="hljs-comment">// Please avoid directly modify or setting values to these variable.</span>
-<span class="hljs-comment">// Use Setter method to modify or set any values to these variables.</span>
+<span class="hljs-keyword">const</span> listeningTo = mockServer.listeningTo; <span class="hljs-comment">// will be undefined if server is not running.</span>
 <span class="hljs-keyword">const</span> app = mockServer.app;
 <span class="hljs-keyword">const</span> server = mockServer.server;
 <span class="hljs-keyword">const</span> router = mockServer.router;
-<span class="hljs-keyword">const</span> data = mockServer.data;
+<span class="hljs-keyword">const</span> { db, injectors, middlewares, rewriters, config, store } = mockServer.data;
 
 <span class="hljs-keyword">const</span> db = mockServer.db;
 <span class="hljs-keyword">const</span> middleware = mockServer.middleware;
@@ -2623,31 +2618,43 @@ mockServer.setDb(Db, { reverse });
 <span class="hljs-keyword">const</span> config = mockServer.config;
 <span class="hljs-keyword">const</span> store = mockServer.store;
 <span class="hljs-keyword">const</span> initialDb = mockServer.initialDb;
-<span class="hljs-keyword">const</span> initialStore = mockServer.initialStore;
 </div></code></pre>
-    <h3 id="validators"><strong>Validators</strong></h3>
-    <p>These helps to return a valid data from provided file path or object.</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { 
-  getValidDb, 
-  getValidMiddlewares, 
-  getValidInjectors,
-  getValidRewriters,
-  getValidConfig,
-  getValidStore,
-  getValidRouteConfig
+<h3 id="setters"><strong>Setters</strong></h3>
+<pre><code class="language-js"><div>mockServer.setData(db, middleware, injectors, rewriters, store, config);
+
+<span class="hljs-comment">//or</span>
+
+mockServer.setConfig(config);
+mockServer.setMiddlewares(middlewares);
+mockServer.setInjectors(injectors);
+mockServer.setRewriters(rewriters);
+mockServer.setStore(store);
+mockServer.setDb(Db, { reverse, mode });
+</div></code></pre>
+<h3 id="validators"><strong>Validators</strong></h3>
+<p>These helps to return a valid data from provided file path or object.</p>
+<pre><code class="language-js"><div><span class="hljs-keyword">const</span> {
+getValidDb,
+getValidMiddlewares,
+getValidInjectors,
+getValidRewriters,
+getValidConfig,
+getValidStore,
+getValidRouteConfig,
 } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server/dist/server/utils/validators&quot;</span>);
 
 <span class="hljs-keyword">const</span> options = {
-  <span class="hljs-attr">reverse</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If true the db will be generated in reverse order</span>
+<span class="hljs-attr">reverse</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If true the db will be generated in reverse order</span>
+<span class="hljs-attr">mode</span>: <span class="hljs-string">&quot;fetch&quot;</span>, <span class="hljs-comment">// The direct route value will be set to fetch</span>
 };
 
 <span class="hljs-keyword">const</span> rootPath = <span class="hljs-string">&quot;./&quot;</span>;
 
 <span class="hljs-keyword">const</span> db = getValidDb(
-  <span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
-  [], <span class="hljs-comment">// injectors</span>
-  rootPath, <span class="hljs-comment">// Root path to fetch the db.json file</span>
-  options
+<span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
+[], <span class="hljs-comment">// injectors</span>
+rootPath, <span class="hljs-comment">// Root path to fetch the db.json file</span>
+options
 ); <span class="hljs-comment">// returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig</span>
 <span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, rootPath); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
 <span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, rootPath); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
@@ -2658,17 +2665,19 @@ mockServer.setDb(Db, { reverse });
 <span class="hljs-keyword">const</span> injectorConfig = getValidInjectorConfig(route, routeConfig); <span class="hljs-comment">// returns a valid injectorsConfig used by getValidInjectors</span>
 <span class="hljs-keyword">const</span> route = getValidRoute(route); <span class="hljs-comment">// splits route by comma and adds a slash (&#x27;/&#x27;) prefix to the routes</span>
 </div></code></pre>
-    <h2 id="author">Author</h2>
-    <p><strong>Sivaraman</strong> - <a href="sendmsg2siva.siva@gmail.com">sendmsg2siva.siva@gmail.com</a></p>
-    <ul>
-      <li><em>GitHub</em> - <a href="https://github.com/R35007/Mock-Server">https://github.com/R35007/Mock-Server</a>
-      </li>
-    </ul>
-    <h2 id="license">License</h2>
-    <p>MIT</p>
-  </main>
+<h2 id="vs-code-extension">VS Code Extension</h2>
+<p><a href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server">Thinker.mock-server</a></p>
+<p><img src="./images/VSCode_Extension.gif"
+    alt="thinker.mock-server"></p>
+<h2 id="author">Author</h2>
+<p><strong>Sivaraman</strong> - <a href="sendmsg2siva.siva@gmail.com">sendmsg2siva.siva@gmail.com</a></p>
+<ul>
+  <li><em>GitHub</em> - <a href="https://github.com/R35007/Mock-Server">https://github.com/R35007/Mock-Server</a></li>
+</ul>
+<h2 id="license">License</h2>
+<p>MIT</p>
 
-  <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
 
 </body>
 
