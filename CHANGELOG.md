@@ -1,8 +1,12 @@
+## v7.0.1
+
+- `toBase64` - method throws error on invalid route - `Fixed`
+
 ## v7.0.0
 
- - added `ignoreMiddleWrappers` in routeConfig. If a direct method is set to route, then it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
- - added `mockServer.listeningTo` - give the homepage path only if the server is running.
- - updated sample `db.json` to `db.js`
+- added `ignoreMiddleWrappers` in routeConfig. If a direct method is set to route, then it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
+- added `mockServer.listeningTo` - give the homepage path only if the server is running.
+- updated sample `db.json` to `db.js`
 
 ## v6.1.0
 

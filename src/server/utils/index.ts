@@ -3,8 +3,8 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 import * as path from 'path';
-import * as Defaults from '../defaults';
 import { match } from 'path-to-regexp';
+import * as Defaults from '../defaults';
 import { DbMode, HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } from '../types/common.types';
 import * as UserTypes from '../types/user.types';
 import * as ValidTypes from '../types/valid.types';
@@ -274,7 +274,7 @@ export const extractDbFromKibana = (
   }
 }
 
-export const toBase64 = (value: string) => Buffer.from(value).toString("base64");
+export const toBase64 = (value: string = '') => { try { return Buffer.from(value).toString("base64") } catch { return value } };
 
 // Helps to convert template literal strings to applied values.
 // Ex : Object = { config: { host: "localhost", port: 3000 } } , format = "${config.host}:${config.port}" -> "localhost:3000"
