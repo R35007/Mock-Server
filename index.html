@@ -2247,6 +2247,7 @@ mockServer.launchServer(
   <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;public&quot;</span>, <span class="hljs-comment">// Please provide a folder path. This will be hosted locally and all files will be statically accessed</span>
   <span class="hljs-attr">reverse</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true routes will be generated in reverse order</span>
   <span class="hljs-attr">bodyParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Sets the bodyParser</span>
+  <span class="hljs-attr">cookieParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enables the cookieParser</span>
   <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-comment">// Set the id attribute here. Helps to do Crud Operations. For example: &#x27;id&#x27;: &quot;_id&quot;</span>
   <span class="hljs-attr">logger</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If False no logger will be shown</span>
   <span class="hljs-attr">noCors</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If false cross origin will not be handled</span>
@@ -2446,6 +2447,7 @@ app.use(defaults);
           <li><code>noGzip</code> disable Compression (default: false)</li>
           <li><code>noCors</code> disable CORS (default: false)</li>
           <li><code>readOnly</code> accept only GET requests (default: false)</li>
+          <li><code>cookieParser</code> enable cookie-parser middleware (default: true)</li>
         </ul>
       </li>
     </ul>
