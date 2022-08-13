@@ -242,13 +242,13 @@ export const extractDbFromHAR = (
   har: HAR,
   _harEntryCallback: HarMiddleware["_harEntryCallback"],
   _harDbCallback: HarMiddleware["_harDbCallback"],
-  allowDuplicates: boolean = false,
-) => {
+  iterateDuplicateRoutes: boolean = false,
+): UserTypes.Db | undefined => {
   try {
     const entries: HarEntry[] = har?.log?.entries;
     const isHAR: boolean = entries?.length > 0;
     if (!isHAR) return;
-    const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback, allowDuplicates);
+    const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback, iterateDuplicateRoutes);
     return _harDbCallback?.(har, dbFromHar) || dbFromHar
   } catch (err) {
     console.log(err);
@@ -260,13 +260,13 @@ export const extractDbFromKibana = (
   kibana: KIBANA,
   _kibanaHitsCallback: KibanaMiddleware["_kibanaHitsCallback"],
   _KibanaDbCallback: KibanaMiddleware["_kibanaDbCallback"],
-  allowDuplicates: boolean = false
-) => {
+  iterateDuplicateRoutes: boolean = false
+): UserTypes.Db | undefined => {
   try {
     const hits: HIT[] = kibana?.rawResponse?.hits?.hits;
     const isKibana: boolean = hits?.length > 0;
     if (!isKibana) return;
-    const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, _kibanaHitsCallback, allowDuplicates);
+    const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, _kibanaHitsCallback, iterateDuplicateRoutes);
     return _KibanaDbCallback?.(kibana, dbFromHits) || dbFromHits
   } catch (err) {
     console.log(err);

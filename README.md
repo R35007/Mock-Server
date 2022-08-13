@@ -883,6 +883,7 @@ const config = {
   logger: true, // If False no logger will be shown
   noCors: false, // If false cross origin will not be handled
   noGzip: false, // If False response will not be compressed
+  cookieParser: true, // If false request header cookies wont be parsed
   readOnly: false, // If true only GET call is allowed
 };
 
@@ -1033,6 +1034,7 @@ app.use(defaults);
   - `noGzip` disable Compression (default: false)
   - `noCors` disable CORS (default: false)
   - `readOnly` accept only GET requests (default: false)
+  - `cookieParser` enable cookie parser (default: true)
 
 ### **resources**
 

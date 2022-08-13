@@ -12,6 +12,7 @@ export type Config = {
   staticDir: string;
   noGzip: boolean;
   noCors: boolean;
+  cookieParser: boolean;
   logger: boolean;
   readOnly: boolean;
   bodyParser: boolean;

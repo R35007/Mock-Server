@@ -14,11 +14,12 @@ export const Config: ValidTypes.Config = {
   base: "",
   staticDir,
   reverse: false,
-  bodyParser: true,
   id: "id",
+  bodyParser: true,
   logger: true,
   noCors: false,
   noGzip: false,
+  cookieParser: true,
   readOnly: false,
   mode: 'mock'
 };

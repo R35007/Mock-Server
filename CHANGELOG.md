@@ -1,3 +1,8 @@
+## v7.1.0
+
+- added `cookieParser` in config and defaults. Enables the cookie parser.
+  Click [here](https://www.npmjs.com/package/cookie-parser) for more details
+
 ## v7.0.1
 
 - `toBase64` - method throws error on invalid route - `Fixed`

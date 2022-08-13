@@ -38,8 +38,8 @@ export class GettersSetters {
   get rewriters() { return _.cloneDeep(this.#rewriters) };
   get store() { return _.cloneDeep(this.#store) };
 
-  protected _db = () => this.#db;
-  protected _store = () => this.#store;
+  protected _getDb = () => this.#db;
+  protected _getStore = () => this.#store;
 
   init() {
     this.listeningTo = undefined;

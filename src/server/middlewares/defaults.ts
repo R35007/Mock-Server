@@ -1,6 +1,7 @@
 "use strict";
 
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import methodOverride from 'method-override';
@@ -18,6 +19,12 @@ export default (opts: Default_Options) => {
 
   const arr: any[] = [];
 
+  // Serve static files
+  if (_opts.staticDir) {
+    const router = express.Router();
+    router.use(_opts.base, express.static(_opts.staticDir))
+    arr.push(router);
+  }
   // gives response time in Response Header X-Response-Time
   arr.push(responseTime({ suffix: false }));
 
@@ -39,11 +46,6 @@ export default (opts: Default_Options) => {
     arr.push(errorhandler());
   }
 
-  // Serve static files
-  const router = express.Router();
-  router.use(_opts.base, express.static(_opts.staticDir!))
-  arr.push(router);
-
   // Logger
   if (_opts.logger) {
     arr.push(morgan('dev', {
@@ -60,7 +62,6 @@ export default (opts: Default_Options) => {
     res.header('Expires', '-1');
     next();
   });
-
 
   // Add delay
   arr.push((req, _res, next) => {
@@ -82,10 +83,15 @@ export default (opts: Default_Options) => {
     });
   } // Add middlewares
 
-
+  // Body Parser
   if (_opts.bodyParser) {
     arr.push(express.urlencoded({ extended: true }));
     arr.push(express.json({ limit: '10mb' }));
+  }
+
+  // Cookie parser
+  if (_opts.cookieParser) {
+    arr.push(cookieParser())
   }
 
   arr.push(methodOverride())

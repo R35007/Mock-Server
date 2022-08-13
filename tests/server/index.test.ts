@@ -86,7 +86,7 @@ const defaults = () => {
       mockServer.app.use(defaults);
 
       const routers = mockServer.app._router.stack;
-      expect(routers.length).toBe(12);
+      expect(routers.length).toBe(13);
     });
 
     it('should go to homepage', async () => {
@@ -258,7 +258,7 @@ const defaultRoutes = () => {
       it('should get db of id 2', async () => { await get("/_db/2", { "/comments": mockDb["/comments"] }) });
 
       it('should update route config of db in /comments route', async () => {
-        const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", postid: "1", name: "Ram" }] } };
+        const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", postId: "1", name: "Ram" }] } };
         await put("/_db", updatedComments, updatedComments); // updating /comments route
         await get("/comments", updatedComments["/comments"].mock) // checking /comments
       });
@@ -560,9 +560,9 @@ const destroy = () => {
 
 describe("MockServer", () => {
   constructor(); // Create a new instance of a MockSever
-  create(); // Create sinlge instance of a MockServer Instance
+  create(); // Create single instance of a MockServer Instance
   rewriter(); // Add any route rewriters to the middleware
-  defaults(); // Add default middlewares -> noGzip, noCors, errorhandler, static Home page, logger, No cache for IE, delay, readOnly, bodyParser, methodOverride
+  defaults(); // Add default middlewares -> noGzip, noCors, errorhandler, static Home page, etc..
   resources(); // Add db, middlewares, injectors, store
   defaultRoutes(); // Add Default Routes -> /_db/:id?, /_store/:key?, /_rewriters, /_reset/db/:id?, /_reset/store/:key?
   launchServer(); // Add defaults, defaultRoutes, rewriters, resources and start the server in one flow

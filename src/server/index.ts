@@ -100,7 +100,7 @@ export class MockServer extends GettersSetters {
     console.log("\n" + chalk.gray("Loading Resources..."));
 
     this.router = express.Router();
-    Object.entries(this._db()).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
+    Object.entries(this._getDb()).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
       this.#createRoute(routePath, routeConfig, this.router)
     );
 
@@ -114,7 +114,7 @@ export class MockServer extends GettersSetters {
       const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
 
       if (routeConfig.ignoreMiddlewareWrappers) {
-        this.app.use(routePath, middlewareList);
+        this.router.use(routePath, middlewareList);
         return;
       }
       
@@ -126,13 +126,13 @@ export class MockServer extends GettersSetters {
     const config = this.config;
     const validDb = getValidDb(db, this.injectors, config.root, { reverse: config.reverse });
 
-    const existingRoutes = Object.keys(this._db());
+    const existingRoutes = Object.keys(this._getDb());
     const newDbEntries = Object.entries(validDb).filter(([routePath]) => !existingRoutes.includes(routePath));
 
     if (!this.router) this.router = express.Router();
 
     newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
-      this._db()[routePath] = routeConfig;
+      this._getDb()[routePath] = routeConfig;
       this.initialDb[routePath] = _.cloneDeep(routeConfig);
       this.#createRoute(routePath, routeConfig, router)
     });
@@ -148,7 +148,7 @@ export class MockServer extends GettersSetters {
     if (routeConfig.ignoreMiddlewareWrappers) return middlewares;
 
     return [
-      InitialMiddleware(routePath, this._db, this.config, this._store),
+      InitialMiddleware(routePath, this._getDb, this.config, this._getStore),
       Delay,
       Fetch,
       ...middlewares,
@@ -218,13 +218,13 @@ export class MockServer extends GettersSetters {
 
   resetDb = (ids: string[] = [], routePaths: string[] = []) => {
     if (!ids.length && !routePaths.length) {
-      replaceObj(this._db(), _.cloneDeep(this.initialDb));
+      replaceObj(this._getDb(), _.cloneDeep(this.initialDb));
       return this.db;
     } else {
       const _routePaths = ids.map(id => Object.keys(this.initialDb).find(r => this.initialDb[r].id == id)).filter(Boolean) as string[];
       const routePathToReset = [..._routePaths, ...routePaths];
       const restoredRoutes = routePathToReset.reduce((result, routePath) => {
-        replaceObj(this._db()[routePath], _.cloneDeep(this.initialDb[routePath]))
+        replaceObj(this._getDb()[routePath], _.cloneDeep(this.initialDb[routePath]))
         return { ...result, [routePath]: this.db[routePath] }
       }, {});
       return restoredRoutes
@@ -289,7 +289,7 @@ export class MockServer extends GettersSetters {
     const dbToUpdate = req.body as ValidTypes.Db;
 
     const response = {};
-    const db = this._db();
+    const db = this._getDb();
 
     Object.entries(dbToUpdate).forEach(([routePath, routeConfig]) => {
       delete routeConfig.middlewares;
