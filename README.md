@@ -869,22 +869,20 @@ you can provide your own config by passing the config object in the `MockServer`
 ```js
 // These are default config. You can provide your custom config as well.
 const config = {
-  mode: "mock", // The direct value to a route will be set to this attribute ('mock').
-  //For example: If mode is "fetch" then
-  //   db = { posts: "https://jsonplaceholder.typicode.com/posts" } -> { _config: true, fetch: "https://jsonplaceholder.typicode.com/posts" }
-  port: 3000, // by default mock will be launched at this port. http://localhost:3000/
-  host: "localhost",
-  root: process.cwd(), // all paths will be relative to this path. Please provide a absolute path here.
-  base: "/", // all routes will be prefixed with the given baseUrl.
-  staticDir: "public", // Please provide a folder path. This will be hosted locally and all files will be statically accessed
-  reverse: false, // If true routes will be generated in reverse order
-  bodyParser: true, // Sets the bodyParser
-  id: "id", // Set the id attribute here. Helps to do Crud Operations. For example: 'id': "_id"
-  logger: true, // If False no logger will be shown
-  noCors: false, // If false cross origin will not be handled
-  noGzip: false, // If False response will not be compressed
-  cookieParser: true, // If false request header cookies wont be parsed
-  readOnly: false, // If true only GET call is allowed
+  port: 3000, // Set Port to 0 to pick a random available port.
+  host: "localhost", // Set custom host
+  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
+  base: "", // Mount db on a base url
+  id: "id", // Set db id attribute.
+  mode: "mock", // Use direct route value as a mock. If mode: "fetch" then direct route value will be set to fetch
+  staticDir, // Path to host a static files
+  reverse: false, // Generate routes in reverse order
+  logger: true, // Enable api logger
+  noCors: false, // Disable CORS
+  noGzip: false, // Disable data compression
+  readOnly: false, // Allow only GET calls
+  bodyParser: true, // Enable body-parser
+  cookieParser: true, // Enable cookie-parser
 };
 
 new MockServer(config).launchServer("./db.json");
@@ -893,10 +891,10 @@ new MockServer(config).launchServer("./db.json");
 ## Default Routes
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
-- `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
+- `Db`        - [http://localhost:3000/\_db](http://localhost:3000/_db)
 - `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
-- `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
-- `Reset Db` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
+- `Store`     - [http://localhost:3000/\_store](http://localhost:3000/_store)
+- `Reset Db`  - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
 
 ## CLI Usage
 
@@ -1161,12 +1159,15 @@ app.use(mockServer.errorHandler);
 // Please avoid directly modify or setting values to these variable.
 // Use Setter method to modify or set any values.
 
-const listeningTo = mockServer.listeningTo; // will be undefined if server is not running.
+// server, port, address, listeningTo will be undefined when server is stopped
+const  port: number | undefined; // gives current running port.
+const  server: Server | undefined; //  gives current running server.
+const  address: string | undefined; // gives host ip address.
+const  listeningTo: string | undefined; // gives -> http://${host}:${port}/${base} -> http://localhost:3000/api
+
 const app = mockServer.app;
-const server = mockServer.server;
 const router = mockServer.router;
-const { db, injectors, middlewares, rewriters, config, store } =
-  mockServer.data;
+const { db, injectors, middlewares, rewriters, config, store } = mockServer.data;
 
 const db = mockServer.db;
 const middleware = mockServer.middleware;
@@ -1180,10 +1181,11 @@ const initialDb = mockServer.initialDb;
 ### **Setters**
 
 ```js
-mockServer.setData(db, middleware, injectors, rewriters, store, config);
+mockServer.setData(db, injectors, middlewares, rewriters, store, config);
 
 //or
 
+// Please follow the same following order of setting the data
 mockServer.setConfig(config);
 mockServer.setMiddlewares(middlewares);
 mockServer.setInjectors(injectors);

@@ -1,3 +1,19 @@
+## v7.2.0
+
+- added `mockServer.port` - Gives the current running port. This will be `undefined` if server is stopped.
+- added `mockServer.address` - Gives the current running server ip address. This will be `undefined` if server is stopped.
+- Set Port to `0`(zero) to pick a dynamic available port
+- Now we can do default import
+  Example of imports :
+
+  ```js
+  const { MockServer } = require("@r35007/mock-server");
+  const MockServer = require("@r35007/mock-server").default;
+
+  import MockServer from "@r35007/mock-server";
+  import { MockServer } from "@r35007/mock-server";
+  ```
+
 ## v7.1.0
 
 - added `cookieParser` in config and defaults. Enables the cookie parser.

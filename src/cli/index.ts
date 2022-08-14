@@ -4,7 +4,7 @@ import chalk from "chalk";
 import * as Watcher from 'chokidar';
 import * as fs from 'fs';
 import * as path from 'path';
-import { MockServer } from "../server";
+import MockServer from "../server";
 import * as ParamTypes from '../server/types/param.types';
 import { createSampleFiles } from "../server/utils";
 import argv from './argv';

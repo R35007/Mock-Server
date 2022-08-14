@@ -1,18 +1,41 @@
 const { MockServer } = require("@r35007/mock-server");
+// const MockServer = require("@r35007/mock-server").default; // For default import
 
 // Provide config as a param. If not provided, It uses the default Config.
-const mockServer = MockServer.Create({root:__dirname});
+const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
+const config = { root: __dirname, port }; // Config can also be given as a path to config file
+const mockServer = MockServer.Create(config);
+
+/* Default Configs
+
+const config = {
+  port: 3000, // Set Port to 0 to pick a random available port.
+  host: "localhost", // Set custom host 
+  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
+  base: "", // Mount db on a base url
+  id: "id", // Set db id attribute.
+  mode: 'mock', // Use direct route value as a mock. If mode: "fetch" then direct route value will be set to fetch
+  staticDir, // Path to host a static files
+  reverse: false, // Generate routes in reverse order
+  logger: true, // Enable api logger
+  noCors: false, // Disable CORS
+  noGzip: false, // Disable data compression
+  readOnly: false, // Allow only GET calls
+  bodyParser: true, // Enable body-parser
+  cookieParser: true, // Enable cookie-parser
+}; 
+*/
 
 const app = mockServer.app; // Gives you the Express app
-
-// Make sure to use this at first, before all the resources
-const rewriter = mockServer.rewriter("./rewriters.json");
-app.use(rewriter);
 
 // Returns the default middlewares
 // Provide options here. If not provided the options are picked from the default Config
 const defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
+
+// Make sure to use this at first, before all the resources
+const rewriter = mockServer.rewriter("./rewriters.json");
+app.use(rewriter);
 
 // Custom Middleware
 app.use((req, res, next) => {

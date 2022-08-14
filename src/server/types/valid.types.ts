@@ -8,15 +8,15 @@ export type Config = {
   root: string;
   base: string;
   id: string;
-  reverse: boolean;
+  mode: DbMode
   staticDir: string;
+  reverse: boolean;
+  logger: boolean;
   noGzip: boolean;
   noCors: boolean;
-  cookieParser: boolean;
-  logger: boolean;
   readOnly: boolean;
   bodyParser: boolean;
-  mode: DbMode
+  cookieParser: boolean;
 };
 export type Db = { [key: string]: RouteConfig }
 export type Injectors = InjectorConfig[];

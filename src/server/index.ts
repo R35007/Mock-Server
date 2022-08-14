@@ -56,11 +56,11 @@ export class MockServer extends GettersSetters {
   ): Promise<Server | undefined> => {
     const app = this.app;
 
-    const rewriter = this.rewriter(rewriters);
-    app.use(rewriter);
-
     const defaults = this.defaults();
     app.use(defaults);
+
+    const rewriter = this.rewriter(rewriters);
+    app.use(rewriter);
 
     const resources = this.resources(db, injectors, middlewares, store);
     this.middlewares._globals && app.use(this.middlewares._globals);
@@ -117,7 +117,7 @@ export class MockServer extends GettersSetters {
         this.router.use(routePath, middlewareList);
         return;
       }
-      
+
       router?.all(routePath, middlewareList);
     };
   }
@@ -157,13 +157,23 @@ export class MockServer extends GettersSetters {
   }
 
   startServer = (port?: number, host?: string): Promise<Server | undefined> => {
-    (port || host) && this.setConfig({ ...this.config, port, host });
+
+    if (_.isInteger(port) || _.isEmpty(host)) {
+      this.setConfig({
+        ...this.config,
+        port: port ?? this.config.port,
+        host: host || this.config.host
+      });
+    }
+
     const { port: _port, host: _host, base: _base } = this.config;
 
     console.log("\n" + chalk.gray("Starting Server..."));
     return new Promise((resolve, reject) => {
 
       if (this.server) {
+        this.port = undefined;
+        this.address = undefined;
         this.listeningTo = undefined;
         const { port } = this.server.address() as { address: string; family: string; port: number; };
         console.log("\nServer already listening to port : " + port);
@@ -173,14 +183,22 @@ export class MockServer extends GettersSetters {
       this.server = this.app.listen(_port, _host, () => {
         console.log(chalk.green.bold("Mock Server Started."));
 
+        const serverAddress = this.server!.address() as { address: string; family: string; port: number; };
+        this.port = serverAddress.port;
+        this.address = serverAddress.address;
+        this.listeningTo = `http://${_host}:${this.port}${_base}`;
+
+
         console.log("\nHome");
-        this.listeningTo = `http://${_host}:${_port}${_base}`
         console.log(this.listeningTo);
         console.log(chalk.gray("listening...") + "\n");
 
         enableDestroy(this.server!); // Enhance with a destroy function
         resolve(this.server!);
       }).on("error", (err) => {
+        this.port = undefined;
+        this.server = undefined;
+        this.address = undefined;
         this.listeningTo = undefined;
         console.error("\nServer Error : " + err.message);
         reject(err);
@@ -202,9 +220,11 @@ export class MockServer extends GettersSetters {
           console.error("\nServer Error : " + err.message);
           return reject(err);
         }
+        this.port = undefined;
+        this.server = undefined;
+        this.address = undefined;
         this.listeningTo = undefined;
         console.log(chalk.gray("Mock Server Stopped"));
-        this.server = undefined;
         resolve(true);
       })
     })
@@ -301,3 +321,5 @@ export class MockServer extends GettersSetters {
     res.send(response);
   }
 }
+
+export default MockServer;

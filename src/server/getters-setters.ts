@@ -10,10 +10,14 @@ import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, get
 
 export class GettersSetters {
 
-  listeningTo: string | undefined;
+  // port, address, listeningTo will be undefined when server is stopped
+  port: number | undefined; // gives current running port.
+  server: Server | undefined; //  gives current running server.
+  address: string | undefined; // gives host ip address.
+  listeningTo: string | undefined; // gives -> http://${host}:${port}/${base} -> http://localhost:3000/api
+
   app!: express.Application;
   router!: express.Router;
-  server: Server | undefined;
   routes!: string[];
 
   initialDb!: ValidTypes.Db;
@@ -42,7 +46,11 @@ export class GettersSetters {
   protected _getStore = () => this.#store;
 
   init() {
+    this.port = undefined;
+    this.server = undefined;
+    this.address = undefined;
     this.listeningTo = undefined;
+
     this.app = express().set("json spaces", 2);
     this.router = express.Router();
     this.routes = [];
