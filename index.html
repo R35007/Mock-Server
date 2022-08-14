@@ -2236,24 +2236,22 @@ mockServer.launchServer(
       Example :</p>
     <p><code>server.js</code> :</p>
     <pre><code class="language-js"><div><span class="hljs-comment">// These are default config. You can provide your custom config as well.</span>
-<span class="hljs-keyword">const</span> config = {
-  <span class="hljs-attr">mode</span>: <span class="hljs-string">&quot;mock&quot;</span>, <span class="hljs-comment">// The direct value to a route will be set to this attribute (&#x27;mock&#x27;).</span>
-  <span class="hljs-comment">//For example: If mode is &quot;fetch&quot; then</span>
-  <span class="hljs-comment">//   db = { posts: &quot;https://jsonplaceholder.typicode.com/posts&quot; } -&gt; { _config: true, fetch: &quot;https://jsonplaceholder.typicode.com/posts&quot; }</span>
-  <span class="hljs-attr">port</span>: <span class="hljs-number">3000</span>, <span class="hljs-comment">// by default mock will be launched at this port. http://localhost:3000/</span>
-  <span class="hljs-attr">host</span>: <span class="hljs-string">&quot;localhost&quot;</span>,
-  <span class="hljs-attr">root</span>: process.cwd(), <span class="hljs-comment">// all paths will be relative to this path. Please provide a absolute path here.</span>
-  <span class="hljs-attr">base</span>: <span class="hljs-string">&quot;/&quot;</span>, <span class="hljs-comment">// all routes will be prefixed with the given baseUrl.</span>
-  <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;public&quot;</span>, <span class="hljs-comment">// Please provide a folder path. This will be hosted locally and all files will be statically accessed</span>
-  <span class="hljs-attr">reverse</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true routes will be generated in reverse order</span>
-  <span class="hljs-attr">bodyParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Sets the bodyParser</span>
-  <span class="hljs-attr">cookieParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enables the cookieParser</span>
-  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-comment">// Set the id attribute here. Helps to do Crud Operations. For example: &#x27;id&#x27;: &quot;_id&quot;</span>
-  <span class="hljs-attr">logger</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// If False no logger will be shown</span>
-  <span class="hljs-attr">noCors</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If false cross origin will not be handled</span>
-  <span class="hljs-attr">noGzip</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If False response will not be compressed</span>
-  <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true only GET call is allowed</span>
-};
+      <span class="hljs-keyword">const</span> config = {
+        <span class="hljs-attr">port</span>: <span class="hljs-number">3000</span>, <span class="hljs-comment">// Set Port to 0 to pick a random available port.</span>
+        <span class="hljs-attr">host</span>: <span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-comment">// Set custom host</span>
+        <span class="hljs-attr">root</span>: process.cwd(), <span class="hljs-comment">// Root path of the server. All paths refereed in db data will be relative to this path</span>
+        <span class="hljs-attr">base</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Mount db on a base url</span>
+        <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-comment">// Set db id attribute.</span>
+        <span class="hljs-attr">mode</span>: <span class="hljs-string">&quot;mock&quot;</span>, <span class="hljs-comment">// Use direct route value as a mock. If mode: &quot;fetch&quot; then direct route value will be set to fetch</span>
+        <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Path to host a static files</span>
+        <span class="hljs-attr">reverse</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Generate routes in reverse order</span>
+        <span class="hljs-attr">logger</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable api logger</span>
+        <span class="hljs-attr">noCors</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Disable CORS</span>
+        <span class="hljs-attr">noGzip</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Disable data compression</span>
+        <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Allow only GET calls</span>
+        <span class="hljs-attr">bodyParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable body-parser</span>
+        <span class="hljs-attr">cookieParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable cookie-parser</span>
+      };
 
 <span class="hljs-keyword">new</span> MockServer(config).launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>);
 </div></code></pre>
@@ -2607,9 +2605,13 @@ app.use(defaultsRoutes);
 <pre><code class="language-js"><div><span class="hljs-comment">// Please avoid directly modify or setting values to these variable.</span>
 <span class="hljs-comment">// Use Setter method to modify or set any values.</span>
 
-<span class="hljs-keyword">const</span> listeningTo = mockServer.listeningTo; <span class="hljs-comment">// will be undefined if server is not running.</span>
+<span class="hljs-comment">// server, port, address, listeningTo will be undefined when server is stopped</span>
+<span class="hljs-keyword">const</span>  port: number | <span class="hljs-literal">undefined</span>; <span class="hljs-comment">// gives current running port.</span>
+<span class="hljs-keyword">const</span>  server: Server | <span class="hljs-literal">undefined</span>; <span class="hljs-comment">//  gives current running server.</span>
+<span class="hljs-keyword">const</span>  address: string | <span class="hljs-literal">undefined</span>; <span class="hljs-comment">// gives host ip address.</span>
+<span class="hljs-keyword">const</span>  listeningTo: string | <span class="hljs-literal">undefined</span>; <span class="hljs-comment">// gives -&gt; http://${host}:${port}/${base} -&gt; http://localhost:3000/api</span>
+
 <span class="hljs-keyword">const</span> app = mockServer.app;
-<span class="hljs-keyword">const</span> server = mockServer.server;
 <span class="hljs-keyword">const</span> router = mockServer.router;
 <span class="hljs-keyword">const</span> { db, injectors, middlewares, rewriters, config, store } = mockServer.data;
 
