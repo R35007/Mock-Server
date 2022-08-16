@@ -119,45 +119,77 @@ Create `server.js` File
 
 ```js
 const { MockServer } = require("@r35007/mock-server"); // use import if using ES6 module
+// const MockServer = require("@r35007/mock-server").default; // For default import
 
-const mockServer = new MockServer("./config.json"); // Creates a Mock Server instance
-// or
-// const mockServer = MockServer.Create("./config.json"); // Creates a Mock Server single instance
+// Provide config as a param. If not provided, It uses the default Config.
+const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
+const host = 'localhost'; // Set custom host. default: 'localhost'
+const config = { root: __dirname, port, host }; // Config can also be given as a path to config file
+const mockServer = MockServer.Create(config);
 
-mockServer.launchServer(
-  "./db.json",
-  "./injectors.json",
-  "./middleware.js",
-  "./rewriters.json",
-  "./store.json"
-); // Starts the Mock Server.
+const app = mockServer.app; // Gives you the Express app
 
-//or
-
-const app = mockServer.app;
-
+// Make sure to use this at first, before all the resources
 const rewriter = mockServer.rewriter("./rewriters.json");
-app.use(rewriter); // make sure to add this before defaults and resources
+app.use(rewriter);
 
-const defaults = mockServer.defaults({ noGzip: true });
-app.use(defaults);
+// Returns the default middlewares
+// Provide options here. If not provided the options are picked from the default Config
+const defaultsMiddlewares = mockServer.defaults();
+app.use(defaultsMiddlewares);
 
+// Custom Middleware
+app.use((req, res, next) => {
+  if (isAuthorized(req)) {
+    next(); // continue to Mock Server router
+  } else {
+    res.sendStatus(401);
+  }
+});
+const isAuthorized = (req) => {
+  // add your authorization logic here
+  return true;
+};
+
+// Custom Routes
+// This route will not be listed in Home Page.
+app.get("/echo", (req, res) => {
+  res.jsonp(req.query);
+});
+
+// Loaded all the resources and returns the default router
 const resources = mockServer.resources(
-  "./db.json",
+  "./db.js",
   "./injectors.json",
   "./middleware.js",
   "./store.json"
 );
-app.use(resources);
+app.use(mockServer.config.base, resources);
 
+// Add Custom Routes to existing default router
+// This Route will be listed in Home Page
+mockServer.addDb({
+  "/data": {
+    _config: true,
+    middlewares: (req, res, next) => {
+      const store = res.locals.getStore();
+      res.locals.data = store?.data;
+      next();
+    },
+  },
+});
+
+// Create the default Routes which helps to run the Mock Server Home Page.
 const defaultRoutes = mockServer.defaultRoutes();
-app.use(defaultRoutes);
+app.use(mockServer.config.base, defaultRoutes);
 
-// make sure to add this at last
-app.use(mockServer.pageNotFound);
-app.use(mockServer.errorHandler);
+app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
+app.use(mockServer.errorHandler); // Default Error Handler
 
-mockServer.startServer(3000, "localhost");
+// Provide port and host name as a param.
+// Default port : 3000, Default host: 'localhost'
+mockServer.startServer();
+// mockServer.startServer(0, 'localhost'); // can also set port and host here
 ```
 
 Now go to terminal and type the following command to start the Mock Server.
@@ -891,10 +923,10 @@ new MockServer(config).launchServer("./db.json");
 ## Default Routes
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
-- `Db`        - [http://localhost:3000/\_db](http://localhost:3000/_db)
+- `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
 - `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
-- `Store`     - [http://localhost:3000/\_store](http://localhost:3000/_store)
-- `Reset Db`  - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
+- `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
+- `Reset Db` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
 
 ## CLI Usage
 

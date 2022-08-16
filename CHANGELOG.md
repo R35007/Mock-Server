@@ -1,3 +1,7 @@
+## v7.2.1
+
+- rewriters not working - `Fixed`
+
 ## v7.2.0
 
 - added `mockServer.port` - Gives the current running port. This will be `undefined` if server is stopped.

@@ -56,11 +56,11 @@ export class MockServer extends GettersSetters {
   ): Promise<Server | undefined> => {
     const app = this.app;
 
-    const defaults = this.defaults();
-    app.use(defaults);
-
     const rewriter = this.rewriter(rewriters);
     app.use(rewriter);
+
+    const defaults = this.defaults();
+    app.use(defaults);
 
     const resources = this.resources(db, injectors, middlewares, store);
     this.middlewares._globals && app.use(this.middlewares._globals);

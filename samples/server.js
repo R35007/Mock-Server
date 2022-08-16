@@ -3,6 +3,7 @@ const { MockServer } = require("@r35007/mock-server");
 
 // Provide config as a param. If not provided, It uses the default Config.
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
+const host = 'localhost'; // Set custom host. default: "localhost"
 const config = { root: __dirname, port }; // Config can also be given as a path to config file
 const mockServer = MockServer.Create(config);
 
@@ -28,14 +29,14 @@ const config = {
 
 const app = mockServer.app; // Gives you the Express app
 
+// Make sure to use this at first, before all the resources
+const rewriter = mockServer.rewriter("./rewriters.json");
+app.use(rewriter);
+
 // Returns the default middlewares
 // Provide options here. If not provided the options are picked from the default Config
 const defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
-
-// Make sure to use this at first, before all the resources
-const rewriter = mockServer.rewriter("./rewriters.json");
-app.use(rewriter);
 
 // Custom Middleware
 app.use((req, res, next) => {
@@ -88,6 +89,7 @@ app.use(mockServer.errorHandler); // Default Error Handler
 // Provide port and host name as a param.
 // Default port : 3000, Default host: 'localhost' 
 mockServer.startServer();
+// mockServer.startServer(0, 'localhost'); // can also set port and host here
 
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
