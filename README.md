@@ -68,7 +68,6 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [stopServer](#stopserver)
   - [resetServer](#resetserver)
   - [resetDb](#resetdb)
-  - [resetStore](#resetstore)
   - [pageNotFound](#pagenotfound)
   - [errorHandler](#errorhandler)
   - [Getters](#getters)
@@ -110,13 +109,29 @@ Now if you go to [http://localhost:3000/posts/1](http://localhost:3000/posts/1),
 
 ## Using JS Module
 
-First install nodemon for watching changes
+Install nodemon for watching changes
 
 ```sh
 npm install -g nodemon
 ```
 
 Create `server.js` File
+
+```js
+const { MockServer } = require("@r35007/mock-server");
+const config = { root: __dirname };
+const mockServer = MockServer.Create(config);
+
+mockServer.launchServer(
+  "./db.js",
+  "./injectors.json",
+  "./middleware.js",
+  "./rewriters.json",
+  "./store.json"
+);
+```
+
+or
 
 ```js
 const { MockServer } = require("@r35007/mock-server"); // use import if using ES6 module
@@ -910,7 +925,7 @@ const config = {
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
   dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
-  staticDir, // Path to host a static files
+  staticDir: "", // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
   noCors: false, // Disable CORS
@@ -1226,14 +1241,6 @@ const routes = mockServer.resetDb(); // If param is not present, it resets all t
 | ---------- | -------- | -------- | -------------------------------- |
 | ids        | string[] | No       | Give List of route ids to reset  |
 | routePaths | string[] | No       | Give List of routePaths to reset |
-
-### **resetStore**
-
-Returns the store values that are reset.
-
-```js
-const store = mockServer.resetStore(); // It resets all the store values.
-```
 
 ### **pageNotFound**
 

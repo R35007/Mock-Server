@@ -96,7 +96,7 @@ mockServer.startServer();
 
 /*
 mockServer.launchServer(
-  "./db.json",
+  "./db.js",
   "./injectors.json",
   "./middleware.js",
   "./rewriters.json",
