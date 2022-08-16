@@ -20,11 +20,11 @@ export type KibanaMiddleware = {
 }
 export type MiddlewareNames = keyof Default_Middlewares
 
-export type DbMode = 'mock' | 'fetch';
+export type DbMode = 'mock' | 'fetch' | 'multi';
 
 export type GetValidDbOptions = {
   reverse?: boolean,
-  mode?: DbMode
+  dbMode?: DbMode
 }
 
 export interface Locals {

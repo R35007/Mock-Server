@@ -25,7 +25,7 @@ export const getValidConfig = (config?: ParamTypes.Config, rootPath: string = De
   const validConfig = {
     ...userConfig,
     root,
-    mode: userConfig.mode === 'fetch' ? 'fetch' : Defaults.Config.mode,
+    dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : Defaults.Config.dbMode,
     port: isPortNaN ? Defaults.Config.port : parseInt(userConfig.port as any),
     host: userConfig.host && _.isString(userConfig.host) ? userConfig.host : Defaults.Config.host,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
@@ -100,7 +100,7 @@ export const getValidRewriters = (rewriters?: ParamTypes.Rewriters, rootPath: st
 export const getValidDb = (
   data?: ParamTypes.Db, injectors: UserTypes.Injectors = Defaults.Injectors,
   rootPath: string = Defaults.Config.root,
-  { reverse, mode = Defaults.Config.mode }: GetValidDbOptions = {},
+  { reverse, dbMode = Defaults.Config.dbMode }: GetValidDbOptions = {},
 ): ValidTypes.Db => {
   const userData = requireData(data, rootPath) as HAR;
 
@@ -109,7 +109,7 @@ export const getValidDb = (
     return _.cloneDeep(Defaults.Db);
   }
 
-  const normalizedDb = normalizeDb(userData, mode);
+  const normalizedDb = normalizeDb(userData, dbMode);
   const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors));
 
   const validDb = reverse
@@ -119,10 +119,18 @@ export const getValidDb = (
   return validDb;
 };
 
-export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, mode: DbMode = Defaults.Config.mode): ValidTypes.RouteConfig => {
+export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
   if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], ignoreMiddlewareWrappers: true };
-  if (!_.isPlainObject(routeConfig) || !routeConfig._config) return { _config: true, id: toBase64(route), [mode]: routeConfig };
+
+  if (!_.isPlainObject(routeConfig) || !routeConfig._config) {
+    if (dbMode === 'multi' && _.isString(routeConfig)) return { _config: true, id: toBase64(route), fetch: routeConfig }
+    if (dbMode === 'multi' && !_.isString(routeConfig)) return { _config: true, id: toBase64(route), mock: routeConfig }
+    if (dbMode === 'mock') return { _config: true, id: toBase64(route), mock: routeConfig }
+    if (dbMode === 'fetch') return { _config: true, id: toBase64(route), fetch: routeConfig as object }
+  };
+
   routeConfig.id = `${routeConfig.id || ''}` || toBase64(route)
+
   if (routeConfig.middlewares) {
     routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);
     if (!routeConfig.middlewares.length) delete routeConfig.middlewares

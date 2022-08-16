@@ -4,7 +4,7 @@ const { MockServer } = require("@r35007/mock-server");
 // Provide config as a param. If not provided, It uses the default Config.
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
 const host = 'localhost'; // Set custom host. default: "localhost"
-const config = { root: __dirname, port }; // Config can also be given as a path to config file
+const config = { root: __dirname, port, host }; // Config can also be given as a path to config file
 const mockServer = MockServer.Create(config);
 
 /* Default Configs
@@ -15,7 +15,7 @@ const config = {
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
-  mode: 'mock', // Use direct route value as a mock. If mode: "fetch" then direct route value will be set to fetch
+  dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'
   staticDir, // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
@@ -89,7 +89,7 @@ app.use(mockServer.errorHandler); // Default Error Handler
 // Provide port and host name as a param.
 // Default port : 3000, Default host: 'localhost' 
 mockServer.startServer();
-// mockServer.startServer(0, 'localhost'); // can also set port and host here
+// mockServer.startServer(port, host); // can also set port and host here
 
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
@@ -97,8 +97,8 @@ mockServer.startServer();
 /*
 mockServer.launchServer(
   "./db.json",
-  "./middleware.js",
   "./injectors.json",
+  "./middleware.js",
   "./rewriters.json",
   "./store.json"
 )

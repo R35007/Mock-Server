@@ -1,3 +1,16 @@
+## v7.3.0
+
+- renamed `mode` to `dbMode` in config.
+- added `multi` dbMode in config.
+
+  dbMode :
+
+  - `multi` - Only direct sting value sets to `fetch` attribute. All other direct values will be set to - `mock` attribute.
+  - `fetch` - All other direct values will be set to `fetch` attribute.
+  - `mock` - All other direct values will be set to `mock` attribute.
+
+- Fetch not showing any error on a invalid file path - `Fixed`
+
 ## v7.2.1
 
 - rewriters not working - `Fixed`
@@ -78,7 +91,7 @@
     */
     ```
 
-- Now we can give middlware directly to the route.
+- Now we can give middleware directly to the route.
   For Example:
 
   ```js
@@ -191,7 +204,7 @@ const db = {
 
 - Added more Test cases ans stabilized this version with more minor bug fixes
 - `UserConfig`, `UserMiddleware`, `UserDb`, `UserInjectors`, `UserStore`, `UserRewriters` types are removed
-  - Instead we can use `Partial<Config>`, `Db`, `Middlewaers`, `Injectors`, `Store`, `Rewriters`
+  - Instead we can use `Partial<Config>`, `Db`, `Middlewares`, `Injectors`, `Store`, `Rewriters`
 - Now we can also provide a `.js` path to any of the data for `db`, `injectors`, `config`, `rewriters`, `store`, `middlewares`
 - Now we can get the response time from a response headers of `x-response-time` in milliseconds
 - The middlewares that are need to be used as a global middleware before start of all middlewares can be given as `_globals : [...your middlewares]` in `middleware.js` file

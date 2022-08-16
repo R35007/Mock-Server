@@ -22,7 +22,7 @@ export default async (_req, res, _next) => {
           }
         }
         typeof response === "object" ? res.jsonp(response) : res.send(response);
-      } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt"].includes(routeConfig._extension || '')) {
+      } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt", ""].includes(routeConfig._extension || '')) {
         if (routeConfig.fetchCount == 0) {
           res.send(locals.routeConfig.mock || {});
           return;

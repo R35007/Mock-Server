@@ -10,7 +10,7 @@ async function init() {
   try {
     rewriters = await request(localhost + "/_rewriters");
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);

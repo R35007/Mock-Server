@@ -35,7 +35,7 @@ export default (routePath: string, getDb: () => ValidTypes.Db, config: ValidType
       }
     } catch (error) {
       console.error(error);
-      next();
+      next(error);
     }
   };
 };

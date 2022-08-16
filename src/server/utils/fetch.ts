@@ -29,7 +29,7 @@ export const requireFile = (directoryPath: string, excludeFolders: string[] = []
     }
   } catch (error) {
     console.log(chalk.red(`Error reading ${file.filePath}`));
-    console.log(error);
+    console.error(error);
     return;
   }
 };
@@ -49,7 +49,7 @@ export const getObject = (files: PathDetails[]): object => {
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.log(error);
+      console.error(error);
       return mock;
     }
   }, {});
@@ -71,7 +71,7 @@ export const getList = (files: PathDetails[]): any[] => {
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.log(error);
+      console.error(error);
       return mock;
     }
   }, [] as any[]);
@@ -109,17 +109,21 @@ export const getStats = (directoryPath: string): PathDetails | undefined => {
 export const getFileData = (filePath: string, extension: string): ValidTypes.FetchData => {
   let fetchData: ValidTypes.FetchData = { isError: false };
   try {
-    if (extension === ".json" || extension === ".har") {
+    if ([".json", ".jsonc", ".har"].includes(extension)) {
       console.log(chalk.gray("Fetch request : "), filePath);
       const str = fs.readFileSync(filePath, "utf-8");
       fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     } else if (extension === ".txt") {
       console.log(chalk.gray("Fetch request : "), filePath);
       fetchData.response = fs.readFileSync(filePath, "utf8")
+    } else {
+      console.log(chalk.gray("Fetch request : "), filePath);
+      const str = fs.readFileSync(filePath, "utf-8");
+      fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     }
   } catch (err) {
-    console.log(chalk.red(`Error reading ${filePath}`));
-    console.log(err);
+    console.error(chalk.red(`Invalid Path: ${filePath}`));
+    console.error(err);
     fetchData = {
       isError: true,
       stack: err.stack,
@@ -151,7 +155,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
       }
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     fetchData = {
       isError: true,
       stack: err.stack,

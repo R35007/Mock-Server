@@ -11,13 +11,13 @@ import * as ValidTypes from '../types/valid.types';
 import { getValidRoute, getValidRouteConfig } from './validators';
 
 // { "/route1,/route2": { ... } } -> { "/route1": {...}, "/route2": { ... } }
-export const normalizeDb = <T>(object: T, mode: DbMode = Defaults.Config.mode): T => {
+export const normalizeDb = <T>(object: T, dbMode: DbMode = Defaults.Config.dbMode): T => {
   const flattenedRoutes = {} as T;
   Object.entries(object)
     .forEach(([routePath, routeConfig]: [string, UserTypes.RouteConfig]) => {
       const routesChunk = routePath.split(",");
       routesChunk.map(getValidRoute).forEach(route => {
-        flattenedRoutes[route] = getValidRouteConfig(route, routeConfig, mode);
+        flattenedRoutes[route] = getValidRouteConfig(route, routeConfig, dbMode);
       })
     })
   return flattenedRoutes;
@@ -100,14 +100,14 @@ export const cleanObject = (obj: any) => {
   } catch (err) { }
 }
 
-export const cleanDb = (db: ValidTypes.Db | UserTypes.Db) => {
+export const cleanDb = (db: ValidTypes.Db | UserTypes.Db, dbMode: DbMode = 'mock') => {
   for (let routePath in db) {
-    db[routePath] = cleanRouteConfig(db[routePath] as UserTypes.RouteConfig);
+    db[routePath] = cleanRouteConfig(db[routePath] as UserTypes.RouteConfig, dbMode);
   }
 }
 
 // Removes id, _config ( if only mock is available ) and all other empty values in route configs
-export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes.RouteConfig): UserTypes.RouteConfig => {
+export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes.RouteConfig, dbMode: DbMode = 'mock'): UserTypes.RouteConfig => {
   if (!routeConfig._config) return routeConfig; // clean routeConfig only if _config is set to true
 
   let userTypeRouteConfig = routeConfig as any;
@@ -117,10 +117,25 @@ export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes
   cleanObject(userTypeRouteConfig);
 
   const routeConfigKeys = Object.keys(userTypeRouteConfig);
-  if (routeConfigKeys.length === 1 && routeConfigKeys[0] === '_config') { delete userTypeRouteConfig._config; }
-  if (routeConfigKeys.length === 2 && (routeConfigKeys.includes("_config") && routeConfigKeys.includes("mock"))) { userTypeRouteConfig = userTypeRouteConfig.mock; }
 
-  return userTypeRouteConfig as UserTypes.RouteConfig;
+
+  if (!routeConfigKeys.length) return userTypeRouteConfig;
+  if (!routeConfigKeys.includes("_config")) return userTypeRouteConfig
+  if (routeConfigKeys.length === 1) return {} as UserTypes.RouteConfig;
+  if (routeConfigKeys.length > 2) return userTypeRouteConfig;
+
+  // If routeConfigKeys.length === 2 && routeConfigKeys.includes("_config")
+  if (dbMode === 'multi') {
+    if (routeConfigKeys.includes("fetch") && _.isString(userTypeRouteConfig.fetch)) return userTypeRouteConfig.fetch
+    if (routeConfigKeys.includes("fetch") && !_.isString(userTypeRouteConfig.fetch)) return userTypeRouteConfig
+    if (routeConfigKeys.includes("mock") && _.isString(userTypeRouteConfig.mock)) return userTypeRouteConfig
+    if (routeConfigKeys.includes("mock") && !_.isString(userTypeRouteConfig.mock)) return userTypeRouteConfig.mock
+    return userTypeRouteConfig;
+  } else {
+    if (dbMode === 'mock' && routeConfigKeys.includes("mock")) return userTypeRouteConfig.mock;
+    if (dbMode === 'fetch' && routeConfigKeys.includes("fetch")) return userTypeRouteConfig.fetch;
+    return userTypeRouteConfig
+  }
 }
 
 export const isCollection = (arr: any[]): boolean => {
@@ -164,12 +179,10 @@ const getDbFromHarEntries = (entries: HarEntry[], _harEntryCallback?: HarMiddlew
     if (_.isFunction(_harEntryCallback)) {
       const routes = _harEntryCallback(entry, routePath, routeConfig) || {};
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
-      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
+      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.dbMode);
     }
     routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, iterateDuplicateRoutes);
   });
-
-  cleanDb(generatedDb as UserTypes.Db);
 
   return generatedDb as UserTypes.Db;
 }
@@ -193,12 +206,10 @@ const getDbFromKibanaHits = (hits: HIT[], _kibanaHitCallback?: KibanaMiddleware[
     if (_.isFunction(_kibanaHitCallback)) {
       const routes = _kibanaHitCallback(hit, routePath, routeConfig) || {};
       [routePath, routeConfig] = Object.entries(routes)[0] || [];
-      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.mode);
+      routeConfig = getValidRouteConfig(routePath, routeConfig, Defaults.Config.dbMode);
     }
     routePath && routeConfig && setRouteRedirects(generatedDb, routePath, routeConfig, iterateDuplicateRoutes);
   });
-
-  cleanDb(generatedDb as UserTypes.Db);
 
   return generatedDb as UserTypes.Db;
 }
@@ -251,7 +262,7 @@ export const extractDbFromHAR = (
     const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback, iterateDuplicateRoutes);
     return _harDbCallback?.(har, dbFromHar) || dbFromHar
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return
   }
 }
@@ -269,7 +280,7 @@ export const extractDbFromKibana = (
     const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, _kibanaHitsCallback, iterateDuplicateRoutes);
     return _KibanaDbCallback?.(kibana, dbFromHits) || dbFromHits
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return
   }
 }
@@ -284,7 +295,7 @@ export const interpolate = (object: Object, format: string = "") => {
     const values = _.values(object);
     return new Function(...keys, `return \`${format}\`;`)(...values);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return format;
   }
 };

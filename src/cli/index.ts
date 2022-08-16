@@ -86,7 +86,7 @@ const startServer = async (
           console.log(chalk.gray('watching for changes...'));
           console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
         } catch (err) {
-          console.log(err.message);
+          console.error(err.message);
         }
       });
       !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
@@ -94,7 +94,7 @@ const startServer = async (
       !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
     }
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
   }
 
   // Catch and handle any error occurring in the server process

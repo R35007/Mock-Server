@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 import _ from 'lodash';
-import { Locals, PathDetails } from '../types/common.types';
+import { Locals } from '../types/common.types';
 import { cleanObject, interpolate } from '../utils';
 import { getFileData, getStats, getUrlData, parseUrl } from '../utils/fetch';
 
@@ -42,7 +42,7 @@ export const FetchFile = (_req, res, next) => {
   const routeConfig = locals.routeConfig;
 
   const { _request, _extension = '' } = routeConfig;
-  if (_request?.url?.startsWith("http") || ![".json", ".jsonc", ".har", ".txt"].includes(_extension)) return next();
+  if (_request?.url?.startsWith("http") || ![".json", ".jsonc", ".har", ".txt", ""].includes(_extension)) return next();
 
   if (routeConfig.fetchCount == 0) {
     const { isError, response } = routeConfig.fetchData || {};
@@ -96,7 +96,7 @@ const getUrlDetail = (req, res) => {
     const parsedUrl = parseUrl(request.url, locals.config.root).replace(/\\/g, "/");
     const interpolatedUrl = interpolate({ config: locals.config, req: _.cloneDeep(req) }, parsedUrl);
     console.log(chalk.gray("parsed Fetch url : "), chalk.green(interpolatedUrl));
-    const stats = getStats(interpolatedUrl) || {} as PathDetails;
+    const stats = getStats(interpolatedUrl);
     request.url = interpolatedUrl;
     delete request.headers;
     return { request, ...stats };

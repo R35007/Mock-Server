@@ -13,7 +13,7 @@ export const Config: ValidTypes.Config = {
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
-  mode: 'mock', // Use direct route value as a mock. If mode: "fetch" then direct route value will be set to fetch
+  dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'
   staticDir, // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger

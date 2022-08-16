@@ -8,7 +8,7 @@ export type Config = {
   root: string;
   base: string;
   id: string;
-  mode: DbMode
+  dbMode: DbMode
   staticDir: string;
   reverse: boolean;
   logger: boolean;

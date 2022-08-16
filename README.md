@@ -51,6 +51,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
 - [Locals](#locals)
   - [Dynamic Route Config](#dynamic-route-config)
 - [Config](#config)
+  - [Db Mode](#db-mode)
 - [Default Routes](#default-routes)
 - [CLI Usage](#cli-usage)
 - [API](#api)
@@ -123,7 +124,7 @@ const { MockServer } = require("@r35007/mock-server"); // use import if using ES
 
 // Provide config as a param. If not provided, It uses the default Config.
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
-const host = 'localhost'; // Set custom host. default: 'localhost'
+const host = "localhost"; // Set custom host. default: 'localhost'
 const config = { root: __dirname, port, host }; // Config can also be given as a path to config file
 const mockServer = MockServer.Create(config);
 
@@ -242,13 +243,14 @@ For Example:
 }
 ```
 
-Note : `fetch` can be either `string` type or `AxiosRouteConfig` type.
-see [Fetch Data From URL](#fetch-data-from-url) for more configuration.
+> Note : `fetch` can be either `string` type or `AxiosRouteConfig` type.
+> see [Fetch Data From URL](#fetch-data-from-url) for more configuration.
 
 ### **Set Delay Response**
 
 `delay` helps you to set a custom delay to your routes.
-Note : The delay yo set must be in milliseconds and of type number
+
+> Note : The delay yo set must be in milliseconds and of type number
 
 ```jsonc
 {
@@ -288,7 +290,8 @@ The url can either be a http server or a local file server.
 #### **Fetch File**
 
 Give a absolute or a relative path to fetch any file and get as a response.
-Note: The given relative path will be relative to `config.root`.
+
+> Note: The given relative path will be relative to `config.root`.
 
 ```jsonc
 {
@@ -323,7 +326,7 @@ You can also give a fetch as a axios request object with custom options.
 
 [http://localhost:3000/fetch/posts/customOptions/2](http://localhost:3000/fetch/posts/customOptions/2).
 
-Note: The to pass any options from the route set the option value as `${<option Name>}`
+> Note: The to pass any options from the route set the option value as `${<option Name>}`
 
 reserved key words :
 
@@ -350,7 +353,7 @@ It sends all the options like prams, query params, headers, data etc.. from the 
 }
 ```
 
-Note: `${req.url}` will prepends the route to the url.
+> Note: `${req.url}` will prepends the route to the url.
 
 Now try the following url.
 
@@ -455,7 +458,7 @@ const db = {
 
 ### **Ignore Middleware Wrappers**
 
-Usually all the middewares in the route will be wrapped by some helper middlewares to set delay, get fetch data, set locals etc..
+Usually all the middlewares in the route will be wrapped by some helper middlewares to set delay, get fetch data, set locals etc..
 If we wish to provide a middlewares without any wrappers set `ignoreMiddlewareWrappers` to `true`.
 For Example:
 `db.js`
@@ -468,7 +471,7 @@ const db = {
 }
 ```
 
-Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
+> Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
 
 ## **Middleware Utils**
 
@@ -602,8 +605,8 @@ GET /posts?q=internet&_text=success
 
 `_CrudOperations` middleware handles all the crud operations of the given data.
 By default it also handles the `_AdvancedSearch` operations.
-Note : the mock must of type Array of objects and must contain a unique value of attribute `id`.
-this `id` attribute can also be changes using `config.id`.
+
+> Note: the mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
 
 For example: `config.json`
 
@@ -643,7 +646,7 @@ This overrides the existing mock with the `store`.
 
 `_Fetch` Helps to fetch from file path or from the url.
 
-Note : `locals.routeConfig.fetch` must contain a valid file path or http url to fetch the data.
+> Note: `locals.routeConfig.fetch` must contain a valid file path or http url to fetch the data.
 
 For Example:
 `db.json`
@@ -675,13 +678,13 @@ module.exports = [
 
 `_FetchFile` Helps to fetch from file path.
 
-Note : `locals.routeConfig.fetch` must contain a valid file path to fetch the data.
+> Note: `locals.routeConfig.fetch` must contain a valid file path to fetch the data.
 
 ### **FetchUrl**
 
 `_FetchUrl` Helps to fetch from http url.
 
-Note : `locals.routeConfig.fetch` must contain a valid http url to fetch the data.
+> Note: `locals.routeConfig.fetch` must contain a valid http url to fetch the data.
 
 ## **Injectors**
 
@@ -738,7 +741,7 @@ For example :
 ]
 ```
 
-Note: Use `["..."]` If you want to add the existing middlewares.
+> Note: Use `["..."]` If you want to add the existing middlewares.
 
 ### **Common Route Configs**
 
@@ -906,7 +909,7 @@ const config = {
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
-  mode: "mock", // Use direct route value as a mock. If mode: "fetch" then direct route value will be set to fetch
+  dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
   staticDir, // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
@@ -918,6 +921,71 @@ const config = {
 };
 
 new MockServer(config).launchServer("./db.json");
+```
+
+### **Db Mode**
+
+Db mode defines on what config does the direct route value to be assigned.
+For Example :
+
+1. `dbMode` is `multi` - Only direct `string` value will be assigned to `fetch` attribute. All other values will be assigned to `mock` attribute
+
+```js
+const db = {
+  route1: "My Response", // String
+  route2: { data: "My Response" }, // Object without _config: true
+  route3: [], // Array
+  route4: "path/to/file", // Some path to fetch a file
+  route5: { _config: true, mock: "My Response" } // Config object.
+}
+// Transforms  as follow
+{
+  "/route1": { _config: true, fetch: "My Response" },
+  "/route2": { _config: true, mock: { data: "My Response" } },
+  "/route3": { _config: true, mock: [] }, // Array
+  "/route4": { _config: true, fetch: "path/to/file"  },
+  "/route5": { _config: true, mock: "My Response" } // Config object wont be changed
+}
+```
+
+2. `dbMode` is `mock` - All direct values will be assigned to `mock` attribute
+
+```js
+const db = {
+  route1: "My Response", // String
+  route2: { data: "My Response" }, // Object without _config: true
+  route3: [], // Array
+  route4: "path/to/file", // Some path to fetch a file
+  route5: { _config: true, fetch: "path/to/file" }, // Config object.
+}
+// Transforms  as follow
+{
+  "/route1": { _config: true, mock: "My Response" },
+  "/route2": { _config: true, mock: { data: "My Response" } },
+  "/route3": { _config: true, mock: [] },
+  "/route4": { _config: true, mock: "path/to/file"  },
+  "/route5": { _config: true, fetch: "path/to/file" } // Config object wont be changed
+}
+```
+
+2. `dbMode` is `fetch` - All direct values will be assigned to `mock` attribute
+
+```js
+const db = {
+  route1: "My Response", // String
+  route2: { data: "My Response" }, // Object without _config: true
+  route3: [], // Array
+  route4: "path/to/file", // Some path to fetch a file
+  route5: { _config: true, mock: "My Response" }, // Config object.
+}
+// Transforms  as follow
+{
+  "/route1": { _config: true, fetch: "My Response" },
+  "/route2": { _config: true, fetch: { data: "My Response" } },
+  "/route3": { _config: true, fetch: [] },
+  "/route4": { _config: true, fetch: "path/to/file"  },
+  "/route5": { _config: true, mock: "My Response" } // Config object wont be changed
+}
 ```
 
 ## Default Routes
@@ -1243,7 +1311,7 @@ const {
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
-  mode: "fetch", // The direct route value will be set to fetch
+  dbMode: "fetch", // The direct route value will be set to fetch
 };
 
 const rootPath = "./";

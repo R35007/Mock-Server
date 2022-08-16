@@ -36,11 +36,11 @@ export class MockServer extends GettersSetters {
 
   static Destroy = async (mockServer?: MockServer) => {
     if (mockServer) {
-      try { await mockServer.stopServer() } catch (err) { console.log(err) }
+      try { await mockServer.stopServer() } catch (err) { console.error(err) }
       mockServer.resetServer();
       return undefined;
     } else {
-      try { await MockServer.#mockServer?.stopServer() } catch (err) { console.log(err) }
+      try { await MockServer.#mockServer?.stopServer() } catch (err) { console.error(err) }
       MockServer.#mockServer?.resetServer();
       MockServer.#mockServer = undefined;
       return undefined;
@@ -301,7 +301,7 @@ export class MockServer extends GettersSetters {
       return { [dbById![0]]: dbById![1] }
     }
     const db = id ? findById(id) : this.db;
-    if (req.query._clean) cleanDb(db);
+    if (req.query._clean) cleanDb(db, this.config.dbMode);
     res.send(db);
   }
 
