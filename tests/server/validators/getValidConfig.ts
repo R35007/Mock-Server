@@ -41,7 +41,7 @@ export const shouldGetValidConfig = () => {
         ["base is empty string", { base: "" }, {}],
         ["base is '/' ", { base: "/" }, {}],
         ["base is '/api' ", { base: "/api" }, { base: "/api" }],
-        ["staticDir is not a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "/mock" }, { root: path.join(__dirname, "../../mock") }],
+        ["staticDir is not a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "/mock" }, { root: path.join(__dirname, "../../mock"), staticDir:"C:\\mock" }],
         ["staticDir is a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "../../public" }, { root: path.join(__dirname, "../../mock"), staticDir: path.join(__dirname, "../../mock", "../../public") }],
         ["host is a empty string", { host: "" }, {}],
         ["host is not a string", { host: 129 }, {}],

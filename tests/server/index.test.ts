@@ -62,7 +62,7 @@ const rewriter = () => {
     });
 
     it('should rewrite the routes. /api/post -> /post ', async () => {
-      const mockPost = { userid: "1", id: "1", title: "Testing Rewriters", body: "Successfull" }
+      const mockPost = { userId: "1", id: "1", title: "Testing Rewriters", body: "Successful" }
       mockServer.app.get("/post", (_req, res) => { res.json(mockPost) });
 
       await mockServer.startServer();
@@ -159,10 +159,10 @@ const resources = () => {
   });
 }
 
-const defaultRoutes = () => {
-  describe('mockServer.defaultRoutes() : ', () => {
+const homePage = () => {
+  describe('mockServer.homePage() : ', () => {
     let mockServer: MockServer;
-    let defaultRoutes: Router;
+    let homePage: Router;
 
     let mockDb: Db;
     let mockMiddleware: Middlewares;
@@ -209,7 +209,7 @@ const defaultRoutes = () => {
         "/comments": {
           _config: true,
           id: "2",
-          mock: [{ id: "1", postid: "2", name: "Siva" }]
+          mock: [{ id: "1", postId: "2", name: "Siva" }]
         },
         "/setStorePost": {
           _config: true,
@@ -234,12 +234,12 @@ const defaultRoutes = () => {
           res.send({ status: "Store Updated" })
         }
       }
-      mockStore = { post: { id: "1", name: "Siva" }, comment: { id: "1", postid: "1", name: "Ram" } };
+      mockStore = { post: { id: "1", name: "Siva" }, comment: { id: "1", postId: "1", name: "Ram" } };
       const resources = mockServer.resources(mockDb, [], mockMiddleware, mockStore);
       mockServer.app.use(resources);
 
-      defaultRoutes = mockServer.homePage();
-      mockServer.app.use(mockServer.config.base, defaultRoutes);
+      homePage = mockServer.homePage();
+      mockServer.app.use(mockServer.config.base, homePage);
 
       return mockServer.startServer();
     })
@@ -248,8 +248,8 @@ const defaultRoutes = () => {
 
     it('should return a mock server default routes', async () => {
       const router = mockServer.app._router.stack[mockServer.app._router.stack.length - 1];
-      expect(router.handle).toBe(defaultRoutes);
-      expect(router.handle.stack.length).toBe(defaultRoutes.stack.length);
+      expect(router.handle).toBe(homePage);
+      expect(router.handle.stack.length).toBe(homePage.stack.length);
     });
 
     describe('/_db/:id?', () => {
@@ -289,7 +289,7 @@ const defaultRoutes = () => {
         const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", name: "Ram", action: "Updated" }] } };
         await put("/_db", updatedComments, updatedComments); // updating /comments 
 
-        await post("/_reset/db", mockServer.initialDb, mockServer.initialDb); // resetiing db to initial state
+        await post("/_reset/db", mockServer.initialDb, mockServer.initialDb); // resetting db to initial state
       });
 
       it('should reset db of id 5', async () => {
@@ -322,11 +322,11 @@ const launchServer = () => {
       expect(response.statusCode).toBe(200);
     });
 
-    it('should call rewriter, defaults, resources, defaultRoutes, startServer', async () => {
+    it('should call rewriter, defaults, resources, homePage, startServer', async () => {
       const rewriter = jest.spyOn(mockServer, "rewriter");
       const defaults = jest.spyOn(mockServer, "defaults");
       const resources = jest.spyOn(mockServer, "resources");
-      const defaultRoutes = jest.spyOn(mockServer, "defaultRoutes");
+      const homePage = jest.spyOn(mockServer, "homePage");
       const startServer = jest.spyOn(mockServer, "startServer");
 
       const server = await mockServer.launchServer();
@@ -334,7 +334,7 @@ const launchServer = () => {
       expect(rewriter).toBeCalledTimes(1);
       expect(defaults).toBeCalledTimes(1);
       expect(resources).toBeCalledTimes(1);
-      expect(defaultRoutes).toBeCalledTimes(1);
+      expect(homePage).toBeCalledTimes(1);
       expect(startServer).toBeCalledTimes(1);
 
       const response = await request(mockServer.app).get("/");
@@ -550,7 +550,7 @@ const destroy = () => {
       mockServer.resetServer = jest.fn();
       mockServer.stopServer = jest.fn(() => Promise.resolve(true));
 
-      await MockServer.Destroy(mockServer); // Should destroy only with the given instance and not with the private instane
+      await MockServer.Destroy(mockServer); // Should destroy only with the given instance and not with the private instance
 
       expect(mockServer.stopServer).toBeCalledTimes(1);
       expect(mockServer.resetServer).toBeCalledTimes(1);
@@ -564,8 +564,8 @@ describe("MockServer", () => {
   rewriter(); // Add any route rewriters to the middleware
   defaults(); // Add default middlewares -> noGzip, noCors, errorhandler, static Home page, etc..
   resources(); // Add db, middlewares, injectors, store
-  defaultRoutes(); // Add Default Routes -> /_db/:id?, /_store/:key?, /_rewriters, /_reset/db/:id?, /_reset/store/:key?
-  launchServer(); // Add defaults, defaultRoutes, rewriters, resources and start the server in one flow
+  homePage(); // Add Default Routes -> /_db/:id?, /_store/:key?, /_rewriters, /_reset/db/:id?, /_reset/store/:key?
+  launchServer(); // Add defaults, homePage, rewriters, resources and start the server in one flow
   startServer() // Start the mock server
   stopServer() // Stop the mock server
   resetServer() // Stop the mock server

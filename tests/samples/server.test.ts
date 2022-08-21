@@ -36,7 +36,7 @@ const server = () => {
       );
       app.use(mockServer.config.base, resources);
 
-      mockServer.addDb({
+      const dataResources = mockServer.resources({
         "/data": {
           _config: true,
           middlewares: (_req, res, next) => {
@@ -47,9 +47,10 @@ const server = () => {
           }
         }
       })
+      app.use(mockServer.config.base, dataResources)
 
-      const defaultRoutes = mockServer.homePage();
-      app.use(mockServer.config.base, defaultRoutes);
+      const homePage = mockServer.homePage();
+      app.use(mockServer.config.base, homePage);
 
       app.use(mockServer.pageNotFound);
       app.use(mockServer.errorHandler);
@@ -57,7 +58,7 @@ const server = () => {
       await mockServer.startServer();
 
       console.log(mockServer);
-      
+
     });
   });
 }

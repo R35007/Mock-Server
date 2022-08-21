@@ -7,7 +7,7 @@ import { setRequestUrl } from './fetch';
 export default (routePath: string, getDb: () => ValidTypes.Db, config: ValidTypes.Config, getStore: () => ValidTypes.Store) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-      const routeConfig = getDb()[routePath] || {};
+      const routeConfig = getDb()[routePath] || {} as ValidTypes.RouteConfig;
       routeConfig.store && !_.isPlainObject(routeConfig.store) && (routeConfig.store = {});
 
       const locals = res.locals as Locals
