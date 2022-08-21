@@ -1608,7 +1608,7 @@
           <li><a href="#db-mode">Db Mode</a></li>
         </ul>
       </li>
-      <li><a href="#default-routes">Default Routes</a></li>
+      <li><a href="#home-page-routes">Home Page Routes</a></li>
       <li><a href="#cli-usage">CLI Usage</a></li>
       <li><a href="#api">API</a>
         <ul>
@@ -1619,8 +1619,7 @@
           <li><a href="#rewriter">rewriter</a></li>
           <li><a href="#defaults">defaults</a></li>
           <li><a href="#resources">resources</a></li>
-          <li><a href="#defaultroutes">defaultRoutes</a></li>
-          <li><a href="#adddb">addDb</a></li>
+          <li><a href="#homepage">homePage</a></li>
           <li><a href="#startserver">startServer</a></li>
           <li><a href="#stopserver">stopServer</a></li>
           <li><a href="#resetserver">resetServer</a></li>
@@ -1654,10 +1653,23 @@
     <pre><code class="language-json"><div>{ <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">&quot;title&quot;</span>: <span class="hljs-string">&quot;mock-server&quot;</span>, <span class="hljs-attr">&quot;author&quot;</span>: <span class="hljs-string">&quot;r35007&quot;</span> }
 </div></code></pre>
     <h2 id="using-js-module">Using JS Module</h2>
-    <p>First install nodemon for watching changes</p>
+    <p>Install nodemon for watching changes</p>
     <pre><code class="language-sh"><div>npm install -g nodemon
 </div></code></pre>
     <p>Create <code>server.js</code> File</p>
+    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
+<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname };
+<span class="hljs-keyword">const</span> mockServer = MockServer.Create(config);
+
+mockServer.launchServer(
+  <span class="hljs-string">&quot;./db.js&quot;</span>,
+  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+  <span class="hljs-string">&quot;./store.json&quot;</span>
+);
+</div></code></pre>
+    <p>or</p>
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>); <span class="hljs-comment">// use import if using ES6 module</span>
 <span class="hljs-comment">// const MockServer = require(&quot;@r35007/mock-server&quot;).default; // For default import</span>
 
@@ -1704,24 +1716,11 @@ app.get(<span class="hljs-string">&quot;/echo&quot;</span>, <span class="hljs-fu
   <span class="hljs-string">&quot;./middleware.js&quot;</span>,
   <span class="hljs-string">&quot;./store.json&quot;</span>
 );
-app.use(mockServer.config.base, resources);
-
-<span class="hljs-comment">// Add Custom Routes to existing default router</span>
-<span class="hljs-comment">// This Route will be listed in Home Page</span>
-mockServer.addDb({
-  <span class="hljs-string">&quot;/data&quot;</span>: {
-    <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">middlewares</span>: <span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
-      <span class="hljs-keyword">const</span> store = res.locals.getStore();
-      res.locals.data = store?.data;
-      next();
-    },
-  },
-});
+app.use(resources);
 
 <span class="hljs-comment">// Create the default Routes which helps to run the Mock Server Home Page.</span>
-<span class="hljs-keyword">const</span> defaultRoutes = mockServer.defaultRoutes();
-app.use(mockServer.config.base, defaultRoutes);
+<span class="hljs-keyword">const</span> homePage = mockServer.homePage();
+app.use(homePage);
 
 app.use(mockServer.pageNotFound); <span class="hljs-comment">// Middleware to return `Page Not Found` as response if the route doesn&#x27;t match</span>
 app.use(mockServer.errorHandler); <span class="hljs-comment">// Default Error Handler</span>
@@ -1952,7 +1951,7 @@ mockServer.startServer();
         href="http://localhost:3000/fetch/users/customMiddleware">http://localhost:3000/fetch/users/customMiddleware</a>.
     </p>
     <h3 id="ignore-middleware-wrappers"><strong>Ignore Middleware Wrappers</strong></h3>
-  <p>Usually all the middewares in the route will be wrapped by some helper middlewares to set delay, get fetch data,
+  <p>Usually all the middlewares in the route will be wrapped by some helper middlewares to set delay, get fetch data,
     set locals etc..
     If we wish to provide a middlewares without any wrappers set <code>ignoreMiddlewareWrappers</code> to
     <code>true</code>.
@@ -2376,7 +2375,7 @@ mockServer.launchServer(
   <span class="hljs-string">&quot;/route5&quot;</span>: { <span class="hljs-attr">_config</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">mock</span>: <span class="hljs-string">&quot;My Response&quot;</span> } <span class="hljs-comment">// Config object wont be changed</span>
 }
 </div></code></pre>
-    <h2 id="default-routes">Default Routes</h2>
+    <h2 id="home-page-routes">Home Page Routes</h2>
     <ul>
       <li><code>Home Page</code> - <a href="http://localhost:3000">http://localhost:3000</a></li>
       <li><code>Db</code> - <a href="http://localhost:3000/_db">http://localhost:3000/_db</a></li>
@@ -2617,34 +2616,11 @@ app.use(resources);
         </tr>
       </tbody>
     </table>
-    <h3 id="defaultroutes"><strong>defaultRoutes</strong></h3>
-    <p>Returns router with some default routes.</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaultsRoutes = mockServer.defaultRoutes();
-app.use(defaultsRoutes);
+    <h3 id="homepage"><strong>homePage</strong></h3>
+  <p>Returns Mock Server Home Page router.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> homePage = mockServer.homePage();
+app.use(homePage);
 </div></code></pre>
-    <h3 id="adddb"><strong>addDb</strong></h3>
-    <p>adds a new data to the existing db.</p>
-    <pre><code class="language-js"><div>mockServer.addDb(db);
-</div></code></pre>
-    <p><strong><code>Params</code></strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>db</td>
-          <td>object</td>
-          <td>No</td>
-          <td>Give the new data to add to existing Db</td>
-        </tr>
-      </tbody>
-    </table>
     <h3 id="startserver"><strong>startServer</strong></h3>
     <p>Returns a Promise of <code>Server</code>. - helps to start the app server externally</p>
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> server = <span class="hljs-keyword">await</span> mockServer.startServer(<span class="hljs-number">3000</span>, <span class="hljs-string">&quot;localhost&quot;</span>);
@@ -2750,12 +2726,13 @@ app.use(defaultsRoutes);
 <span class="hljs-comment">//or</span>
 
 <span class="hljs-comment">// Please follow the same following order of setting the data</span>
-mockServer.setConfig(config);
-mockServer.setMiddlewares(middlewares);
-mockServer.setInjectors(injectors);
-mockServer.setRewriters(rewriters);
-mockServer.setStore(store);
-mockServer.setDb(Db, { reverse, mode });
+<span class="hljs-comment">// If merge param is true. it adds the data with the existing data.</span>
+mockServer.setConfig(config, merge);
+mockServer.setMiddlewares(middlewares, merge);
+mockServer.setInjectors(injectors, merge);
+mockServer.setRewriters(rewriters, merge);
+mockServer.setStore(store, merge);
+mockServer.setDb(Db, merge);
 </div></code></pre>
 <h3 id="validators"><strong>Validators</strong></h3>
 <p>These helps to return a valid data from provided file path or object.</p>
