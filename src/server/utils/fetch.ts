@@ -110,20 +110,16 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
   let fetchData: ValidTypes.FetchData = { isError: false };
   try {
     if ([".json", ".jsonc", ".har"].includes(extension)) {
-      console.log(chalk.gray("Fetch request : "), filePath);
       const str = fs.readFileSync(filePath, "utf-8");
       fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     } else if (extension === ".txt") {
-      console.log(chalk.gray("Fetch request : "), filePath);
       fetchData.response = fs.readFileSync(filePath, "utf8")
     } else {
-      console.log(chalk.gray("Fetch request : "), filePath);
       const str = fs.readFileSync(filePath, "utf-8");
       fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     }
   } catch (err) {
-    console.error(chalk.red(`Invalid Path: ${filePath}`));
-    console.error(err);
+    console.error(chalk.red(err.message));
     fetchData = {
       isError: true,
       stack: err.stack,
@@ -137,7 +133,6 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
 
 export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidTypes.FetchData> => {
   let fetchData: ValidTypes.FetchData = { isError: false, };
-  console.log(chalk.gray("Fetch request : "), request);
   try {
     if (request.url?.match(/\.(jpeg|jpg|gif|png)$/gi)) {
       fetchData.response = `<img src="${request.url}">`;
@@ -155,7 +150,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
       }
     }
   } catch (err) {
-    console.error(err);
+    console.error(chalk.red(err.message));
     fetchData = {
       isError: true,
       stack: err.stack,

@@ -113,7 +113,7 @@ module.exports = {
   },
   "/fetch/image/url": {
     "_config": true,
-    "fetch": "https://via.placeholder.com/600/771796"
+    "fetch": "https://r35007.github.io/Mock-Server/images/mockserverlogo.png"
   },
   "/fetch/todos/fetchCount/3/times": {
     "_config": true,

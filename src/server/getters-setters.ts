@@ -3,7 +3,7 @@ import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
 import * as Defaults from './defaults';
-import { GetData, GetValidDbOptions } from "./types/common.types";
+import { GetData } from "./types/common.types";
 import * as Params from "./types/param.types";
 import * as ValidTypes from "./types/valid.types";
 import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidStore } from './utils/validators';
@@ -17,7 +17,6 @@ export class GettersSetters {
   listeningTo: string | undefined; // gives -> http://${host}:${port}/${base} -> http://localhost:3000/api
 
   app!: express.Application;
-  router!: express.Router;
   routes!: string[];
 
   initialDb!: ValidTypes.Db;
@@ -30,7 +29,7 @@ export class GettersSetters {
   #rewriters!: ValidTypes.Rewriters;
 
   constructor(config?: Params.Config) {
-    console.log("\n" + chalk.blueBright("{^_^}/~ Hi!"));
+    console.log("\n" + chalk.blueBright("{^_^}/~ Hi!") + "\n");
     this.init();
     this.setConfig(config);
   }
@@ -52,7 +51,6 @@ export class GettersSetters {
     this.listeningTo = undefined;
 
     this.app = express().set("json spaces", 2);
-    this.router = express.Router();
     this.routes = [];
 
     this.#config = _.cloneDeep(Defaults.Config);
@@ -92,39 +90,56 @@ export class GettersSetters {
     } as GetData;
   };
 
-  setConfig(config?: Params.Config) {
-    console.log("\n" + chalk.gray("Setting Config..."));
-    this.#config = getValidConfig(config, this.#config.root);
+  setConfig(config?: Params.Config, merge?: boolean) {
+    console.log(chalk.gray("Setting Config..."));
+    const oldConfig = this.#config;
+    const newConfig = getValidConfig(config, this.#config.root);
+    this.#config = merge ? { ...oldConfig, ...newConfig } : newConfig;
     console.log(chalk.gray("Done."));
   }
 
-  setRewriters(rewriters?: Params.Rewriters) {
-    console.log("\n" + chalk.gray("Setting Rewriters..."));
-    this.#rewriters = getValidRewriters(rewriters, this.#config.root);
+  setRewriters(rewriters?: Params.Rewriters, merge?: boolean) {
+    console.log(chalk.gray("Setting Rewriters..."));
+    const oldRewriters = this.#rewriters;
+    const newRewriters = getValidRewriters(rewriters, this.#config.root);
+    this.#rewriters = merge ? { ...oldRewriters, ...newRewriters } : newRewriters;
     console.log(chalk.gray("Done."));
   }
 
-  setMiddlewares(middleware?: Params.Middlewares) {
-    console.log("\n" + chalk.gray("Setting Middleware..."));
-    this.#middlewares = getValidMiddlewares(middleware, this.#config.root);
+  setMiddlewares(middleware?: Params.Middlewares, merge?: boolean) {
+    console.log(chalk.gray("Setting Middleware..."));
+    const oldMiddlewares = this.#middlewares;
+    const newMiddlewares = getValidMiddlewares(middleware, this.#config.root);
+    this.#middlewares = merge ? { ...oldMiddlewares, ...newMiddlewares } : newMiddlewares;
     console.log(chalk.gray("Done."));
   }
 
-  setInjectors(injectors?: Params.Injectors) {
-    console.log("\n" + chalk.gray("Setting Injectors..."));
-    this.#injectors = getValidInjectors(injectors, this.#config.root);
+  setInjectors(injectors?: Params.Injectors, merge?: boolean) {
+    console.log(chalk.gray("Setting Injectors..."));
+    const oldInjectors = this.#injectors;
+    const newInjectors = getValidInjectors(injectors, this.#config.root);
+    this.#injectors = merge ? [...oldInjectors, ...newInjectors] : newInjectors;
     console.log(chalk.gray("Done."));
   }
 
-  setStore(store?: Params.Store) {
-    console.log("\n" + chalk.gray("Setting Store..."));
-    this.#store = getValidStore(store, this.#config.root);
+  setStore(store?: Params.Store, merge?: boolean) {
+    console.log(chalk.gray("Setting Store..."));
+    const oldStore = this.#store;
+    const newStore = getValidStore(store, this.#config.root);
+    this.#store = merge ? { ...oldStore, ...newStore } : newStore;
     console.log(chalk.gray("Done."));
   }
 
-  setDb(db?: Params.Db, { reverse = this.config.reverse, dbMode = this.config.dbMode }: GetValidDbOptions = {}) {
-    console.log("\n" + chalk.gray("Setting Db..."));
-    this.#db = getValidDb(db, this.#injectors, this.#config.root, { reverse, dbMode });
+  setDb(db?: Params.Db, merge?: boolean) {
+    console.log(chalk.gray("Setting Db..."));
+    const oldDb = this.#db;
+    const newDb = getValidDb(
+      db,
+      this.#injectors,
+      this.#config.root,
+      { reverse: this.config.reverse, dbMode: this.config.dbMode }
+    );
+    this.#db = merge ? { ...oldDb, ...newDb } : newDb;
     this.initialDb = _.cloneDeep(this.#db);
     console.log(chalk.gray("Done."));
   }

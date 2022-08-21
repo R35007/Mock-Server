@@ -1,11 +1,6 @@
-import * as fs from "fs";
 import * as path from "path";
 import DefaultMiddlewares from './middlewares';
 import * as ValidTypes from './types/valid.types';
-
-const userDir = path.join(process.cwd(), 'public');
-const defaultDir = path.join(__dirname, '../../public');
-const staticDir = fs.existsSync(userDir) ? userDir : defaultDir;
 
 export const Config: ValidTypes.Config = {
   port: 3000, // Set Port to 0 to pick a random available port.
@@ -14,7 +9,7 @@ export const Config: ValidTypes.Config = {
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
   dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'
-  staticDir, // Path to host a static files
+  staticDir: path.join(process.cwd(), 'public'), // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
   noCors: false, // Disable CORS

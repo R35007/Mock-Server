@@ -1,51 +1,29 @@
 const { MockServer } = require("@r35007/mock-server");
 // const MockServer = require("@r35007/mock-server").default; // For default import
 
-// Provide config as a param. If not provided, It uses the default Config.
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
-const host = 'localhost'; // Set custom host. default: "localhost"
-const config = { root: __dirname, port, host }; // Config can also be given as a path to config file
+const host = "localhost";
+const config = { root: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 
-/* Default Configs
-
-const config = {
-  port: 3000, // Set Port to 0 to pick a random available port.
-  host: "localhost", // Set custom host 
-  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
-  base: "", // Mount db on a base url
-  id: "id", // Set db id attribute.
-  dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'
-  staticDir, // Path to host a static files
-  reverse: false, // Generate routes in reverse order
-  logger: true, // Enable api logger
-  noCors: false, // Disable CORS
-  noGzip: false, // Disable data compression
-  readOnly: false, // Allow only GET calls
-  bodyParser: true, // Enable body-parser
-  cookieParser: true, // Enable cookie-parser
-}; 
-*/
-
-const app = mockServer.app; // Gives you the Express app
+const app = mockServer.app;
 
 // Make sure to use this at first, before all the resources
 const rewriter = mockServer.rewriter("./rewriters.json");
 app.use(rewriter);
 
 // Returns the default middlewares
-// Provide options here. If not provided the options are picked from the default Config
 const defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
 
 // Custom Middleware
 app.use((req, res, next) => {
   if (isAuthorized(req)) {
-    next() // continue to Mock Server router
+    next(); // continue to Mock Server router
   } else {
-    res.sendStatus(401)
+    res.sendStatus(401);
   }
-})
+});
 const isAuthorized = (req) => {
   // add your authorization logic here
   return true;
@@ -53,56 +31,39 @@ const isAuthorized = (req) => {
 
 // Custom Routes
 // This route will not be listed in Home Page.
-app.get('/echo', (req, res) => {
-  res.jsonp(req.query)
-})
+app.get("/echo", (req, res) => {
+  res.jsonp(req.query);
+});
 
-// Loaded all the resources and returns the default router
+// Loaded all the resources and returns the express router
 const resources = mockServer.resources(
   "./db.js",
   "./injectors.json",
   "./middleware.js",
   "./store.json"
 );
-app.use(mockServer.config.base, resources);
+app.use(resources);
 
-// Add Custom Routes to existing default router
-// This Route will be listed in Home Page
-mockServer.addDb({
-  "/data": {
-    _config: true,
-    middlewares: (req, res, next) => {
-      const store = res.locals.getStore();
-      res.locals.data = store?.data;
-      next();
-    }
-  }
-})
-
-// Create the default Routes which helps to run the Mock Server Home Page.
-const defaultRoutes = mockServer.defaultRoutes();
-app.use(mockServer.config.base, defaultRoutes);
+// Create the Mock Server Home Page
+const homePage = mockServer.homePage();
+app.use(homePage);
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
 app.use(mockServer.errorHandler); // Default Error Handler
 
-// Provide port and host name as a param.
-// Default port : 3000, Default host: 'localhost' 
 mockServer.startServer();
 // mockServer.startServer(port, host); // can also set port and host here
 
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
 
-/*
-mockServer.launchServer(
+/* mockServer.launchServer(
   "./db.js",
   "./injectors.json",
   "./middleware.js",
   "./rewriters.json",
   "./store.json"
-)
-*/
+) */
 
 // or
 // You can also run thru CLI command

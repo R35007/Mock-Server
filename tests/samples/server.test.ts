@@ -48,7 +48,7 @@ const server = () => {
         }
       })
 
-      const defaultRoutes = mockServer.defaultRoutes();
+      const defaultRoutes = mockServer.homePage();
       app.use(mockServer.config.base, defaultRoutes);
 
       app.use(mockServer.pageNotFound);

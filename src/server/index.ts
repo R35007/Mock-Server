@@ -2,6 +2,7 @@ import chalk from "chalk";
 import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
+import path from "path";
 import enableDestroy from 'server-destroy';
 import { GettersSetters } from './getters-setters';
 import Defaults from './middlewares/defaults';
@@ -12,7 +13,6 @@ import FinalMiddleware from './middlewares/finalMiddleware';
 import InitialMiddleware from './middlewares/initialMiddleware';
 import PageNotFound from './middlewares/pageNotFound';
 import Rewriter from './middlewares/rewriter';
-import { } from "./types/common.types";
 import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
@@ -56,18 +56,21 @@ export class MockServer extends GettersSetters {
   ): Promise<Server | undefined> => {
     const app = this.app;
 
-    const rewriter = this.rewriter(rewriters);
+    this.setData(db, injectors, middlewares, rewriters, store);
+
+    const rewriter = this.rewriter();
     app.use(rewriter);
 
     const defaults = this.defaults();
     app.use(defaults);
 
-    const resources = this.resources(db, injectors, middlewares, store);
     this.middlewares._globals && app.use(this.middlewares._globals);
+
+    const resources = this.resources();
     app.use(this.config.base, resources);
 
-    const defaultRoutes = this.defaultRoutes();
-    app.use(this.config.base, defaultRoutes);
+    const homePage = this.homePage();
+    app.use(this.config.base, homePage);
 
     app.use(this.pageNotFound);
     app.use(this.errorHandler);
@@ -91,53 +94,50 @@ export class MockServer extends GettersSetters {
     middlewares?: ParamTypes.Middlewares,
     store?: ParamTypes.Store,
   ) => {
+    const router = express.Router();
 
-    !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
-    !_.isEmpty(injectors) && this.setInjectors(injectors);
-    !_.isEmpty(store) && this.setStore(store);
-    !_.isEmpty(db) && this.setDb(db);
+    !_.isEmpty(middlewares) && this.setMiddlewares(middlewares, true);
+    !_.isEmpty(injectors) && this.setInjectors(injectors, true);
+    !_.isEmpty(store) && this.setStore(store, true);
 
-    console.log("\n" + chalk.gray("Loading Resources..."));
+    console.log(chalk.gray("Loading Resources..."));
 
-    this.router = express.Router();
-    Object.entries(this._getDb()).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
-      this.#createRoute(routePath, routeConfig, this.router)
+    const validDb = !_.isEmpty(db)
+      ? getValidDb(
+        db,
+        this.injectors,
+        this.config.root,
+        { reverse: this.config.reverse, dbMode: this.config.dbMode }
+      )
+      : this.db;
+
+    Object.entries(validDb).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
+      this.#createRoute(routePath, routeConfig, router)
     );
 
     console.log(chalk.gray("Done."));
-    return this.router;
+    return router;
   };
 
   #createRoute = (routePath: string, routeConfig: ValidTypes.RouteConfig, router: express.Router) => {
-    if (!this.routes.includes(routePath)) {
-      this.routes.push(routePath);
-      const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
 
-      if (routeConfig.ignoreMiddlewareWrappers) {
-        this.router.use(routePath, middlewareList);
-        return;
-      }
+    if (this.routes.includes(routePath)) return; // If routes are already added to resource then do nothing
 
-      router?.all(routePath, middlewareList);
-    };
-  }
+    this.routes.push(routePath);
 
-  addDb = (db: UserTypes.Db, router: express.Router = this.router) => {
-    const config = this.config;
-    const validDb = getValidDb(db, this.injectors, config.root, { reverse: config.reverse });
-
-    const existingRoutes = Object.keys(this._getDb());
-    const newDbEntries = Object.entries(validDb).filter(([routePath]) => !existingRoutes.includes(routePath));
-
-    if (!this.router) this.router = express.Router();
-
-    newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
+    if (!this._getDb()[routePath]) {
       this._getDb()[routePath] = routeConfig;
       this.initialDb[routePath] = _.cloneDeep(routeConfig);
-      this.#createRoute(routePath, routeConfig, router)
-    });
+    }
 
-    return this.router;
+    const middlewareList = this.#getMiddlewareList(routePath, routeConfig);
+
+    if (routeConfig.ignoreMiddlewareWrappers) {
+      router.use(routePath, middlewareList);
+      return;
+    }
+
+    router?.all(routePath, middlewareList);
   }
 
   #getMiddlewareList = (routePath: string, routeConfig: ValidTypes.RouteConfig) => {
@@ -158,7 +158,7 @@ export class MockServer extends GettersSetters {
 
   startServer = (port?: number, host?: string): Promise<Server | undefined> => {
 
-    if (_.isInteger(port) || _.isEmpty(host)) {
+    if (_.isInteger(port) || !_.isEmpty(host)) {
       this.setConfig({
         ...this.config,
         port: port ?? this.config.port,
@@ -181,7 +181,7 @@ export class MockServer extends GettersSetters {
       }
 
       this.server = this.app.listen(_port, _host, () => {
-        console.log(chalk.green.bold("Mock Server Started."));
+        console.log(chalk.green("Mock Server Started."));
 
         const serverAddress = this.server!.address() as { address: string; family: string; port: number; };
         this.port = serverAddress.port;
@@ -189,8 +189,7 @@ export class MockServer extends GettersSetters {
         this.listeningTo = `http://${_host}:${this.port}${_base}`;
 
 
-        console.log("\nHome");
-        console.log(this.listeningTo);
+        console.log("\nHome Page: " + chalk.green(this.listeningTo));
         console.log(chalk.gray("listening...") + "\n");
 
         enableDestroy(this.server!); // Enhance with a destroy function
@@ -251,12 +250,16 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  defaultRoutes = () => {
+  homePage = () => {
     const router = express.Router();
+
+    const homePageDir = path.join(__dirname, '../../public'); // Serve Home page files
+    router.use(express.static(homePageDir));
+
     const defaultRoutes: Array<[string, express.RequestHandler]> = [
       ["/_db/:id?", (req: express.Request, res: express.Response) => {
         if (req.method === 'POST') {
-          this.#addDb(req, res);
+          this.#addDb(req, res, router);
         } else if (req.method === 'PUT') {
           this.#updateRouteConfig(req, res);
         } else {
@@ -282,14 +285,22 @@ export class MockServer extends GettersSetters {
     return router;
   }
 
-  #addDb = (req: express.Request, res: express.Response) => {
-    const config = this.config;
-    const validDb = getValidDb(req.body, this.injectors, config.root, { reverse: config.reverse });
-    this.addDb(validDb);
+  #addDb = (req: express.Request, res: express.Response, router: express.Router) => {
+    const validDb = getValidDb(
+      req.body,
+      this.injectors,
+      this.config.root,
+      { reverse: this.config.reverse, dbMode: this.config.dbMode }
+    );
+
+    const newDbEntries = Object.entries(validDb).filter(([routePath]) => !this.routes.includes(routePath));
+
     const response = {};
-    Object.keys(validDb).forEach(key => {
-      if (this.db[key]) response[key] = this.db[key]
+    newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
+      response[routePath] = routeConfig;
+      this.#createRoute(routePath, routeConfig, router)
     });
+
     res.send(response);
   }
 

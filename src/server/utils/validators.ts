@@ -29,7 +29,7 @@ export const getValidConfig = (config?: ParamTypes.Config, rootPath: string = De
     port: isPortNaN ? Defaults.Config.port : parseInt(userConfig.port as any),
     host: userConfig.host && _.isString(userConfig.host) ? userConfig.host : Defaults.Config.host,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
-    staticDir: userConfig.staticDir && getStats(parseUrl(userConfig.staticDir, root))?.isDirectory ? parseUrl(userConfig.staticDir, root) : Defaults.Config.staticDir,
+    staticDir: typeof userConfig.staticDir !== 'undefined' ? parseUrl(userConfig.staticDir, root) : Defaults.Config.staticDir,
   };
 
   return { ...Defaults.Config, ...validConfig } as ValidTypes.Config;
@@ -98,9 +98,10 @@ export const getValidRewriters = (rewriters?: ParamTypes.Rewriters, rootPath: st
 };
 
 export const getValidDb = (
-  data?: ParamTypes.Db, injectors: UserTypes.Injectors = Defaults.Injectors,
+  data?: ParamTypes.Db, 
+  injectors: UserTypes.Injectors = Defaults.Injectors,
   rootPath: string = Defaults.Config.root,
-  { reverse, dbMode = Defaults.Config.dbMode }: GetValidDbOptions = {},
+  { reverse = Defaults.Config.reverse, dbMode = Defaults.Config.dbMode }: GetValidDbOptions = {},
 ): ValidTypes.Db => {
   const userData = requireData(data, rootPath) as HAR;
 

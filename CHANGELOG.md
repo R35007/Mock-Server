@@ -1,3 +1,37 @@
+## v8.0.0
+
+- added `merge` param in all setters. If true it merges the data with the existing. 
+  For Example:
+  ```js
+  mockServer.setDb({ user:{ id: 1, name: "foo" } });
+  mockServer.setDb({ post:{ id: 1, name: "bar" } }); // replaces the previous one
+  mockServer.setDb({ comment:{ id: 1, comment: "I am Happy !" } }, true); // adds to the previous one
+
+  mockServer.db 
+  { 
+    "/post":{_config: true, mock: { id: 1, name:"bar" } } 
+    "/comment":{_config: true, mock: { id: 1, comment: "I am Happy !" } } 
+  }
+  ```
+- renamed `defaultRoutes` to `homePage`. Now we can use `mockServer.homePage` which returns the hoePage router.
+- removed - `mockServer.router`
+- removed - `mockServer.addDb` instead use `mockServer.resource`
+- update - `mockServer.resources` will always return the new router and if repeated it will add the resource to the existing resources.
+  For Example: 
+  ```js
+  const user = mockServer.resources({ user:{ id: 1, name: "foo" } }); // creates user resource
+  mockServer.app.use(user);
+  const post = mockServer.resources({ post:{ id: 1, name: "bar" } }); // creates post resource. this resource will be added in db with the existing resources.
+  mockServer.app.use(post);
+
+  mockServer.db 
+  { 
+    "/user":{_config: true, mock: { id: 1, name:"foo" } } 
+    "/post":{_config: true, mock: { id: 1, name:"bar" } } 
+  }
+  ```
+- updated `config.staticDir` - It uses `./public` directory as the default static host directory. Set it to empty string to avoid hosting static dir.
+
 ## v7.3.0
 
 - renamed `mode` to `dbMode` in config.

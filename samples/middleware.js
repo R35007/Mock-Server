@@ -4,7 +4,7 @@
 */
 exports._globals = [
   (req, res, next) => {
-    console.log(req.path);
+    console.log(req.originalUrl);
     next();
   }
 ]

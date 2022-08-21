@@ -4,6 +4,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import fs from 'fs';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
 import * as Defaults from '../defaults';
@@ -20,11 +21,12 @@ export default (opts: Default_Options) => {
   const arr: any[] = [];
 
   // Serve static files
-  if (_opts.staticDir) {
+  if (fs.existsSync(_opts.staticDir)) {
     const router = express.Router();
     router.use(_opts.base, express.static(_opts.staticDir))
     arr.push(router);
   }
+
   // gives response time in Response Header X-Response-Time
   arr.push(responseTime({ suffix: false }));
 

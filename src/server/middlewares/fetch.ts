@@ -1,5 +1,4 @@
 import { AxiosRequestConfig } from 'axios';
-import chalk from 'chalk';
 import _ from 'lodash';
 import { Locals } from '../types/common.types';
 import { cleanObject, interpolate } from '../utils';
@@ -95,7 +94,6 @@ const getUrlDetail = (req, res) => {
   } else {
     const parsedUrl = parseUrl(request.url, locals.config.root).replace(/\\/g, "/");
     const interpolatedUrl = interpolate({ config: locals.config, req: _.cloneDeep(req) }, parsedUrl);
-    console.log(chalk.gray("parsed Fetch url : "), chalk.green(interpolatedUrl));
     const stats = getStats(interpolatedUrl);
     request.url = interpolatedUrl;
     delete request.headers;

@@ -74,28 +74,32 @@
       </nav>
       <main class="position-relative">
         <div class="main-content-wrapper">
-          <nav class="navbar w-100 navbar-expand-lg navbar-light bg-light position-sticky top-0">
-            <div class="container-fluid">
-              <h5 class="p-0 m-0"> Resources </h5>
-              <h6 class="mb-0"><span id="resources-count" class="badge bg-secondary"
-                  style="font-size: 0.7rem; margin: 0 1rem;"></span></h6>
-              <div class="flex-1">
-                <form class="d-flex align-items-center w-100 justify-content-end">
-                  <input type="search" id="search" class="form-control bg-white search me-2" oninput="filterRoutes()"
-                    placeholder="Search resources here" aria-label="Search" />
-                  <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><i
-                      class="fas fa-sync-alt"></i></span>
-                </form>
+          <div id="routes-container">
+            <nav class="navbar w-100 navbar-expand-lg navbar-light bg-light position-sticky top-0 px-3">
+              <div class="container-fluid">
+                <h5 class="p-0 m-0">Resources</h5>
+                <h6 class="mb-0"><span id="resources-count" class="badge bg-secondary"
+                    style="font-size: 0.7rem; margin: 0 1rem;"></span></h6>
+                <div class="flex-1">
+                  <form class="d-flex align-items-center w-100 justify-content-end">
+                    <input type="search" id="search" class="form-control bg-white search me-2" oninput="filterRoutes()"
+                      placeholder="Search resources here" aria-label="Search" />
+                    <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><i
+                        class="fas fa-sync-alt"></i></span>
+                  </form>
+                </div>
               </div>
-            </div>
-          </nav>
-          <section id="routes-list">
+            </nav>
             <ul id="resources-list" class="nav nav-pills p-4 flex-column m-0"></ul>
-            <div id="rewriters-container" style="display: none">
-              <h5 class="mx-4">Route Rewriters</h5>
-              <ul id="rewriters-list" class="nav nav-pills p-4 flex-column m-0"></ul>
-            </div>
-          </section>
+          </div>
+          <div id="rewriters-container" style="display: none">
+            <nav class="navbar w-100 navbar-expand-lg navbar-light bg-light position-sticky top-0 px-3">
+              <div class="container-fluid">
+                <h5 class="p-0 m-0">Route Rewriters</h5>
+              </div>
+            </nav>
+            <ul id="rewriters-list" class="nav nav-pills p-4 flex-column m-0"></ul>
+          </div>
           <footer>
             <p>
               <span>To access and modify resources, you can use any HTTP method:</span><br>
@@ -222,8 +226,8 @@
               <label for="skipFetchError" class="col-sm-2 col-form-label">Skip Fetch Error</label>
               <div class="col-sm-10 d-flex align-items-center">
                 <div class="form-check form-switch">
-                  <input class="form-check-input shadow-none" type="checkbox" name="skipFetchError"
-                    id="skipFetchError" value="true">
+                  <input class="form-check-input shadow-none" type="checkbox" name="skipFetchError" id="skipFetchError"
+                    value="true">
                 </div>
               </div>
             </div>

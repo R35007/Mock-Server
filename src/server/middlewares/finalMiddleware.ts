@@ -1,6 +1,15 @@
+import _ from 'lodash';
 import { Locals } from '../types/common.types';
+import { interpolate } from '../utils';
 
-export default async (_req, res, _next) => {
+const sendResponse = (req, res, response) => {
+  const locals = <Locals>res.locals;
+  if (typeof response === "object") return res.jsonp(response);
+  if (typeof response === "string") return res.send(interpolate({ config: locals.config, req: _.cloneDeep(req) }, response));
+  res.send(response);
+}
+
+export default async (req, res, _next) => {
   try {
     const locals = <Locals>res.locals;
     const routeConfig = locals.routeConfig
@@ -14,6 +23,8 @@ export default async (_req, res, _next) => {
 
       if (locals.data !== undefined) {
         const fetchData = routeConfig.fetchData;
+
+        // Set status from fetchData
         if (fetchData && fetchData.status) {
           if (fetchData.isError) {
             !routeConfig.skipFetchError && res.status(fetchData.status);
@@ -21,16 +32,16 @@ export default async (_req, res, _next) => {
             res.status(fetchData.status);
           }
         }
-        typeof response === "object" ? res.jsonp(response) : res.send(response);
+        sendResponse(req, res, response);
       } else if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt", ""].includes(routeConfig._extension || '')) {
         if (routeConfig.fetchCount == 0) {
-          res.send(locals.routeConfig.mock || {});
+          sendResponse(req, res, locals.routeConfig.mock || {});
           return;
         }
         locals.routeConfig.fetchCount!--;
         res.sendFile(locals.routeConfig._request!.url!);
       } else {
-        typeof response === "object" ? res.jsonp(response) : res.send(response);
+        sendResponse(req, res, response);
       }
     }
   } catch (err) {

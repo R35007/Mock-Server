@@ -52,7 +52,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Dynamic Route Config](#dynamic-route-config)
 - [Config](#config)
   - [Db Mode](#db-mode)
-- [Default Routes](#default-routes)
+- [Home Page](#home-page)
 - [CLI Usage](#cli-usage)
 - [API](#api)
   - [MockServer](#mockserver)
@@ -62,8 +62,7 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [rewriter](#rewriter)
   - [defaults](#defaults)
   - [resources](#resources)
-  - [defaultRoutes](#defaultroutes)
-  - [addDb](#adddb)
+  - [homePage](#homepage)
   - [startServer](#startserver)
   - [stopServer](#stopserver)
   - [resetServer](#resetserver)
@@ -180,24 +179,11 @@ const resources = mockServer.resources(
   "./middleware.js",
   "./store.json"
 );
-app.use(mockServer.config.base, resources);
-
-// Add Custom Routes to existing default router
-// This Route will be listed in Home Page
-mockServer.addDb({
-  "/data": {
-    _config: true,
-    middlewares: (req, res, next) => {
-      const store = res.locals.getStore();
-      res.locals.data = store?.data;
-      next();
-    },
-  },
-});
+app.use(resources);
 
 // Create the default Routes which helps to run the Mock Server Home Page.
-const defaultRoutes = mockServer.defaultRoutes();
-app.use(mockServer.config.base, defaultRoutes);
+const homePage = mockServer.homePage();
+app.use(homePage);
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
 app.use(mockServer.errorHandler); // Default Error Handler
@@ -1003,7 +989,7 @@ const db = {
 }
 ```
 
-## Default Routes
+## Home Page
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
 - `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
@@ -1172,28 +1158,14 @@ app.use(resources);
 | middleware | string / object | No       | Here you initialize the needed custom middleware        |
 | store      | string / object | No       | Helps to store values and share between routes          |
 
-### **defaultRoutes**
+### **homePage**
 
-Returns router with some default routes.
-
-```js
-const defaultsRoutes = mockServer.defaultRoutes();
-app.use(defaultsRoutes);
-```
-
-### **addDb**
-
-adds a new data to the existing db.
+Returns Mock Server Home Page router.
 
 ```js
-mockServer.addDb(db);
+const homePage = mockServer.homePage();
+app.use(homePage);
 ```
-
-**`Params`**
-
-| Name | Type   | Required | Description                             |
-| ---- | ------ | -------- | --------------------------------------- |
-| db   | object | No       | Give the new data to add to existing Db |
 
 ### **startServer**
 
@@ -1273,8 +1245,8 @@ const  address: string | undefined; // gives host ip address.
 const  listeningTo: string | undefined; // gives -> http://${host}:${port}/${base} -> http://localhost:3000/api
 
 const app = mockServer.app;
-const router = mockServer.router;
-const { db, injectors, middlewares, rewriters, config, store } = mockServer.data;
+const data = mockServer.data; 
+// const { db, injectors, middlewares, rewriters, config, store } = mockServer.data
 
 const db = mockServer.db;
 const middleware = mockServer.middleware;
@@ -1293,12 +1265,13 @@ mockServer.setData(db, injectors, middlewares, rewriters, store, config);
 //or
 
 // Please follow the same following order of setting the data
-mockServer.setConfig(config);
-mockServer.setMiddlewares(middlewares);
-mockServer.setInjectors(injectors);
-mockServer.setRewriters(rewriters);
-mockServer.setStore(store);
-mockServer.setDb(Db, { reverse, mode });
+// If merge param is true. it adds the data with the existing data.
+mockServer.setConfig(config, merge);
+mockServer.setMiddlewares(middlewares, merge);
+mockServer.setInjectors(injectors, merge);
+mockServer.setRewriters(rewriters, merge);
+mockServer.setStore(store, merge);
+mockServer.setDb(Db, merge);
 ```
 
 ### **Validators**

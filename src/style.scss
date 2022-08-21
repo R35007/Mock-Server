@@ -99,10 +99,8 @@
         }
       }
 
-      #routes-list {
-        background: var(--bs-white);
+      #routes-container {
         min-height: calc(100vh - 20rem);
-
         #resources-list {
           margin: 1rem 1.5rem;
           list-style: none;
@@ -118,7 +116,9 @@
             }
           }
         }
+      }
 
+      #rewriters-container {
         #rewriters-list {
           .nav-item {
             .nav-link {
@@ -126,7 +126,11 @@
             }
           }
         }
+      }
 
+      #routes-container,
+      #rewriters-container {
+        background: var(--bs-white);
         .nav-item {
           position: relative;
           border-radius: 0.2rem;

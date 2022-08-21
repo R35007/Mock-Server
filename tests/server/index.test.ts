@@ -238,7 +238,7 @@ const defaultRoutes = () => {
       const resources = mockServer.resources(mockDb, [], mockMiddleware, mockStore);
       mockServer.app.use(resources);
 
-      defaultRoutes = mockServer.defaultRoutes();
+      defaultRoutes = mockServer.homePage();
       mockServer.app.use(mockServer.config.base, defaultRoutes);
 
       return mockServer.startServer();
