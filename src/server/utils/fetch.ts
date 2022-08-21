@@ -29,7 +29,7 @@ export const requireFile = (directoryPath: string, excludeFolders: string[] = []
     }
   } catch (error) {
     console.log(chalk.red(`Error reading ${file.filePath}`));
-    console.error(error);
+    console.error(error.message);
     return;
   }
 };
@@ -49,7 +49,7 @@ export const getObject = (files: PathDetails[]): object => {
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.error(error);
+      console.error(error.message);
       return mock;
     }
   }, {});
@@ -71,7 +71,7 @@ export const getList = (files: PathDetails[]): any[] => {
       }
     } catch (error) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.error(error);
+      console.error(error.message);
       return mock;
     }
   }, [] as any[]);

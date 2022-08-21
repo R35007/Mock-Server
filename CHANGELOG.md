@@ -1,3 +1,7 @@
+## v8.0.1
+
+- removed unwanted console logs. 
+
 ## v8.0.0
 
 - added `merge` param in all setters. If true it merges the data with the existing. 

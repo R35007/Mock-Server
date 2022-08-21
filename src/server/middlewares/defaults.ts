@@ -51,8 +51,7 @@ export default (opts: Default_Options) => {
   // Logger
   if (_opts.logger) {
     arr.push(morgan('dev', {
-      skip: req => process.env.NODE_ENV === 'test' ||
-        req.url === '/favicon.ico'
+      skip: (req) => process.env.NODE_ENV === 'test' || req.url?.includes('/mock-server-assets/') || false
     }));
   }
 

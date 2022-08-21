@@ -91,47 +91,36 @@ export class GettersSetters {
   };
 
   setConfig(config?: Params.Config, merge?: boolean) {
-    console.log(chalk.gray("Setting Config..."));
     const oldConfig = this.#config;
     const newConfig = getValidConfig(config, this.#config.root);
     this.#config = merge ? { ...oldConfig, ...newConfig } : newConfig;
-    console.log(chalk.gray("Done."));
   }
 
   setRewriters(rewriters?: Params.Rewriters, merge?: boolean) {
-    console.log(chalk.gray("Setting Rewriters..."));
     const oldRewriters = this.#rewriters;
     const newRewriters = getValidRewriters(rewriters, this.#config.root);
     this.#rewriters = merge ? { ...oldRewriters, ...newRewriters } : newRewriters;
-    console.log(chalk.gray("Done."));
   }
 
   setMiddlewares(middleware?: Params.Middlewares, merge?: boolean) {
-    console.log(chalk.gray("Setting Middleware..."));
     const oldMiddlewares = this.#middlewares;
     const newMiddlewares = getValidMiddlewares(middleware, this.#config.root);
     this.#middlewares = merge ? { ...oldMiddlewares, ...newMiddlewares } : newMiddlewares;
-    console.log(chalk.gray("Done."));
   }
 
   setInjectors(injectors?: Params.Injectors, merge?: boolean) {
-    console.log(chalk.gray("Setting Injectors..."));
     const oldInjectors = this.#injectors;
     const newInjectors = getValidInjectors(injectors, this.#config.root);
     this.#injectors = merge ? [...oldInjectors, ...newInjectors] : newInjectors;
-    console.log(chalk.gray("Done."));
   }
 
   setStore(store?: Params.Store, merge?: boolean) {
-    console.log(chalk.gray("Setting Store..."));
     const oldStore = this.#store;
     const newStore = getValidStore(store, this.#config.root);
     this.#store = merge ? { ...oldStore, ...newStore } : newStore;
-    console.log(chalk.gray("Done."));
   }
 
   setDb(db?: Params.Db, merge?: boolean) {
-    console.log(chalk.gray("Setting Db..."));
     const oldDb = this.#db;
     const newDb = getValidDb(
       db,
@@ -141,6 +130,5 @@ export class GettersSetters {
     );
     this.#db = merge ? { ...oldDb, ...newDb } : newDb;
     this.initialDb = _.cloneDeep(this.#db);
-    console.log(chalk.gray("Done."));
   }
 }

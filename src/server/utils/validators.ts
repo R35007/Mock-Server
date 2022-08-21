@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import express from "express";
 import * as _ from "lodash";
 import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
@@ -13,8 +12,6 @@ export const getValidConfig = (config?: ParamTypes.Config, rootPath: string = De
   const userConfig = requireData(config, rootPath) as UserTypes.Config;
 
   if (_.isEmpty(userConfig) || !_.isPlainObject(userConfig)) {
-    console.log(chalk.yellow("  Oops, Config doesn't seem to exist."));
-    console.log(chalk.yellow("  Using default Config."));
     return _.cloneDeep(Defaults.Config);
   }
 
@@ -39,7 +36,6 @@ export const getValidMiddlewares = (middlewares?: ParamTypes.Middlewares, rootPa
   const userMiddlewares = requireData(middlewares, rootPath) as UserTypes.Middlewares;
 
   if (_.isEmpty(userMiddlewares) || !_.isPlainObject(userMiddlewares)) {
-    console.log(chalk.yellow("  Oops, Middlewares doesn't seem to exist."));
     return _.cloneDeep(Defaults.Middlewares);
   }
 
@@ -66,7 +62,6 @@ export const getValidInjectors = (injectors?: ParamTypes.Injectors, rootPath: st
   const userInjectors = requireData(injectors, rootPath, true) as UserTypes.Injectors;
 
   if (_.isEmpty(userInjectors) || !_.isArray(userInjectors) || !isCollection(userInjectors)) {
-    console.log(chalk.yellow("  Oops, Injectors doesn't seem to exist."));
     return _.cloneDeep(Defaults.Injectors);
   }
 
@@ -79,7 +74,6 @@ export const getValidStore = (store?: ParamTypes.Store, rootPath: string = Defau
   const userStore = requireData(store, rootPath) as UserTypes.Store;
 
   if (_.isEmpty(userStore) || !_.isPlainObject(userStore)) {
-    console.log(chalk.yellow("  Oops, Store doesn't seem to exist."));
     return _.cloneDeep(Defaults.Store);
   }
 
@@ -90,7 +84,6 @@ export const getValidRewriters = (rewriters?: ParamTypes.Rewriters, rootPath: st
   const userRewriters = requireData(rewriters, rootPath) as UserTypes.Rewriters;
 
   if (_.isEmpty(userRewriters) || !_.isPlainObject(userRewriters)) {
-    console.log(chalk.yellow("  Oops, Route Rewriters doesn't seem to exist."));
     return _.cloneDeep(Defaults.Rewriters);
   }
 
@@ -106,7 +99,6 @@ export const getValidDb = (
   const userData = requireData(data, rootPath) as HAR;
 
   if (_.isEmpty(userData) || !_.isPlainObject(userData)) {
-    console.log(chalk.yellow("  Oops, Db doesn't seem to exist."));
     return _.cloneDeep(Defaults.Db);
   }
 

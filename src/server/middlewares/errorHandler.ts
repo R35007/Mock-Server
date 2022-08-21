@@ -11,7 +11,7 @@ export default (err, _req, res, next) => {
     res.send(err.message || "Internal Server Error")
     if (err.message !== "Page Not Found") {
       console.log(chalk.red("\nError. Something went wrong !"));
-      console.log(chalk.gray(err.stack) + "\n");
+      console.log(chalk.gray(err.message) + "\n");
     }
   }
 };

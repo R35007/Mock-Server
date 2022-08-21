@@ -262,7 +262,7 @@ export const extractDbFromHAR = (
     const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, _harEntryCallback, iterateDuplicateRoutes);
     return _harDbCallback?.(har, dbFromHar) || dbFromHar
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     return
   }
 }
@@ -280,7 +280,7 @@ export const extractDbFromKibana = (
     const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, _kibanaHitsCallback, iterateDuplicateRoutes);
     return _KibanaDbCallback?.(kibana, dbFromHits) || dbFromHits
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     return
   }
 }
@@ -295,7 +295,7 @@ export const interpolate = (object: Object, format: string = "") => {
     const values = _.values(object);
     return new Function(...keys, `return \`${format}\`;`)(...values);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return format;
   }
 };
