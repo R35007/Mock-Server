@@ -28,12 +28,13 @@ const server = () => {
         res.jsonp(req.query)
       })
 
-      const resources = mockServer.resources(
-        "./db.json",
-        "./injectors.json",
-        "./middleware.js",
-        "./store.json"
-      );
+      mockServer.setData({
+        injectors: "./injectors.json",
+        middlewares: "./middleware.js",
+        store: "./store.json"
+      })
+
+      const resources = mockServer.resources("./db.json");
       app.use(mockServer.config.base, resources);
 
       const dataResources = mockServer.resources({

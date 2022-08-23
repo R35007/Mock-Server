@@ -82,16 +82,16 @@ const startServer = async (
         try {
           console.log("\n" + chalk.yellow(_path) + chalk.gray(` has changed, reloading...`));
           mockServer.server && await mockServer.stopServer();
-          !mockServer.server && await mockServer.launchServer(db, middlewares, injectors, rewriters, store);
+          !mockServer.server && await mockServer.launchServer(db, { middlewares, injectors, rewriters, store });
           console.log(chalk.gray('watching for changes...'));
           console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
         } catch (err) {
           console.error(err.message);
         }
       });
-      !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
+      !mockServer.server && await mockServer.launchServer(db, { injectors, middlewares, rewriters, store });
     } else {
-      !mockServer.server && await mockServer.launchServer(db, injectors, middlewares, rewriters, store);
+      !mockServer.server && await mockServer.launchServer(db, { injectors, middlewares, rewriters, store });
     }
   } catch (err) {
     console.error(err.message);

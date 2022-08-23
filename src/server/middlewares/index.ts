@@ -1,7 +1,14 @@
 import * as _ from 'lodash';
 import { Locals } from "../types/common.types";
 import CRUD from '../utils/crud';
-import { Fetch, FetchFile, FetchUrl, setRequestUrl } from './fetch';
+import Defaults from './defaults';
+import Delay from './delay';
+import ErrorHandler from './errorHandler';
+import Fetch, { FetchFile, FetchUrl, setRequestUrl } from './fetch';
+import FinalMiddleware from './finalMiddleware';
+import InitialMiddleware from './initialMiddleware';
+import PageNotFound from './pageNotFound';
+import Rewriter from './rewriter';
 
 const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
@@ -149,7 +156,7 @@ const _FetchFile = (req, res, next) => {
   FetchFile(req, res, next);
 }
 
-const DefaultMiddlewares = {
+const HelperMiddlewares = {
   _IterateResponse,
   _IterateRoutes,
   _CrudOperation,
@@ -165,4 +172,15 @@ const DefaultMiddlewares = {
   _FetchUrl
 }
 
-export default DefaultMiddlewares;
+export {
+  InitialMiddleware,
+  Delay,
+  Defaults,
+  Fetch,
+  Rewriter,
+  PageNotFound,
+  ErrorHandler,
+  FinalMiddleware,
+};
+
+export default HelperMiddlewares;

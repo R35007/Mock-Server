@@ -4,7 +4,7 @@ import { Locals } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 import { setRequestUrl } from './fetch';
 
-export default (routePath: string, getDb: () => ValidTypes.Db, config: ValidTypes.Config, getStore: () => ValidTypes.Store) => {
+export default (routePath: string, config: ValidTypes.Config, getDb: () => ValidTypes.Db, getStore: () => ValidTypes.Store) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       const routeConfig = getDb()[routePath] || {} as ValidTypes.RouteConfig;

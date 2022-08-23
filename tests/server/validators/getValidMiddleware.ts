@@ -24,7 +24,8 @@ export const shouldGetValidMiddleware = () => {
         ["valid .js file", "./middlewares.js", expectedMiddleware],
         ["valid folder", "./", expectedMiddleware],
       ])('If %s path is passed', (_condition, middlewaresPath, expected) => {
-        const middlewares = getValidMiddlewares(middlewaresPath as string, path.join(__dirname, "../../mock/middlewares"));
+        const rootPath = path.join(__dirname, "../../mock/middlewares");
+        const middlewares = getValidMiddlewares(middlewaresPath as string, { rootPath });
         expect(middlewares).toEqual(expected);
       });
     });

@@ -86,7 +86,7 @@ const setDb = () => {
       expect(mockServer.data.db).toEqual({});
     });
 
-    it('should set custom db with rever order', async () => {
+    it('should set custom db with reverse order', async () => {
       const db = { "/posts": { id: "1", name: "Siva" }, "/comments": { id: "1", postId: "1", name: "Siva" } }
       const injectors = [{ routes: ["/posts"], delay: 1000 }]
 
@@ -110,7 +110,7 @@ const setDb = () => {
       expect(Object.keys(mockServer.data.db)[0]).toBe("/comments")
     });
 
-    it('should set custom db without rever order', async () => {
+    it('should set custom db without reverse order', async () => {
       const db = { "/posts": { id: "1", name: "Siva" }, "/comments": { id: "1", postId: "1", name: "Siva" } }
       const injectors = [{ routes: ["/posts"], delay: 1000 }]
 
@@ -197,7 +197,7 @@ const setData = () => {
       const rewriters = { "/api/*": "/$1" }
       const config = { root: __dirname }
 
-      mockServer.setData(db, injectors, middlewares, rewriters, store, config);
+      mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
       expect(mockServer.data.db).toEqual({
         "/comments": {
           _config: true,
@@ -238,7 +238,7 @@ const getData = () => {
 }
 
 describe("Getter and Setter", () => {
-  constructor(); // Create a MockServer instane with a custom config
+  constructor(); // Create a MockServer instance with a custom config
   setConfig(); // Set config
   setMiddleware(); // Set middlewares
   setInjectors(); // Set injectors

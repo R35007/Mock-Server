@@ -121,77 +121,77 @@ const { MockServer } = require("@r35007/mock-server");
 const config = { root: __dirname };
 const mockServer = MockServer.Create(config);
 
-mockServer.launchServer(
-  "./db.js",
-  "./injectors.json",
-  "./middleware.js",
-  "./rewriters.json",
-  "./store.json"
-);
+mockServer.launchServer("./db.js", {
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  rewriters: "./rewriters.json",
+  store: "./store.json",
+});
 ```
 
 or
 
 ```js
-const { MockServer } = require("@r35007/mock-server"); // use import if using ES6 module
+const { MockServer } = require("@r35007/mock-server");
 // const MockServer = require("@r35007/mock-server").default; // For default import
 
-// Provide config as a param. If not provided, It uses the default Config.
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
-const host = "localhost"; // Set custom host. default: 'localhost'
-const config = { root: __dirname, port, host }; // Config can also be given as a path to config file
+const host = "localhost";
+const config = { root: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 
-const app = mockServer.app; // Gives you the Express app
+const app = mockServer.app;
 
 // Make sure to use this at first, before all the resources
 const rewriter = mockServer.rewriter("./rewriters.json");
 app.use(rewriter);
 
 // Returns the default middlewares
-// Provide options here. If not provided the options are picked from the default Config
 const defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
 
+// add your authorization logic here
+const isAuthorized = (_req) => true;
+
 // Custom Middleware
 app.use((req, res, next) => {
-  if (isAuthorized(req)) {
-    next(); // continue to Mock Server router
-  } else {
-    res.sendStatus(401);
-  }
+  if (isAuthorized(req)) return next(); // continue to Mock Server router
+  res.sendStatus(401);
 });
-const isAuthorized = (req) => {
-  // add your authorization logic here
-  return true;
-};
+
 
 // Custom Routes
 // This route will not be listed in Home Page.
-app.get("/echo", (req, res) => {
-  res.jsonp(req.query);
-});
+app.get("/echo", (req, res) => res.jsonp(req.query));
 
-// Loaded all the resources and returns the default router
-const resources = mockServer.resources(
-  "./db.js",
-  "./injectors.json",
-  "./middleware.js",
-  "./store.json"
-);
+// Sets global injectors, middlewares and store
+mockServer.setData({
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  store: "./store.json"
+})
+
+// Creates resources and returns the express router
+const resources = mockServer.resources("./db.js");
 app.use(resources);
 
-// Create the default Routes which helps to run the Mock Server Home Page.
+// Create new Resource with custom injectors. 
+// This db will be added to existing mockServer.db 
+// This injectors will not added to global injectors
+const newResource = mockServer.resources(
+  { "newRoute": "This is a new Route" },
+  { injectors: [{ routes: ["/(.*)"], description: "This description will only be added to this route" }] });
+app.use(newResource);
+
+// Create the Mock Server Home Page
 const homePage = mockServer.homePage();
 app.use(homePage);
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
 app.use(mockServer.errorHandler); // Default Error Handler
 
-// Provide port and host name as a param.
-// Default port : 3000, Default host: 'localhost'
 mockServer.startServer();
-// mockServer.startServer(0, 'localhost'); // can also set port and host here
+// mockServer.startServer(port, host); // can also set port and host here
 ```
 
 Now go to terminal and type the following command to start the Mock Server.
@@ -806,12 +806,11 @@ Create a `rewriters.json` file. Pay attention to start every route with `/`.
 
 ```js
 const mockServer = MockServer.Create();
-mockServer.launchServer(
-  "./db.json",
-  "./injectors.json",
-  "./middleware.js",
-  "./rewriters.json"
-);
+mockServer.launchServer("./db.json", {
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  rewriters: "./rewriters.json",
+});
 ```
 
 Now you can access resources using additional routes.
@@ -1043,9 +1042,9 @@ const mockServer = new MockServer("./config.json");
 
 **`Params`**
 
-| Name   | Type            | Required | Description                           |
-| ------ | --------------- | -------- | ------------------------------------- |
-| config | string / object | No       | This object sets the port, host etc.. |
+| Name   | Type          | Required | Description                           |
+| ------ | ------------- | -------- | ------------------------------------- |
+| config | string/object | No       | This object sets the port, host etc.. |
 
 ### **Create**
 
@@ -1082,24 +1081,30 @@ await MockServer.Destroy(mockServer);
 It validates all the params in the MockServer, loads the resources and starts the server.
 
 ```js
-mockServer.launchServer(
-  "./db.json",
-  "./injectors.json",
-  "./middleware.js",
-  "./rewriters.json",
-  "./store.json"
-);
+mockServer.launchServer("./db.json", {
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  rewriters: "./rewriters.json",
+  store: "./store.json",
+});
 ```
 
 **`Params`**
 
-| Name       | Type            | Required | Description                                             |
-| ---------- | --------------- | -------- | ------------------------------------------------------- |
-| db         | string / object | No       | This object generates the local rest api.               |
-| injectors  | string / object | No       | Helps to inject a route configs for the existing routes |
-| middleware | string / object | No       | Here you initialize the needed custom middleware        |
-| rewriters  | string / object | No       | Helps to set route rewriters                            |
-| store      | string / object | No       | Helps to store values and share between routes          |
+| Name    | Type                 | Required | Description                  |
+| ------- | -------------------- | -------- | ---------------------------- |
+| db      | string/object/method | No       | Set db resource              |
+| options | object               | No       | option to create db resource |
+
+**`[options]`**
+
+| Name        | Type                 | Required | Description                                |
+| ----------- | -------------------- | -------- | ------------------------------------------ |
+| injectors   | string/object/method | No       | injectors to inject routeconfig to this db |
+| middlewares | string/object/method | No       | middlewares of this db                     |
+| store       | string/object/method | No       | store of this db                           |
+| rewriters   | string/object/method | No       | rewriters of this db                       |
+| router      | Express.Router       | No       | Custom Router                              |
 
 ### **rewriter**
 
@@ -1137,26 +1142,42 @@ app.use(defaults);
 
 ### **resources**
 
-Sets the routes and returns the resources router.
+Create db resources. It uses global injectors, middlewares and config to crete db resource.
 
 ```js
-const resources = mockServer.resources(
-  "./db.json",
-  "./injectors.json",
-  "./middleware.js",
-  "./store.json"
-);
+const resources = mockServer.resources("./db.json");
+app.use(resources);
+```
+
+Create db resources with custom injectors and middlewares. It won't use global injectors and middlewares.
+It sets only db and not the injectors or middlewares.
+
+```js
+const resources = mockServer.resources("./db.json", {
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+});
 app.use(resources);
 ```
 
 **`Params`**
 
-| Name       | Type            | Required | Description                                             |
-| ---------- | --------------- | -------- | ------------------------------------------------------- |
-| db         | string / object | No       | This object generates the local rest api.               |
-| injectors  | string / object | No       | Helps to inject a route configs for the existing routes |
-| middleware | string / object | No       | Here you initialize the needed custom middleware        |
-| store      | string / object | No       | Helps to store values and share between routes          |
+| Name    | Type                 | Required | Description                  |
+| ------- | -------------------- | -------- | ---------------------------- |
+| db      | string/object/method | No       | Set db resource              |
+| options | object               | No       | option to create db resource |
+
+**`[options]`**
+
+| Name        | Type                    | Required | Description                                                                      |
+| ----------- | ----------------------- | -------- | -------------------------------------------------------------------------------- |
+| rootPath    | string                  | No       | rootPath to get db from a file                                                   |
+| dbMode      | 'mock'/ 'fetch'/'multi' | No       | dbMode to create resource                                                        |
+| injectors   | string/object/method    | No       | injectors to inject routeconfig to this db                                       |
+| middlewares | string/object/method    | No       | middlewares of this db                                                           |
+| reverse     | boolean                 | No       | If true it creates db in reverse order                                           |
+| router      | Express.Router          | No       | Custom Router                                                                    |
+| mockServer  | MockServer              | No       | Instance of the MockServer will be passed as a param if the given db is a method |
 
 ### **homePage**
 
@@ -1245,7 +1266,7 @@ const  address: string | undefined; // gives host ip address.
 const  listeningTo: string | undefined; // gives -> http://${host}:${port}/${base} -> http://localhost:3000/api
 
 const app = mockServer.app;
-const data = mockServer.data; 
+const data = mockServer.data;
 // const { db, injectors, middlewares, rewriters, config, store } = mockServer.data
 
 const db = mockServer.db;
@@ -1260,18 +1281,18 @@ const initialDb = mockServer.initialDb;
 ### **Setters**
 
 ```js
-mockServer.setData(db, injectors, middlewares, rewriters, store, config);
+mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
 
 //or
 
 // Please follow the same following order of setting the data
 // If merge param is true. it adds the data with the existing data.
-mockServer.setConfig(config, merge);
-mockServer.setMiddlewares(middlewares, merge);
-mockServer.setInjectors(injectors, merge);
-mockServer.setRewriters(rewriters, merge);
-mockServer.setStore(store, merge);
-mockServer.setDb(Db, merge);
+mockServer.setConfig(config, { rootPath, merge, mockServer });
+mockServer.setMiddlewares(middlewares, { rootPath, merge, mockServer });
+mockServer.setInjectors(injectors, { rootPath, merge, mockServer });
+mockServer.setRewriters(rewriters, { rootPath, merge, mockServer });
+mockServer.setStore(store, { rootPath, merge, mockServer });
+mockServer.setDb(Db, { rootPath, merge, mockServer });
 ```
 
 ### **Validators**
@@ -1298,15 +1319,13 @@ const rootPath = "./";
 
 const db = getValidDb(
   "db.json", // db or HAR
-  [], // injectors
-  rootPath, // Root path to fetch the db.json file
-  options
+  { injectors, rootPath, reverse, dbMode, merge, mockServer }
 ); // returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig
-const middleware = getValidMiddlewares(middlewares, rootPath); // returns a valid middleware along with the default middlewares
-const injectors = getValidInjectors(injectors, rootPath); // returns a valid injectors. internally use getValidInjectorConfig
-const rewriters = getValidRewriters(rewriters, rootPath); // returns a valid rewriters
-const config = getValidConfig(config, rootPath); // returns a valid config combined with the default configs
-const store = getValidStore(store, rootPath); // returns a valid store
+const middleware = getValidMiddlewares(middlewares, { rootPath }); // returns a valid middleware along with the default middlewares
+const injectors = getValidInjectors(injectors, { rootPath }); // returns a valid injectors. internally use getValidInjectorConfig
+const rewriters = getValidRewriters(rewriters, { rootPath }); // returns a valid rewriters
+const config = getValidConfig(config, { rootPath }); // returns a valid config combined with the default configs
+const store = getValidStore(store, { rootPath }); // returns a valid store
 const routeConfig = getValidRouteConfig(route, routeConfig); // returns a valid routeconfig used by getValidDb
 const injectorConfig = getValidInjectorConfig(route, routeConfig); // returns a valid injectorsConfig used by getValidInjectors
 const route = getValidRoute(route); // splits route by comma and adds a slash ('/') prefix to the routes

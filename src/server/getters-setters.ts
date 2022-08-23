@@ -3,7 +3,7 @@ import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
 import * as Defaults from './defaults';
-import { GetData } from "./types/common.types";
+import { GetData, SetData, SetterOptions } from "./types/common.types";
 import * as Params from "./types/param.types";
 import * as ValidTypes from "./types/valid.types";
 import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidStore } from './utils/validators';
@@ -40,9 +40,19 @@ export class GettersSetters {
   get injectors() { return _.cloneDeep(this.#injectors) };
   get rewriters() { return _.cloneDeep(this.#rewriters) };
   get store() { return _.cloneDeep(this.#store) };
+  get data(): GetData {
+    return {
+      db: this.db,
+      injectors: this.injectors,
+      middlewares: this.middlewares,
+      store: this.store,
+      rewriters: this.rewriters,
+      config: this.config
+    } as GetData;
+  };
 
-  protected _getDb = () => this.#db;
-  protected _getStore = () => this.#store;
+  getDb = () => this.#db;
+  getStore = () => this.#store;
 
   init() {
     this.port = undefined;
@@ -63,71 +73,56 @@ export class GettersSetters {
     this.initialDb = _.cloneDeep(Defaults.Db);
   }
 
-  setData(
-    db?: Params.Db,
-    injectors?: Params.Injectors,
-    middlewares?: Params.Middlewares,
-    rewriters?: Params.Rewriters,
-    store?: Params.Store,
-    config?: Params.Config,
-  ) {
-    !_.isEmpty(config) && this.setConfig(config);
-    !_.isEmpty(rewriters) && this.setRewriters(rewriters);
-    !_.isEmpty(middlewares) && this.setMiddlewares(middlewares);
-    !_.isEmpty(injectors) && this.setInjectors(injectors);
-    !_.isEmpty(store) && this.setStore(store);
-    !_.isEmpty(db) && this.setDb(db);
+  setData(data: SetData = {}, options: SetterOptions = {}) {
+    !_.isEmpty(data.config) && this.setConfig(data.config, options);
+    !_.isEmpty(data.rewriters) && this.setRewriters(data.rewriters, options);
+    !_.isEmpty(data.middlewares) && this.setMiddlewares(data.middlewares, options);
+    !_.isEmpty(data.injectors) && this.setInjectors(data.injectors, options);
+    !_.isEmpty(data.store) && this.setStore(data.store, options);
+    !_.isEmpty(data.db) && this.setDb(data.db, options);
   };
 
-  get data(): GetData {
-    return {
-      db: this.db,
-      injectors: this.injectors,
-      middlewares: this.middlewares,
-      rewriters: this.rewriters,
-      store: this.store,
-      config: this.config
-    } as GetData;
-  };
-
-  setConfig(config?: Params.Config, merge?: boolean) {
+  setConfig(config?: Params.Config, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {
     const oldConfig = this.#config;
-    const newConfig = getValidConfig(config, this.#config.root);
+    const newConfig = getValidConfig(config, { rootPath, mockServer });
     this.#config = merge ? { ...oldConfig, ...newConfig } : newConfig;
   }
 
-  setRewriters(rewriters?: Params.Rewriters, merge?: boolean) {
+  setRewriters(rewriters?: Params.Rewriters, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {
     const oldRewriters = this.#rewriters;
-    const newRewriters = getValidRewriters(rewriters, this.#config.root);
+    const newRewriters = getValidRewriters(rewriters, { rootPath, mockServer });
     this.#rewriters = merge ? { ...oldRewriters, ...newRewriters } : newRewriters;
   }
 
-  setMiddlewares(middleware?: Params.Middlewares, merge?: boolean) {
+  setMiddlewares(middleware?: Params.Middlewares, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {
     const oldMiddlewares = this.#middlewares;
-    const newMiddlewares = getValidMiddlewares(middleware, this.#config.root);
+    const newMiddlewares = getValidMiddlewares(middleware, { rootPath, mockServer });
     this.#middlewares = merge ? { ...oldMiddlewares, ...newMiddlewares } : newMiddlewares;
   }
 
-  setInjectors(injectors?: Params.Injectors, merge?: boolean) {
+  setInjectors(injectors?: Params.Injectors, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {
     const oldInjectors = this.#injectors;
-    const newInjectors = getValidInjectors(injectors, this.#config.root);
+    const newInjectors = getValidInjectors(injectors, { rootPath, mockServer });
     this.#injectors = merge ? [...oldInjectors, ...newInjectors] : newInjectors;
   }
 
-  setStore(store?: Params.Store, merge?: boolean) {
+  setStore(store?: Params.Store, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {
     const oldStore = this.#store;
-    const newStore = getValidStore(store, this.#config.root);
+    const newStore = getValidStore(store, { rootPath, mockServer });
     this.#store = merge ? { ...oldStore, ...newStore } : newStore;
   }
 
-  setDb(db?: Params.Db, merge?: boolean) {
+  setDb(db?: Params.Db,
+    {
+      injectors = this.#injectors,
+      rootPath = this.#config.root,
+      reverse = this.#config.reverse,
+      dbMode = this.#config.dbMode,
+      merge, 
+      mockServer
+    }: SetterOptions = {}) {
     const oldDb = this.#db;
-    const newDb = getValidDb(
-      db,
-      this.#injectors,
-      this.#config.root,
-      { reverse: this.config.reverse, dbMode: this.config.dbMode }
-    );
+    const newDb = getValidDb(db, { rootPath, injectors, reverse, dbMode, mockServer });
     this.#db = merge ? { ...oldDb, ...newDb } : newDb;
     this.initialDb = _.cloneDeep(this.#db);
   }

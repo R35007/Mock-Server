@@ -1,5 +1,7 @@
 import * as express from "express";
-import DefaultMiddlewares from '../middlewares';
+import MockServer from '..';
+import HelperMiddlewares from '../middlewares';
+import * as ParamTypes from './param.types';
 import * as UserTypes from './user.types';
 import * as ValidTypes from './valid.types';
 
@@ -7,7 +9,7 @@ export type RoutePairs = { [key: string]: string }
 
 export type Default_Options = Partial<Omit<ValidTypes.Config, 'port' | 'host' | 'root' | 'id' | 'reverse'>>
 
-export type Default_Middlewares = typeof DefaultMiddlewares;
+export type Default_Middlewares = typeof HelperMiddlewares;
 export type User_Middlweares = { [x: string]: express.RequestHandler | Array<express.RequestHandler> }
 export type Global_Middlweares = { _globals?: express.RequestHandler | Array<express.RequestHandler> }
 export type HarMiddleware = {
@@ -22,7 +24,11 @@ export type MiddlewareNames = keyof Default_Middlewares
 
 export type DbMode = 'mock' | 'fetch' | 'multi';
 
-export type GetValidDbOptions = {
+export type SetterOptions = {
+  mockServer?: MockServer;
+  rootPath?: string;
+  merge?: boolean;
+  injectors?: ParamTypes.Injectors,
   reverse?: boolean,
   dbMode?: DbMode
 }
@@ -86,12 +92,40 @@ export type PathDetails = {
   isDirectory: boolean;
 }
 
+export type SetData = {
+  db?: ParamTypes.Db,
+  injectors?: ParamTypes.Injectors,
+  middlewares?: ParamTypes.Middlewares,
+  store?: ParamTypes.Store,
+  rewriters?: ParamTypes.Rewriters,
+  config?: ParamTypes.Config,
+}
+
 export type GetData = {
   db: ValidTypes.Db;
-  middlewares: ValidTypes.Middlewares;
   injectors: ValidTypes.Injectors;
-  rewriters: ValidTypes.Rewriters
+  middlewares: ValidTypes.Middlewares;
   store: ValidTypes.Store;
+  rewriters: ValidTypes.Rewriters
   config: ValidTypes.Config;
 }
+
+export type LaunchServerOptions = {
+  injectors?: ParamTypes.Injectors,
+  middlewares?: ParamTypes.Middlewares,
+  store?: ParamTypes.Store,
+  rewriters?: ParamTypes.Rewriters,
+  router?: express.Router
+}
+
+export type ResourceOptions = {
+  mockServer?: MockServer;
+  reverse?: boolean,
+  injectors?: ParamTypes.Injectors,
+  middlewares?: ParamTypes.Middlewares,
+  rootPath?: string;
+  router?: express.Router,
+  dbMode?: DbMode
+}
+
 

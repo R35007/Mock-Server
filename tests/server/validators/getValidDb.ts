@@ -25,7 +25,8 @@ export const shouldGetValidDb = () => {
         ["valid .json file", "./db.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
       ])('If %s path is passed', (_condition, dbPath, expected) => {
-        const db = getValidDb(dbPath as string, [], path.join(__dirname, "../../mock/db"));
+        const rootPath = path.join(__dirname, "../../mock/db");
+        const db = getValidDb(dbPath as string, { rootPath });
         expect(db).toEqual(expected);
       });
     });
@@ -90,7 +91,7 @@ export const shouldGetValidDb = () => {
         expect(validDb).toEqual(expectedDb);
       });
 
-      test('If db with comma seperated routes', () => {
+      test('If db with comma separated routes', () => {
         const db = { "/post1,/post2": { id: "1", name: "Siva" } };
         const expectedDb = {
           "/post1": { _config: true, id: toBase64("/post1"), mock: { id: "1", name: "Siva" } },
@@ -100,7 +101,7 @@ export const shouldGetValidDb = () => {
         expect(validDb).toEqual(expectedDb);
       });
 
-      test('If db with comma seperated routes and overriding rotes', () => {
+      test('If db with comma separated routes and overriding rotes', () => {
         const db = {
           "/post1,/post2": { id: "1", name: "Siva" },
           "/post1": { id: "1", name: "Ram", age: 27 }
@@ -147,11 +148,11 @@ export const shouldGetValidDb = () => {
           "/post": { _config: true, id: toBase64("/post"), delay: 1000, mock: "Working" },
           "/comment": { _config: true, id: toBase64("/comment"), mock: "Working" }
         }
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
-      it('should inject delay to all routes and not override the exisitng delay', () => {
+      it('should inject delay to all routes and not override the existing delay', () => {
         const db = { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } };
         const injectors = [{ routes: ["/(.*)"], delay: 1000 }];
         const expectedDb = {
@@ -159,11 +160,11 @@ export const shouldGetValidDb = () => {
           "/comment": { _config: true, id: toBase64("/comment"), delay: 1000, mock: "Working" },
           "/user": { _config: true, id: toBase64("/user"), delay: 2000, mock: "Working" }
         }
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
-      it('should inject delay to all routes and override the exisitng delay', () => {
+      it('should inject delay to all routes and override the existing delay', () => {
         const db = { "post,comment": "Working", "user": { _config: true, delay: 2000, mock: "Working" } };
         const injectors = [{ routes: ["/(.*)"], delay: 1000, override: true }];
         const expectedDb = {
@@ -171,7 +172,7 @@ export const shouldGetValidDb = () => {
           "/comment": { _config: true, id: toBase64("/comment"), delay: 1000, mock: "Working" },
           "/user": { _config: true, id: toBase64("/user"), delay: 1000, mock: "Working" }
         }
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -187,7 +188,7 @@ export const shouldGetValidDb = () => {
           "/post/2": { _config: true, id: "2", mock: "Working" },
           "/post/:id": { _config: true, id: "3", mock: "Working", statusCode: 500 }
         }
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -203,7 +204,7 @@ export const shouldGetValidDb = () => {
           "/post/2": { _config: true, id: "2", mock: "Working", statusCode: 500 },
           "/post/3/comment": { _config: true, id: "3", mock: "Working" }
         };
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -211,7 +212,7 @@ export const shouldGetValidDb = () => {
         const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
         const injectors = [{ routes: ["/post"], middlewares: ["_ReadOnly"] }];
         const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_ReadOnly"] } };
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -219,7 +220,7 @@ export const shouldGetValidDb = () => {
         const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
         const injectors = [{ routes: ["/post"], middlewares: ["...", "_ReadOnly"] }];
         const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly", "_ReadOnly"] } };
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -227,7 +228,7 @@ export const shouldGetValidDb = () => {
         const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
         const injectors = [{ routes: ["/post"], middlewares: ["...", "_ReadOnly"] }];
         const expectedDb = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly", "_ReadOnly"] } };
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
 
@@ -235,7 +236,7 @@ export const shouldGetValidDb = () => {
         const db = { "/post": { _config: true, id: "1", mock: "Working", middlewares: ["_MockOnly"] } };
         const injectors = [{ routes: ["/post"], middlewares: [] }];
         const expectedDb = { "/post": { _config: true, id: "1", mock: "Working" } };
-        const validDb = getValidDb(db, injectors);
+        const validDb = getValidDb(db, { injectors });
         expect(validDb).toEqual(expectedDb);
       });
     });

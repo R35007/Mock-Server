@@ -16,33 +16,38 @@ app.use(rewriter);
 const defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
 
+// add your authorization logic here
+const isAuthorized = (_req) => true;
+
 // Custom Middleware
 app.use((req, res, next) => {
-  if (isAuthorized(req)) {
-    next(); // continue to Mock Server router
-  } else {
-    res.sendStatus(401);
-  }
+  if (isAuthorized(req)) return next(); // continue to Mock Server router
+  res.sendStatus(401);
 });
-const isAuthorized = (req) => {
-  // add your authorization logic here
-  return true;
-};
+
 
 // Custom Routes
 // This route will not be listed in Home Page.
-app.get("/echo", (req, res) => {
-  res.jsonp(req.query);
-});
+app.get("/echo", (req, res) => res.jsonp(req.query));
 
-// Loaded all the resources and returns the express router
-const resources = mockServer.resources(
-  "./db.js",
-  "./injectors.json",
-  "./middleware.js",
-  "./store.json"
-);
+// Sets global injectors, middlewares and store
+mockServer.setData({
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  store: "./store.json"
+})
+
+// Creates resources and returns the express router
+const resources = mockServer.resources("./db.js");
 app.use(resources);
+
+// Create new Resource with custom injectors. 
+// This db will be added to existing mockServer.db 
+// This injectors will not added to global injectors
+const newResource = mockServer.resources(
+  { "newRoute": "This is a new Route" },
+  { injectors: [{ routes: ["/(.*)"], description: "This description will only be added to this route" }] });
+app.use(newResource);
 
 // Create the Mock Server Home Page
 const homePage = mockServer.homePage();
@@ -57,13 +62,12 @@ mockServer.startServer();
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
 
-/* mockServer.launchServer(
-  "./db.js",
-  "./injectors.json",
-  "./middleware.js",
-  "./rewriters.json",
-  "./store.json"
-) */
+/* mockServer.launchServer("./db.js", {
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  rewriters: "./rewriters.json",
+  store: "./store.json"
+}) */
 
 // or
 // You can also run thru CLI command

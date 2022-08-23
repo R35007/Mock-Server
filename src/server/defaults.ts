@@ -1,5 +1,5 @@
 import * as path from "path";
-import DefaultMiddlewares from './middlewares';
+import HelperMiddlewares from './middlewares';
 import * as ValidTypes from './types/valid.types';
 
 export const Config: ValidTypes.Config = {
@@ -19,7 +19,7 @@ export const Config: ValidTypes.Config = {
   cookieParser: true, // Enable cookie-parser
 };
 
-export const Middlewares: ValidTypes.Middlewares = DefaultMiddlewares;
+export const Middlewares: ValidTypes.Middlewares = HelperMiddlewares;
 export const Injectors: ValidTypes.Injectors = [];
 export const Rewriters: ValidTypes.Rewriters = {};
 export const Store: ValidTypes.Store = {};

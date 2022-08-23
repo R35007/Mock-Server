@@ -1,3 +1,51 @@
+## v9.0.0
+
+- Renamed - `_getDb()`, `_getStore` to `getDb()`, `getStore()`
+- Added- Now it automatically picks the `index.js` file from the given folder path instead of getting all the files from the folder
+- Added- Now we can give a method as a param to set any config, rewriter, injectors, store, sb etc...
+ For example: `db.js`
+ ```js
+ const { MockServer } = require("@r35007/mock-server")
+ module.exports = (mockServer) => {
+  if(mockServer){
+     // This can be undefined If you don't pass the mockServer instance.
+  }
+  return {
+    // Your Db here
+    "/post": { id: 1, name: "foo" }
+  }
+ }
+
+ const mockServer = MockServer.Create();
+ const resources = mockServer.resource(db,{ mockServer })
+ mockServer.app.use(resources)
+ ```
+ > Note: For now it cant handle async methods.
+- Updated following method params.
+```ts
+// launchServer sets all the resource data. It sets db, injectors, middlewares, store, rewriters, middlewares.
+launchServer(db?: ParamTypes.Db, { injectors, middlewares, store, rewriters, router }?: LaunchServerOptions): Promise<Server | undefined>;
+// Resources sets only db and it will not set injectors, middlewares or any other options provided. This db will be added to the existing db.
+resources(db?: ParamTypes.Db, { injectors, middlewares, mockServer, reverse, rootPath, dbMode, router }?: ResourceOptions): express.Router;
+
+// Setters
+setData(data?: SetData, options?: SetterOptions): void;
+setConfig(config?: Params.Config, { rootPath, merge, mockServer }?: SetterOptions): void;
+setRewriters(rewriters?: Params.Rewriters, { rootPath, merge, mockServer }?: SetterOptions): void;
+setMiddlewares(middleware?: Params.Middlewares, { rootPath, merge, mockServer }?: SetterOptions): void;
+setInjectors(injectors?: Params.Injectors, { rootPath, merge, mockServer }?: SetterOptions): void;
+setStore(store?: Params.Store, { rootPath, merge, mockServer }?: SetterOptions): void;
+setDb(db?: Params.Db, { injectors, rootPath, reverse, dbMode, merge, mockServer }?: SetterOptions): void;
+
+// Validators
+getValidConfig(config?: ParamTypes.Config | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Config;
+getValidMiddlewares(middlewares?: ParamTypes.Middlewares | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Middlewares;
+getValidInjectors(injectors?: ParamTypes.Injectors | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Injectors;
+getValidStore(store?: ParamTypes.Store | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Store;
+getValidRewriters(rewriters?: ParamTypes.Rewriters | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Rewriters;
+getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, reverse, dbMode }?: SetterOptions): ValidTypes.Db;
+``` 
+
 ## v8.0.1
 
 - removed unwanted console logs. 

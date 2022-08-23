@@ -6,7 +6,7 @@ import { MockServer } from '../../../src/server';
 export const routeConfig = () => {
   describe('Testing all Route Configs', () => {
     let mockServer: MockServer;
-    
+
     beforeAll(async () => { await MockServer.Destroy() });
     beforeEach(() => { mockServer = MockServer.Create({ root: path.join(__dirname, "../../../") }) });
     afterEach(async () => { await MockServer.Destroy() });
@@ -107,7 +107,7 @@ export const routeConfig = () => {
       expect((await request(mockServer.app).get("/customer")).body).toEqual(mock[1]);
     });
 
-    it('should fetch data from http url infinete times', async () => {
+    it('should fetch data from http url infinite times', async () => {
       const mock = [{ id: "1", name: "Siva" }, { id: "2", name: "Ram" }, { id: "3", name: "Harish" }];
       const db = {
         "/user": { _config: true, mock, middlewares: ["_IterateResponse"] },
@@ -171,7 +171,7 @@ export const routeConfig = () => {
       const mock = { id: "1", name: "Siva" };
       const db = { "/user": { _config: true, middlewares: ["getUser"] } };
       const middlewares = { "getUser": (_req, res) => { res.send(mock) } }
-      await mockServer.launchServer(db, [], middlewares);
+      await mockServer.launchServer(db, { middlewares });
       const response = await request(mockServer.app).get("/user");
       expect(response.body).toEqual(mock);
       expect(response.statusCode).toEqual(200);

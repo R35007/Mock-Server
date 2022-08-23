@@ -8,8 +8,8 @@ import * as path from 'path';
 import { PathDetails } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 
-export const requireFile = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true, isList: boolean = false) => {
-  const filesList = getFilesList(directoryPath, excludeFolders, recursive);
+export const requireFile = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true, isList: boolean = false, onlyIndex: boolean = true) => {
+  const filesList = getFilesList(directoryPath, excludeFolders, recursive, onlyIndex);
   const files = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
   if (!files.length) return;
@@ -17,12 +17,11 @@ export const requireFile = (directoryPath: string, excludeFolders: string[] = []
   if (files.length > 1)
     return isList ? getList(files) : getObject(files)
 
-
   const file = files[0];
   try {
     if (path.extname(file.filePath) === ".js") {
       delete require.cache[require.resolve(file.filePath)];
-      return require(file.filePath);
+      return require(require.resolve(file.filePath));
     } else {
       const str = fs.readFileSync(file.filePath, "utf-8");
       return JPH.parse(str)
@@ -39,7 +38,7 @@ export const getObject = (files: PathDetails[]): object => {
     try {
       if (path.extname(file.filePath) === ".js") {
         delete require.cache[require.resolve(file.filePath)];
-        const obj = require(file.filePath);
+        const obj = require(require.resolve(file.filePath));
         if (_.isEmpty(obj) || !_.isPlainObject(obj)) return mock
         return { ...mock, ...obj };
       } else {
@@ -61,7 +60,7 @@ export const getList = (files: PathDetails[]): any[] => {
     try {
       if (path.extname(file.filePath) === ".js") {
         delete require.cache[require.resolve(file.filePath)];
-        const obj = require(file.filePath);
+        const obj = require(require.resolve(file.filePath));
         if (_.isEmpty(obj) || !_.isArray(obj)) return mock
         return [...mock, ...obj];
       } else {
@@ -78,12 +77,19 @@ export const getList = (files: PathDetails[]): any[] => {
   return list;
 };
 
-export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true): PathDetails[] => {
+export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true, onlyIndex: boolean = true): PathDetails[] => {
   const stats = getStats(directoryPath);
   if (!stats) return [];
   if (stats.isFile) {
     return [stats];
   } else if (stats.isDirectory && foldersToExclude.indexOf(directoryPath) < 0) {
+
+    if (onlyIndex) {
+      const indexPath = `${directoryPath}\\index.js`;
+      const indexStats = getStats(indexPath);
+      if (indexStats) return [indexStats];
+    }
+
     const files = fs.readdirSync(directoryPath);
     const filteredFiles = files.filter((file) => foldersToExclude.indexOf(file) < 0);
     const filesList = filteredFiles.reduce((res: PathDetails[], file: string) => {
@@ -170,9 +176,10 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
   return parsedUrl;
 };
 
-export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false) => {
+export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false, onlyIndex: boolean = true) => {
   if (_.isEmpty(data)) return;
-  if (_.isString(data)) return requireFile(parseUrl(data, root), [], true, isList)
-  if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data)
+  if (_.isFunction(data)) return data;
+  if (_.isString(data)) return requireFile(parseUrl(data, root), [], true, isList, onlyIndex);
+  if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data);
   return;
 }

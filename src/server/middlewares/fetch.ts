@@ -4,7 +4,7 @@ import { Locals } from '../types/common.types';
 import { cleanObject, interpolate } from '../utils';
 import { getFileData, getStats, getUrlData, parseUrl } from '../utils/fetch';
 
-export const Fetch = async (req, res, next) => {
+const Fetch = async (req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
   if (!routeConfig._request?.url) return next();
@@ -165,3 +165,5 @@ const AxiosHeadersConfig: string[] = [
   "Accept",
   "Authorization"
 ]
+
+export default Fetch
