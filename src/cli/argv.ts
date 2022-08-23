@@ -1,6 +1,4 @@
 import * as yargs from 'yargs';
-import _package from "../../package.json";
-
 interface Options {
   [x: string]: unknown;
   config: string;
@@ -53,6 +51,6 @@ export default () => {
     .example('$0 --watch db.json', '')
     .example('$0 http://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version(_package.version).alias('version', 'v').argv as Options;
+    .version("9.1.0").alias('version', 'v').argv as Options;
   return options;
 }
