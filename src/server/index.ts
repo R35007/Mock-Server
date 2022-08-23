@@ -20,7 +20,7 @@ import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
 import { cleanDb, flatQuery, replaceObj } from './utils';
-import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters } from './utils/validators';
+import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares } from './utils/validators';
 
 export class MockServer extends GettersSetters {
 
@@ -97,8 +97,8 @@ export class MockServer extends GettersSetters {
     rewriters?: ParamTypes.Rewriters,
     { rootPath = this.config.root, mockServer = MockServer.#mockServer }: SetterOptions = {}
   ) {
-    const validRewriters = rewriters ? getValidRewriters(rewriters, { rootPath, mockServer }) : this.rewriters;
-    return Rewriter(validRewriters);
+    this.setRewriters(rewriters, { rootPath, mockServer, merge: true })
+    return Rewriter(this.rewriters);
   }
 
   resources(
@@ -128,9 +128,7 @@ export class MockServer extends GettersSetters {
   };
 
   #createRoute = (routePath: string, routeConfig: ValidTypes.RouteConfig, router: express.Router, validMiddlewares: ValidTypes.Middlewares) => {
-
     if (this.routes.includes(routePath)) return; // If routes are already added to resource then do nothing
-
     this.routes.push(routePath);
 
     if (!this.getDb()[routePath]) {
@@ -144,7 +142,6 @@ export class MockServer extends GettersSetters {
       router.use(routePath, middlewareList);
       return;
     }
-
     router?.all(routePath, middlewareList);
   }
 
@@ -287,12 +284,10 @@ export class MockServer extends GettersSetters {
         res.send(restoredRoutes);
       },
     }
-
-    Object.entries(homePageRoutes).forEach(([routePath, middleware]) => {
-      if (!this.routes.includes(routePath)) {
-        router.all(routePath, middleware as express.RequestHandler);
-        this.routes.push(routePath);
-      }
+    const newDbEntries = Object.entries(homePageRoutes).filter(([routePath]) => !this.routes.includes(routePath));
+    newDbEntries.forEach(([routePath, middleware]) => {
+      this.routes.push(routePath);
+      router.all(routePath, middleware as express.RequestHandler);
     })
 
     return router;
@@ -304,12 +299,12 @@ export class MockServer extends GettersSetters {
         rootPath: this.config.root,
         injectors: this.injectors,
         reverse: this.config.reverse,
-        dbMode: this.config.dbMode
+        dbMode: this.config.dbMode,
+        mockServer: MockServer.#mockServer
       }
     );
 
     const newDbEntries = Object.entries(validDb).filter(([routePath]) => !this.routes.includes(routePath));
-
     const response = {};
     newDbEntries.forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) => {
       response[routePath] = routeConfig;

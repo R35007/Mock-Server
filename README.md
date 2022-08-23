@@ -159,7 +159,6 @@ app.use((req, res, next) => {
   res.sendStatus(401);
 });
 
-
 // Custom Routes
 // This route will not be listed in Home Page.
 app.get("/echo", (req, res) => res.jsonp(req.query));
@@ -168,19 +167,27 @@ app.get("/echo", (req, res) => res.jsonp(req.query));
 mockServer.setData({
   injectors: "./injectors.json",
   middlewares: "./middleware.js",
-  store: "./store.json"
-})
+  store: "./store.json",
+});
 
 // Creates resources and returns the express router
 const resources = mockServer.resources("./db.js");
 app.use(resources);
 
-// Create new Resource with custom injectors. 
-// This db will be added to existing mockServer.db 
+// Create new Resource with custom injectors.
+// This db will be added to existing mockServer.db
 // This injectors will not added to global injectors
 const newResource = mockServer.resources(
-  { "newRoute": "This is a new Route" },
-  { injectors: [{ routes: ["/(.*)"], description: "This description will only be added to this route" }] });
+  { newRoute: "This is a new Route" },
+  {
+    injectors: [
+      {
+        routes: ["/(.*)"],
+        description: "This description will only be added to this route",
+      },
+    ],
+  }
+);
 app.use(newResource);
 
 // Create the Mock Server Home Page
@@ -1117,9 +1124,17 @@ app.use(rewriters);
 
 **`Params`**
 
-| Name      | Type            | Required | Description       |
-| --------- | --------------- | -------- | ----------------- |
-| rewriters | string / object | No       | Give the Rewrites |
+| Name      | Type            | Required | Description             |
+| --------- | --------------- | -------- | ----------------------- |
+| rewriters | string / object | No       | Give the Rewrites       |
+| options   | object          | No       | option to set rewriters |
+
+**`[options]`**
+
+| Name       | Type       | Required | Description                                      |
+| ---------- | ---------- | -------- | ------------------------------------------------ |
+| rootPath   | string     | No       | To require rewriter file relative to this path   |
+| mockServer | MockServer | No       | MockServer instance that be passed in the method |
 
 ### **defaults**
 
@@ -1138,7 +1153,7 @@ app.use(defaults);
   - `noGzip` disable Compression (default: false)
   - `noCors` disable CORS (default: false)
   - `readOnly` accept only GET requests (default: false)
-  - `cookieParser` enable cookie parser (default: true)
+  - `cookieParser` enable cookie-parser middleware (default: true)
 
 ### **resources**
 

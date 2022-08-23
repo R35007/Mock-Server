@@ -1,4 +1,5 @@
 import express from "express";
+import ip from 'ip';
 import * as _ from "lodash";
 import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
 import * as Defaults from '../defaults';
@@ -19,14 +20,13 @@ export const getValidConfig = (
 
   const parsedRoot = parseUrl(userConfig.root, Defaults.Config.root);
   const root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.root;
-  const isPortNaN = isNaN(parseInt(userConfig.port as any));
 
   const validConfig = {
     ...userConfig,
     root,
     dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : Defaults.Config.dbMode,
-    port: isPortNaN ? Defaults.Config.port : parseInt(userConfig.port as any),
-    host: userConfig.host && _.isString(userConfig.host) ? userConfig.host : Defaults.Config.host,
+    port: _.isNaN(parseInt(userConfig.port as any)) ? Defaults.Config.port : parseInt(userConfig.port as any),
+    host: (`${userConfig.host}`).trim() === '' ? ip.address() : _.isEmpty(userConfig.host) ? Defaults.Config.host : userConfig.host,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
     staticDir: typeof userConfig.staticDir !== 'undefined' ? parseUrl(userConfig.staticDir, root) : Defaults.Config.staticDir,
   };

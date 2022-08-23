@@ -1,3 +1,8 @@
+## v9.1.0
+
+- revoked - mockServer.rewriter`wont't set`rewriters`. - Now It will set to the global rewriters
+- update - `config.host` - Set to empty string to set the host as your Local Ip Address.
+
 ## v9.0.1
 
 - If methods passed as a param not working - `Fixed`.

@@ -1,4 +1,5 @@
 import * as yargs from 'yargs';
+import _package from "../../package.json";
 
 interface Options {
   [x: string]: unknown;
@@ -25,7 +26,6 @@ interface Options {
 }
 
 export default () => {
-
   const options = yargs.config('config').options({
     port: { alias: 'P', description: 'Set port', default: 3000 },
     host: { alias: 'H', description: 'Set host', default: 'localhost' },
@@ -41,6 +41,8 @@ export default () => {
     noCors: { alias: 'nc', description: 'Disable Cross-Origin Resource Sharing' },
     noGzip: { alias: 'ng', description: 'Disable GZIP Content-Encoding' },
     logger: { alias: 'l', description: 'Enable logger', default: true },
+    bodyParser: { alias: 'bp', description: 'Enable body-parser', default: true },
+    cookieParser: { alias: 'cp', description: 'Enable cookie-parser', default: true },
     sample: { alias: 'ex', description: 'Create Sample', default: false },
     watch: { alias: 'w', description: 'Watch file(s)', default: false },
     snapshots: { alias: 'S', description: 'Set snapshots directory', default: '.' },
@@ -51,7 +53,6 @@ export default () => {
     .example('$0 --watch db.json', '')
     .example('$0 http://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
-    .version("4.4.0").alias('version', 'v').argv as Options;
-
+    .version(_package.version).alias('version', 'v').argv as Options;
   return options;
 }

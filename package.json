@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "9.0.1",
+  "version": "9.1.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -9,6 +9,7 @@
   "types": "dist/server/index.d.ts",
   "scripts": {
     "start": "node dist/server/index.js",
+    "start:sample": "node samples/server.js",
     "mock-server": "node dist/cli/index.js",
     "test:all": "jest --collectCoverage --collectCoverageFrom=src/server/**/*.ts --silent --runInBand --verbose --no-cache"
   },
@@ -47,8 +48,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@types/lodash": "^4.14.182",
-    "@types/supertest": "^2.0.12",
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.2",
@@ -68,9 +67,12 @@
     "path-to-regexp": "^6.2.0",
     "response-time": "^2.3.2",
     "server-destroy": "^1.0.1",
-    "yargs": "^17.0.1"
+    "yargs": "^17.0.1",
+    "ip": "^1.1.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/supertest": "^2.0.12",
     "@types/axios": "^0.14.0",
     "@types/chokidar": "^2.1.3",
     "@types/compression": "^1.7.1",
@@ -88,7 +90,6 @@
     "@types/path-to-regexp": "^1.7.0",
     "@types/server-destroy": "^1.0.1",
     "@types/yargs": "^17.0.0",
-    "ip": "^1.1.5",
     "jest": "^27.5.1",
     "nodemon": "^2.0.19",
     "supertest": "^6.2.2",

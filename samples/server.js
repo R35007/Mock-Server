@@ -2,7 +2,7 @@ const { MockServer } = require("@r35007/mock-server");
 // const MockServer = require("@r35007/mock-server").default; // For default import
 
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
-const host = "localhost";
+const host = "localhost"; // Set empty string to set your Local Ip Address
 const config = { root: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 

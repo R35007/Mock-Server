@@ -10,12 +10,13 @@ import { createSampleFiles } from "../server/utils";
 import argv from './argv';
 
 const init = async () => {
-  let { db, config, middleware, injectors, store, rewriters, port, host,
-    id, staticDir, base, noCors, noGzip, readOnly, sample, watch, snapshots, _: [source]
+  let {
+    db, config, middleware, injectors, store, rewriters, port, host,
+    id, staticDir, base, noCors, noGzip, readOnly, cookieParser, bodyParser, sample, watch, snapshots, _: [source]
   } = argv();
 
   const _config: ParamTypes.Config = typeof config === 'string' ? path.resolve(process.cwd(), config) as ParamTypes.Config : {
-    port, host, id, staticDir, base, noCors, noGzip, readOnly, root: process.cwd()
+    port, host, id, staticDir, base, noCors, noGzip, cookieParser, bodyParser, readOnly, root: process.cwd()
   } as ParamTypes.Config;
 
   if (sample) {
@@ -24,10 +25,11 @@ const init = async () => {
     const middleware = path.join(process.cwd(), 'middleware.js');
     const injectors = path.join(process.cwd(), 'injectors.json');
     const rewriters = path.join(process.cwd(), 'rewriters.json');
+    const store = path.join(process.cwd(), 'store.json');
 
     console.log(chalk.gray('Sample files created !'));
 
-    await startServer(snapshots, watch, db, middleware, injectors, rewriters);
+    await startServer(snapshots, watch, db, middleware, injectors, rewriters, store, _config);
   } else {
     db = source || db;
 
