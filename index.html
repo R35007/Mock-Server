@@ -1661,74 +1661,74 @@
 <span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname };
 <span class="hljs-keyword">const</span> mockServer = MockServer.Create(config);
 
-mockServer.launchServer(
-  <span class="hljs-string">&quot;./db.js&quot;</span>,
-  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
-  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
-  <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
-  <span class="hljs-string">&quot;./store.json&quot;</span>
-);
+mockServer.launchServer(<span class="hljs-string">&quot;./db.js&quot;</span>, {
+  <span class="hljs-attr">injectors</span>: <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-attr">rewriters</span>: <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+  <span class="hljs-attr">store</span>: <span class="hljs-string">&quot;./store.json&quot;</span>,
+});
 </div></code></pre>
-    <p>or</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>); <span class="hljs-comment">// use import if using ES6 module</span>
+  <p>or</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
 <span class="hljs-comment">// const MockServer = require(&quot;@r35007/mock-server&quot;).default; // For default import</span>
 
-<span class="hljs-comment">// Provide config as a param. If not provided, It uses the default Config.</span>
 <span class="hljs-keyword">const</span> port = <span class="hljs-number">3000</span>; <span class="hljs-comment">// Set Port to 0 to pick a random available port. default: 3000</span>
-<span class="hljs-keyword">const</span> host = <span class="hljs-string">&quot;localhost&quot;</span>; <span class="hljs-comment">// Set custom host. default: &#x27;localhost&#x27;</span>
-<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname, port, host }; <span class="hljs-comment">// Config can also be given as a path to config file</span>
+<span class="hljs-keyword">const</span> host = <span class="hljs-string">&quot;localhost&quot;</span>;
+<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname, port, host };
 <span class="hljs-keyword">const</span> mockServer = MockServer.Create(config);
 
-<span class="hljs-keyword">const</span> app = mockServer.app; <span class="hljs-comment">// Gives you the Express app</span>
+<span class="hljs-keyword">const</span> app = mockServer.app;
 
 <span class="hljs-comment">// Make sure to use this at first, before all the resources</span>
 <span class="hljs-keyword">const</span> rewriter = mockServer.rewriter(<span class="hljs-string">&quot;./rewriters.json&quot;</span>);
 app.use(rewriter);
 
 <span class="hljs-comment">// Returns the default middlewares</span>
-<span class="hljs-comment">// Provide options here. If not provided the options are picked from the default Config</span>
 <span class="hljs-keyword">const</span> defaultsMiddlewares = mockServer.defaults();
 app.use(defaultsMiddlewares);
 
+<span class="hljs-comment">// add your authorization logic here</span>
+<span class="hljs-keyword">const</span> isAuthorized = <span class="hljs-function">(<span class="hljs-params">_req</span>) =&gt;</span> <span class="hljs-literal">true</span>;
+
 <span class="hljs-comment">// Custom Middleware</span>
 app.use(<span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
-  <span class="hljs-keyword">if</span> (isAuthorized(req)) {
-    next(); <span class="hljs-comment">// continue to Mock Server router</span>
-  } <span class="hljs-keyword">else</span> {
-    res.sendStatus(<span class="hljs-number">401</span>);
-  }
+  <span class="hljs-keyword">if</span> (isAuthorized(req)) <span class="hljs-keyword">return</span> next(); <span class="hljs-comment">// continue to Mock Server router</span>
+  res.sendStatus(<span class="hljs-number">401</span>);
 });
-<span class="hljs-keyword">const</span> isAuthorized = <span class="hljs-function">(<span class="hljs-params">req</span>) =&gt;</span> {
-  <span class="hljs-comment">// add your authorization logic here</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-};
+
 
 <span class="hljs-comment">// Custom Routes</span>
 <span class="hljs-comment">// This route will not be listed in Home Page.</span>
-app.get(<span class="hljs-string">&quot;/echo&quot;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
-  res.jsonp(req.query);
-});
+app.get(<span class="hljs-string">&quot;/echo&quot;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> res.jsonp(req.query));
 
-<span class="hljs-comment">// Loaded all the resources and returns the default router</span>
-<span class="hljs-keyword">const</span> resources = mockServer.resources(
-  <span class="hljs-string">&quot;./db.js&quot;</span>,
-  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
-  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
-  <span class="hljs-string">&quot;./store.json&quot;</span>
-);
+<span class="hljs-comment">// Sets global injectors, middlewares and store</span>
+mockServer.setData({
+  <span class="hljs-attr">injectors</span>: <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-attr">store</span>: <span class="hljs-string">&quot;./store.json&quot;</span>
+})
+
+<span class="hljs-comment">// Creates resources and returns the express router</span>
+<span class="hljs-keyword">const</span> resources = mockServer.resources(<span class="hljs-string">&quot;./db.js&quot;</span>);
 app.use(resources);
 
-<span class="hljs-comment">// Create the default Routes which helps to run the Mock Server Home Page.</span>
+<span class="hljs-comment">// Create new Resource with custom injectors. </span>
+<span class="hljs-comment">// This db will be added to existing mockServer.db </span>
+<span class="hljs-comment">// This injectors will not added to global injectors</span>
+<span class="hljs-keyword">const</span> newResource = mockServer.resources(
+  { <span class="hljs-string">&quot;newRoute&quot;</span>: <span class="hljs-string">&quot;This is a new Route&quot;</span> },
+  { <span class="hljs-attr">injectors</span>: [{ <span class="hljs-attr">routes</span>: [<span class="hljs-string">&quot;/(.*)&quot;</span>], <span class="hljs-attr">description</span>: <span class="hljs-string">&quot;This description will only be added to this route&quot;</span> }] });
+app.use(newResource);
+
+<span class="hljs-comment">// Create the Mock Server Home Page</span>
 <span class="hljs-keyword">const</span> homePage = mockServer.homePage();
 app.use(homePage);
 
 app.use(mockServer.pageNotFound); <span class="hljs-comment">// Middleware to return `Page Not Found` as response if the route doesn&#x27;t match</span>
 app.use(mockServer.errorHandler); <span class="hljs-comment">// Default Error Handler</span>
 
-<span class="hljs-comment">// Provide port and host name as a param.</span>
-<span class="hljs-comment">// Default port : 3000, Default host: &#x27;localhost&#x27;</span>
 mockServer.startServer();
-<span class="hljs-comment">// mockServer.startServer(0, &#x27;localhost&#x27;); // can also set port and host here</span>
+<span class="hljs-comment">// mockServer.startServer(port, host); // can also set port and host here</span>
 </div></code></pre>
 <p>Now go to terminal and type the following command to start the Mock Server.</p>
     <pre><code class="language-sh"><div>nodemon server.js
@@ -2213,12 +2213,11 @@ GET /posts/1/comments?_start=20&amp;_limit=10
 </div></code></pre>
     <p><code>server.js</code></p>
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> mockServer = MockServer.Create();
-mockServer.launchServer(
-  <span class="hljs-string">&quot;./db.json&quot;</span>,
-  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
-  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
-  <span class="hljs-string">&quot;./rewriters.json&quot;</span>
-);
+mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, {
+  <span class="hljs-attr">injectors</span>: <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+  <span class="hljs-attr">rewriters</span>: <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+});
 </div></code></pre>
     <p>Now you can access resources using additional routes.</p>
     <pre><code class="language-sh"><div>/api/posts <span class="hljs-comment"># → /posts</span>
@@ -2473,15 +2472,14 @@ https://r35007.github.io/Mock-Server/
 <span class="hljs-comment">// pass a mock server instance to destroy</span>
 <span class="hljs-keyword">await</span> MockServer.Destroy(mockServer);
 </div></code></pre>
-    <h3 id="launchserver"><strong>launchServer</strong></h3>
-    <p>It validates all the params in the MockServer, loads the resources and starts the server.</p>
-    <pre><code class="language-js"><div>mockServer.launchServer(
-  <span class="hljs-string">&quot;./db.json&quot;</span>,
-  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
-  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
-  <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
-  <span class="hljs-string">&quot;./store.json&quot;</span>
-);
+<h3 id="launchserver"><strong>launchServer</strong></h3>
+<p>It validates all the params in the MockServer, loads the resources and starts the server.</p>
+<pre><code class="language-js"><div>mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, {
+<span class="hljs-attr">injectors</span>: <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+<span class="hljs-attr">middlewares</span>: <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+<span class="hljs-attr">rewriters</span>: <span class="hljs-string">&quot;./rewriters.json&quot;</span>,
+<span class="hljs-attr">store</span>: <span class="hljs-string">&quot;./store.json&quot;</span>,
+});
 </div></code></pre>
     <p><strong><code>Params</code></strong></p>
     <table>
@@ -2496,33 +2494,58 @@ https://r35007.github.io/Mock-Server/
       <tbody>
         <tr>
           <td>db</td>
-          <td>string / object</td>
+          <td>string/object/method</td>
           <td>No</td>
-          <td>This object generates the local rest api.</td>
+          <td>Set db resource</td>
         </tr>
+        <tr>
+          <td>options</td>
+          <td>object</td>
+          <td>No</td>
+          <td>option to create db resource</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong><code>[options]</code></strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
         <tr>
           <td>injectors</td>
-          <td>string / object</td>
+          <td>string/object/method</td>
           <td>No</td>
-          <td>Helps to inject a route configs for the existing routes</td>
+          <td>injectors to inject routeconfig to this db</td>
         </tr>
         <tr>
-          <td>middleware</td>
-          <td>string / object</td>
+          <td>middlewares</td>
+          <td>string/object/method</td>
           <td>No</td>
-          <td>Here you initialize the needed custom middleware</td>
-        </tr>
-        <tr>
-          <td>rewriters</td>
-          <td>string / object</td>
-          <td>No</td>
-          <td>Helps to set route rewriters</td>
+          <td>middlewares of this db</td>
         </tr>
         <tr>
           <td>store</td>
-          <td>string / object</td>
+          <td>string/object/method</td>
           <td>No</td>
-          <td>Helps to store values and share between routes</td>
+          <td>store of this db</td>
+        </tr>
+        <tr>
+          <td>rewriters</td>
+          <td>string/object/method</td>
+          <td>No</td>
+          <td>rewriters of this db</td>
+        </tr>
+        <tr>
+          <td>router</td>
+          <td>Express.Router</td>
+          <td>No</td>
+          <td>Custom Router</td>
         </tr>
       </tbody>
     </table>
@@ -2570,52 +2593,98 @@ app.use(defaults);
       </li>
     </ul>
     <h3 id="resources"><strong>resources</strong></h3>
-    <p>Sets the routes and returns the resources router.</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> resources = mockServer.resources(
-  <span class="hljs-string">&quot;./db.json&quot;</span>,
-  <span class="hljs-string">&quot;./injectors.json&quot;</span>,
-  <span class="hljs-string">&quot;./middleware.js&quot;</span>,
-  <span class="hljs-string">&quot;./store.json&quot;</span>
-);
+  <p>Create db resources. It uses global injectors, middlewares and config to crete db resource.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> resources = mockServer.resources(<span class="hljs-string">&quot;./db.json&quot;</span>);
 app.use(resources);
 </div></code></pre>
-    <p><strong><code>Params</code></strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>db</td>
-          <td>string / object</td>
-          <td>No</td>
-          <td>This object generates the local rest api.</td>
-        </tr>
-        <tr>
-          <td>injectors</td>
-          <td>string / object</td>
-          <td>No</td>
-          <td>Helps to inject a route configs for the existing routes</td>
-        </tr>
-        <tr>
-          <td>middleware</td>
-          <td>string / object</td>
-          <td>No</td>
-          <td>Here you initialize the needed custom middleware</td>
-        </tr>
-        <tr>
-          <td>store</td>
-          <td>string / object</td>
-          <td>No</td>
-          <td>Helps to store values and share between routes</td>
-        </tr>
-      </tbody>
-    </table>
+  <p>Create db resources with custom injectors and middlewares. It won't use global injectors and middlewares.
+    It sets only db and not the injectors or middlewares.</p>
+  <pre><code class="language-js"><div><span class="hljs-keyword">const</span> resources = mockServer.resources(<span class="hljs-string">&quot;./db.json&quot;</span>, {
+  <span class="hljs-attr">injectors</span>: <span class="hljs-string">&quot;./injectors.json&quot;</span>,
+  <span class="hljs-attr">middlewares</span>: <span class="hljs-string">&quot;./middleware.js&quot;</span>,
+});
+app.use(resources);
+</div></code></pre>
+  <p><strong><code>Params</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>db</td>
+        <td>string/object/method</td>
+        <td>No</td>
+        <td>Set db resource</td>
+      </tr>
+      <tr>
+        <td>options</td>
+        <td>object</td>
+        <td>No</td>
+        <td>option to create db resource</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><strong><code>[options]</code></strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>rootPath</td>
+        <td>string</td>
+        <td>No</td>
+        <td>rootPath to get db from a file</td>
+      </tr>
+      <tr>
+        <td>dbMode</td>
+        <td>'mock'/ 'fetch'/'multi'</td>
+        <td>No</td>
+        <td>dbMode to create resource</td>
+      </tr>
+      <tr>
+        <td>injectors</td>
+        <td>string/object/method</td>
+        <td>No</td>
+        <td>injectors to inject routeconfig to this db</td>
+      </tr>
+      <tr>
+        <td>middlewares</td>
+        <td>string/object/method</td>
+        <td>No</td>
+        <td>middlewares of this db</td>
+      </tr>
+      <tr>
+        <td>reverse</td>
+        <td>boolean</td>
+        <td>No</td>
+        <td>If true it creates db in reverse order</td>
+      </tr>
+      <tr>
+        <td>router</td>
+        <td>Express.Router</td>
+        <td>No</td>
+        <td>Custom Router</td>
+      </tr>
+      <tr>
+        <td>mockServer</td>
+        <td>MockServer</td>
+        <td>No</td>
+        <td>Instance of the MockServer will be passed as a param if the given db is a method</td>
+      </tr>
+    </tbody>
+  </table>
     <h3 id="homepage"><strong>homePage</strong></h3>
   <p>Returns Mock Server Home Page router.</p>
   <pre><code class="language-js"><div><span class="hljs-keyword">const</span> homePage = mockServer.homePage();
@@ -2727,12 +2796,12 @@ app.use(homePage);
 
 <span class="hljs-comment">// Please follow the same following order of setting the data</span>
 <span class="hljs-comment">// If merge param is true. it adds the data with the existing data.</span>
-mockServer.setConfig(config, merge);
-mockServer.setMiddlewares(middlewares, merge);
-mockServer.setInjectors(injectors, merge);
-mockServer.setRewriters(rewriters, merge);
-mockServer.setStore(store, merge);
-mockServer.setDb(Db, merge);
+mockServer.setConfig(config, { rootPath, merge, mockServer });
+mockServer.setMiddlewares(middlewares, { rootPath, merge, mockServer });
+mockServer.setInjectors(injectors, { rootPath, merge, mockServer });
+mockServer.setRewriters(rewriters, { rootPath, merge, mockServer });
+mockServer.setStore(store, { rootPath, merge, mockServer });
+mockServer.setDb(Db, { rootPath, merge, mockServer });
 </div></code></pre>
 <h3 id="validators"><strong>Validators</strong></h3>
 <p>These helps to return a valid data from provided file path or object.</p>
@@ -2754,16 +2823,14 @@ getValidRouteConfig,
 <span class="hljs-keyword">const</span> rootPath = <span class="hljs-string">&quot;./&quot;</span>;
 
 <span class="hljs-keyword">const</span> db = getValidDb(
-<span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
-[], <span class="hljs-comment">// injectors</span>
-rootPath, <span class="hljs-comment">// Root path to fetch the db.json file</span>
-options
+  <span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
+  { injectors, rootPath, reverse, dbMode, merge, mockServer }
 ); <span class="hljs-comment">// returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig</span>
-<span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, rootPath); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
-<span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, rootPath); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
-<span class="hljs-keyword">const</span> rewriters = getValidRewriters(rewriters, rootPath); <span class="hljs-comment">// returns a valid rewriters</span>
-<span class="hljs-keyword">const</span> config = getValidConfig(config, rootPath); <span class="hljs-comment">// returns a valid config combined with the default configs</span>
-<span class="hljs-keyword">const</span> store = getValidStore(store, rootPath); <span class="hljs-comment">// returns a valid store</span>
+<span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, { rootPath }); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
+<span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, { rootPath }); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
+<span class="hljs-keyword">const</span> rewriters = getValidRewriters(rewriters, { rootPath }); <span class="hljs-comment">// returns a valid rewriters</span>
+<span class="hljs-keyword">const</span> config = getValidConfig(config, { rootPath }); <span class="hljs-comment">// returns a valid config combined with the default configs</span>
+<span class="hljs-keyword">const</span> store = getValidStore(store, { rootPath }); <span class="hljs-comment">// returns a valid store</span>
 <span class="hljs-keyword">const</span> routeConfig = getValidRouteConfig(route, routeConfig); <span class="hljs-comment">// returns a valid routeconfig used by getValidDb</span>
 <span class="hljs-keyword">const</span> injectorConfig = getValidInjectorConfig(route, routeConfig); <span class="hljs-comment">// returns a valid injectorsConfig used by getValidInjectors</span>
 <span class="hljs-keyword">const</span> route = getValidRoute(route); <span class="hljs-comment">// splits route by comma and adds a slash (&#x27;/&#x27;) prefix to the routes</span>
