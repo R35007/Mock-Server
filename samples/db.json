@@ -1,4 +1,4 @@
-module.exports = {
+{
   "/customMockData/1": {
     "description": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
     "mock": [
@@ -142,32 +142,6 @@ module.exports = {
     "middlewares": [
       "DataWrapper"
     ]
-  },
-  "/fetch/users/customMiddleware2": {
-    "_config": true,
-    "description": "Note: This middleware must be available in the 'middleware.js' by the below given names. This 'DataWrapper' will be called on every hit of this route.",
-    "fetch": "http://jsonplaceholder.typicode.com/users",
-    "middlewares": (req, res, next) => {
-      res.locals.data = {
-        status: "Success",
-        message: "Retrieved Successfully",
-        result: res.locals.data
-      }
-      next();
-    }
-  },
-  "/addDirectMiddleware": (req, res) => {
-    // this route will ignoreMiddlewareWrappers
-    // In this route we cannot access res.locals.data or res.locals.getStore() etc...
-    // This route is similar to /ignoreMiddlewareWrappers route given below
-    res.send('This route cannot access res.locals.data or res.locals.getStore() etc... It ignores all helper middleware wrappers.');
-  },
-  "/ignoreMiddlewareWrappers": {
-    "_config": true,
-    "ignoreMiddlewareWrappers": true,
-    "middlewares": (req, res) => {
-      res.send('This route cannot access res.locals.data or res.locals.getStore() etc... It ignores all helper middleware wrappers.');
-    }
   },
   "/middleware/utils/list": {
     "_config": true,

@@ -1,27 +1,38 @@
+## v9.0.1
+
+- If methods passed as a param not working - `Fixed`.
+- Update - `mockServer.default` wont't set `config`.
+- Update - `mockServer.rewriter` wont't set `rewriters`.
+- Always use only `Setter` methods to set any data.
+
 ## v9.0.0
 
-- Renamed - `_getDb()`, `_getStore` to `getDb()`, `getStore()`
-- Added- Now it automatically picks the `index.js` file from the given folder path instead of getting all the files from the folder
+- Renamed - `_getDb()`, `_getStore` to `getDb()`, `getStore()`.
+- Added- Now it automatically picks the `index.js` file from the given folder path instead of getting all the files from the folder.
 - Added- Now we can give a method as a param to set any config, rewriter, injectors, store, sb etc...
- For example: `db.js`
- ```js
- const { MockServer } = require("@r35007/mock-server")
- module.exports = (mockServer) => {
-  if(mockServer){
-     // This can be undefined If you don't pass the mockServer instance.
+  For example: `db.js`
+
+```js
+const { MockServer } = require("@r35007/mock-server");
+module.exports = (mockServer) => {
+  if (mockServer) {
+    // This can be undefined If you don't pass the mockServer instance.
   }
   return {
     // Your Db here
-    "/post": { id: 1, name: "foo" }
-  }
- }
+    "/post": { id: 1, name: "foo" },
+  };
+};
 
- const mockServer = MockServer.Create();
- const resources = mockServer.resource(db,{ mockServer })
- mockServer.app.use(resources)
- ```
- > Note: For now it cant handle async methods.
+const mockServer = MockServer.Create();
+const resources = mockServer.resource(db, { mockServer });
+mockServer.app.use(resources);
+```
+
+> Note: For now it cant handle async methods.
+
 - Updated following method params.
+
 ```ts
 // launchServer sets all the resource data. It sets db, injectors, middlewares, store, rewriters, middlewares.
 launchServer(db?: ParamTypes.Db, { injectors, middlewares, store, rewriters, router }?: LaunchServerOptions): Promise<Server | undefined>;
@@ -44,44 +55,48 @@ getValidInjectors(injectors?: ParamTypes.Injectors | undefined, { rootPath, mock
 getValidStore(store?: ParamTypes.Store | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Store;
 getValidRewriters(rewriters?: ParamTypes.Rewriters | undefined, { rootPath, mockServer }?: SetterOptions): ValidTypes.Rewriters;
 getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, reverse, dbMode }?: SetterOptions): ValidTypes.Db;
-``` 
+```
 
 ## v8.0.1
 
-- removed unwanted console logs. 
+- removed unwanted console logs.
 
 ## v8.0.0
 
-- added `merge` param in all setters. If true it merges the data with the existing. 
+- added `merge` param in all setters. If true it merges the data with the existing.
   For Example:
+
   ```js
   mockServer.setDb({ user:{ id: 1, name: "foo" } });
   mockServer.setDb({ post:{ id: 1, name: "bar" } }); // replaces the previous one
   mockServer.setDb({ comment:{ id: 1, comment: "I am Happy !" } }, true); // adds to the previous one
 
-  mockServer.db 
-  { 
-    "/post":{_config: true, mock: { id: 1, name:"bar" } } 
-    "/comment":{_config: true, mock: { id: 1, comment: "I am Happy !" } } 
+  mockServer.db
+  {
+    "/post":{_config: true, mock: { id: 1, name:"bar" } }
+    "/comment":{_config: true, mock: { id: 1, comment: "I am Happy !" } }
   }
   ```
+
 - renamed `defaultRoutes` to `homePage`. Now we can use `mockServer.homePage` which returns the hoePage router.
 - removed - `mockServer.router`
 - removed - `mockServer.addDb` instead use `mockServer.resource`
 - update - `mockServer.resources` will always return the new router and if repeated it will add the resource to the existing resources.
-  For Example: 
+  For Example:
+
   ```js
   const user = mockServer.resources({ user:{ id: 1, name: "foo" } }); // creates user resource
   mockServer.app.use(user);
   const post = mockServer.resources({ post:{ id: 1, name: "bar" } }); // creates post resource. this resource will be added in db with the existing resources.
   mockServer.app.use(post);
 
-  mockServer.db 
-  { 
-    "/user":{_config: true, mock: { id: 1, name:"foo" } } 
-    "/post":{_config: true, mock: { id: 1, name:"bar" } } 
+  mockServer.db
+  {
+    "/user":{_config: true, mock: { id: 1, name:"foo" } }
+    "/post":{_config: true, mock: { id: 1, name:"bar" } }
   }
   ```
+
 - updated `config.staticDir` - It uses `./public` directory as the default static host directory. Set it to empty string to avoid hosting static dir.
 
 ## v7.3.0

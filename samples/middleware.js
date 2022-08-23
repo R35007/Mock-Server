@@ -2,7 +2,7 @@
   Global Middlewares
   These middlewares will be added to start of the the express app 
 */
-exports._globals = [
+const _globals = [
   (req, res, next) => {
     console.log(req.originalUrl);
     next();
@@ -16,11 +16,11 @@ exports._globals = [
   Here you can return your custom route and routeConfig
   `_harEntryCallback`, `_kibanaHitsCallback` is a reserved word for generating Db 
 */
-exports._harEntryCallback = (entry, routePath, routeConfig) => {
+const _harEntryCallback = (entry, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
-exports._kibanaHitsCallback = (hit, routePath, routeConfig) => {
+const _kibanaHitsCallback = (hit, routePath, routeConfig) => {
   // your code goes here ...
   return { [routePath]: routeConfig }
 };
@@ -32,11 +32,11 @@ exports._kibanaHitsCallback = (hit, routePath, routeConfig) => {
   Here you can return your custom db
   `_harDbCallback`, `_KibanaDbCallback` is a reserved word for generating Db
 */
-exports._harDbCallback = (data, db) => {
+const _harDbCallback = (data, db) => {
   // your code goes here ...
   return db;
 };
-exports._KibanaDbCallback = (data, db) => {
+const _KibanaDbCallback = (data, db) => {
   // your code goes here ...
   return db;
 };
@@ -55,7 +55,7 @@ exports._KibanaDbCallback = (data, db) => {
 */
 
 // You can create n number of middlewares like this and can be used in any routes as mentioned in above example.
-exports.DataWrapper = (req, res, next) => {
+const DataWrapper = (req, res, next) => {
   res.locals.data = {
     status: "Success",
     message: "Retrieved Successfully",
@@ -64,14 +64,33 @@ exports.DataWrapper = (req, res, next) => {
   next();
 };
 
-exports.CustomLog = (req, res, next) => {
+const CustomLog = (req, res, next) => {
   console.log(new Date());
   next();
 };
 
 // Access store value
-exports.GetStoreValue = (req, res, next) => {
+const GetStoreValue = (req, res, next) => {
   const store = res.locals.getStore();
   res.locals.data = "The store value is : " + store.data;
   next();
 };
+
+module.exports = (mockServer) =>{
+
+  if(mockServer){
+    // This instance of the Mock Server can be undefined if it is not passed in setters.
+    // Your Code here
+  }
+
+  return {
+    _globals,
+    _harEntryCallback,
+    _kibanaHitsCallback,
+    _harDbCallback,
+    _KibanaDbCallback,
+    DataWrapper,
+    CustomLog,
+    GetStoreValue,
+  }
+}

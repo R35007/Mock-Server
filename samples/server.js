@@ -8,8 +8,16 @@ const mockServer = MockServer.Create(config);
 
 const app = mockServer.app;
 
+// Sets global injectors, middlewares, store and rewriters
+mockServer.setData({
+  injectors: "./injectors.json",
+  middlewares: "./middleware.js",
+  store: "./store.json",
+  rewriters: "./rewriters.json"
+}, { mockServer }) // pass mockServer instance to use it in middleware.js method
+
 // Make sure to use this at first, before all the resources
-const rewriter = mockServer.rewriter("./rewriters.json");
+const rewriter = mockServer.rewriter();
 app.use(rewriter);
 
 // Returns the default middlewares
@@ -30,24 +38,9 @@ app.use((req, res, next) => {
 // This route will not be listed in Home Page.
 app.get("/echo", (req, res) => res.jsonp(req.query));
 
-// Sets global injectors, middlewares and store
-mockServer.setData({
-  injectors: "./injectors.json",
-  middlewares: "./middleware.js",
-  store: "./store.json"
-})
-
 // Creates resources and returns the express router
-const resources = mockServer.resources("./db.js");
+const resources = mockServer.resources("./db.json");
 app.use(resources);
-
-// Create new Resource with custom injectors. 
-// This db will be added to existing mockServer.db 
-// This injectors will not added to global injectors
-const newResource = mockServer.resources(
-  { "newRoute": "This is a new Route" },
-  { injectors: [{ routes: ["/(.*)"], description: "This description will only be added to this route" }] });
-app.use(newResource);
 
 // Create the Mock Server Home Page
 const homePage = mockServer.homePage();

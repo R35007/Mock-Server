@@ -74,12 +74,12 @@ export class GettersSetters {
   }
 
   setData(data: SetData = {}, options: SetterOptions = {}) {
-    !_.isEmpty(data.config) && this.setConfig(data.config, options);
-    !_.isEmpty(data.rewriters) && this.setRewriters(data.rewriters, options);
-    !_.isEmpty(data.middlewares) && this.setMiddlewares(data.middlewares, options);
-    !_.isEmpty(data.injectors) && this.setInjectors(data.injectors, options);
-    !_.isEmpty(data.store) && this.setStore(data.store, options);
-    !_.isEmpty(data.db) && this.setDb(data.db, options);
+    data.config && this.setConfig(data.config, options);
+    data.rewriters && this.setRewriters(data.rewriters, options);
+    data.middlewares && this.setMiddlewares(data.middlewares, options);
+    data.injectors && this.setInjectors(data.injectors, options);
+    data.store && this.setStore(data.store, options);
+    data.db && this.setDb(data.db, options);
   };
 
   setConfig(config?: Params.Config, { rootPath = this.#config.root, merge, mockServer }: SetterOptions = {}) {

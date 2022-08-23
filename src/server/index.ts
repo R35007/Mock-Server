@@ -15,12 +15,12 @@ import {
   PageNotFound,
   Rewriter
 } from './middlewares';
-import { LaunchServerOptions, ResourceOptions } from './types/common.types';
+import { LaunchServerOptions, ResourceOptions, SetterOptions } from './types/common.types';
 import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
 import { cleanDb, flatQuery, replaceObj } from './utils';
-import { getValidDb, getValidInjectors, getValidMiddlewares } from './utils/validators';
+import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters } from './utils/validators';
 
 export class MockServer extends GettersSetters {
 
@@ -52,7 +52,14 @@ export class MockServer extends GettersSetters {
 
   async launchServer(
     db?: ParamTypes.Db,
-    { injectors, middlewares, store, rewriters, router }: LaunchServerOptions = {}
+    {
+      injectors,
+      middlewares,
+      store,
+      rewriters,
+      router,
+      mockServer = MockServer.#mockServer,
+    }: LaunchServerOptions = {}
   ): Promise<Server | undefined> {
     const app = this.app;
 
@@ -66,7 +73,7 @@ export class MockServer extends GettersSetters {
 
     this.middlewares._globals && app.use(this.middlewares._globals);
 
-    const resources = this.resources(db, { router });
+    const resources = this.resources(db, { router, mockServer });
     app.use(this.config.base, resources);
 
     const homePage = this.homePage();
@@ -78,14 +85,20 @@ export class MockServer extends GettersSetters {
     return await this.startServer();
   };
 
-  defaults(options?: UserTypes.Config) {
-    options && this.setConfig({ ...this.config, ...options });
-    return Defaults(this.config);
+  defaults(
+    options?: UserTypes.Config,
+    { rootPath = this.config.root, mockServer = MockServer.#mockServer }: SetterOptions = {}
+  ) {
+    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { rootPath, mockServer }) : this.config
+    return Defaults(validConfig);
   }
 
-  rewriter(rewriters?: ParamTypes.Rewriters) {
-    rewriters && this.setRewriters(rewriters);
-    return Rewriter(this.rewriters);
+  rewriter(
+    rewriters?: ParamTypes.Rewriters,
+    { rootPath = this.config.root, mockServer = MockServer.#mockServer }: SetterOptions = {}
+  ) {
+    const validRewriters = rewriters ? getValidRewriters(rewriters, { rootPath, mockServer }) : this.rewriters;
+    return Rewriter(validRewriters);
   }
 
   resources(
@@ -102,9 +115,9 @@ export class MockServer extends GettersSetters {
   ) {
     console.log(chalk.gray("Loading Resources..."));
 
-    const validMiddlewares = typeof middlewares !== 'undefined' ? getValidMiddlewares(middlewares, { rootPath, mockServer }) : this.middlewares;
-    const validInjectors = typeof injectors !== 'undefined' ? getValidInjectors(injectors, { rootPath, mockServer }) : this.injectors;
-    const validDb = typeof db !== 'undefined' ? getValidDb(db, { rootPath, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
+    const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { rootPath, mockServer }) : this.middlewares;
+    const validInjectors = injectors ? getValidInjectors(injectors, { rootPath, mockServer }) : this.injectors;
+    const validDb = db ? getValidDb(db, { rootPath, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
 
     Object.entries(validDb).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
       this.#createRoute(routePath, routeConfig, router, validMiddlewares)

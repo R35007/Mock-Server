@@ -177,7 +177,7 @@ export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): st
 };
 
 export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false, onlyIndex: boolean = true) => {
-  if (_.isEmpty(data)) return;
+  if (!data) return;
   if (_.isFunction(data)) return data;
   if (_.isString(data)) return requireFile(parseUrl(data, root), [], true, isList, onlyIndex);
   if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data);

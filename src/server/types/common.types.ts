@@ -111,6 +111,7 @@ export type GetData = {
 }
 
 export type LaunchServerOptions = {
+  mockServer?: MockServer;
   injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
   store?: ParamTypes.Store,
