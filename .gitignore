@@ -4,3 +4,4 @@ dist
 test
 *.map
 coverage
+package-lock.json
