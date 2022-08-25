@@ -15,7 +15,6 @@ Now also available as a VSCodeExtension `thinker.mock-server`.
   - [Fetch Data From URL](#fetch-data-from-url)
     - [Fetch File](#fetch-file)
     - [Custom Fetch Options](#custom-fetch-options)
-    - [Use Fetch as Proxy](#use-fetch-as-proxy)
   - [Fetch Count](#fetch-count)
   - [Skip Fetch Error](#skip-fetch-error)
   - [Add Middleware](#add-middleware)
@@ -340,36 +339,6 @@ reserved key words :
 
 - `${config}` - get all config values
 - `${req}` - get all req values
-
-#### **Use Fetch as Proxy**
-
-By directly giving a url it acts like a proxy.
-It sends all the options like prams, query params, headers, data etc.. from the mock route
-
-```jsonc
-{
-  "/fetch/comments/proxy": {
-    "_config": true,
-    "description": "When you directly give the url, all the request query params and posted body data will also to sent to the given url",
-    "fetch": "http://jsonplaceholder.typicode.com/comments",
-    "fetchCount": -1
-  },
-  "/posts/:id?": {
-    "_config": true,
-    "fetch": "http://jsonplaceholder.typicode.com/${req.url}" // will become http://jsonplaceholder.typicode.com/posts/1
-  }
-}
-```
-
-> Note: `${req.url}` will prepends the route to the url.
-
-Now try the following url.
-
-[http://localhost:3000/posts](http://localhost:3000/posts).
-
-[http://localhost:3000/posts/1](http://localhost:3000/posts/1).
-
-[http://localhost:3000/fetch/comments/proxy?postId=1](http://localhost:3000/fetch/comments/proxy?postId=1).
 
 ### **Fetch Count**
 
