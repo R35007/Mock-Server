@@ -1,11 +1,11 @@
 # Mock Server[](#mock-server) [![](https://img.shields.io/npm/v/@r35007/mock-server?label=npm)](https://img.shields.io/npm/v/@r35007/mock-server?label=npm) [![](https://img.shields.io/npm/l/@r35007/mock-server?color=blue)](https://img.shields.io/npm/l/@r35007/mock-server?color=blue) [![](https://img.shields.io/npm/types/@r35007/mock-server)](https://img.shields.io/npm/types/@r35007/mock-server)
 
 
-<meta name="description">
-Get a full REST API with <b>zero coding</b> in <b>less than 30 seconds</b> (seriously)</br>
-Created with ❤️ for front-end developers who need a quick back-end for prototyping and mocking.
+<META name="description">
+Get a full REST API with <b>zero coding</b> in <b>less than 30 seconds</b> (seriously)</br></br>
+Created with <3 for front-end developers who need a quick back-end for prototyping and mocking.
 Now also available as a VSCodeExtension <a href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server">thinker.mock-server</a>.
-</meta>
+</META>
 
 ## Table of contents
 
