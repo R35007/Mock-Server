@@ -1,4 +1,5 @@
 
+import ip from "ip";
 import path from "path";
 import * as Defaults from "../../../src/server/defaults";
 import * as ParamTypes from "../../../src/server/types/param.types";
@@ -44,7 +45,7 @@ export const shouldGetValidConfig = () => {
         ["base is '/api' ", { base: "/api" }, { base: "/api" }],
         ["staticDir is not a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "/mock" }, { root: path.join(__dirname, "../../mock"), staticDir: "C:\\mock" }],
         ["staticDir is a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "../../public" }, { root: path.join(__dirname, "../../mock"), staticDir: path.join(__dirname, "../../mock", "../../public") }],
-        ["host is a empty string", { host: "" }, {}],
+        ["host is a empty string", { host: "" }, { host: ip.address() }],
         ["host is not a string", { host: 129 }, {}],
         ["host is a string", { host: "localhost" }, { host: "localhost" }],
       ])('If %s', (_condition, input, expected) => {

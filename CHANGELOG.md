@@ -1,3 +1,7 @@
+## v9.2.1
+
+- Build Fix
+
 ## v9.2.0
 
 - added - `log` in options - If true it logs the details.
