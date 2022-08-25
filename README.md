@@ -1,9 +1,11 @@
 # Mock Server[](#mock-server) [![](https://img.shields.io/npm/v/@r35007/mock-server?label=npm)](https://img.shields.io/npm/v/@r35007/mock-server?label=npm) [![](https://img.shields.io/npm/l/@r35007/mock-server?color=blue)](https://img.shields.io/npm/l/@r35007/mock-server?color=blue) [![](https://img.shields.io/npm/types/@r35007/mock-server)](https://img.shields.io/npm/types/@r35007/mock-server)
 
-Get a full REST API with **zero coding** in **less than 30 seconds** (seriously)
 
-Created with <3 for front-end developers who need a quick back-end for prototyping and mocking.
-Now also available as a VSCodeExtension `thinker.mock-server`.
+<meta name="description">
+Get a full REST API with <b>zero coding</b> in <b>less than 30 seconds</b> (seriously)</br>
+Created with ❤️ for front-end developers who need a quick back-end for prototyping and mocking.
+Now also available as a VSCodeExtension <a href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server">thinker.mock-server</a>.
+</meta>
 
 ## Table of contents
 
@@ -250,14 +252,14 @@ For Example:
 }
 ```
 
-> Note : `fetch` can be either `string` type or `AxiosRouteConfig` type.
+> Note: `fetch` can be either `string` type or `AxiosRouteConfig` type.
 > see [Fetch Data From URL](#fetch-data-from-url) for more configuration.
 
 ### **Set Delay Response**
 
 `delay` helps you to set a custom delay to your routes.
 
-> Note : The delay yo set must be in milliseconds and of type number
+> Note: The delay must be in milliseconds and of type number
 
 ```jsonc
 {
@@ -583,7 +585,7 @@ GET /posts?q=internet&_text=success
 `_CrudOperations` middleware handles all the crud operations of the given data.
 By default it also handles the `_AdvancedSearch` operations.
 
-> Note: the mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
+> Note: The mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
 
 For example: `config.json`
 
