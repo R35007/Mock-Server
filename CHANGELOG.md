@@ -1,3 +1,7 @@
+## v9.2.2
+
+- Build Fix
+
 ## v9.2.1
 
 - Build Fix
