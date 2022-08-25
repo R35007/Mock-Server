@@ -76,12 +76,10 @@ const GetStoreValue = (req, res, next) => {
   next();
 };
 
-module.exports = (mockServer) =>{
-
-  if(mockServer){
-    // This instance of the Mock Server can be undefined if it is not passed in setters.
-    // Your Code here
-  }
+module.exports = (mockServer) => {
+  const { app, routes, data, getDb, getStore } = mockServer || {};
+  const { config, db, injectors, middlewares, rewriters, store } = data;
+  // Your Global middleware logic here before setting default middlewares by the MockServer
 
   return {
     _globals,

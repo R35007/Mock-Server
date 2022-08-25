@@ -1,3 +1,11 @@
+## v9.2.0
+
+- added - `log` in options - If true it logs the details.
+- removed - `mockServer` in options from `launchServer`, `resources` and all Setters.
+- fixed - passing a method to set data requires a instance of the mockserver explicitly - `Fixed`
+- added - terminal spinners.
+- added - `prefixed` method in utils. Helps to add route prefix for all the all the routes in the given Db.
+
 ## v9.1.0
 
 - revoked - mockServer.rewriter`wont't set`rewriters`. - Now It will set to the global rewriters

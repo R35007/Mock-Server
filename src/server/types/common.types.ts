@@ -1,5 +1,4 @@
 import * as express from "express";
-import MockServer from '..';
 import HelperMiddlewares from '../middlewares';
 import * as ParamTypes from './param.types';
 import * as UserTypes from './user.types';
@@ -23,15 +22,6 @@ export type KibanaMiddleware = {
 export type MiddlewareNames = keyof Default_Middlewares
 
 export type DbMode = 'mock' | 'fetch' | 'multi';
-
-export type SetterOptions = {
-  mockServer?: MockServer;
-  rootPath?: string;
-  merge?: boolean;
-  injectors?: ParamTypes.Injectors,
-  reverse?: boolean,
-  dbMode?: DbMode
-}
 
 export interface Locals {
   routePath: string;
@@ -110,23 +100,54 @@ export type GetData = {
   config: ValidTypes.Config;
 }
 
+export type Server = {
+  app?: express.Application,
+  routes?: string[],
+  data?: GetData,
+  getDb?: () => ValidTypes.Db
+  getStore?: () => ValidTypes.Store
+}
+
+export type SetterOptions = {
+  rootPath?: string;
+  merge?: boolean;
+  log?: boolean;
+}
+
+export type DbSetterOptions = SetterOptions & {
+  injectors?: ParamTypes.Injectors,
+  reverse?: boolean,
+  dbMode?: DbMode
+}
+
+export type ValidatorOptions = {
+  rootPath?: string;
+  mockServer?: Server
+}
+
+export type DbValidatorOptions = ValidatorOptions & {
+  injectors?: ParamTypes.Injectors,
+  reverse?: boolean,
+  dbMode?: DbMode
+}
+
 export type LaunchServerOptions = {
-  mockServer?: MockServer;
   injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
   store?: ParamTypes.Store,
   rewriters?: ParamTypes.Rewriters,
-  router?: express.Router
+  router?: express.Router,
+  log?: boolean
 }
 
 export type ResourceOptions = {
-  mockServer?: MockServer;
   reverse?: boolean,
   injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
   rootPath?: string;
   router?: express.Router,
-  dbMode?: DbMode
+  dbMode?: DbMode,
+  log?: boolean,
 }
 
 

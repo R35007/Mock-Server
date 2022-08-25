@@ -14,7 +14,7 @@ mockServer.setData({
   middlewares: "./middleware.js",
   store: "./store.json",
   rewriters: "./rewriters.json"
-}, { mockServer }) // pass mockServer instance to use it in middleware.js method
+}, { mockServer, log: true }) // pass mockServer instance to use it in middleware.js method
 
 // Make sure to use this at first, before all the resources
 const rewriter = mockServer.rewriter();
@@ -39,28 +39,29 @@ app.use((req, res, next) => {
 app.get("/echo", (req, res) => res.jsonp(req.query));
 
 // Creates resources and returns the express router
-const resources = mockServer.resources("./db.json");
+const resources = mockServer.resources("./db.json", { log: true });
 app.use(resources);
 
 // Create the Mock Server Home Page
-const homePage = mockServer.homePage();
+const homePage = mockServer.homePage({ log: true });
 app.use(homePage);
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
 app.use(mockServer.errorHandler); // Default Error Handler
 
-mockServer.startServer();
+mockServer.startServer()
 // mockServer.startServer(port, host); // can also set port and host here
 
 //or
 // Use  mockServer.launchServer which does every above and starts the server.
 
-/* mockServer.launchServer("./db.js", {
-  injectors: "./injectors.json",
-  middlewares: "./middleware.js",
-  rewriters: "./rewriters.json",
-  store: "./store.json"
-}) */
+// mockServer.launchServer("./db.js", {
+//   injectors: "./injectors.json",
+//   middlewares: "./middleware.js",
+//   rewriters: "./rewriters.json",
+//   store: "./store.json",
+//   log: true
+// })
 
 // or
 // You can also run thru CLI command

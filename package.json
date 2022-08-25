@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "9.1.0",
+  "version": "9.2.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -58,21 +58,20 @@
     "express": "^4.17.1",
     "express-urlrewrite": "^1.4.0",
     "fs-extra": "^10.0.0",
+    "ip": "^1.1.5",
     "json-parse-helpfulerror": "^1.0.3",
     "lodash": "^4.17.21",
     "lodash-id": "^0.14.1",
     "method-override": "^3.0.0",
     "morgan": "^1.10.0",
     "nanoid": "^3.1.23",
+    "ora": "^5.4.1",
     "path-to-regexp": "^6.2.0",
     "response-time": "^2.3.2",
     "server-destroy": "^1.0.1",
-    "yargs": "^17.0.1",
-    "ip": "^1.1.5"
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.182",
-    "@types/supertest": "^2.0.12",
     "@types/axios": "^0.14.0",
     "@types/chokidar": "^2.1.3",
     "@types/compression": "^1.7.1",
@@ -83,12 +82,14 @@
     "@types/ip": "^1.1.0",
     "@types/jest": "^27.4.1",
     "@types/json-parse-helpfulerror": "^1.0.1",
+    "@types/lodash": "^4.14.182",
     "@types/method-override": "0.0.32",
     "@types/morgan": "^1.9.3",
     "@types/nanoid": "^3.0.0",
     "@types/node": "^17.0.27",
     "@types/path-to-regexp": "^1.7.0",
     "@types/server-destroy": "^1.0.1",
+    "@types/supertest": "^2.0.12",
     "@types/yargs": "^17.0.0",
     "jest": "^27.5.1",
     "nodemon": "^2.0.19",

@@ -3,7 +3,7 @@ import ip from 'ip';
 import * as _ from "lodash";
 import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
 import * as Defaults from '../defaults';
-import { DbMode, SetterOptions } from '../types/common.types';
+import { DbMode, DbValidatorOptions, ValidatorOptions } from '../types/common.types';
 import * as ParamTypes from "../types/param.types";
 import * as UserTypes from "../types/user.types";
 import * as ValidTypes from "../types/valid.types";
@@ -11,7 +11,7 @@ import { getStats, parseUrl, requireData } from './fetch';
 
 export const getValidConfig = (
   config?: ParamTypes.Config,
-  { rootPath = Defaults.Config.root, mockServer }: SetterOptions = {}
+  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Config => {
   const requiredData = requireData(config, rootPath);
   const userConfig: UserTypes.Config = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
@@ -36,7 +36,7 @@ export const getValidConfig = (
 
 export const getValidMiddlewares = (
   middlewares?: ParamTypes.Middlewares,
-  { rootPath = Defaults.Config.root, mockServer }: SetterOptions = {}
+  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Middlewares => {
   const requiredData = requireData(middlewares, rootPath);
   const userMiddlewares: UserTypes.Middlewares = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
@@ -64,7 +64,7 @@ export const getValidMiddlewares = (
 
 export const getValidInjectors = (
   injectors?: ParamTypes.Injectors,
-  { rootPath = Defaults.Config.root, mockServer }: SetterOptions = {}
+  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Injectors => {
   const requiredData = requireData(injectors, rootPath, true);
   const userInjectors: UserTypes.InjectorConfig = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
@@ -78,7 +78,7 @@ export const getValidInjectors = (
 
 export const getValidStore = (
   store?: ParamTypes.Store,
-  { rootPath = Defaults.Config.root, mockServer }: SetterOptions = {}
+  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Store => {
   const requiredData = requireData(store, rootPath);
   const userStore: UserTypes.Store = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
@@ -90,7 +90,7 @@ export const getValidStore = (
 
 export const getValidRewriters = (
   rewriters?: ParamTypes.Rewriters,
-  { rootPath = Defaults.Config.root, mockServer }: SetterOptions = {}
+  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Rewriters => {
   const requiredData = requireData(rewriters, rootPath);
   const userRewriters: UserTypes.Rewriters = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
@@ -108,7 +108,7 @@ export const getValidDb = (
     rootPath = Defaults.Config.root,
     reverse = Defaults.Config.reverse,
     dbMode = Defaults.Config.dbMode
-  }: SetterOptions = {}
+  }: DbValidatorOptions = {}
 ): ValidTypes.Db => {
   const requiredData = requireData(data, rootPath);
   const userData: UserTypes.Db = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;

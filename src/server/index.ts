@@ -2,6 +2,7 @@ import chalk from "chalk";
 import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
+import ora from 'ora';
 import path from "path";
 import enableDestroy from 'server-destroy';
 import { GettersSetters } from './getters-setters';
@@ -58,12 +59,12 @@ export class MockServer extends GettersSetters {
       store,
       rewriters,
       router,
-      mockServer = MockServer.#mockServer,
+      log
     }: LaunchServerOptions = {}
   ): Promise<Server | undefined> {
     const app = this.app;
 
-    this.setData({ injectors, middlewares, store, rewriters });
+    this.setData({ injectors, middlewares, store, rewriters }, { log });
 
     const rewriter = this.rewriter();
     app.use(rewriter);
@@ -73,10 +74,10 @@ export class MockServer extends GettersSetters {
 
     this.middlewares._globals && app.use(this.middlewares._globals);
 
-    const resources = this.resources(db, { router, mockServer });
+    const resources = this.resources(db, { router, log });
     app.use(this.config.base, resources);
 
-    const homePage = this.homePage();
+    const homePage = this.homePage({ log });
     app.use(this.config.base, homePage);
 
     app.use(this.pageNotFound);
@@ -87,17 +88,17 @@ export class MockServer extends GettersSetters {
 
   defaults(
     options?: UserTypes.Config,
-    { rootPath = this.config.root, mockServer = MockServer.#mockServer }: SetterOptions = {}
+    { rootPath = this.config.root }: SetterOptions = {}
   ) {
-    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { rootPath, mockServer }) : this.config
+    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { rootPath }) : this.config
     return Defaults(validConfig);
   }
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
-    { rootPath = this.config.root, mockServer = MockServer.#mockServer }: SetterOptions = {}
+    { rootPath = this.config.root, log }: SetterOptions = {}
   ) {
-    this.setRewriters(rewriters, { rootPath, mockServer, merge: true })
+    rewriters && this.setRewriters(rewriters, { rootPath, log, merge: true })
     return Rewriter(this.rewriters);
   }
 
@@ -106,15 +107,16 @@ export class MockServer extends GettersSetters {
     {
       injectors,
       middlewares,
-      mockServer = MockServer.#mockServer,
       reverse = this.config.reverse,
       rootPath = this.config.root,
       dbMode = this.config.dbMode,
-      router = express.Router()
+      router = express.Router(),
+      log
     }: ResourceOptions = {},
   ) {
-    console.log(chalk.gray("Loading Resources..."));
+    const spinner = log ? ora('Loading Resources...').start() : false;
 
+    const mockServer = this._getServerDetails();
     const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { rootPath, mockServer }) : this.middlewares;
     const validInjectors = injectors ? getValidInjectors(injectors, { rootPath, mockServer }) : this.injectors;
     const validDb = db ? getValidDb(db, { rootPath, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
@@ -123,7 +125,7 @@ export class MockServer extends GettersSetters {
       this.#createRoute(routePath, routeConfig, router, validMiddlewares)
     );
 
-    console.log(chalk.gray("Done."));
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Resources Loaded.") });
     return router;
   };
 
@@ -173,18 +175,22 @@ export class MockServer extends GettersSetters {
 
     const { port: _port, host: _host, base: _base } = this.config;
 
+    const spinner = ora('Starting Server...').start();
+
     return new Promise((resolve, reject) => {
 
       if (this.server) {
+        spinner.stop();
         this.port = undefined;
         this.address = undefined;
         this.listeningTo = undefined;
         const { port } = this.server.address() as { address: string; family: string; port: number; };
-        console.error("\nServer already listening to port : " + port);
+        console.error(chalk.red("\nServer already listening to port : ") + chalk.yellow(port));
         return reject(new Error("Server already listening to port : " + port));
       }
 
-      this.server = this.app.listen(_port, _host, () => {
+      this.server = this.app.listen(_port, _host, async () => {
+        spinner.stop();
         console.log(chalk.green("Mock Server Started!"));
 
         const serverAddress = this.server!.address() as { address: string; family: string; port: number; };
@@ -204,28 +210,33 @@ export class MockServer extends GettersSetters {
         enableDestroy(this.server!); // Enhance with a destroy function
         resolve(this.server!);
       }).on("error", (err) => {
+        spinner.stop();
         this.port = undefined;
         this.server = undefined;
         this.address = undefined;
         this.listeningTo = undefined;
-        console.error("\nServer Error : " + chalk.red(err.message));
+        console.error(chalk.red("\nServer Failed to Start!"));
+        console.error(err.message);
         reject(err);
       })
     })
   };
 
   stopServer(): Promise<boolean> {
-    console.log("\n" + chalk.gray("Stopping Server..."));
+    const spinner = ora('Stopping Server...').start();
     return new Promise((resolve, reject) => {
 
-      if (!this.server) {
-        console.error("\nNo Server to Stop");
+      if (!this.server || !this.server?.destroy) {
+        spinner.stop();
+        console.error(chalk.red("\nNo Server to Stop"));
         return reject(new Error("No Server to Stop"));
       }
 
-      this.server?.destroy((err) => {
+      this.server?.destroy?.((err) => {
         if (err) {
-          console.error("\nServer Error : " + chalk.red(err.message));
+          spinner.stop();
+          console.error(chalk.red("\nServer Failed to Stop!"));
+          console.error(err.message);
           return reject(err);
         }
         this.port = undefined;
@@ -233,7 +244,8 @@ export class MockServer extends GettersSetters {
         this.address = undefined;
         this.listeningTo = undefined;
 
-        console.log(chalk.gray("Mock Server Stopped"));
+        spinner.stop();
+        console.log(chalk.green("Mock Server Stopped!"));
         resolve(true);
       })
     })
@@ -260,7 +272,9 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  homePage() {
+  homePage({ log }: { log?: boolean } = {}) {
+    const spinner = log ? ora('Loading HomePage Resources...').start() : false;
+
     const router = express.Router();
 
     const homePageDir = path.join(__dirname, '../../public'); // Serve Home page files
@@ -290,6 +304,7 @@ export class MockServer extends GettersSetters {
       router.all(routePath, middleware as express.RequestHandler);
     })
 
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("HomePage Resources Loaded.") });
     return router;
   }
 
@@ -300,7 +315,7 @@ export class MockServer extends GettersSetters {
         injectors: this.injectors,
         reverse: this.config.reverse,
         dbMode: this.config.dbMode,
-        mockServer: MockServer.#mockServer
+        mockServer: this._getServerDetails()
       }
     );
 

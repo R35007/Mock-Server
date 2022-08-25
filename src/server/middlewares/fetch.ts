@@ -68,11 +68,12 @@ export const setRequestUrl = (req, res) => {
   const fetchCount = parseInt(`${routeConfig.fetchCount ?? ''}`);
   routeConfig.fetchCount = isNaN(fetchCount) ? 1 : fetchCount;
   const fetch = getUrlDetail(req, res);
-  if (fetch) {
-    routeConfig._request = fetch.request;
-    routeConfig._isFile = fetch.isFile;
-    routeConfig._extension = fetch.extension;
-  }
+  
+  if (!fetch) return;
+  
+  routeConfig._request = fetch.request;
+  routeConfig._isFile = fetch.isFile;
+  routeConfig._extension = fetch.extension;
 }
 
 const getUrlDetail = (req, res) => {
@@ -80,8 +81,8 @@ const getUrlDetail = (req, res) => {
   const fetch = locals.routeConfig.fetch;
 
   let request = {} as AxiosRequestConfig;
-  if (typeof fetch === 'string') {
-    request = { url: fetch, headers: { proxy: true } }
+  if (_.isString(fetch)) {
+    request = { url: fetch }
   } else if (_.isPlainObject(fetch)) {
     request = _.cloneDeep(fetch) as AxiosRequestConfig;
   } else {
@@ -96,7 +97,6 @@ const getUrlDetail = (req, res) => {
     const interpolatedUrl = interpolate({ config: locals.config, req: _.cloneDeep(req) }, parsedUrl);
     const stats = getStats(interpolatedUrl);
     request.url = interpolatedUrl;
-    delete request.headers;
     return { request, ...stats };
   }
 }
@@ -105,26 +105,6 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   const locals = res.locals as Locals;
   const config = locals.config;
   const replacedPath = interpolate({ config, req: _.cloneDeep(req) }, fetch.url?.replace(/\\/g, "/"))
-
-  type Request = AxiosRequestConfig & { query?: any, body?: any };
-  const expReq = _.fromPairs(Object.entries(req).filter(r => AxiosRequestConfig.includes(r[0]))) as Request;
-
-  // removes unwanted headers
-  Object.keys(expReq.headers || {} as Request).forEach(h => {
-    !AxiosHeadersConfig.includes(h) && delete expReq.headers[h];
-  })
-
-  expReq.data = req.body;
-  expReq.params = req.query;
-  expReq.url = replacedPath;
-
-  if (fetch.headers?.proxy) {
-    delete expReq.query;
-    delete expReq.body;
-    cleanObject(expReq);
-    return expReq as AxiosRequestConfig;
-  }
-
   const fetchEntries = Object.entries(fetch).map(([key, val]) => {
     return [key, interpolate({ config, req: _.cloneDeep(req) }, val.replace(/\\/g, "/"))]
   })
@@ -132,38 +112,5 @@ const getValidReq = (req, res, fetch: AxiosRequestConfig): AxiosRequestConfig =>
   cleanObject(request);
   return request as AxiosRequestConfig;
 }
-
-const AxiosRequestConfig: string[] = [
-  "headers",
-  "method",
-  "baseURL",
-  "params",
-  "query",
-  "data",
-  "body",
-  "adapter",
-  "auth",
-  "responseType",
-  "maxContentLength",
-  "validateStatus",
-  "maxBodyLength",
-  "maxRedirects",
-  "socketPath",
-  "httpAgent",
-  "httpsAgent",
-  "proxy",
-  "cancelToken",
-  "decompress"
-]
-
-const AxiosHeadersConfig: string[] = [
-  "Content-Type",
-  "Content-Disposition",
-  "X-REQUEST-TYPE",
-  "Content-Length",
-  "Accept-Language",
-  "Accept",
-  "Authorization"
-]
 
 export default Fetch
