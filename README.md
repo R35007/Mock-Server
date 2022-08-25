@@ -1112,6 +1112,7 @@ mockServer.launchServer("./db.json", {
 | store       | string/object/method | No       | store of this db                           |
 | rewriters   | string/object/method | No       | rewriters of this db                       |
 | router      | Express.Router       | No       | Custom Router                              |
+| log         | boolean              | No       | If tru it logs the setter log              |
 
 ### **rewriter**
 
@@ -1131,10 +1132,10 @@ app.use(rewriters);
 
 **`[options]`**
 
-| Name       | Type       | Required | Description                                      |
-| ---------- | ---------- | -------- | ------------------------------------------------ |
-| rootPath   | string     | No       | To require rewriter file relative to this path   |
-| mockServer | MockServer | No       | MockServer instance that be passed in the method |
+| Name     | Type    | Required | Description                                    |
+| -------- | ------- | -------- | ---------------------------------------------- |
+| rootPath | string  | No       | To require rewriter file relative to this path |
+| log      | boolean | No       | If true it logs the rewriters setting log      |
 
 ### **defaults**
 
@@ -1184,15 +1185,15 @@ app.use(resources);
 
 **`[options]`**
 
-| Name        | Type                    | Required | Description                                                                      |
-| ----------- | ----------------------- | -------- | -------------------------------------------------------------------------------- |
-| rootPath    | string                  | No       | rootPath to get db from a file                                                   |
-| dbMode      | 'mock'/ 'fetch'/'multi' | No       | dbMode to create resource                                                        |
-| injectors   | string/object/method    | No       | injectors to inject routeconfig to this db                                       |
-| middlewares | string/object/method    | No       | middlewares of this db                                                           |
-| reverse     | boolean                 | No       | If true it creates db in reverse order                                           |
-| router      | Express.Router          | No       | Custom Router                                                                    |
-| mockServer  | MockServer              | No       | Instance of the MockServer will be passed as a param if the given db is a method |
+| Name        | Type                    | Required | Description                                |
+| ----------- | ----------------------- | -------- | ------------------------------------------ |
+| rootPath    | string                  | No       | rootPath to get db from a file             |
+| dbMode      | 'mock'/ 'fetch'/'multi' | No       | dbMode to create resource                  |
+| injectors   | string/object/method    | No       | injectors to inject routeconfig to this db |
+| middlewares | string/object/method    | No       | middlewares of this db                     |
+| reverse     | boolean                 | No       | If true it creates db in reverse order     |
+| router      | Express.Router          | No       | Custom Router                              |
+| log         | boolean                 | No       | If tru it logs the resources setting log   |
 
 ### **homePage**
 
@@ -1302,12 +1303,12 @@ mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
 
 // Please follow the same following order of setting the data
 // If merge param is true. it adds the data with the existing data.
-mockServer.setConfig(config, { rootPath, merge, mockServer });
-mockServer.setMiddlewares(middlewares, { rootPath, merge, mockServer });
-mockServer.setInjectors(injectors, { rootPath, merge, mockServer });
-mockServer.setRewriters(rewriters, { rootPath, merge, mockServer });
-mockServer.setStore(store, { rootPath, merge, mockServer });
-mockServer.setDb(Db, { rootPath, merge, mockServer });
+mockServer.setConfig(config, { rootPath, merge, log });
+mockServer.setMiddlewares(middlewares, { rootPath, merge, log });
+mockServer.setInjectors(injectors, { rootPath, merge, log });
+mockServer.setRewriters(rewriters, { rootPath, merge, log });
+mockServer.setStore(store, { rootPath, merge, log });
+mockServer.setDb(Db, { rootPath, merge, log });
 ```
 
 ### **Validators**
@@ -1334,12 +1335,12 @@ const rootPath = "./";
 
 const db = getValidDb(
   "db.json", // db or HAR
-  { injectors, rootPath, reverse, dbMode, merge, mockServer }
+  { injectors, rootPath, reverse, dbMode, mockServer }
 ); // returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig
-const middleware = getValidMiddlewares(middlewares, { rootPath }); // returns a valid middleware along with the default middlewares
-const injectors = getValidInjectors(injectors, { rootPath }); // returns a valid injectors. internally use getValidInjectorConfig
-const rewriters = getValidRewriters(rewriters, { rootPath }); // returns a valid rewriters
-const config = getValidConfig(config, { rootPath }); // returns a valid config combined with the default configs
+const middleware = getValidMiddlewares(middlewares, { rootPath, mockServer }); // returns a valid middleware along with the default middlewares
+const injectors = getValidInjectors(injectors, { rootPath, mockServer }); // returns a valid injectors. internally use getValidInjectorConfig
+const rewriters = getValidRewriters(rewriters, { rootPath, mockServer }); // returns a valid rewriters
+const config = getValidConfig(config, { rootPath, mockServer }); // returns a valid config combined with the default configs
 const store = getValidStore(store, { rootPath }); // returns a valid store
 const routeConfig = getValidRouteConfig(route, routeConfig); // returns a valid routeconfig used by getValidDb
 const injectorConfig = getValidInjectorConfig(route, routeConfig); // returns a valid injectorsConfig used by getValidInjectors
