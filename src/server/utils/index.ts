@@ -300,7 +300,7 @@ export const interpolate = (object: Object, format: string = "") => {
   }
 };
 
-export const prefixed = (prefix: string, object: Object) => {
+export const prefixed = (prefix: string, object: Object): object => {
   const entries = Object.entries(object).map(([route, routeConfig]) => {
     const prefixedRoute = getValidRoute(`${getValidRoute(prefix)}/${getValidRoute(route)}`);
     return [prefixedRoute, routeConfig]
