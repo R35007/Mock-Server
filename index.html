@@ -2001,8 +2001,7 @@ GET /comments?author.name=sivaraman
     <h4 id="paginate">Paginate</h4>
     <p>Use <code>_page</code> and optionally <code>_limit</code> to paginate returned data.</p>
     <p>In the <code>Link</code> header you'll get <code>first</code>, <code>prev</code>, <code>next</code> and
-      <code>last</code> links.
-    </p>
+      <code>last</code> links.</p>
     <pre><code><code><div>GET /posts?_page=7
 GET /posts?_page=7&amp;_limit=20
 </div></code></code></pre>
@@ -2044,8 +2043,7 @@ GET /posts/1/comments?_start=20&amp;_limit=10
       By default it also handles the <code>_AdvancedSearch</code> operations.</p>
     <blockquote>
       <p>Note: The mock must of type Array of objects and must contain a unique value of attribute <code>id</code>. This
-        <code>id</code> attribute can also be changes using <code>config.id</code>.
-      </p>
+        <code>id</code> attribute can also be changes using <code>config.id</code>.</p>
     </blockquote>
     <p>For example: <code>config.json</code></p>
     <pre><code class="language-jsonc"><div>{
@@ -2113,8 +2111,7 @@ GET /posts/1/comments?_start=20&amp;_limit=10
     <h3 id="inject-route-configs"><strong>Inject Route Configs</strong></h3>
     <p>Here we are explicitly injecting <code>delay</code>, <code>middlewares</code>, <code>statusCode</code> to the
       <code>/posts</code> route.
-      You can any route configs to a specific or to a group of routes using Injectors.
-    </p>
+      You can any route configs to a specific or to a group of routes using Injectors.</p>
     <ul>
       <li>Injectors use <code>path-to-regexp</code> package for route pattern recognition.</li>
       <li>Click <a href="https://www.npmjs.com/package/path-to-regexp">path-to-regexp</a> for more details.</li>
@@ -2307,8 +2304,7 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, 
       For Example :</p>
     <ol>
       <li><code>dbMode</code> is <code>multi</code> - Only direct <code>string</code> value will be assigned to
-        <code>fetch</code> attribute. All other values will be assigned to <code>mock</code> attribute
-      </li>
+        <code>fetch</code> attribute. All other values will be assigned to <code>mock</code> attribute</li>
     </ol>
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> db = {
   <span class="hljs-attr">route1</span>: <span class="hljs-string">&quot;My Response&quot;</span>, <span class="hljs-comment">// String</span>
@@ -2378,26 +2374,28 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, 
     <h2 id="cli-usage">CLI Usage</h2>
     <pre><code class="language-sh"><div>$ mock-server --<span class="hljs-built_in">help</span>
 Options:
-  -c, --config             Path to config file                            [string]
-  -p, --port               Set port                                [default: 3000]
-  -h, --host               Set host                         [default: <span class="hljs-string">&quot;localhost&quot;</span>]
-  -m, --middleware         Paths to middleware file                      [string]
-  -i, --injectors          Path to Injectors file                         [string]
-  -s, --store              Path to Store file                             [string]
-  -r, --rewriters          Path to Rewriter file                          [string]
-      --staticDir, --sd    Set static files directory                     [string]
-  -b, --base               Set base route path                            [string]
-      --dbMode, --dm       Set Db mode                                    [string]
-      --readOnly, --ro     Allow only GET requests                       [boolean]
-      --noCors, --nc       Disable Cross-Origin Resource Sharing         [boolean]
-      --bodyParser, --bp   Enable body-parser middleware                 [boolean]
-      --cookieParser, --cp Enable cookie-parser middleware               [boolean]
-      --noGzip, --ng       Disable GZIP Content-Encoding                 [boolean]
-  -l, --logger             Enable logger                 [boolean] [default: <span class="hljs-literal">true</span>]
-  -w, --watch              Watch file(s)                [boolean] [default: <span class="hljs-literal">false</span>]
-  -S, --snapshots          Set snapshots directory                  [default: <span class="hljs-string">&quot;.&quot;</span>]
-  -h, --<span class="hljs-built_in">help</span>               Show <span class="hljs-built_in">help</span>                                     [boolean]
-  -v, --version            Show version number                           [boolean]
+  -c, --config              Path to config file                         [string]
+  -P, --port                Set port                                    [number] [default: 3000]
+  -H, --host                Set host                                    [string] [default: <span class="hljs-string">&quot;localhost&quot;</span>]
+  -d, --db                  Path to routes file                         [string]
+  -m, --middlewares         Paths to middlewares file                   [string]
+  -i, --injectors           Path to Injectors file                      [string]
+  -s, --store               Path to Store file                          [string]
+  -r, --rewriters           Path to Rewriter file                       [string]
+  -b, --base                Set base route path                         [string]
+      --staticDir, --st     Set static files directory                  [string]
+      --dbMode, --dm        Set Db mode                                 [string]
+      --snapshots, --ss     Set snapshots directory                     [string] [default: <span class="hljs-string">&quot;.&quot;</span>]
+      --readOnly, --ro      Allow only GET requests                     [boolean] [default: <span class="hljs-literal">false</span>]
+      --noCors, --nc        Disable Cross-Origin Resource Sharing       [boolean] [default: <span class="hljs-literal">false</span>]
+      --noGzip, --ng        Disable GZIP Content-Encoding               [boolean] [default: <span class="hljs-literal">false</span>]
+      --bodyParser, --bp    Enable body-parser                          [boolean] [default: <span class="hljs-literal">true</span>]
+      --cookieParser, --cp  Enable cookie-parser                        [boolean] [default: <span class="hljs-literal">true</span>]
+  -l, --logger              Enable logger                               [boolean] [default: <span class="hljs-literal">true</span>]
+  -w, --watch               Watch file(s)                               [boolean] [default: <span class="hljs-literal">false</span>]
+  -q, --quite               Prevent console logs                        [boolean] [default: <span class="hljs-literal">false</span>]
+  -h, --<span class="hljs-built_in">help</span>                Show <span class="hljs-built_in">help</span>                                   [boolean]
+  -v, --version             Show version number                         [boolean]
 
 Examples:
   mock-server db.json
