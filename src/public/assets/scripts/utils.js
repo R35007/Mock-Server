@@ -54,7 +54,6 @@ function orderRouteConfig(routeConfig) {
   const clonedRouteConfig = JSON.parse(JSON.stringify(routeConfig));
   const order = [
     "id",
-    "_isDefault",
     "description",
     "middlewares",
     "statusCode",

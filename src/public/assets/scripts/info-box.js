@@ -11,7 +11,8 @@ function hideInfoBox($li) {
 }
 
 function showInfoBox($li, id) {
-  const [_routePath, routeConfig] = findEntry(id);
+  const [routePath, routeConfig] = findEntry(id);
+  const isDefaultRoute = routeConfig?._default;
 
   $li.classList.add("expanded");
   $li.appendChild(
@@ -23,11 +24,11 @@ function showInfoBox($li, id) {
         </div>
       </div>
       <div class="route-config p-1">${fieldSet(routeConfig, routeConfig.id)}</div>
-      <div class="actions justify-content-end p-2" style="display: ${routeConfig._isDefault ? 'none' : 'flex'}">
-        <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i class="fas fa-undo"></i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i class="fas fa-pen"></i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="clone" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}"><i class="fas fa-clone"></i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="refresh('${routeConfig.id}')"><i class="fas fa-sync-alt"></i></span>
+      <div class="actions justify-content-end p-2" style="display: ${isDefaultRoute ? 'none' : 'flex'}">
+        <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i>Reset</i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i>Edit</i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="clone" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}"><i>Clone</i></span>
+        <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="refresh('${routeConfig.id}')"><i>Refresh</i></span>
       </div>
     </div>`
     )
@@ -40,7 +41,7 @@ async function reset(id) {
   $infoBoxLoader.classList.remove("d-none");
   $infoBoxLoader.classList.add("d-block");
 
-  const restoredRoutes = await window.fetch(localhost + "/_reset/db/" + id).then((res) => res.json());
+  const restoredRoutes = await window.fetch(localhost + "/_reset/" + id).then((res) => res.json());
 
   const [routePath, routeConfig] = Object.entries(restoredRoutes)[0];
   resources[routePath] = routeConfig
@@ -73,7 +74,7 @@ function fieldSet(obj, id) {
             <button class="btn btn-white fw-semibold border-0 p-0 shadow-none" type="button" 
             data-bs-toggle="collapse" data-bs-target="#id-${id.replace(/\=/g, "")}_${key}" 
             aria-expanded="false" aria-controls="id-${id.replace(/\=/g, "")}_${key}">
-              ${key} <i class="fa-solid fa-caret-right"></i>
+              ${key} ▸
             </button>   
           </label>
           <div class="val col-12 collapse ps-0" id="id-${id.replace(/\=/g, "")}_${key}">${fieldSet(val, id)}</div>
@@ -86,6 +87,7 @@ function fieldSet(obj, id) {
 
 // Todo: Need to optimize the code
 function getKeyVal(key, val, id) {
+  if (key === "_default") return '';
   if ((!['mock', 'response'].includes(key) && !(val + '')?.length) || val === null || val === undefined || key === "_config") return '';
 
   if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
@@ -114,7 +116,7 @@ function getKeyVal(key, val, id) {
         <button class="btn btn-white fw-semibold border-0 p-0 shadow-none" type="button" 
         data-bs-toggle="collapse" data-bs-target="#id-${id.replace(/\=/g, "")}_${key}" 
         aria-expanded="false" aria-controls="id-${id.replace(/\=/g, "")}_${key}">
-          ${key} <i class="fa-solid fa-caret-right"></i>
+          ${key} ▸
         </button>  
       </label>
       <div class="val col-12 collapse p-0 mt-2 position-relative" id="id-${id.replace(/\=/g, "")}_${key}">

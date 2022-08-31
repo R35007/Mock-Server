@@ -93,7 +93,7 @@ const getUrlDetail = (req, res) => {
     request = getValidReq(req, res, request);
     return { request, isFile: false, extension: "" };
   } else {
-    const parsedUrl = parseUrl(request.url, locals.config.root).replace(/\\/g, "/");
+    const parsedUrl = parseUrl(request.url, locals.config.rootPath).replace(/\\/g, "/");
     const interpolatedUrl = interpolate({ config: locals.config, req: _.cloneDeep(req) }, parsedUrl);
     const stats = getStats(interpolatedUrl);
     request.url = interpolatedUrl;

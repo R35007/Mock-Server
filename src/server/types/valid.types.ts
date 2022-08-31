@@ -3,9 +3,9 @@ import { DbMode, Default_Middlewares, Global_Middlweares, HarMiddleware, KibanaM
 import * as UserTypes from "./user.types";
 
 export type Config = {
+  rootPath: string;
   port: number;
   host: string;
-  root: string;
   base: string;
   id: string;
   dbMode: DbMode

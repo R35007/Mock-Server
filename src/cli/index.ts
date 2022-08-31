@@ -6,55 +6,42 @@ import * as fs from 'fs';
 import * as path from 'path';
 import MockServer from "../server";
 import * as ParamTypes from '../server/types/param.types';
-import { createSampleFiles } from "../server/utils";
 import argv from './argv';
+import ora from 'ora';
 
 const init = async () => {
   let {
-    db, config, middleware, injectors, store, rewriters, port, host,
-    id, staticDir, base, noCors, noGzip, readOnly, cookieParser, bodyParser, sample, watch, snapshots, _: [source]
+    db, config, middlewares, injectors, store, rewriters, port, host,
+    id, staticDir, dbMode, base, noCors, noGzip, readOnly, cookieParser, bodyParser, watch, snapshots, _: [source]
   } = argv();
 
   const _config: ParamTypes.Config = typeof config === 'string' ? path.resolve(process.cwd(), config) as ParamTypes.Config : {
-    port, host, id, staticDir, base, noCors, noGzip, cookieParser, bodyParser, readOnly, root: process.cwd()
+    port, host, id, staticDir, dbMode, base, noCors, noGzip, cookieParser, bodyParser, readOnly, rootPath: process.cwd()
   } as ParamTypes.Config;
 
-  if (sample) {
-    createSampleFiles(process.cwd());
-    const db = path.join(process.cwd(), 'db.json');
-    const middleware = path.join(process.cwd(), 'middleware.js');
-    const injectors = path.join(process.cwd(), 'injectors.json');
-    const rewriters = path.join(process.cwd(), 'rewriters.json');
-    const store = path.join(process.cwd(), 'store.json');
+  db = source || db;
 
-    console.log(chalk.gray('Sample files created !'));
-
-    await startServer(snapshots, watch, db, middleware, injectors, rewriters, store, _config);
-  } else {
-    db = source || db;
-
-    if (db) {
-      if (db?.startsWith("http")) {
-        console.log(chalk.gray(`\nLoading ${db}`));
-        const _db = await axios.get(db).then(resp => resp.data).catch(err => {
-          console.log(chalk.red(err.message));
-          return;
-        });
-        if (!_db) return;
-        db = _db;
-        console.log(chalk.gray(`Done.`));
-      } else {
-        db = path.resolve(process.cwd(), db);
-      }
+  if (db) {
+    if (db?.startsWith("http")) {
+      const spinner = ora(chalk.yellow(db)).start();
+      const _db = await axios.get(db).then(resp => resp.data).catch(err => {
+        console.log(chalk.red(err.message));
+        return;
+      });
+      if (!_db) return;
+      db = _db;
+      spinner.stopAndPersist({ symbol: chalk.green("✔"), text: chalk.green(db) });
+    } else {
+      db = path.resolve(process.cwd(), db);
     }
-    middleware = middleware && path.resolve(process.cwd(), middleware);
-    injectors = injectors && path.resolve(process.cwd(), injectors);
-    store = store && path.resolve(process.cwd(), store);
-    rewriters = rewriters && path.resolve(process.cwd(), rewriters);
-
-    await startServer(snapshots, watch, db, middleware, injectors,
-      rewriters, store, _config);
   }
+  middlewares = middlewares && path.resolve(process.cwd(), middlewares);
+  injectors = injectors && path.resolve(process.cwd(), injectors);
+  store = store && path.resolve(process.cwd(), store);
+  rewriters = rewriters && path.resolve(process.cwd(), rewriters);
+
+  await startServer(snapshots, watch, db, middlewares, injectors,
+    rewriters, store, _config);
 }
 
 const startServer = async (
@@ -86,7 +73,7 @@ const startServer = async (
           mockServer.server && await mockServer.stopServer();
           !mockServer.server && await mockServer.launchServer(db, { middlewares, injectors, rewriters, store });
           console.log(chalk.gray('watching for changes...'));
-          console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
+          console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database.'));
         } catch (err) {
           console.error(err.message);
         }

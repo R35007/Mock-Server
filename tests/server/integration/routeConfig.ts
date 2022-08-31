@@ -8,7 +8,7 @@ export const routeConfig = () => {
     let mockServer: MockServer;
 
     beforeAll(async () => { await MockServer.Destroy() });
-    beforeEach(() => { mockServer = MockServer.Create({ root: path.join(__dirname, "../../../") }) });
+    beforeEach(() => { mockServer = MockServer.Create({ rootPath: path.join(__dirname, "../../../") }) });
     afterEach(async () => { await MockServer.Destroy() });
     afterAll(async () => { await MockServer.Destroy() });
 
@@ -70,10 +70,10 @@ export const routeConfig = () => {
     });
 
     it('should fetch data from file path', async () => {
-      const db = { "/users": { _config: true, fetch: "./samples/data/users.json" } }
+      const db = { "/users": { _config: true, fetch: "./src/samples/data/users.json" } }
       await mockServer.launchServer(db);
       const response = await request(mockServer.app).get("/users");
-      expect(response.body).toEqual(require("../../../samples/data/users.json"));
+      expect(response.body).toEqual(require("../../../src/samples/data/users.json"));
     });
 
     it('should fetch data from http url', async () => {

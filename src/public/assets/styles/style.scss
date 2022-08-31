@@ -80,6 +80,10 @@
     .main-content-wrapper {
       max-width: 1100px;
       margin: auto;
+      min-height: calc(100vh - 3rem);
+      background: var(--bs-white);
+      position: relative;
+      padding-bottom: 15rem;
 
       nav {
         transition: 0.3s all ease-in-out;
@@ -100,7 +104,6 @@
       }
 
       #routes-container {
-        min-height: calc(100vh - 20rem);
         #resources-list {
           margin: 1rem 1.5rem;
           list-style: none;
@@ -130,7 +133,6 @@
 
       #routes-container,
       #rewriters-container {
-        background: var(--bs-white);
         .nav-item {
           position: relative;
           border-radius: 0.2rem;
@@ -208,9 +210,9 @@
               position: absolute;
               top: -2.5rem;
               right: 0;
-              background: var(--bs-white);
               opacity: 0;
               transition: all 0.2s linear;
+              background: #d1e2fc;
 
               button {
                 font-size: 0.8rem;
@@ -235,7 +237,8 @@
       }
 
       footer {
-        background: var(--bs-white);
+        position: absolute;
+        bottom: 0;
         padding: 1rem 1.5rem;
 
         p {
@@ -286,7 +289,7 @@
       }
 
       &::placeholder {
-        color: var(--bs-white);
+        color: #ffffff;
         opacity: 0.7;
       }
     }
@@ -299,6 +302,14 @@
 
     #download:hover {
       opacity: 0.9;
+    }
+
+    .btn:active,
+    .btn:hover,
+    .btn:focus {
+      border: 0;
+      box-shadow: none;
+      outline: none;
     }
   }
 
@@ -357,7 +368,7 @@
 }
 
 span.action-icon {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: pointer;
 
   &:hover {
@@ -488,6 +499,12 @@ html[data-theme="dark"] {
     input {
       --bs-white-rgb: var(--bs-dark-rgb);
     }
+
+    .btn:hover,
+    .btn:focus,
+    .btn:active {
+      background: var(--bs-btn-hover-bg) !important;
+    }
   }
 
   .modal-content {
@@ -588,6 +605,12 @@ html[data-theme="dark"] {
 
   }
 
+  .info-box {
+    .actions {
+      background: #021523 !important;
+    }
+  }
+
   input:-webkit-autofill {
     -webkit-text-fill-color: var(--bs-body-color);
     -webkit-box-shadow: 0 0 0px 1000px var(--bs-white) inset !important;
@@ -610,7 +633,7 @@ html[data-theme="dark"] {
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #4d5258;
+    background-color: #1c508c;
   }
 
   ::selection {

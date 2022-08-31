@@ -51,7 +51,7 @@ export default (opts: Default_Options) => {
   // Logger
   if (_opts.logger) {
     arr.push(morgan('dev', {
-      skip: (req) => process.env.NODE_ENV === 'test' || req.url?.includes('/mock-server-assets/') || false
+      skip: (req: any) => process.env.NODE_ENV === 'test' || req.originalUrl?.includes('/_assets/') || false
     }));
   }
 

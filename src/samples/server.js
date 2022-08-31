@@ -1,10 +1,11 @@
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require("../../dist/server");
+// const { MockServer } = require("@r35007/mock-server");
 // const MockServer = require("@r35007/mock-server").default; // For default import
 
 const log = false; // Set to true to see logs
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
 const host = "localhost"; // Set empty string to set your Local Ip Address
-const config = { root: __dirname, port, host };
+const config = { rootPath: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 
 const app = mockServer.app;
@@ -12,7 +13,7 @@ const app = mockServer.app;
 // Sets global injectors, middlewares, store and rewriters
 mockServer.setData({
   injectors: "./injectors.json",
-  middlewares: "./middleware.js",
+  middlewares: "./middlewares.js",
   store: "./store.json",
   rewriters: "./rewriters.json"
 }, { log }) // pass mockServer instance to use it in middleware.js method
@@ -33,7 +34,6 @@ app.use((req, res, next) => {
   if (isAuthorized(req)) return next(); // continue to Mock Server router
   res.sendStatus(401);
 });
-
 
 // Custom Routes
 // This route will not be listed in Home Page.

@@ -1,6 +1,5 @@
 # Mock Server[](#mock-server) [![](https://img.shields.io/npm/v/@r35007/mock-server?label=npm)](https://img.shields.io/npm/v/@r35007/mock-server?label=npm) [![](https://img.shields.io/npm/l/@r35007/mock-server?color=blue)](https://img.shields.io/npm/l/@r35007/mock-server?color=blue) [![](https://img.shields.io/npm/types/@r35007/mock-server)](https://img.shields.io/npm/types/@r35007/mock-server)
 
-
 <META name="description">
 Get a full REST API with <b>zero coding</b> in <b>less than 30 seconds</b> (seriously)</br></br>
 Created with <3 for front-end developers who need a quick back-end for prototyping and mocking.
@@ -53,7 +52,7 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
   - [Dynamic Route Config](#dynamic-route-config)
 - [Config](#config)
   - [Db Mode](#db-mode)
-- [Home Page](#home-page)
+- [Home Page Routes](#home-page-routes)
 - [CLI Usage](#cli-usage)
 - [API](#api)
   - [MockServer](#mockserver)
@@ -119,7 +118,7 @@ Create `server.js` File
 
 ```js
 const { MockServer } = require("@r35007/mock-server");
-const config = { root: __dirname };
+const config = { rootPath: __dirname };
 const mockServer = MockServer.Create(config);
 
 mockServer.launchServer("./db.js", {
@@ -138,7 +137,7 @@ const { MockServer } = require("@r35007/mock-server");
 
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
 const host = "localhost";
-const config = { root: __dirname, port, host };
+const config = { rootPath: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 
 const app = mockServer.app;
@@ -227,7 +226,7 @@ For Example:
     "mockFirst": false, // If true, It sends the mock first else try to fetch first.
     "middlewares": ["_IterateResponse"], // list of middleware names and methods to be called
     "ignoreMiddlewareWrappers": false, // !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...
-    "fetch": "./myFile.json", // this path will be relative to `config.root`
+    "fetch": "./myFile.json", // this path will be relative to `config.rootPath`
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
     "skipFetchError": false, // If True it skips any fetch error and send the mock data
@@ -300,7 +299,7 @@ The url can either be a http server or a local file server.
 
 Give a absolute or a relative path to fetch any file and get as a response.
 
-> Note: The given relative path will be relative to `config.root`.
+> Note: The given relative path will be relative to `config.rootPath`.
 
 ```jsonc
 {
@@ -884,7 +883,7 @@ you can provide your own config by passing the config object in the `MockServer`
 const config = {
   port: 3000, // Set Port to 0 to pick a random available port.
   host: "localhost", // Set custom host
-  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
+  rootPath: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
   dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
@@ -966,13 +965,14 @@ const db = {
 }
 ```
 
-## Home Page
+## Home Page Routes
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
 - `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
 - `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
+- `Routes` - [http://localhost:3000/\_routes](http://localhost:3000/_routes)
 - `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)
-- `Reset Db` - [http://localhost:3000/\_reset/db](http://localhost:3000/_reset/db)
+- `Reset Db` - [http://localhost:3000/\_reset](http://localhost:3000/_reset)
 
 ## CLI Usage
 
@@ -980,31 +980,30 @@ const db = {
 $ mock-server --help
 Options:
   -c, --config             Path to config file                            [string]
-  -P, --port               Set port                                [default: 3000]
-  -H, --host               Set host                         [default: "localhost"]
+  -p, --port               Set port                                [default: 3000]
+  -h, --host               Set host                         [default: "localhost"]
   -m, --middleware         Paths to middleware file                      [string]
   -i, --injectors          Path to Injectors file                         [string]
   -s, --store              Path to Store file                             [string]
   -r, --rewriters          Path to Rewriter file                          [string]
       --staticDir, --sd    Set static files directory                     [string]
   -b, --base               Set base route path                            [string]
+      --dbMode, --dm       Set Db mode                                    [string]
       --readOnly, --ro     Allow only GET requests                       [boolean]
       --noCors, --nc       Disable Cross-Origin Resource Sharing         [boolean]
       --bodyParser, --bp   Enable body-parser middleware                 [boolean]
       --cookieParser, --cp Enable cookie-parser middleware               [boolean]
       --noGzip, --ng       Disable GZIP Content-Encoding                 [boolean]
   -l, --logger             Enable logger                 [boolean] [default: true]
-      --sample, --ex       Create Sample                [boolean] [default: false]
   -w, --watch              Watch file(s)                [boolean] [default: false]
   -S, --snapshots          Set snapshots directory                  [default: "."]
   -h, --help               Show help                                     [boolean]
   -v, --version            Show version number                           [boolean]
 
 Examples:
-  index.js db.json
-  index.js --watch db.json
-  index.js --sample --watch
-  index.js http://jsonplaceholder.typicode.com/db
+  mock-server db.json
+  mock-server --watch db.json
+  mock-server http://jsonplaceholder.typicode.com/db
 
 https://r35007.github.io/Mock-Server/
 ```

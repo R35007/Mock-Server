@@ -1,3 +1,30 @@
+## v10.0.0
+
+- reduced - Build size.
+- removed - `createSampleFiles` from utils.
+- renamed - `config.root` to `config.rootPath`.
+- added - `bootstrap` package for HomePage ui.
+- renamed - `/_reset/db/:id?` to `/_reset/:id?`.
+- added - `/_routes` in HomePage - Gives list of routes used by Mock Server.
+- updated - Following type in utility methods
+
+  ```ts
+  requireFile(
+    directoryPath: string,
+    { exclude, recursive, isList, onlyIndex }?: { exclude?: string[]; recursive?: boolean; isList?: boolean; onlyIndex?: boolean; }
+  );
+
+  getFilesList(
+    directoryPath: string,
+    { exclude, recursive, onlyIndex }?: { exclude?: string[]; recursive?: boolean; onlyIndex?: boolean;}
+  ):PathDetails[];
+
+  requireData(
+    data?: any,
+    { rootPath, isList, onlyIndex, recursive, exclude, }?: { exclude?: string[]; rootPath?: string; isList?: boolean; onlyIndex?: boolean; recursive?: boolean;}
+  );
+  ```
+
 ## v9.2.2
 
 - Build Fix

@@ -1,8 +1,5 @@
-import chalk from "chalk";
-import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
-import * as path from 'path';
 import { match } from 'path-to-regexp';
 import * as Defaults from '../defaults';
 import { DbMode, HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } from '../types/common.types';
@@ -80,12 +77,6 @@ export const replaceObj = (oldObj: object, newObj: object) => {
   for (let key in newObj) {
     oldObj[key] = newObj[key] // adding updated Route Config values
   }
-}
-
-export const createSampleFiles = (root: string = process.cwd()) => {
-  console.log(chalk.gray('\nCreating Samples...'));
-  fs.copySync(path.join(__dirname, '../../../samples'), root)
-  console.log(chalk.gray('Sample files created!'));
 }
 
 export const cleanObject = (obj: any) => {

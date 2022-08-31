@@ -5,7 +5,7 @@ import * as ValidTypes from './types/valid.types';
 export const Config: ValidTypes.Config = {
   port: 3000, // Set Port to 0 to pick a random available port.
   host: "localhost", // Set custom host 
-  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
+  rootPath: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
   dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'

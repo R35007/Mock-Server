@@ -33,7 +33,7 @@ export const config = () => {
     });
 
     it('should pick files relative to the root path', async () => {
-      mockServer.setConfig({ root: path.join(__dirname, "../../mock") });
+      mockServer.setConfig({ rootPath: path.join(__dirname, "../../mock") });
       await mockServer.launchServer("./db/db.json");
       const response = await request(mockServer.app).get("/post")
       expect(response.body).toEqual(require("../../mock/db/db.json")["/post"].mock);

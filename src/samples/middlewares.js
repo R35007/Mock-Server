@@ -78,7 +78,7 @@ const GetStoreValue = (req, res, next) => {
 
 module.exports = (mockServer) => {
   const { app, routes, data, getDb, getStore } = mockServer || {};
-  const { config, db, injectors, middlewares, rewriters, store } = data;
+  const { config, db, injectors, middlewares, rewriters, store } = data || {};
   // Your Global middleware logic here before setting default middlewares by the MockServer
 
   return {

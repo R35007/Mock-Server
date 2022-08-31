@@ -11,19 +11,19 @@ import { getStats, parseUrl, requireData } from './fetch';
 
 export const getValidConfig = (
   config?: ParamTypes.Config,
-  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
+  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Config => {
-  const requiredData = requireData(config, rootPath);
+  const requiredData = requireData(config, { rootPath });
   const userConfig: UserTypes.Config = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userConfig) || !_.isPlainObject(userConfig)) return _.cloneDeep(Defaults.Config);
 
-  const parsedRoot = parseUrl(userConfig.root, Defaults.Config.root);
-  const root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.root;
+  const parsedRoot = parseUrl(userConfig.rootPath, Defaults.Config.rootPath);
+  const root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.rootPath;
 
   const validConfig = {
     ...userConfig,
-    root,
+    rootPath: root,
     dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : Defaults.Config.dbMode,
     port: _.isNaN(parseInt(userConfig.port as any)) ? Defaults.Config.port : parseInt(userConfig.port as any),
     host: (`${userConfig.host}`).trim() === '' ? ip.address() : _.isEmpty(userConfig.host) ? Defaults.Config.host : userConfig.host,
@@ -36,9 +36,9 @@ export const getValidConfig = (
 
 export const getValidMiddlewares = (
   middlewares?: ParamTypes.Middlewares,
-  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
+  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Middlewares => {
-  const requiredData = requireData(middlewares, rootPath);
+  const requiredData = requireData(middlewares, { rootPath });
   const userMiddlewares: UserTypes.Middlewares = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userMiddlewares) || !_.isPlainObject(userMiddlewares)) return _.cloneDeep(Defaults.Middlewares);
@@ -64,9 +64,9 @@ export const getValidMiddlewares = (
 
 export const getValidInjectors = (
   injectors?: ParamTypes.Injectors,
-  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
+  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Injectors => {
-  const requiredData = requireData(injectors, rootPath, true);
+  const requiredData = requireData(injectors, { rootPath, isList: true });
   const userInjectors: UserTypes.InjectorConfig = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userInjectors) || !_.isArray(userInjectors) || !isCollection(userInjectors)) return _.cloneDeep(Defaults.Injectors);
@@ -78,9 +78,9 @@ export const getValidInjectors = (
 
 export const getValidStore = (
   store?: ParamTypes.Store,
-  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
+  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Store => {
-  const requiredData = requireData(store, rootPath);
+  const requiredData = requireData(store, { rootPath });
   const userStore: UserTypes.Store = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userStore) || !_.isPlainObject(userStore)) return _.cloneDeep(Defaults.Store);
@@ -90,9 +90,9 @@ export const getValidStore = (
 
 export const getValidRewriters = (
   rewriters?: ParamTypes.Rewriters,
-  { rootPath = Defaults.Config.root, mockServer }: ValidatorOptions = {}
+  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Rewriters => {
-  const requiredData = requireData(rewriters, rootPath);
+  const requiredData = requireData(rewriters, { rootPath });
   const userRewriters: UserTypes.Rewriters = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userRewriters) || !_.isPlainObject(userRewriters)) return _.cloneDeep(Defaults.Rewriters);
@@ -105,12 +105,12 @@ export const getValidDb = (
   {
     mockServer,
     injectors = Defaults.Injectors,
-    rootPath = Defaults.Config.root,
+    rootPath = Defaults.Config.rootPath,
     reverse = Defaults.Config.reverse,
     dbMode = Defaults.Config.dbMode
   }: DbValidatorOptions = {}
 ): ValidTypes.Db => {
-  const requiredData = requireData(data, rootPath);
+  const requiredData = requireData(data, { rootPath });
   const userData: UserTypes.Db = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userData) || !_.isPlainObject(userData)) return _.cloneDeep(Defaults.Db);

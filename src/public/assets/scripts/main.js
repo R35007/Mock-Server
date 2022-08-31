@@ -17,9 +17,36 @@ async function init() {
 
   showToast("Resources Loaded Successfully");
 }
-0.
+
+function setHomePageRoutes(resources) {
+  const routesList = Object.keys(resources)
+
+  if (!routesList.includes("/_db"))
+    resources["/_db"] = {
+      id: window.btoa("/_db"),
+      description: "Get Db snapshot. Use ?_clean=true to get a refined clean Db.",
+      _default: true,
+    }
+
+  if (!routesList.includes("/_routes"))
+    resources["/_routes"] = {
+      id: window.btoa("/_routes"),
+      description: "Get List of routes used.",
+      _default: true,
+    }
+
+  if (!routesList.includes("/_store"))
+    resources["/_store"] = {
+      id: window.btoa("/_store"),
+      description: "Get Store values.",
+      _default: true,
+    }
+}
 
 function createResourcesList(resources) {
+  // Delete HomePage routes in Db.
+  homePageRoutes.forEach(route => delete resources[route]);
+
   // collects all expanded list to restore after refresh
   const expandedList = [];
   $resourcesList.querySelectorAll("li.expanded").forEach(li => expandedList.push(li.id));
@@ -29,7 +56,7 @@ function createResourcesList(resources) {
     $resourcesList.removeChild($resourcesList.lastElementChild);
   }
 
-  setDefaultRoutes(resources);
+  setHomePageRoutes(resources);
   $resourcesList.innerHTML = ResourceList(resources);
 
   expandedList.forEach(toggleInfoBox);
@@ -54,24 +81,6 @@ function createRewritersList(rewriters) {
   $rewritersContainer.style.display = "block";
 }
 
-function setDefaultRoutes(resources) {
-  const routesList = Object.keys(resources)
-
-  if (!routesList.includes("/_db"))
-    resources["/_db?_clean=true"] = {
-      id: "default_1",
-      description: "This route gives you the Db snapshot",
-      _isDefault: true,
-    }
-
-  if (!routesList.includes("/_store"))
-    resources["/_store"] = {
-      id: "default_2",
-      description: "This route gives you the store values",
-      _isDefault: true,
-    }
-}
-
 function ResourceList(resources) {
   totalRoutesCount = Object.keys(resources).length;
   setRoutesCount(totalRoutesCount);
@@ -85,7 +94,6 @@ function ResourceList(resources) {
     </li>
     <li id="add-resource" role="button" class="nav-item w-100 mt-2 d-block" data-type="add" onclick="openModal(this)">
       <span class="nav-link p-2 px-3 me-3 text-center">
-        <span role="button" class="action-icon"><i class="fas fa-plus-circle"></i></span>
         <span> Click here To add new Resource </span>
       </span>
     </li>
@@ -100,9 +108,10 @@ function ResourceList(resources) {
 }
 
 function ResourceItem(routePath, routeConfig) {
+  const isDefaultRoute = routeConfig._default;
   return `
   <li id="${routeConfig.id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
-    <div class="header d-flex align-items-center w-100" style="${routeConfig._isDefault ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
+    <div class="header d-flex align-items-center w-100" style="${isDefaultRoute ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
       <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig.id}')"><span class="icon">i</span></span>  
       <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
@@ -192,7 +201,7 @@ function showNoResource(show) {
 }
 
 async function resetAll() {
-  resources = await request(localhost + "/_reset/db");
+  resources = await request(localhost + "/_reset");
   showToast("Routes Restored Successfully");
   createResourcesList(resources);
 }

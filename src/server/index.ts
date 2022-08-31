@@ -2,6 +2,7 @@ import chalk from "chalk";
 import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
+import * as fs from 'fs';
 import ora from 'ora';
 import path from "path";
 import enableDestroy from 'server-destroy';
@@ -88,7 +89,7 @@ export class MockServer extends GettersSetters {
 
   defaults(
     options?: UserTypes.Config,
-    { rootPath = this.config.root }: SetterOptions = {}
+    { rootPath = this.config.rootPath }: SetterOptions = {}
   ) {
     const validConfig = options ? getValidConfig({ ...this.config, ...options }, { rootPath }) : this.config
     return Defaults(validConfig);
@@ -96,8 +97,8 @@ export class MockServer extends GettersSetters {
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
-    { rootPath = this.config.root, log }: SetterOptions = {}
-  ) {
+    { rootPath = this.config.rootPath, log }: SetterOptions = {}
+  ): express.Router {
     rewriters && this.setRewriters(rewriters, { rootPath, log, merge: true })
     return Rewriter(this.rewriters);
   }
@@ -108,13 +109,14 @@ export class MockServer extends GettersSetters {
       injectors,
       middlewares,
       reverse = this.config.reverse,
-      rootPath = this.config.root,
+      rootPath = this.config.rootPath,
       dbMode = this.config.dbMode,
       router = express.Router(),
-      log
+      log = false
     }: ResourceOptions = {},
-  ) {
-    const spinner = log ? ora('Loading Resources...').start() : false;
+  ): express.Router {
+    const logText = `${log}` === "true" ? "Db Resources" : log;
+    const spinner = `${log}` !== "false" ? ora(`Loading ${logText}...`).start() : false;
 
     const mockServer = this._getServerDetails();
     const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { rootPath, mockServer }) : this.middlewares;
@@ -125,7 +127,7 @@ export class MockServer extends GettersSetters {
       this.#createRoute(routePath, routeConfig, router, validMiddlewares)
     );
 
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Resources Loaded.") });
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
     return router;
   };
 
@@ -272,46 +274,44 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  homePage({ log }: { log?: boolean } = {}) {
-    const spinner = log ? ora('Loading HomePage Resources...').start() : false;
-
+  homePage({ log }: { log?: boolean } = {}): express.Router {
     const router = express.Router();
 
-    const homePageDir = path.join(__dirname, '../../public'); // Serve Home page files
-    router.use(express.static(homePageDir));
+    // Get Bootstrap path from nearest node_modules
+    let bootstrapDir = path.join(__dirname, '../../node_modules/bootstrap/dist');
+    bootstrapDir = fs.existsSync(bootstrapDir) ? bootstrapDir : path.join(__dirname, '../../../../bootstrap/dist');
 
-    const homePageRoutes: UserTypes.Db = {
+    const homePageDir = path.join(__dirname, '../../public');
+
+    router.use(express.static(homePageDir));  // Serve Mock Server HomePage
+
+    const homePageRoutes = {
+      "/_assets/bootstrap": express.static(bootstrapDir),
       "/_db/:id?": (req: express.Request, res: express.Response) => {
-        if (req.method === 'POST') {
-          this.#addDb(req, res, router);
-        } else if (req.method === 'PUT') {
-          this.#updateRouteConfig(req, res);
-        } else {
-          this.#getDb(req, res);
+        switch (req.method) {
+          case 'POST': return this.#addDb(req, res, router);
+          case 'PUT': return this.#updateRouteConfig(req, res);
+          default: return this.#getDb(req, res);
         }
       },
       "/_rewriters": (_req, res) => res.send(this.rewriters),
+      "/_routes": (_req, res) => res.send(this.routes),
       "/_store": (_req, res) => res.send(this.store),
-      "/_reset/db/:id?": (req, res) => {
+      "/_reset/:id?": (req, res) => {
         const ids = flatQuery(req.params.id || req.query.id) as string[];
         const restoredRoutes = this.resetDb(ids);
         res.send(restoredRoutes);
       },
     }
-    const newDbEntries = Object.entries(homePageRoutes).filter(([routePath]) => !this.routes.includes(routePath));
-    newDbEntries.forEach(([routePath, middleware]) => {
-      this.routes.push(routePath);
-      router.all(routePath, middleware as express.RequestHandler);
-    })
 
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("HomePage Resources Loaded.") });
+    this.resources(homePageRoutes, { injectors: [], middlewares: {}, router, log: log && "HomePage Resources" });
     return router;
   }
 
   #addDb = (req: express.Request, res: express.Response, router: express.Router) => {
     const validDb = getValidDb(req.body,
       {
-        rootPath: this.config.root,
+        rootPath: this.config.rootPath,
         injectors: this.injectors,
         reverse: this.config.reverse,
         dbMode: this.config.dbMode,

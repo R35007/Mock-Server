@@ -35,16 +35,16 @@ export const shouldGetValidConfig = () => {
 
     describe('should return a valid Config', () => {
       test.each([
-        ["root path is not a directory", { root: path.join(__dirname, "../../mock/config/config.json") }, {}],
-        ["root path is a directory", { root: path.join(__dirname, "../../mock") }, { root: path.join(__dirname, "../../mock") }],
+        ["root path is not a directory", { rootPath: path.join(__dirname, "../../mock/config/config.json") }, {}],
+        ["root path is a directory", { rootPath: path.join(__dirname, "../../mock") }, { rootPath: path.join(__dirname, "../../mock") }],
         ["port is not a number", { port: "" }, {}],
         ["port is a number string", { port: "4000" }, { port: 4000 }],
         ["port is a number", { port: 4000 }, { port: 4000 }],
         ["base is empty string", { base: "" }, {}],
         ["base is '/' ", { base: "/" }, {}],
         ["base is '/api' ", { base: "/api" }, { base: "/api" }],
-        ["staticDir is not a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "/mock" }, { root: path.join(__dirname, "../../mock"), staticDir: "C:\\mock" }],
-        ["staticDir is a valid path", { root: path.join(__dirname, "../../mock"), staticDir: "../../public" }, { root: path.join(__dirname, "../../mock"), staticDir: path.join(__dirname, "../../mock", "../../public") }],
+        ["staticDir is not a valid path", { rootPath: path.join(__dirname, "../../mock"), staticDir: "/mock" }, { rootPath: path.join(__dirname, "../../mock"), staticDir: "C:\\mock" }],
+        ["staticDir is a valid path", { rootPath: path.join(__dirname, "../../mock"), staticDir: "../../public" }, { rootPath: path.join(__dirname, "../../mock"), staticDir: path.join(__dirname, "../../mock", "../../public") }],
         ["host is a empty string", { host: "" }, { host: ip.address() }],
         ["host is not a string", { host: 129 }, {}],
         ["host is a string", { host: "localhost" }, { host: "localhost" }],

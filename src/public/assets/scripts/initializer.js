@@ -5,6 +5,16 @@ let formValues = {}
 let totalRoutesCount = 0;
 let filteredRoutesCount = 0;
 
+const homePageRoutes = [
+  "/_assets/bootstrap",
+  "/_assets",
+  "/_db/:id?",
+  "/_rewriters",
+  "/_store",
+  "/_reset/:id?",
+  "/_routes"
+];
+
 const $pageLoader = document.getElementById("page-loader");
 const $darkModeSwitch = document.getElementById("darkMode-switch");
 const $container = document.getElementById("container");
@@ -33,7 +43,8 @@ let $bsToast;
 try {
   $routeBsModal = new bootstrap.Modal($routeModal);
   $bsToast = new bootstrap.Toast($toast, { animation: true, delay: 2000 });
-} catch {
+} catch (err) {
+  console.log(err);
   $routeBsModal = {};
   $bsToast = {};
 };

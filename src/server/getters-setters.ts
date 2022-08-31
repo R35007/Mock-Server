@@ -91,7 +91,7 @@ export class GettersSetters {
     data.db && this.setDb(data.db, options);
   };
 
-  setConfig(config?: Params.Config, { rootPath = this.#config.root, merge, log }: SetterOptions = {}) {
+  setConfig(config?: Params.Config, { rootPath = this.#config.rootPath, merge, log }: SetterOptions = {}) {
     const spinner = log ? ora('Loading Config...').start() : false;
     const oldConfig = this.#config;
     const newConfig = getValidConfig(config, { rootPath, mockServer: this._getServerDetails() });
@@ -99,7 +99,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
   }
 
-  setRewriters(rewriters?: Params.Rewriters, { rootPath = this.#config.root, merge, log }: SetterOptions = {}) {
+  setRewriters(rewriters?: Params.Rewriters, { rootPath = this.#config.rootPath, merge, log }: SetterOptions = {}) {
     const spinner = log ? ora('Loading Rewriters...').start() : false;
     const oldRewriters = this.#rewriters;
     const newRewriters = getValidRewriters(rewriters, { rootPath, mockServer: this._getServerDetails() });
@@ -107,7 +107,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Rewriters Loaded.") });
   }
 
-  setMiddlewares(middleware?: Params.Middlewares, { rootPath = this.#config.root, merge, log }: SetterOptions = {}) {
+  setMiddlewares(middleware?: Params.Middlewares, { rootPath = this.#config.rootPath, merge, log }: SetterOptions = {}) {
     const spinner = log ? ora('Loading Middlewares...').start() : false;
     const oldMiddlewares = this.#middlewares;
     const newMiddlewares = getValidMiddlewares(middleware, { rootPath, mockServer: this._getServerDetails() });
@@ -115,7 +115,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Middlewares Loaded.") });
   }
 
-  setInjectors(injectors?: Params.Injectors, { rootPath = this.#config.root, merge, log }: SetterOptions = {}) {
+  setInjectors(injectors?: Params.Injectors, { rootPath = this.#config.rootPath, merge, log }: SetterOptions = {}) {
     const spinner = log ? ora('Loading Injectors...').start() : false;
     const oldInjectors = this.#injectors;
     const newInjectors = getValidInjectors(injectors, { rootPath, mockServer: this._getServerDetails() });
@@ -123,7 +123,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Injectors Loaded.") });
   }
 
-  setStore(store?: Params.Store, { rootPath = this.#config.root, merge, log }: SetterOptions = {}) {
+  setStore(store?: Params.Store, { rootPath = this.#config.rootPath, merge, log }: SetterOptions = {}) {
     const spinner = log ? ora('Loading Store...').start() : false;
     const oldStore = this.#store;
     const newStore = getValidStore(store, { rootPath, mockServer: this._getServerDetails() });
@@ -135,7 +135,7 @@ export class GettersSetters {
     {
       merge,
       log,
-      rootPath = this.#config.root,
+      rootPath = this.#config.rootPath,
       injectors = this.#injectors,
       reverse = this.#config.reverse,
       dbMode = this.#config.dbMode,

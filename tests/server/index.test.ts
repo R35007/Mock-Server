@@ -37,8 +37,8 @@ const create = () => {
     });
 
     it('should create with custom config', async () => {
-      const mockServer = MockServer.Create({ root: __dirname });
-      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname })
+      const mockServer = MockServer.Create({ rootPath: __dirname });
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, rootPath: __dirname })
     });
   });
 }
@@ -169,15 +169,28 @@ const homePage = () => {
     let mockMiddleware: Middlewares;
     let mockRewriters: Rewriters;
     let mockStore: Store;
+    const homePageRoutes = [
+      "/_assets/bootstrap",
+      "/_assets",
+      "/_db/:id?",
+      "/_rewriters",
+      "/_store",
+      "/_reset/:id?",
+      "/_routes"
+    ];
 
     const get = async (url: string, expected: any) => {
       const response = await request(mockServer.app).get(url)
+      homePageRoutes.forEach(route => delete response.body[route]);
+      homePageRoutes.forEach(route => delete expected[route]);
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(expected);
     }
 
     const put = async (url: string, payload: object, expected: any) => {
       const response = await request(mockServer.app).put(url).send(payload);
+      homePageRoutes.forEach(route => delete response.body[route]);
+      homePageRoutes.forEach(route => delete expected[route]);
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(expected);
       mockDb = { ...mockDb, ...expected } as Db;
@@ -185,6 +198,8 @@ const homePage = () => {
 
     const post = async (url: string, payload: object, expected: any) => {
       const response = await request(mockServer.app).post(url).send(payload);
+      homePageRoutes.forEach(route => delete response.body[route]);
+      homePageRoutes.forEach(route => delete expected[route]);
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(expected);
       mockDb = { ...mockDb, ...expected } as Db;
@@ -255,7 +270,7 @@ const homePage = () => {
     });
 
     describe('/_db/:id?', () => {
-      it('should get db', async () => { await get("/_db", mockDb) });
+      it('should get db', async () => { await get("/_db", { ...mockDb }) });
 
       it('should get db of id 2', async () => { await get("/_db/2", { "/comments": mockDb["/comments"] }) });
 
@@ -283,7 +298,7 @@ const homePage = () => {
       it('should get rewriters', async () => { await get("/_rewriters", mockRewriters) });
     });
 
-    describe('/_reset/db/:id?', () => {
+    describe('/_reset/:id?', () => {
       it('should reset db', async () => {
         const updatedUser = { "/user": { _config: true, id: "5", mock: { id: "1", name: "Ram", action: "Updated" } } };
         await put("/_db", updatedUser, updatedUser); // updating /user
@@ -291,7 +306,7 @@ const homePage = () => {
         const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", name: "Ram", action: "Updated" }] } };
         await put("/_db", updatedComments, updatedComments); // updating /comments 
 
-        await post("/_reset/db", mockServer.initialDb, mockServer.initialDb); // resetting db to initial state
+        await post("/_reset", mockServer.initialDb, mockServer.initialDb); // resetting db to initial state
       });
 
       it('should reset db of id 5', async () => {
@@ -301,7 +316,7 @@ const homePage = () => {
         const updatedComments = { "/comments": { _config: true, id: "2", mock: [{ id: "1", name: "Sivaraman", action: "Updated2" }] } };
         await put("/_db/2", updatedComments, updatedComments); // updating /comments 
 
-        await get("/_reset/db/2", { "/comments": mockServer.initialDb["/comments"] }); // reset only /comments
+        await get("/_reset/2", { "/comments": mockServer.initialDb["/comments"] }); // reset only /comments
         mockDb = { ...mockDb, "/comments": mockServer.initialDb["/comments"] }
       });
     });
@@ -335,7 +350,7 @@ const launchServer = () => {
       expect(server).toBeDefined();
       expect(rewriter).toBeCalledTimes(1);
       expect(defaults).toBeCalledTimes(1);
-      expect(resources).toBeCalledTimes(1);
+      expect(resources).toBeCalledTimes(2);
       expect(homePage).toBeCalledTimes(1);
       expect(startServer).toBeCalledTimes(1);
 
@@ -464,7 +479,7 @@ const stopServer = () => {
 const resetServer = () => {
   describe('mockServer.resetServer() : ', () => {
     it('should reset mock server', async () => {
-      const mockServer = MockServer.Create({ root: __dirname });
+      const mockServer = MockServer.Create({ rootPath: __dirname });
 
       const mockDb: Db = {
         "/posts": {
@@ -566,7 +581,7 @@ describe("MockServer", () => {
   rewriter(); // Add any route rewriters to the middleware
   defaults(); // Add default middlewares -> noGzip, noCors, errorhandler, static Home page, etc..
   resources(); // Add db, middlewares, injectors, store
-  homePage(); // Add Default Routes -> /_db/:id?, /_store/:key?, /_rewriters, /_reset/db/:id?, /_reset/store/:key?
+  homePage(); // Add Default Routes -> /_db/:id?, /_store/:key?, /_rewriters, /_reset/:id?, /_reset/store/:key?
   launchServer(); // Add defaults, homePage, rewriters, resources and start the server in one flow
   startServer() // Start the mock server
   stopServer() // Stop the mock server

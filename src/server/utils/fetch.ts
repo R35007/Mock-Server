@@ -8,8 +8,13 @@ import * as path from 'path';
 import { PathDetails } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 
-export const requireFile = (directoryPath: string, excludeFolders: string[] = [], recursive: boolean = true, isList: boolean = false, onlyIndex: boolean = true) => {
-  const filesList = getFilesList(directoryPath, excludeFolders, recursive, onlyIndex);
+export const requireFile = (directoryPath: string, {
+  exclude = [],
+  recursive = true,
+  isList = false,
+  onlyIndex = true
+}: { exclude?: string[], recursive?: boolean, isList?: boolean, onlyIndex?: boolean } = {}) => {
+  const filesList = getFilesList(directoryPath, { exclude: exclude, recursive, onlyIndex });
   const files = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
   if (!files.length) return;
@@ -77,12 +82,16 @@ export const getList = (files: PathDetails[]): any[] => {
   return list;
 };
 
-export const getFilesList = (directoryPath: string, foldersToExclude: string[] = [], recursive: boolean = true, onlyIndex: boolean = true): PathDetails[] => {
+export const getFilesList = (directoryPath: string, {
+  exclude = [],
+  recursive = true,
+  onlyIndex = true
+}: { exclude?: string[], recursive?: boolean, onlyIndex?: boolean } = {}): PathDetails[] => {
   const stats = getStats(directoryPath);
   if (!stats) return [];
   if (stats.isFile) {
     return [stats];
-  } else if (stats.isDirectory && foldersToExclude.indexOf(directoryPath) < 0) {
+  } else if (stats.isDirectory && exclude.indexOf(directoryPath) < 0) {
 
     if (onlyIndex) {
       const indexPath = `${directoryPath}\\index.js`;
@@ -91,10 +100,10 @@ export const getFilesList = (directoryPath: string, foldersToExclude: string[] =
     }
 
     const files = fs.readdirSync(directoryPath);
-    const filteredFiles = files.filter((file) => foldersToExclude.indexOf(file) < 0);
+    const filteredFiles = files.filter((file) => exclude.indexOf(file) < 0);
     const filesList = filteredFiles.reduce((res: PathDetails[], file: string) => {
       if (recursive) {
-        return res.concat(getFilesList(`${directoryPath}/${file}`, foldersToExclude, true));
+        return res.concat(getFilesList(`${directoryPath}/${file}`, { exclude, recursive, onlyIndex }));
       }
       return res.concat(getStats(`${directoryPath}/${file}`) || []);
     }, []);
@@ -169,17 +178,23 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
   return fetchData;
 }
 
-export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): string => {
+export const parseUrl = (relativeUrl?: string, rootPath: string = process.cwd()): string => {
   if (!relativeUrl || typeof relativeUrl !== 'string' || !relativeUrl?.trim().length) return '';
   if (relativeUrl.startsWith("http")) return relativeUrl;
-  const parsedUrl = decodeURIComponent(path.resolve(root, relativeUrl));
+  const parsedUrl = decodeURIComponent(path.resolve(rootPath, relativeUrl));
   return parsedUrl;
 };
 
-export const requireData = (data?: any, root: string = process.cwd(), isList: boolean = false, onlyIndex: boolean = true) => {
+export const requireData = (data?: any, {
+  rootPath = process.cwd(),
+  isList = false,
+  onlyIndex = true,
+  recursive = true,
+  exclude = [],
+}: { exclude?: string[], rootPath?: string, isList?: boolean, onlyIndex?: boolean, recursive?: boolean } = {}) => {
   if (!data) return;
   if (_.isFunction(data)) return data;
-  if (_.isString(data)) return requireFile(parseUrl(data, root), [], true, isList, onlyIndex);
+  if (_.isString(data)) return requireFile(parseUrl(data, rootPath), { exclude, recursive, isList, onlyIndex });
   if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data);
   return;
 }

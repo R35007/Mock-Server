@@ -5,12 +5,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="./mock-server-assets/images/favicon.ico" type="image/x-icon">
-  <script src="https://kit.fontawesome.com/1515315868.js" crossorigin="anonymous"></script>
+  <link rel="icon" href="_assets/images/favicon.ico" type="image/x-icon">
   <title>Mock Server</title>
-  <link rel="stylesheet" href="./mock-server-assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="./mock-server-assets/css/style.css">
-  <script>
+  <link rel="stylesheet" href="_assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="_assets/css/style.css">
+  <script> // Iframe body style setter
     const $html = document.getElementsByTagName("html")[0];
 
     const href = window.location.href;
@@ -22,11 +21,33 @@
     const fontSize = urlParams.get("_fontSize");
     $html.style.fontSize = fontSize;
   </script>
-  <script>
+  <script> // Theme Setter
     const theme = localStorage.getItem("theme");
     document.getElementsByTagName("html")[0].dataset.theme = theme;
   </script>
-  <script src="./mock-server-assets/js/iframe-OnLoad-handler.js"></script>
+  <script> // Iframe OnLoad Event
+    function onIframeLoadHandler($event) {
+      try {
+        document.getElementById("iframe-loader").style.display = "none";
+        let $iframeDocument = $event.contentWindow.document;
+        if ($iframeDocument) {
+          $iframeDocument.body.style.color = "#dcdcdc";
+          $iframeDocument.body.style.margin = "0";
+          $iframeDocument.body.style.fontFamily = "calibri";
+
+          $iframeDocument.body.style.fontSize = urlParams?.get("_dataFontSize") ?? "1.1rem";
+          $iframeDocument.body.style.lineHeight = urlParams?.get("_dataLineHeight") ?? "1.4";
+          $iframeDocument.body.style.padding = urlParams?.get("_dataPadding") ?? "1.3rem";
+
+          const pre = $iframeDocument.body.getElementsByTagName("pre");
+          if (pre && pre[0]) {
+            pre[0].style.margin = "0";
+            pre[0].style.fontFamily = "calibri";
+          }
+        }
+      } catch (error) { }
+    }
+  </script>
 </head>
 
 <body>
@@ -49,7 +70,8 @@
         <div class="container-fluid">
           <a class="navbar-brand d-flex align-items-center p-0" href="https://github.com/R35007/Mock-Server"
             target="blank">
-            <img src="./mock-server-assets/images/mockserverlogo.png" class="d-inline-block align-text-top me-2" style="width: 1.5rem">
+            <img src="_assets/images/mockserverlogo.png" class="d-inline-block align-text-top me-2"
+              style="width: 1.5rem">
             Mock Server
           </a>
           <div class="form-check form-switch text-light">
@@ -60,12 +82,12 @@
             <ul class="float-end navbar-nav ms-auto mb-2 mb-lg-0 d-flex flex-row">
               <li class="nav-item me-3">
                 <a class="nav-link py-0" href="https://github.com/R35007/Mock-Server" target="blank">
-                  <i class="fab fa-github-alt me-2"></i>GitHub
+                  GitHub
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link py-0" href="https://r35007.github.io/Mock-Server/" target="blank">
-                  <i class="fab fa-readme me-2"></i>Readme
+                  Readme
                 </a>
               </li>
             </ul>
@@ -84,8 +106,7 @@
                   <form class="d-flex align-items-center w-100 justify-content-end">
                     <input type="search" id="search" class="form-control bg-white search me-2" oninput="filterRoutes()"
                       placeholder="Search resources here" aria-label="Search" />
-                    <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><i
-                        class="fas fa-sync-alt"></i></span>
+                    <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><span class="fw-bolder">↱↲</span></span>
                   </form>
                 </div>
               </div>
@@ -128,15 +149,15 @@
       <nav id="iframe-header" class="navbar navbar-expand-lg navbar-primary bg-primary p-1">
         <div class="container-fluid p-0 flex-nowrap">
           <a title="open in new tab" id="resource-redirect" class="btn btn-primary" target="_blank">
-            <i class="fas fa-external-link-alt"></i>
+            <span class="fw-bolder">🔗</i>
           </a>
           <input type="text" class="form-control bg-primary border-0 text-white"
             placeholder="Type resource url here and press Enter to load the data" id="iframe-url">
           <a title="download" id="download" class="m-0 btn btn-primary" download href="">
-            <i class="fas fa-download"></i>
+            <span class="fw-bolder">⇩</span>
           </a>
           <a title="close" class="m-0 btn btn-primary" onclick="toggleDataContainer(false)">
-            <i class="fas fa-times"></i>
+            <span class="fw-bolder">X</span>
           </a>
         </div>
       </nav>
@@ -236,7 +257,7 @@
               <label for="mock" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
-                  Mock <i class="fa-solid fa-caret-right"></i>
+                  Mock ▸
                 </button>
               </label>
               <div class="col-12 collapse position-relative" id="_mock">
@@ -251,7 +272,7 @@
               <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
-                  Fetch <i class="fa-solid fa-caret-right"></i>
+                  Fetch ▸
                 </button>
               </label>
               <div class="col-12 collapse position-relative" id="_fetch">
@@ -267,7 +288,7 @@
                 <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#_fetchResponse" aria-expanded="false"
                   aria-controls="_fetchResponse">
-                  Fetch Response <i class="fa-solid fa-caret-right"></i>
+                  Fetch Response ▸
                 </button>
               </label>
               <div class="col-12 collapse position-relative" id="_fetchResponse">
@@ -282,7 +303,7 @@
               <label for="store" class="col-form-label w-100" style="max-width: 100%">
                 <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#__store" aria-expanded="false" aria-controls="__store">
-                  Store <i class="fa-solid fa-caret-right"></i>
+                  Store ▸
                 </button>
               </label>
               <div class="col-12 collapse position-relative" id=__store>
@@ -313,14 +334,8 @@
       </div>
     </div>
   </div>
-  <script src="./mock-server-assets/js/bootstrap.bundle.min.js"></script>
-  <script src="./mock-server-assets/js/initializer.js"></script>
-  <script src="./mock-server-assets/js/utils.js"></script>
-  <script src="./mock-server-assets/js/split-screen.js"></script>
-  <script src="./mock-server-assets/js/info-box.js"></script>
-  <script src="./mock-server-assets/js/modal-handler.js"></script>
-  <script src="./mock-server-assets/js/main.js"></script>
-  <script src="./mock-server-assets/js/listeners.js"></script>
+  <script src="_assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="_assets/js/index.js"></script>
 </body>
 
 </html>
