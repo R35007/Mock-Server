@@ -1,39 +1,5 @@
 {
-  "/customMockData/1": {
-    "description": "Since '_config' flag is not set to true. This whole object will be considered as a mock data. If you don't have any specific route configuration you can directly give the mock data to the route or please make sure you provide '_config' to true to set any route configuration.",
-    "mock": [
-      {
-        "userId": 1,
-        "id": 1,
-        "title": "Lorem ipsum dolor sit.",
-        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-      },
-      {
-        "userId": 1,
-        "id": 2,
-        "title": "Lorem ipsum dolor sit.",
-        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-      },
-      {
-        "userId": 1,
-        "id": 3,
-        "title": "Lorem ipsum dolor sit.",
-        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-      },
-      {
-        "userId": 1,
-        "id": 4,
-        "title": "Lorem ipsum dolor sit.",
-        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-      },
-      {
-        "userId": 1,
-        "id": 5,
-        "title": "Lorem ipsum dolor sit.",
-        "body": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, dolorem."
-      }
-    ]
-  },
+  "/customMockData/1": {},
   "/customMockData/2": {
     "_config": true,
     "mock": [

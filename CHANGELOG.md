@@ -1,3 +1,10 @@
+## v10.1.0
+
+- fixed - CLI not working issue fixed.
+- improved Mock Server CLI.
+- added - `--quite` to prevent from printing messages through the console.
+- removed - `--sample`.
+
 ## v10.0.0
 
 - reduced - Build size.

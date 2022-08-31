@@ -1,6 +1,5 @@
 #! /usr/bin/env node
 import axios from 'axios';
-import chalk from "chalk";
 import * as Watcher from 'chokidar';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -8,111 +7,120 @@ import MockServer from "../server";
 import * as ParamTypes from '../server/types/param.types';
 import argv from './argv';
 import ora from 'ora';
+import { LaunchServerOptions } from '../server/types/common.types';
 
-const init = async () => {
-  let {
-    db, config, middlewares, injectors, store, rewriters, port, host,
-    id, staticDir, dbMode, base, noCors, noGzip, readOnly, cookieParser, bodyParser, watch, snapshots, _: [source]
-  } = argv();
+let chalk = require("chalk");
 
-  const _config: ParamTypes.Config = typeof config === 'string' ? path.resolve(process.cwd(), config) as ParamTypes.Config : {
-    port, host, id, staticDir, dbMode, base, noCors, noGzip, cookieParser, bodyParser, readOnly, rootPath: process.cwd()
-  } as ParamTypes.Config;
-
-  db = source || db;
-
-  if (db) {
-    if (db?.startsWith("http")) {
-      const spinner = ora(chalk.yellow(db)).start();
-      const _db = await axios.get(db).then(resp => resp.data).catch(err => {
-        console.log(chalk.red(err.message));
-        return;
-      });
-      if (!_db) return;
-      db = _db;
-      spinner.stopAndPersist({ symbol: chalk.green("✔"), text: chalk.green(db) });
-    } else {
-      db = path.resolve(process.cwd(), db);
-    }
-  }
-  middlewares = middlewares && path.resolve(process.cwd(), middlewares);
-  injectors = injectors && path.resolve(process.cwd(), injectors);
-  store = store && path.resolve(process.cwd(), store);
-  rewriters = rewriters && path.resolve(process.cwd(), rewriters);
-
-  await startServer(snapshots, watch, db, middlewares, injectors,
-    rewriters, store, _config);
-}
-
-const startServer = async (
-  snapshots: string,
-  watch: boolean,
-  db?: string,
-  middlewares?: string,
-  injectors?: string,
-  rewriters?: string,
-  store?: string,
-  _config?: ParamTypes.Config
-) => {
-  const mockServer = new MockServer(_config);
-  const filesToWatch = ([
-    _config,
-    store,
-    db,
-    middlewares,
-    injectors,
-    rewriters,
-  ]).filter(x => typeof x === 'string').filter(Boolean) as string[];
-
+const getDataFromUrl = async (data?: string, log?: boolean) => {
   try {
-    if (watch) {
-      const watcher = Watcher.watch(filesToWatch);
-      watcher.on('change', async (_path, _event) => {
-        try {
-          console.log("\n" + chalk.yellow(_path) + chalk.gray(` has changed, reloading...`));
-          mockServer.server && await mockServer.stopServer();
-          !mockServer.server && await mockServer.launchServer(db, { middlewares, injectors, rewriters, store });
-          console.log(chalk.gray('watching for changes...'));
-          console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database.'));
-        } catch (err) {
-          console.error(err.message);
-        }
-      });
-      !mockServer.server && await mockServer.launchServer(db, { injectors, middlewares, rewriters, store });
+    if (!data) return;
+    if (data.startsWith("http")) {
+      const spinner = log ? ora(chalk.yellow(data)).start() : false;
+      const response = await axios.get(data).then(resp => resp.data).catch(_err => { });
+      spinner && spinner.stopAndPersist({ symbol: "✔", text: `GET: ${chalk.gray(data)}` });
+      return response;
     } else {
-      !mockServer.server && await mockServer.launchServer(db, { injectors, middlewares, rewriters, store });
+      const resolvedPath = path.resolve(process.cwd(), data);
+      if (!fs.existsSync(resolvedPath)) {
+        console.error(chalk.red(`Invalid Path : ${resolvedPath}`));
+        process.exit(1);
+      }
+      return resolvedPath;
     }
   } catch (err) {
+    console.error(chalk.red(err));
+    process.exit(1);
+  }
+};
+
+const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, mockServer: MockServer) => {
+  try {
+    console.log(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
+    mockServer.server && await mockServer.stopServer();
+    await mockServer.resetServer();
+    !mockServer.server && await mockServer.launchServer(db, launchServerOptions);
+    console.log(chalk.gray('watching for changes...'));
+    console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database.'));
+  } catch (err) {
     console.error(err.message);
+    process.exit(1);
+  }
+}
+
+const uncaughtException = (error) => {
+  if (error["errno"] === 'EADDRINUSE') {
+    console.error(chalk.red("\nServer already listening to port : ") + chalk.yellow(error["port"]));
+    console.error(chalk.red(`Please specify another port number either through --port argument or through the config.json configuration file`));
+    process.exit(1);
+  };
+  console.error(chalk.red('Something went wrong!'), error);
+  process.exit(1);
+}
+
+const errorHandler = () => {
+  console.error(chalk.red(`Error, can't read from stdin`));
+  console.error(chalk.red(`Creating a snapshot from the CLI won't be possible`));
+}
+
+const watchForSnapshot = (snapshots, mockServer) => {
+  console.log(chalk.blue('Type s + enter at any time to create a snapshot of the database'));
+  process.stdin.on('data', chunk => {
+    if (chunk.toString().trim().toLowerCase() !== 's') return;
+    const filename = `db-${Date.now()}.json`;
+    const file = path.join(snapshots, filename);
+    fs.writeFileSync(file, JSON.stringify(mockServer.db, null, 2), 'utf-8');
+    console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
+  });
+}
+
+const init = async () => {
+  const args = argv();
+  const { _: [source], config, db = source, injectors, middlewares, store, rewriters, watch, snapshots, quite, ...configArgs } = args;
+
+  const log = !quite;
+  if (quite) {
+    const chalkColors = { green: chalk.green, blue: chalk.blue };
+    chalk = { ...chalkColors, gray: () => '', yellow: () => '' } as any;
   }
 
-  // Catch and handle any error occurring in the server process
-  process.on('uncaughtException', error => {
-    if (error["errno"] === 'EADDRINUSE') {
-      console.log(chalk.red(`Cannot bind to the port ${error["port"]}. Please specify another port number either through --port argument or through the config.json configuration file`));
-    }
-    else {
-      console.log('Some error occurred', error);
-    }
+  const mockServer = new MockServer({ rootPath: process.cwd() });
+
+  const _config = typeof config === 'string' ? await getDataFromUrl(config, log) : { ...configArgs, rootPath: process.cwd() };
+  mockServer.setConfig(_config, { log });
+
+  const _db = await getDataFromUrl(db, log);
+  const _middlewares = await getDataFromUrl(middlewares, log);
+  const _injectors = await getDataFromUrl(injectors, log);
+  const _store = await getDataFromUrl(store, log);
+  const _rewriters = await getDataFromUrl(rewriters, log);
+
+  const launchServerOptions = {
+    middlewares: _middlewares,
+    injectors: _injectors,
+    store: _store,
+    rewriters: _rewriters,
+    log
+  }
+  try {
+    await mockServer.launchServer(_db, launchServerOptions);
+  } catch (err) {
+    console.error(err);
     process.exit(1);
-  });
+  }
 
-  process.stdin.on('error', () => {
-    console.log(`  Error, can't read from stdin`);
-    console.log(`  Creating a snapshot from the CLI won't be possible`);
-  });
+  const filesToWatch = ([_config, _store, _db, _middlewares, _injectors, _rewriters])
+    .filter(x => typeof x === 'string').filter(Boolean) as string[];
+
+  if (watch) {
+    const watcher = Watcher.watch(filesToWatch);
+    watcher.on('change', (changedPath, _event) => restartServer(changedPath, _db, launchServerOptions, mockServer));
+  }
+
+  process.on('uncaughtException', uncaughtException);
   process.stdin.setEncoding('utf8');
+  process.stdin.on('error', errorHandler);
 
-  // Snapshot
-  console.log(chalk.gray('Type s + enter at any time to create a snapshot of the database'));
-  process.stdin.on('data', chunk => {
-    if (chunk.toString().trim().toLowerCase() === 's') {
-      const filename = `db-${Date.now()}.json`;
-      const file = path.join(snapshots, filename);
-      fs.writeFileSync(file, JSON.stringify(mockServer.db, null, 2), 'utf-8');
-      console.log(`Saved snapshot to ${path.relative(process.cwd(), file)}\n`);
-    }
-  });
+  watchForSnapshot(snapshots, mockServer);
 }
 
 init();
