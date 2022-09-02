@@ -1657,7 +1657,7 @@
 </div></code></pre>
     <p>Create <code>server.js</code> File</p>
     <pre><code class="language-js"><div><span class="hljs-keyword">const</span> { MockServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;@r35007/mock-server&quot;</span>);
-<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">rootPath</span>: __dirname };
+<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname };
 <span class="hljs-keyword">const</span> mockServer = MockServer.Create(config);
 
 mockServer.launchServer(<span class="hljs-string">&quot;./db.js&quot;</span>, {
@@ -1673,7 +1673,7 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.js&quot;</span>, {
 
 <span class="hljs-keyword">const</span> port = <span class="hljs-number">3000</span>; <span class="hljs-comment">// Set Port to 0 to pick a random available port. default: 3000</span>
 <span class="hljs-keyword">const</span> host = <span class="hljs-string">&quot;localhost&quot;</span>;
-<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">rootPath</span>: __dirname, port, host };
+<span class="hljs-keyword">const</span> config = { <span class="hljs-attr">root</span>: __dirname, port, host };
 <span class="hljs-keyword">const</span> mockServer = MockServer.Create(config);
 
 <span class="hljs-keyword">const</span> app = mockServer.app;
@@ -1754,7 +1754,7 @@ mockServer.startServer();
     <span class="hljs-attr">&quot;mockFirst&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If true, It sends the mock first else try to fetch first.</span>
     <span class="hljs-attr">&quot;middlewares&quot;</span>: [<span class="hljs-string">&quot;_IterateResponse&quot;</span>], <span class="hljs-comment">// list of middleware names and methods to be called</span>
     <span class="hljs-attr">&quot;ignoreMiddlewareWrappers&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...</span>
-    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;./myFile.json&quot;</span>, <span class="hljs-comment">// this path will be relative to `config.rootPath`</span>
+    <span class="hljs-attr">&quot;fetch&quot;</span>: <span class="hljs-string">&quot;./myFile.json&quot;</span>, <span class="hljs-comment">// this path will be relative to `config.root`</span>
     <span class="hljs-attr">&quot;fetchCount&quot;</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">// Set to -1 to fetch infinite times.</span>
     <span class="hljs-attr">&quot;mock&quot;</span>: [{ <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;foo&quot;</span> }, { <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;bar&quot;</span> }],
     <span class="hljs-attr">&quot;skipFetchError&quot;</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// If True it skips any fetch error and send the mock data</span>
@@ -1817,7 +1817,7 @@ mockServer.startServer();
     <h4 id="fetch-file"><strong>Fetch File</strong></h4>
     <p>Give a absolute or a relative path to fetch any file and get as a response.</p>
     <blockquote>
-      <p>Note: The given relative path will be relative to <code>config.rootPath</code>.</p>
+      <p>Note: The given relative path will be relative to <code>config.root</code>.</p>
     </blockquote>
     <pre><code class="language-jsonc"><div>{
   <span class="hljs-attr">&quot;/fetch/local/file&quot;</span>: {
@@ -2283,11 +2283,11 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, 
       <span class="hljs-keyword">const</span> config = {
         <span class="hljs-attr">port</span>: <span class="hljs-number">3000</span>, <span class="hljs-comment">// Set Port to 0 to pick a random available port.</span>
         <span class="hljs-attr">host</span>: <span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-comment">// Set custom host</span>
-        <span class="hljs-attr">rootPath</span>: process.cwd(), <span class="hljs-comment">// Root path of the server. All paths refereed in db data will be relative to this path</span>
+        <span class="hljs-attr">root</span>: process.cwd(), <span class="hljs-comment">// Root path of the server. All paths refereed in db data will be relative to this path</span>
         <span class="hljs-attr">base</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Mount db on a base url</span>
         <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;id&quot;</span>, <span class="hljs-comment">// Set db id attribute.</span>
         <span class="hljs-attr">dbMode</span>: <span class="hljs-string">&quot;mock&quot;</span>, <span class="hljs-comment">// Give one of &#x27;multi&#x27;, &#x27;fetch&#x27;, &#x27;mock&#x27;</span>
-        <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Path to host a static files</span>
+        <span class="hljs-attr">static</span>: <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">// Path to host a static files</span>
         <span class="hljs-attr">reverse</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Generate routes in reverse order</span>
         <span class="hljs-attr">logger</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable api logger</span>
         <span class="hljs-attr">noCors</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Disable CORS</span>
@@ -2295,6 +2295,7 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, 
         <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Allow only GET calls</span>
         <span class="hljs-attr">bodyParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable body-parser</span>
         <span class="hljs-attr">cookieParser</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// Enable cookie-parser</span>
+        <span class="hljs-attr">quiet</span>: <span class="hljs-literal">false</span>, <span class="hljs-comment">// Set to true to suppress console logs</span>
       };
 
 <span class="hljs-keyword">new</span> MockServer(config).launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>);
@@ -2373,29 +2374,33 @@ mockServer.launchServer(<span class="hljs-string">&quot;./db.json&quot;</span>, 
     </ul>
     <h2 id="cli-usage">CLI Usage</h2>
     <pre><code class="language-sh"><div>$ mock-server --<span class="hljs-built_in">help</span>
+mock-server [options] &lt;source&gt;
+
 Options:
-  -c, --config              Path to config file                         [string]
-  -P, --port                Set port                                    [number] [default: 3000]
-  -H, --host                Set host                                    [string] [default: <span class="hljs-string">&quot;localhost&quot;</span>]
-  -d, --db                  Path to routes file                         [string]
-  -m, --middlewares         Paths to middlewares file                   [string]
-  -i, --injectors           Path to Injectors file                      [string]
-  -s, --store               Path to Store file                          [string]
-  -r, --rewriters           Path to Rewriter file                       [string]
-  -b, --base                Set base route path                         [string]
-      --staticDir, --st     Set static files directory                  [string]
-      --dbMode, --dm        Set Db mode                                 [string]
-      --snapshots, --ss     Set snapshots directory                     [string] [default: <span class="hljs-string">&quot;.&quot;</span>]
-      --readOnly, --ro      Allow only GET requests                     [boolean] [default: <span class="hljs-literal">false</span>]
-      --noCors, --nc        Disable Cross-Origin Resource Sharing       [boolean] [default: <span class="hljs-literal">false</span>]
-      --noGzip, --ng        Disable GZIP Content-Encoding               [boolean] [default: <span class="hljs-literal">false</span>]
-      --bodyParser, --bp    Enable body-parser                          [boolean] [default: <span class="hljs-literal">true</span>]
-      --cookieParser, --cp  Enable cookie-parser                        [boolean] [default: <span class="hljs-literal">true</span>]
-  -l, --logger              Enable logger                               [boolean] [default: <span class="hljs-literal">true</span>]
-  -w, --watch               Watch file(s)                               [boolean] [default: <span class="hljs-literal">false</span>]
-  -q, --quite               Prevent console logs                        [boolean] [default: <span class="hljs-literal">false</span>]
-  -h, --<span class="hljs-built_in">help</span>                Show <span class="hljs-built_in">help</span>                                   [boolean]
-  -v, --version             Show version number                         [boolean]
+  -c, --config              Path to config file                   [string]
+  -P, --port                Set port                              [number]  [default: 3000]
+  -H, --host                Set host                              [string]  [default: "localhost"]
+  -r, --root                Set root directory.                   [string]  [default: "./"]
+  -s, --static              Set static files directory            [string]
+  -b, --base                Set base route path                   [string]
+      --db                  Path to database file                 [string]
+      --middlewares, --md   Path to middlewares file              [string]
+      --injectors, --in     Path to Injectors file                [string]
+      --store, --st         Path to Store file                    [string]
+      --rewriters, --rw     Path to Rewriter file                 [string]
+      --id                  Set database id property              [string]  [default: "id"]
+      --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"] 
+      --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
+      --readOnly, --ro      Allow only GET requests               [boolean] [default: false]
+      --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean] [default: false]
+      --noGzip, --ng        Disable GZIP Content-Encoding         [boolean] [default: false]
+      --bodyParser, --bp    Enable body-parser                    [boolean] [default: true]
+      --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: true]
+  -l, --logger              Enable logger                         [boolean] [default: true]
+  -w, --watch               Watch for changes                     [boolean] [default: false]
+  -q, --quiet               Prevent console logs                  [boolean] [default: false]
+  -h, --<span class="hljs-built_in">help</span>                Show help                             [boolean]
+  -v, --version             Show version number                   [boolean]
 
 Examples:
   mock-server db.json
@@ -2589,7 +2594,7 @@ app.use(rewriters);
       </thead>
       <tbody>
         <tr>
-          <td>rootPath</td>
+          <td>root</td>
           <td>string</td>
           <td>No</td>
           <td>To require rewriter file relative to this path</td>
@@ -2605,13 +2610,13 @@ app.use(rewriters);
     <h3 id="defaults"><strong>defaults</strong></h3>
     <p>returns the list of default middlewares.
       Also helps to host a static directory.</p>
-    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaults = mockServer.defaults({ <span class="hljs-attr">staticDir</span>: <span class="hljs-string">&quot;./public&quot;</span>, <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">true</span> });
+    <pre><code class="language-js"><div><span class="hljs-keyword">const</span> defaults = mockServer.defaults({ <span class="hljs-attr">static</span>: <span class="hljs-string">&quot;./public&quot;</span>, <span class="hljs-attr">readOnly</span>: <span class="hljs-literal">true</span> });
 app.use(defaults);
 </div></code></pre>
     <ul>
       <li>options
         <ul>
-          <li><code>staticDir</code> path to static files</li>
+          <li><code>static</code> path to static files</li>
           <li><code>logger</code> enable logger middleware (default: true)</li>
           <li><code>bodyParser</code> enable body-parser middleware (default: true)</li>
           <li><code>noGzip</code> disable Compression (default: false)</li>
@@ -2671,10 +2676,10 @@ app.use(resources);
       </thead>
       <tbody>
         <tr>
-          <td>rootPath</td>
+          <td>root</td>
           <td>string</td>
           <td>No</td>
-          <td>rootPath to get db from a file</td>
+          <td>root to get db from a file</td>
         </tr>
         <tr>
           <td>dbMode</td>
@@ -2825,12 +2830,12 @@ app.use(homePage);
 
 <span class="hljs-comment">// Please follow the same following order of setting the data</span>
 <span class="hljs-comment">// If merge param is true. it adds the data with the existing data.</span>
-mockServer.setConfig(config, { rootPath, merge, log });
-mockServer.setMiddlewares(middlewares, { rootPath, merge, log });
-mockServer.setInjectors(injectors, { rootPath, merge, log });
-mockServer.setRewriters(rewriters, { rootPath, merge, log });
-mockServer.setStore(store, { rootPath, merge, log });
-mockServer.setDb(Db, { rootPath, merge, log });
+mockServer.setConfig(config, { root, merge, log });
+mockServer.setMiddlewares(middlewares, { root, merge, log });
+mockServer.setInjectors(injectors, { root, merge, log });
+mockServer.setRewriters(rewriters, { root, merge, log });
+mockServer.setStore(store, { root, merge, log });
+mockServer.setDb(Db, { root, merge, log });
 </div></code></pre>
     <h3 id="validators"><strong>Validators</strong></h3>
     <p>These helps to return a valid data from provided file path or object.</p>
@@ -2849,17 +2854,17 @@ getValidRouteConfig,
 <span class="hljs-attr">dbMode</span>: <span class="hljs-string">&quot;fetch&quot;</span>, <span class="hljs-comment">// The direct route value will be set to fetch</span>
 };
 
-<span class="hljs-keyword">const</span> rootPath = <span class="hljs-string">&quot;./&quot;</span>;
+<span class="hljs-keyword">const</span> root = <span class="hljs-string">&quot;./&quot;</span>;
 
 <span class="hljs-keyword">const</span> db = getValidDb(
   <span class="hljs-string">&quot;db.json&quot;</span>, <span class="hljs-comment">// db or HAR</span>
-  { injectors, rootPath, reverse, dbMode, mockServer }
+  { injectors, root, reverse, dbMode, mockServer }
 ); <span class="hljs-comment">// returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig</span>
-<span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, { rootPath, mockServer }); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
-<span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, { rootPath, mockServer }); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
-<span class="hljs-keyword">const</span> rewriters = getValidRewriters(rewriters, { rootPath, mockServer }); <span class="hljs-comment">// returns a valid rewriters</span>
-<span class="hljs-keyword">const</span> config = getValidConfig(config, { rootPath, mockServer }); <span class="hljs-comment">// returns a valid config combined with the default configs</span>
-<span class="hljs-keyword">const</span> store = getValidStore(store, { rootPath }); <span class="hljs-comment">// returns a valid store</span>
+<span class="hljs-keyword">const</span> middleware = getValidMiddlewares(middlewares, { root, mockServer }); <span class="hljs-comment">// returns a valid middleware along with the default middlewares</span>
+<span class="hljs-keyword">const</span> injectors = getValidInjectors(injectors, { root, mockServer }); <span class="hljs-comment">// returns a valid injectors. internally use getValidInjectorConfig</span>
+<span class="hljs-keyword">const</span> rewriters = getValidRewriters(rewriters, { root, mockServer }); <span class="hljs-comment">// returns a valid rewriters</span>
+<span class="hljs-keyword">const</span> config = getValidConfig(config, { root, mockServer }); <span class="hljs-comment">// returns a valid config combined with the default configs</span>
+<span class="hljs-keyword">const</span> store = getValidStore(store, { root }); <span class="hljs-comment">// returns a valid store</span>
 <span class="hljs-keyword">const</span> routeConfig = getValidRouteConfig(route, routeConfig); <span class="hljs-comment">// returns a valid routeconfig used by getValidDb</span>
 <span class="hljs-keyword">const</span> injectorConfig = getValidInjectorConfig(route, routeConfig); <span class="hljs-comment">// returns a valid injectorsConfig used by getValidInjectors</span>
 <span class="hljs-keyword">const</span> route = getValidRoute(route); <span class="hljs-comment">// splits route by comma and adds a slash (&#x27;/&#x27;) prefix to the routes</span>
