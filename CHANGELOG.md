@@ -1,3 +1,11 @@
+## v10.2.0
+
+- CLI improved. Please give `mock-server --help` in terminal for help
+- renamed - `config.rootPath` to `config.root`.
+- renamed - `config.staticDir` to `config.static`.
+- renamed - `ignoreMiddlewareWrappers` to `directUse`.
+- added - `config.quiet` to suppress console logs. The error logs will still show.
+
 ## v10.1.0
 
 - fixed - CLI not working issue fixed.

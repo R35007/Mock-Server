@@ -37,8 +37,8 @@ const create = () => {
     });
 
     it('should create with custom config', async () => {
-      const mockServer = MockServer.Create({ rootPath: __dirname });
-      expect(mockServer.data.config).toEqual({ ...Defaults.Config, rootPath: __dirname })
+      const mockServer = MockServer.Create({ root: __dirname });
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname })
     });
   });
 }
@@ -350,7 +350,7 @@ const launchServer = () => {
       expect(server).toBeDefined();
       expect(rewriter).toBeCalledTimes(1);
       expect(defaults).toBeCalledTimes(1);
-      expect(resources).toBeCalledTimes(2);
+      expect(resources).toBeCalledTimes(1);
       expect(homePage).toBeCalledTimes(1);
       expect(startServer).toBeCalledTimes(1);
 
@@ -479,7 +479,7 @@ const stopServer = () => {
 const resetServer = () => {
   describe('mockServer.resetServer() : ', () => {
     it('should reset mock server', async () => {
-      const mockServer = MockServer.Create({ rootPath: __dirname });
+      const mockServer = MockServer.Create({ root: __dirname });
 
       const mockDb: Db = {
         "/posts": {
@@ -533,7 +533,6 @@ const destroy = () => {
 
       const stopServer = jest.spyOn(mockServer, "stopServer");
       await MockServer.Destroy(); // Stops Server
-      await MockServer.Destroy();
       expect(stopServer).toBeCalledTimes(1);
       expect(mockServer.server).toBeUndefined(); // check is server is stopped
 
@@ -541,9 +540,8 @@ const destroy = () => {
       await mockServer2.startServer();
       expect(mockServer2.server).toBeDefined(); // check is server started
 
-      const stopServer2 = jest.spyOn(mockServer, "stopServer");
+      const stopServer2 = jest.spyOn(mockServer2, "stopServer");
       await MockServer.Destroy(mockServer2); // Stops Server
-      await MockServer.Destroy(mockServer2);
       expect(stopServer2).toBeCalledTimes(1);
       expect(mockServer2.server).toBeUndefined(); // check is server is stopped
     });

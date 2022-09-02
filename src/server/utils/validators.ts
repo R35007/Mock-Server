@@ -11,24 +11,24 @@ import { getStats, parseUrl, requireData } from './fetch';
 
 export const getValidConfig = (
   config?: ParamTypes.Config,
-  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
+  { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Config => {
-  const requiredData = requireData(config, { rootPath });
+  const requiredData = requireData(config, { root });
   const userConfig: UserTypes.Config = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userConfig) || !_.isPlainObject(userConfig)) return _.cloneDeep(Defaults.Config);
 
-  const parsedRoot = parseUrl(userConfig.rootPath, Defaults.Config.rootPath);
-  const root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.rootPath;
+  const parsedRoot = parseUrl(userConfig.root, Defaults.Config.root);
+  const _root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.root;
 
   const validConfig = {
     ...userConfig,
-    rootPath: root,
+    root: _root,
     dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : Defaults.Config.dbMode,
     port: _.isNaN(parseInt(userConfig.port as any)) ? Defaults.Config.port : parseInt(userConfig.port as any),
     host: (`${userConfig.host}`).trim() === '' ? ip.address() : _.isEmpty(userConfig.host) ? Defaults.Config.host : userConfig.host,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
-    staticDir: typeof userConfig.staticDir !== 'undefined' ? parseUrl(userConfig.staticDir, root) : Defaults.Config.staticDir,
+    static: typeof userConfig.static !== 'undefined' ? parseUrl(userConfig.static, _root) : Defaults.Config.static,
   };
 
   return { ...Defaults.Config, ...validConfig } as ValidTypes.Config;
@@ -36,9 +36,9 @@ export const getValidConfig = (
 
 export const getValidMiddlewares = (
   middlewares?: ParamTypes.Middlewares,
-  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
+  { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Middlewares => {
-  const requiredData = requireData(middlewares, { rootPath });
+  const requiredData = requireData(middlewares, { root });
   const userMiddlewares: UserTypes.Middlewares = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userMiddlewares) || !_.isPlainObject(userMiddlewares)) return _.cloneDeep(Defaults.Middlewares);
@@ -64,9 +64,9 @@ export const getValidMiddlewares = (
 
 export const getValidInjectors = (
   injectors?: ParamTypes.Injectors,
-  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
+  { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Injectors => {
-  const requiredData = requireData(injectors, { rootPath, isList: true });
+  const requiredData = requireData(injectors, { root, isList: true });
   const userInjectors: UserTypes.InjectorConfig = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userInjectors) || !_.isArray(userInjectors) || !isCollection(userInjectors)) return _.cloneDeep(Defaults.Injectors);
@@ -78,9 +78,9 @@ export const getValidInjectors = (
 
 export const getValidStore = (
   store?: ParamTypes.Store,
-  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
+  { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Store => {
-  const requiredData = requireData(store, { rootPath });
+  const requiredData = requireData(store, { root });
   const userStore: UserTypes.Store = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userStore) || !_.isPlainObject(userStore)) return _.cloneDeep(Defaults.Store);
@@ -90,9 +90,9 @@ export const getValidStore = (
 
 export const getValidRewriters = (
   rewriters?: ParamTypes.Rewriters,
-  { rootPath = Defaults.Config.rootPath, mockServer }: ValidatorOptions = {}
+  { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Rewriters => {
-  const requiredData = requireData(rewriters, { rootPath });
+  const requiredData = requireData(rewriters, { root });
   const userRewriters: UserTypes.Rewriters = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userRewriters) || !_.isPlainObject(userRewriters)) return _.cloneDeep(Defaults.Rewriters);
@@ -105,18 +105,18 @@ export const getValidDb = (
   {
     mockServer,
     injectors = Defaults.Injectors,
-    rootPath = Defaults.Config.rootPath,
+    root = Defaults.Config.root,
     reverse = Defaults.Config.reverse,
     dbMode = Defaults.Config.dbMode
   }: DbValidatorOptions = {}
 ): ValidTypes.Db => {
-  const requiredData = requireData(data, { rootPath });
+  const requiredData = requireData(data, { root });
   const userData: UserTypes.Db = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userData) || !_.isPlainObject(userData)) return _.cloneDeep(Defaults.Db);
 
   const normalizedDb = normalizeDb(userData, dbMode);
-  const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors, { rootPath, mockServer }));
+  const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors, { root, mockServer }));
 
   const validDb = reverse
     ? _.fromPairs(Object.entries(injectedDb).reverse())
@@ -126,7 +126,7 @@ export const getValidDb = (
 };
 
 export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
-  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], ignoreMiddlewareWrappers: true };
+  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], directUse: true };
 
   if (!_.isPlainObject(routeConfig) || !routeConfig._config) {
     if (dbMode === 'multi' && _.isString(routeConfig)) return { _config: true, id: toBase64(route), fetch: routeConfig }

@@ -6,7 +6,7 @@ import * as ValidTypes from './valid.types';
 
 export type RoutePairs = { [key: string]: string }
 
-export type Default_Options = Partial<Omit<ValidTypes.Config, 'port' | 'host' | 'rootPath' | 'id' | 'reverse' | 'dbMode'>>
+export type Default_Options = Partial<Omit<ValidTypes.Config, 'port' | 'host' | 'root' | 'id' | 'reverse' | 'dbMode'>>
 
 export type Default_Middlewares = typeof HelperMiddlewares;
 export type User_Middlweares = { [x: string]: express.RequestHandler | Array<express.RequestHandler> }
@@ -109,7 +109,7 @@ export type Server = {
 }
 
 export type SetterOptions = {
-  rootPath?: string;
+  root?: string;
   merge?: boolean;
   log?: boolean;
 }
@@ -121,7 +121,7 @@ export type DbSetterOptions = SetterOptions & {
 }
 
 export type ValidatorOptions = {
-  rootPath?: string;
+  root?: string;
   mockServer?: Server
 }
 
@@ -144,7 +144,7 @@ export type ResourceOptions = {
   reverse?: boolean,
   injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
-  rootPath?: string;
+  root?: string;
   router?: express.Router,
   dbMode?: DbMode,
   log?: boolean | string,

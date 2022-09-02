@@ -178,23 +178,23 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
   return fetchData;
 }
 
-export const parseUrl = (relativeUrl?: string, rootPath: string = process.cwd()): string => {
+export const parseUrl = (relativeUrl?: string, root: string = process.cwd()): string => {
   if (!relativeUrl || typeof relativeUrl !== 'string' || !relativeUrl?.trim().length) return '';
   if (relativeUrl.startsWith("http")) return relativeUrl;
-  const parsedUrl = decodeURIComponent(path.resolve(rootPath, relativeUrl));
+  const parsedUrl = decodeURIComponent(path.resolve(root, relativeUrl));
   return parsedUrl;
 };
 
 export const requireData = (data?: any, {
-  rootPath = process.cwd(),
+  root = process.cwd(),
   isList = false,
   onlyIndex = true,
   recursive = true,
   exclude = [],
-}: { exclude?: string[], rootPath?: string, isList?: boolean, onlyIndex?: boolean, recursive?: boolean } = {}) => {
+}: { exclude?: string[], root?: string, isList?: boolean, onlyIndex?: boolean, recursive?: boolean } = {}) => {
   if (!data) return;
   if (_.isFunction(data)) return data;
-  if (_.isString(data)) return requireFile(parseUrl(data, rootPath), { exclude, recursive, isList, onlyIndex });
+  if (_.isString(data)) return requireFile(parseUrl(data, root), { exclude, recursive, isList, onlyIndex });
   if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data);
   return;
 }

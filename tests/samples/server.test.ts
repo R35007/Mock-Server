@@ -9,7 +9,7 @@ const server = () => {
     afterAll(async () => await MockServer.Destroy())
 
     it('should run without any exception', async () => {
-      const mockServer = MockServer.Create({ rootPath: path.resolve(__dirname, "../../samples") });
+      const mockServer = MockServer.Create({ root: path.resolve(__dirname, "../../samples") });
 
       const app = mockServer.app;
 

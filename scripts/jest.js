@@ -8,7 +8,7 @@ const jest = require('jest');
 const fs = require('fs');
 const path = require('path');
 
-const rootPath = path.resolve(__dirname, "../");
+const root = path.resolve(__dirname, "../");
 
 // returns a valid source folder or file until it given sourcePath exist
 const getValidSourcePath = (sourcePath) => {
@@ -21,7 +21,7 @@ const getValidSourcePath = (sourcePath) => {
 const collectCoverageFromPath = (testFilePath) => {
   const sourceFilePath = testFilePath.replace("tests/server", "src/server").replace(".test.ts", ".ts");
   const validSourcePath = getValidSourcePath(sourceFilePath);
-  const relativeSourcePath = path.relative(rootPath, validSourcePath).replace(/\\/g, '/');
+  const relativeSourcePath = path.relative(root, validSourcePath).replace(/\\/g, '/');
 
   const isFile = fs.statSync(validSourcePath).isFile();
 
@@ -45,7 +45,7 @@ const startTesting = () => {
 
   console.log("\n");
 
-  jest.run(jestArgs, rootPath)
+  jest.run(jestArgs, root)
 }
 
 startTesting();

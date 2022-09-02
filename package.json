@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "10.1.0",
+  "version": "10.2.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -17,6 +17,9 @@
     "dist",
     "public"
   ],
+  "engines": {
+    "node": ">=14"
+  },
   "keywords": [
     "JSON",
     "REST",
@@ -66,9 +69,10 @@
     "nanoid": "^3.1.23",
     "ora": "^5.4.1",
     "path-to-regexp": "^6.2.0",
+    "please-upgrade-node": "^3.2.0",
     "response-time": "^2.3.2",
     "server-destroy": "^1.0.1",
-    "yargs": "^17.0.1"
+    "yargs": "^17.5.1"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

@@ -24,8 +24,8 @@ export const shouldGetValidInjectors = () => {
         ["valid .json file", "./injectors.json", jsonFile],
         ["valid folder", "./", [...jsFile, ...jsonFile]],
       ])('If %s path is passed', (_condition, injectorsPath, expected) => {
-        const rootPath = path.join(__dirname, "../../mock/injectors");
-        const injectors = getValidInjectors(injectorsPath as string, { rootPath });
+        const root = path.join(__dirname, "../../mock/injectors");
+        const injectors = getValidInjectors(injectorsPath as string, { root });
         expect(injectors).toEqual(expected);
       });
     });

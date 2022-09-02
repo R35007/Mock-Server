@@ -3,13 +3,13 @@ import { DbMode, Default_Middlewares, Global_Middlweares, HarMiddleware, KibanaM
 import * as UserTypes from "./user.types";
 
 export type Config = {
-  rootPath: string;
+  root: string;
   port: number;
   host: string;
   base: string;
   id: string;
   dbMode: DbMode
-  staticDir: string;
+  static: string;
   reverse: boolean;
   logger: boolean;
   noGzip: boolean;
@@ -17,6 +17,7 @@ export type Config = {
   readOnly: boolean;
   bodyParser: boolean;
   cookieParser: boolean;
+  quiet: boolean;
 };
 export type Db = { [key: string]: RouteConfig }
 export type Injectors = InjectorConfig[];

@@ -26,8 +26,8 @@ export const shouldGetValidStore = () => {
         ["valid .json file", "./store.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
       ])('If %s path is passed', (_condition, storePath, expected) => {
-        const rootPath = path.join(__dirname, "../../mock/store");
-        const store = getValidStore(storePath as string, { rootPath });
+        const root = path.join(__dirname, "../../mock/store");
+        const store = getValidStore(storePath as string, { root });
         expect(store).toEqual(expected);
       });
     });

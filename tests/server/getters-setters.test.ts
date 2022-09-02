@@ -11,8 +11,8 @@ const constructor = () => {
     });
 
     it('should create with custom config', async () => {
-      const mockServer = new MockServer({ rootPath: __dirname });
-      expect(mockServer.data.config).toEqual({ ...Defaults.Config, rootPath: __dirname })
+      const mockServer = new MockServer({ root: __dirname });
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname })
     });
   });
 }
@@ -31,8 +31,8 @@ const setConfig = () => {
 
     it('should set custom config', async () => {
       expect(mockServer.data.config).toEqual(Defaults.Config);
-      mockServer.setConfig({ rootPath: __dirname });
-      expect(mockServer.data.config).toEqual({ ...Defaults.Config, rootPath: __dirname })
+      mockServer.setConfig({ root: __dirname });
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname })
     });
   });
 }
@@ -195,7 +195,7 @@ const setData = () => {
       const store = { "/posts": { id: "1", name: "Siva" } }
       const middlewares = { "logger": () => { } }
       const rewriters = { "/api/*": "/$1" }
-      const config = { rootPath: __dirname }
+      const config = { root: __dirname }
 
       mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
       expect(mockServer.data.db).toEqual({
@@ -211,7 +211,7 @@ const setData = () => {
           mock: { id: "1", name: "Siva" },
         }
       });
-      expect(mockServer.data.config).toEqual({ ...Defaults.Config, rootPath: __dirname });
+      expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname });
       expect(mockServer.data.middlewares).toEqual({ ...Defaults.Middlewares, ...middlewares });
       expect(mockServer.data.store).toEqual(store);
       expect(mockServer.data.injectors).toEqual(injectors);

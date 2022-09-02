@@ -118,7 +118,7 @@ Create `server.js` File
 
 ```js
 const { MockServer } = require("@r35007/mock-server");
-const config = { rootPath: __dirname };
+const config = { root: __dirname };
 const mockServer = MockServer.Create(config);
 
 mockServer.launchServer("./db.js", {
@@ -137,7 +137,7 @@ const { MockServer } = require("@r35007/mock-server");
 
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
 const host = "localhost";
-const config = { rootPath: __dirname, port, host };
+const config = { root: __dirname, port, host };
 const mockServer = MockServer.Create(config);
 
 const app = mockServer.app;
@@ -225,8 +225,8 @@ For Example:
     "statusCode": 200, // in number between 100 to 600
     "mockFirst": false, // If true, It sends the mock first else try to fetch first.
     "middlewares": ["_IterateResponse"], // list of middleware names and methods to be called
-    "ignoreMiddlewareWrappers": false, // !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...
-    "fetch": "./myFile.json", // this path will be relative to `config.rootPath`
+    "directUse": false, // !Be cautious : If true it wont add any helper middleware wrappers. If true providing a middleware is must and no use of any other config like mock, fetch, predefined middlewares etc...
+    "fetch": "./myFile.json", // this path will be relative to `config.root`
     "fetchCount": 5, // Set to -1 to fetch infinite times.
     "mock": [{ "name": "foo" }, { "name": "bar" }],
     "skipFetchError": false, // If True it skips any fetch error and send the mock data
@@ -299,7 +299,7 @@ The url can either be a http server or a local file server.
 
 Give a absolute or a relative path to fetch any file and get as a response.
 
-> Note: The given relative path will be relative to `config.rootPath`.
+> Note: The given relative path will be relative to `config.root`.
 
 ```jsonc
 {
@@ -437,15 +437,15 @@ const db = {
 ### **Ignore Middleware Wrappers**
 
 Usually all the middlewares in the route will be wrapped by some helper middlewares to set delay, get fetch data, set locals etc..
-If we wish to provide a middlewares without any wrappers set `ignoreMiddlewareWrappers` to `true`.
+If we wish to provide a middlewares without any wrappers set `directUse` to `true`.
 For Example:
 `db.js`
 
 ```js
 const db = {
   "/static/app1": express.static("./path/to/build/folder/app1") // will ignore helper middleware wrappers
-  "/static/app2": { _config: true, middlewares: express.static("./path/to/build/folder/app2"), ignoreMiddlewareWrappers: true }
-  "/fetch/users": { _config: true, fetch: "http://jsonplaceholder.typicode.com/users", ignoreMiddlewareWrappers: true }
+  "/static/app2": { _config: true, middlewares: express.static("./path/to/build/folder/app2"), directUse: true }
+  "/fetch/users": { _config: true, fetch: "http://jsonplaceholder.typicode.com/users", directUse: true }
 }
 ```
 
@@ -883,11 +883,11 @@ you can provide your own config by passing the config object in the `MockServer`
 const config = {
   port: 3000, // Set Port to 0 to pick a random available port.
   host: "localhost", // Set custom host
-  rootPath: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
+  root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
   dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
-  staticDir: "", // Path to host a static files
+  static: "", // Path to host a static files
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
   noCors: false, // Disable CORS
@@ -978,29 +978,33 @@ const db = {
 
 ```sh
 $ mock-server --help
+mock-server [options] <source>
+
 Options:
-  -c, --config              Path to config file                         [string]
-  -P, --port                Set port                                    [number] [default: 3000]
-  -H, --host                Set host                                    [string] [default: "localhost"]
-  -d, --db                  Path to routes file                         [string]
-  -m, --middlewares         Paths to middlewares file                   [string]
-  -i, --injectors           Path to Injectors file                      [string]
-  -s, --store               Path to Store file                          [string]
-  -r, --rewriters           Path to Rewriter file                       [string]
-  -b, --base                Set base route path                         [string]
-      --staticDir, --st     Set static files directory                  [string]
-      --dbMode, --dm        Set Db mode                                 [string]
-      --snapshots, --ss     Set snapshots directory                     [string] [default: "."]
-      --readOnly, --ro      Allow only GET requests                     [boolean] [default: false]
-      --noCors, --nc        Disable Cross-Origin Resource Sharing       [boolean] [default: false]
-      --noGzip, --ng        Disable GZIP Content-Encoding               [boolean] [default: false]
-      --bodyParser, --bp    Enable body-parser                          [boolean] [default: true]
-      --cookieParser, --cp  Enable cookie-parser                        [boolean] [default: true]
-  -l, --logger              Enable logger                               [boolean] [default: true]
-  -w, --watch               Watch file(s)                               [boolean] [default: false]
-  -q, --quite               Prevent console logs                        [boolean] [default: false]
-  -h, --help                Show help                                   [boolean]
-  -v, --version             Show version number                         [boolean]
+  -c, --config              Path to config file                   [string]
+  -P, --port                Set port                              [number]  [default: 3000]
+  -H, --host                Set host                              [string]  [default: "localhost"]
+  -r, --root                Set root directory.                   [string]  [default: "./"]
+  -s, --static              Set static files directory            [string]
+  -b, --base                Set base route path                   [string]
+      --db                  Path to database file                 [string]
+      --middlewares, --md   Path to middlewares file              [string]
+      --injectors, --in     Path to Injectors file                [string]
+      --store, --st         Path to Store file                    [string]
+      --rewriters, --rw     Path to Rewriter file                 [string]
+      --id                  Set database id property              [string]  [default: "id"]
+      --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"] 
+      --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
+      --readOnly, --ro      Allow only GET requests               [boolean] [default: false]
+      --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean] [default: false]
+      --noGzip, --ng        Disable GZIP Content-Encoding         [boolean] [default: false]
+      --bodyParser, --bp    Enable body-parser                    [boolean] [default: true]
+      --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: true]
+  -l, --logger              Enable logger                         [boolean] [default: true]
+  -w, --watch               Watch for changes                     [boolean] [default: false]
+  -q, --quiet               Prevent console logs                  [boolean] [default: false]
+  -h, --help                Show help                             [boolean]
+  -v, --version             Show version number                   [boolean]
 
 Examples:
   mock-server db.json
@@ -1108,7 +1112,7 @@ app.use(rewriters);
 
 | Name     | Type    | Required | Description                                    |
 | -------- | ------- | -------- | ---------------------------------------------- |
-| rootPath | string  | No       | To require rewriter file relative to this path |
+| root | string  | No       | To require rewriter file relative to this path |
 | log      | boolean | No       | If true it logs the rewriters setting log      |
 
 ### **defaults**
@@ -1117,12 +1121,12 @@ returns the list of default middlewares.
 Also helps to host a static directory.
 
 ```js
-const defaults = mockServer.defaults({ staticDir: "./public", readOnly: true });
+const defaults = mockServer.defaults({ static: "./public", readOnly: true });
 app.use(defaults);
 ```
 
 - options
-  - `staticDir` path to static files
+  - `static` path to static files
   - `logger` enable logger middleware (default: true)
   - `bodyParser` enable body-parser middleware (default: true)
   - `noGzip` disable Compression (default: false)
@@ -1161,7 +1165,7 @@ app.use(resources);
 
 | Name        | Type                    | Required | Description                                |
 | ----------- | ----------------------- | -------- | ------------------------------------------ |
-| rootPath    | string                  | No       | rootPath to get db from a file             |
+| root    | string                  | No       | root to get db from a file             |
 | dbMode      | 'mock'/ 'fetch'/'multi' | No       | dbMode to create resource                  |
 | injectors   | string/object/method    | No       | injectors to inject routeconfig to this db |
 | middlewares | string/object/method    | No       | middlewares of this db                     |
@@ -1277,12 +1281,12 @@ mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
 
 // Please follow the same following order of setting the data
 // If merge param is true. it adds the data with the existing data.
-mockServer.setConfig(config, { rootPath, merge, log });
-mockServer.setMiddlewares(middlewares, { rootPath, merge, log });
-mockServer.setInjectors(injectors, { rootPath, merge, log });
-mockServer.setRewriters(rewriters, { rootPath, merge, log });
-mockServer.setStore(store, { rootPath, merge, log });
-mockServer.setDb(Db, { rootPath, merge, log });
+mockServer.setConfig(config, { root, merge, log });
+mockServer.setMiddlewares(middlewares, { root, merge, log });
+mockServer.setInjectors(injectors, { root, merge, log });
+mockServer.setRewriters(rewriters, { root, merge, log });
+mockServer.setStore(store, { root, merge, log });
+mockServer.setDb(Db, { root, merge, log });
 ```
 
 ### **Validators**
@@ -1305,17 +1309,17 @@ const options = {
   dbMode: "fetch", // The direct route value will be set to fetch
 };
 
-const rootPath = "./";
+const root = "./";
 
 const db = getValidDb(
   "db.json", // db or HAR
-  { injectors, rootPath, reverse, dbMode, mockServer }
+  { injectors, root, reverse, dbMode, mockServer }
 ); // returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig
-const middleware = getValidMiddlewares(middlewares, { rootPath, mockServer }); // returns a valid middleware along with the default middlewares
-const injectors = getValidInjectors(injectors, { rootPath, mockServer }); // returns a valid injectors. internally use getValidInjectorConfig
-const rewriters = getValidRewriters(rewriters, { rootPath, mockServer }); // returns a valid rewriters
-const config = getValidConfig(config, { rootPath, mockServer }); // returns a valid config combined with the default configs
-const store = getValidStore(store, { rootPath }); // returns a valid store
+const middleware = getValidMiddlewares(middlewares, { root, mockServer }); // returns a valid middleware along with the default middlewares
+const injectors = getValidInjectors(injectors, { root, mockServer }); // returns a valid injectors. internally use getValidInjectorConfig
+const rewriters = getValidRewriters(rewriters, { root, mockServer }); // returns a valid rewriters
+const config = getValidConfig(config, { root, mockServer }); // returns a valid config combined with the default configs
+const store = getValidStore(store, { root }); // returns a valid store
 const routeConfig = getValidRouteConfig(route, routeConfig); // returns a valid routeconfig used by getValidDb
 const injectorConfig = getValidInjectorConfig(route, routeConfig); // returns a valid injectorsConfig used by getValidInjectors
 const route = getValidRoute(route); // splits route by comma and adds a slash ('/') prefix to the routes

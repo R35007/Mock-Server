@@ -21,9 +21,9 @@ export default (opts: Default_Options) => {
   const arr: any[] = [];
 
   // Serve static files
-  if (fs.existsSync(_opts.staticDir)) {
+  if (fs.existsSync(_opts.static)) {
     const router = express.Router();
-    router.use(_opts.base, express.static(_opts.staticDir))
+    router.use(_opts.base, express.static(_opts.static))
     arr.push(router);
   }
 

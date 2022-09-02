@@ -43,6 +43,7 @@ export class MockServer extends GettersSetters {
     if (mockServer) {
       try { await mockServer.stopServer() } catch (err) { console.error(err.message) }
       mockServer.resetServer();
+      if (mockServer === MockServer.#mockServer) MockServer.#mockServer = undefined;
       return undefined;
     } else {
       try { await MockServer.#mockServer?.stopServer() } catch (err) { console.error(err.message) }
@@ -65,7 +66,7 @@ export class MockServer extends GettersSetters {
   ): Promise<Server | undefined> {
     const app = this.app;
 
-    this.setData({ injectors, middlewares, store, rewriters }, { log });
+    this.setData({ injectors, middlewares, store, rewriters });
 
     const rewriter = this.rewriter();
     app.use(rewriter);
@@ -89,17 +90,17 @@ export class MockServer extends GettersSetters {
 
   defaults(
     options?: UserTypes.Config,
-    { rootPath = this.config.rootPath }: SetterOptions = {}
+    { root = this.config.root }: SetterOptions = {}
   ) {
-    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { rootPath }) : this.config
+    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { root }) : this.config
     return Defaults(validConfig);
   }
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
-    { rootPath = this.config.rootPath, log }: SetterOptions = {}
+    { root = this.config.root, log }: SetterOptions = {}
   ): express.Router {
-    rewriters && this.setRewriters(rewriters, { rootPath, log, merge: true })
+    rewriters && this.setRewriters(rewriters, { root, log, merge: true })
     return Rewriter(this.rewriters);
   }
 
@@ -109,19 +110,19 @@ export class MockServer extends GettersSetters {
       injectors,
       middlewares,
       reverse = this.config.reverse,
-      rootPath = this.config.rootPath,
+      root = this.config.root,
       dbMode = this.config.dbMode,
       router = express.Router(),
       log = false
     }: ResourceOptions = {},
   ): express.Router {
     const logText = `${log}` === "true" ? "Db Resources" : log;
-    const spinner = `${log}` !== "false" ? ora(`Loading ${logText}...`).start() : false;
+    const spinner = !global.quiet && `${log}` !== "false" && ora(`Loading ${logText}...`).start();
 
     const mockServer = this._getServerDetails();
-    const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { rootPath, mockServer }) : this.middlewares;
-    const validInjectors = injectors ? getValidInjectors(injectors, { rootPath, mockServer }) : this.injectors;
-    const validDb = db ? getValidDb(db, { rootPath, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
+    const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { root, mockServer }) : this.middlewares;
+    const validInjectors = injectors ? getValidInjectors(injectors, { root, mockServer }) : this.injectors;
+    const validDb = db ? getValidDb(db, { root, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
 
     Object.entries(validDb).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
       this.#createRoute(routePath, routeConfig, router, validMiddlewares)
@@ -142,7 +143,7 @@ export class MockServer extends GettersSetters {
 
     const middlewareList = this.#getMiddlewareList(routePath, routeConfig, validMiddlewares);
 
-    if (routeConfig.ignoreMiddlewareWrappers) {
+    if (routeConfig.directUse) {
       router.use(routePath, middlewareList);
       return;
     }
@@ -154,7 +155,7 @@ export class MockServer extends GettersSetters {
       .map(middleware => _.isString(middleware) ? validMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
-    if (routeConfig.ignoreMiddlewareWrappers) return middlewares;
+    if (routeConfig.directUse) return middlewares;
 
     return [
       InitialMiddleware(routePath, this.config, this.getDb, this.getStore),
@@ -193,7 +194,7 @@ export class MockServer extends GettersSetters {
 
       this.server = this.app.listen(_port, _host, async () => {
         spinner.stop();
-        console.log(chalk.green("Mock Server Started!"));
+        process.stdout.write(chalk.green("\nMock Server Started!\n"));
 
         const serverAddress = this.server!.address() as { address: string; family: string; port: number; };
         this.port = serverAddress.port;
@@ -202,12 +203,12 @@ export class MockServer extends GettersSetters {
 
         console.log("\n" + chalk.whiteBright("Access URLs:"));
         console.log(chalk.gray("-----------------------------------"));
-        console.log("Localhost: " + chalk.magenta(`http://${_host}:${this.port}${_base}`));
-        console.log("      LAN: " + chalk.magenta(`http://${this.address}:${this.port}${_base}`));
+        process.stdout.write("Localhost: " + chalk.magenta(`http://${_host}:${this.port}${_base}`));
+        console.log("\n      LAN: " + chalk.magenta(`http://${this.address}:${this.port}${_base}`));
         console.log(chalk.gray("-----------------------------------"));
         console.log(chalk.blue("Press CTRL+C to stop"));
 
-        console.log("\n" + chalk.gray("listening...") + "\n");
+        process.stdout.write("\n" + chalk.gray("listening...") + "\n");
 
         enableDestroy(this.server!); // Enhance with a destroy function
         resolve(this.server!);
@@ -229,7 +230,7 @@ export class MockServer extends GettersSetters {
     return new Promise((resolve, reject) => {
 
       if (!this.server || !this.server?.destroy) {
-        spinner.stop();
+        spinner && spinner.stop();
         console.error(chalk.red("\nNo Server to Stop"));
         return reject(new Error("No Server to Stop"));
       }
@@ -247,7 +248,7 @@ export class MockServer extends GettersSetters {
         this.listeningTo = undefined;
 
         spinner.stop();
-        console.log(chalk.green("Mock Server Stopped!"));
+        process.stdout.write(chalk.green("Mock Server Stopped!"));
         resolve(true);
       })
     })
@@ -275,6 +276,8 @@ export class MockServer extends GettersSetters {
   }
 
   homePage({ log }: { log?: boolean } = {}): express.Router {
+    const spinner = !global.quiet && log && ora(`Loading HomePage Resources...`).start();
+
     const router = express.Router();
 
     // Get Bootstrap path from nearest node_modules
@@ -282,7 +285,6 @@ export class MockServer extends GettersSetters {
     bootstrapDir = fs.existsSync(bootstrapDir) ? bootstrapDir : path.join(__dirname, '../../../../bootstrap/dist');
 
     const homePageDir = path.join(__dirname, '../../public');
-
     router.use(express.static(homePageDir));  // Serve Mock Server HomePage
 
     const homePageRoutes = {
@@ -304,14 +306,21 @@ export class MockServer extends GettersSetters {
       },
     }
 
-    this.resources(homePageRoutes, { injectors: [], middlewares: {}, router, log: log && "HomePage Resources" });
+    Object.entries(homePageRoutes)
+      .forEach(([routePath, routeConfig]) => {
+        if (this.routes.includes(routePath)) return;
+        this.routes.push(routePath);
+        router.use(routePath, routeConfig);
+      })
+
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`HomePage Resources Loaded.`) });
     return router;
   }
 
   #addDb = (req: express.Request, res: express.Response, router: express.Router) => {
     const validDb = getValidDb(req.body,
       {
-        rootPath: this.config.rootPath,
+        root: this.config.root,
         injectors: this.injectors,
         reverse: this.config.reverse,
         dbMode: this.config.dbMode,

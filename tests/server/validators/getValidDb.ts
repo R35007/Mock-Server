@@ -25,8 +25,8 @@ export const shouldGetValidDb = () => {
         ["valid .json file", "./db.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
       ])('If %s path is passed', (_condition, dbPath, expected) => {
-        const rootPath = path.join(__dirname, "../../mock/db");
-        const db = getValidDb(dbPath as string, { rootPath });
+        const root = path.join(__dirname, "../../mock/db");
+        const db = getValidDb(dbPath as string, { root });
         expect(db).toEqual(expected);
       });
     });

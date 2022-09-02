@@ -8,7 +8,7 @@ export const routeConfig = () => {
     let mockServer: MockServer;
 
     beforeAll(async () => { await MockServer.Destroy() });
-    beforeEach(() => { mockServer = MockServer.Create({ rootPath: path.join(__dirname, "../../../") }) });
+    beforeEach(() => { mockServer = MockServer.Create({ root: path.join(__dirname, "../../../") }) });
     afterEach(async () => { await MockServer.Destroy() });
     afterAll(async () => { await MockServer.Destroy() });
 

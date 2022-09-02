@@ -26,8 +26,8 @@ export const shouldGetValidRewriters = () => {
         ["valid .json file", "./rewriters.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
       ])('If %s path is passed', (_condition, rewritersPath, expected) => {
-        const rootPath = path.join(__dirname, "../../mock/rewriters");
-        const rewriters = getValidRewriters(rewritersPath as string, { rootPath });
+        const root = path.join(__dirname, "../../mock/rewriters");
+        const rewriters = getValidRewriters(rewritersPath as string, { root });
         expect(rewriters).toEqual(expected);
       });
     });

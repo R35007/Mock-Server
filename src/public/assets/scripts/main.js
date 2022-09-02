@@ -44,9 +44,6 @@ function setHomePageRoutes(resources) {
 }
 
 function createResourcesList(resources) {
-  // Delete HomePage routes in Db.
-  homePageRoutes.forEach(route => delete resources[route]);
-
   // collects all expanded list to restore after refresh
   const expandedList = [];
   $resourcesList.querySelectorAll("li.expanded").forEach(li => expandedList.push(li.id));
