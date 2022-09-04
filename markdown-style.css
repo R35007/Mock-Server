@@ -128,3 +128,7 @@ table thead {
 table tr:nth-child(even) {
   background-color: #f0f0f0;
 }
+
+.function_ {
+  color: #e7d405
+}
