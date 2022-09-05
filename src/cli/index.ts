@@ -75,11 +75,17 @@ const errorHandler = () => {
 const getSnapshot = (snapshots) => {
   process.stdout.write("\n" + chalk.gray('Type s + enter at any time to create a snapshot of the database') + "\n");
   process.stdin.on('data', chunk => {
-    if (chunk.toString().trim().toLowerCase() !== 's') return;
-    const filename = `db-${Date.now()}.json`;
-    const file = path.join(snapshots, filename);
-    fs.writeFileSync(file, JSON.stringify(cleanDb(mockServer.db, mockServer.config.dbMode), null, 2), 'utf-8');
-    console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
+    try {
+      if (chunk.toString().trim().toLowerCase() !== 's') return;
+      const filename = `db-${Date.now()}.json`;
+      const file = path.join(snapshots, filename);
+      const db = mockServer.db;
+      cleanDb(db, mockServer.config.dbMode);
+      fs.writeFileSync(file, JSON.stringify(db, null, 2), 'utf-8');
+      console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
+    } catch (err) {
+      console.error(chalk.red(err.message));
+    }
   });
 }
 

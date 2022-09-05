@@ -1,3 +1,7 @@
+## v10.3.2
+
+- CLI Snapshot not working issue fixed
+
 ## v10.3.1
 
 - CLI file watcher fix
