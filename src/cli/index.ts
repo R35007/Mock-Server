@@ -15,6 +15,8 @@ import argv from './argv';
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
 const pkg = JSON.parse(pkgStr);
 
+let mockServer;
+
 pleaseUpgradeNode(pkg, {
   message: function (requiredVersion) {
     return chalk.red(`Please upgrade Node.\n@r35007/mock-server requires at least version ` + chalk.yellow(requiredVersion) + ` of Node.`)
@@ -26,9 +28,15 @@ const getDataFromUrl = async (data?: string, root?: string) => {
     if (!data) return;
     if (data.startsWith("http")) {
       const spinner = !global.quiet ? ora(`GET: ` + chalk.gray(data)).start() : false;
-      const response = await axios.get(data).then(resp => resp.data);
-      spinner && spinner.stopAndPersist({ symbol: "✔", text: `GET: ${chalk.gray(data)}` });
-      return response;
+      try {
+        const response = await axios.get(data).then(resp => resp.data);
+        spinner && spinner.stopAndPersist({ symbol: chalk.green("✔"), text: chalk.green("GET: ") + chalk.gray(data) });
+        return response;
+      } catch (err) {
+        spinner && spinner.stopAndPersist({ symbol: chalk.red("✖"), text: chalk.red(`GET: `) + chalk.gray(data) });
+        console.error(chalk.red(err.message));
+        process.exit(1);
+      }
     } else {
       const resolvedPath = path.resolve(root!, data);
       if (!fs.existsSync(resolvedPath)) {
@@ -38,18 +46,16 @@ const getDataFromUrl = async (data?: string, root?: string) => {
       return resolvedPath;
     }
   } catch (err) {
-    console.error(chalk.red(err));
+    console.error(chalk.red(err.message));
     process.exit(1);
   }
 };
 
-const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, mockServer: MockServer) => {
+const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
   try {
     process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
-    mockServer.server && await mockServer.stopServer();
-    await mockServer.resetServer();
+    await MockServer.Destroy(mockServer);
     !mockServer.server && await mockServer.launchServer(db, launchServerOptions);
-    process.stdout.write("\n" + chalk.gray('Type s + enter at any time to create a snapshot of the database.') + "\n");
   } catch (err) {
     console.error(err.message);
     process.exit(1);
@@ -66,7 +72,7 @@ const errorHandler = () => {
   console.error(chalk.red(`Creating a snapshot from the CLI won't be possible`));
 }
 
-const getSnapshot = (snapshots, mockServer: MockServer) => {
+const getSnapshot = (snapshots) => {
   process.stdout.write("\n" + chalk.gray('Type s + enter at any time to create a snapshot of the database') + "\n");
   process.stdin.on('data', chunk => {
     if (chunk.toString().trim().toLowerCase() !== 's') return;
@@ -84,7 +90,7 @@ const init = async () => {
   const _root = path.resolve(process.cwd(), root);
 
   const _config = { ...configArgs, root: _root };
-  const mockServer = MockServer.Create(_config);
+  mockServer = new MockServer(_config);
   global.quiet = _config.quiet;
 
   const _db = await getDataFromUrl(db, _root);
@@ -111,10 +117,10 @@ const init = async () => {
 
   if (watch) {
     const watcher = Watcher.watch(filesToWatch);
-    watcher.on('change', (changedPath, _event) => restartServer(changedPath, _db, launchServerOptions, mockServer));
+    watcher.on('change', (changedPath, _event) => restartServer(changedPath, _db, launchServerOptions));
   }
 
-  getSnapshot(snapshots, mockServer);
+  getSnapshot(snapshots);
 
   process.on('uncaughtException', uncaughtException);
   process.stdin.setEncoding('utf8');

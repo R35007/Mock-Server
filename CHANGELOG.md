@@ -1,3 +1,7 @@
+## v10.3.1
+
+- CLI file watcher fix
+
 ## v10.3.0
 
 - CLI `--config` fix
