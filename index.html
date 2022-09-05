@@ -1661,7 +1661,7 @@
   mock-server [options] &lt;<span class="hljs-built_in">source</span>&gt;
   
   Options:
-    -c, --config              Path to config file                   [string]
+    -c, --config              Path to config file                   [string]  [default: <span class="hljs-string">&quot;mock-server.json&quot;</span>]
     -P, --port                Set port                              [number]  [default: 3000]
     -H, --host                Set host                              [string]  [default: <span class="hljs-string">&quot;localhost&quot;</span>]
     -r, --root                Set root directory.                   [string]  [default: <span class="hljs-string">&quot;./&quot;</span>]
@@ -1669,7 +1669,7 @@
     -b, --base                Set base route path                   [string]
         --db                  Path to database file                 [string]
         --middlewares, --md   Path to middlewares file              [string]
-        --injectors, --<span class="hljs-keyword">in</span>     Path to Injectors file                [string]
+        --injectors, --in     Path to Injectors file                [string]
         --store, --st         Path to Store file                    [string]
         --rewriters, --rw     Path to Rewriter file                 [string]
         --id                  Set database id property              [string]  [default: <span class="hljs-string">&quot;id&quot;</span>]
@@ -1681,7 +1681,7 @@
         --bodyParser, --bp    Enable body-parser                    [boolean] [default: <span class="hljs-literal">true</span>]
         --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: <span class="hljs-literal">true</span>]
     -l, --logger              Enable logger                         [boolean] [default: <span class="hljs-literal">true</span>]
-    -w, --watch               Watch <span class="hljs-keyword">for</span> changes                     [boolean] [default: <span class="hljs-literal">false</span>]
+    -w, --watch               Watch for changes                     [boolean] [default: <span class="hljs-literal">false</span>]
     -q, --quiet               Prevent console logs                  [boolean] [default: <span class="hljs-literal">false</span>]
     -h, --<span class="hljs-built_in">help</span>                Show <span class="hljs-built_in">help</span>                             [boolean]
     -v, --version             Show version number                   [boolean]
@@ -1955,11 +1955,11 @@ app.use(resources); <span class="hljs-comment">// Add Database</span>
     <p>Make sure we give <code>/(.*)</code> at the end of the <code>injectors.json</code> object to set route configs to
       all the routes.</p>
     <h2 id="store"><strong>Store</strong></h2>
-    <p>Store used to store any values which can be used later for any purpose like response manipulation or logging
-      etc..
+    <p>Store used to store any values which can be used later for any purpose like response manipulation or logging etc..</p>
+    <p>We can set store values using 
+      <a href="#setters">mockServer.setStore</a> or using 
+      <a href="#setters">mockServer.setData</a>
     </p>
-    <p>We can set store values using <a href="#setters">mockServer.setStore</a> or using <a
-        href="#setters">mockServer.setData</a></p>
     <h4 id="route-store"><strong>Route Store</strong></h4>
     <p>Route store helps to store any values which can be accessed on by that particular route.
       This stores values cannot be able to accessed by the other routes.
@@ -2019,9 +2019,7 @@ app.use(rewriters); <span class="hljs-comment">// Make sure to use it before all
         href="http://localhost:3000/middleware/example/_IterateResponse">http://localhost:3000/middleware/example/_IterateResponse</a>.
       For each hit we will get the next object in an array from the photos data.</p>
     <h3 id="iterateroutes"><strong>IterateRoutes</strong></h3>
-    <p>setting middleware to <code>_IterateRoutes</code> helps to send a iterate the route one after the other in the
-      mock
-      array for each url hit.</p>
+    <p>setting middleware to <code>_IterateRoutes</code> helps to send a iterate the route one after the other in the mock array for each url hit.</p>
     <p>example:</p>
     <pre><code class="language-jsonc"><div>{
   <span class="hljs-attr">&quot;/middleware/example/_IterateRoutes&quot;</span>: {
