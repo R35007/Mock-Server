@@ -26,7 +26,6 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
         <ul>
           <li> <a href="#fetch-file">Fetch File</a> </li>
           <li> <a href="#fetch-data-from-url">Fetch Data From URL</a> </li>
-          <li> <a href="#fetch-file-or-url">Fetch File or URL</a> </li>
           <li> <a href="#axios-fetch-request">Axios Fetch Request</a> </li>
           <li> <a href="#fetch-count">Fetch Count</a> </li>
           <li> <a href="#skip-fetch-error">Skip Fetch Error</a> </li>
