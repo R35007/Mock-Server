@@ -1,3 +1,7 @@
+## v10.3.0
+
+- CLI `--config` fix
+
 ## v10.2.0
 
 - CLI improved. Please give `mock-server --help` in terminal for help

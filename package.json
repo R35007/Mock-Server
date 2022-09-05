@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "10.2.0",
+  "version": "10.3.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -18,7 +18,7 @@
     "public"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=12"
   },
   "keywords": [
     "JSON",

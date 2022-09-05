@@ -26,7 +26,7 @@ const getDataFromUrl = async (data?: string, root?: string) => {
     if (!data) return;
     if (data.startsWith("http")) {
       const spinner = !global.quiet ? ora(`GET: ` + chalk.gray(data)).start() : false;
-      const response = await axios.get(data).then(resp => resp.data).catch(_err => { });
+      const response = await axios.get(data).then(resp => resp.data);
       spinner && spinner.stopAndPersist({ symbol: "✔", text: `GET: ${chalk.gray(data)}` });
       return response;
     } else {
@@ -79,12 +79,14 @@ const getSnapshot = (snapshots, mockServer: MockServer) => {
 
 const init = async () => {
   const args = argv(pkg);
-  const { _: [source], config, db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, ...configArgs } = args;
+  const { _: [source], db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, ...configArgs } = args;
 
-  const mockServer = MockServer.Create();
-  
-  const _root = path.join(process.cwd(), root);
-  const _config = typeof config === 'string' ? await getDataFromUrl(config, _root) : { ...configArgs, root: _root };
+  const _root = path.resolve(process.cwd(), root);
+
+  const _config = { ...configArgs, root: _root };
+  const mockServer = MockServer.Create(_config);
+  global.quiet = _config.quiet;
+
   const _db = await getDataFromUrl(db, _root);
   const _middlewares = await getDataFromUrl(middlewares, _root);
   const _injectors = await getDataFromUrl(injectors, _root);
@@ -98,7 +100,6 @@ const init = async () => {
     rewriters: _rewriters
   }
   try {
-    mockServer.setConfig(_config);
     await mockServer.launchServer(_db, launchServerOptions);
   } catch (err) {
     console.error(err);

@@ -102,7 +102,7 @@ $ mock-server --help
 mock-server [options] <source>
 
 Options:
-  -c, --config              Path to config file                   [string]
+      --config              Path to config file                   [string]
   -P, --port                Set port                              [number]  [default: 3000]
   -H, --host                Set host                              [string]  [default: "localhost"]
   -r, --root                Set root directory.                   [string]  [default: "./"]
