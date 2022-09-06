@@ -9,7 +9,7 @@ import pleaseUpgradeNode from 'please-upgrade-node';
 import MockServer from "../server";
 import { LaunchServerOptions } from '../server/types/common.types';
 import * as ParamTypes from '../server/types/param.types';
-import { cleanDb } from '../server/utils';
+import { getCleanDb } from '../server/utils';
 import argv from './argv';
 
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
@@ -79,9 +79,8 @@ const getSnapshot = (snapshots) => {
       if (chunk.toString().trim().toLowerCase() !== 's') return;
       const filename = `db-${Date.now()}.json`;
       const file = path.join(snapshots, filename);
-      const db = mockServer.db;
-      cleanDb(db, mockServer.config.dbMode);
-      fs.writeFileSync(file, JSON.stringify(db, null, 2), 'utf-8');
+      const cleanDb = getCleanDb(mockServer.db, mockServer.config.dbMode);
+      fs.writeFileSync(file, JSON.stringify(cleanDb, null, 2), 'utf-8');
       console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
     } catch (err) {
       console.error(chalk.red(err.message));

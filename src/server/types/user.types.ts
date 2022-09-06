@@ -18,8 +18,8 @@ export type Store = Object;
 
 export type Middleware_Config = express.RequestHandler | MiddlewareNames | string;
 export type RouteConfig = {
-  id?: string | number;
   _config: boolean;
+  id?: string | number;
   description?: string;
   mock?: any;
   fetch?: string | AxiosRequestConfig;

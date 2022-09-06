@@ -1,3 +1,7 @@
+## v10.3.3
+
+- Bug Fixes and code improvements
+
 ## v10.3.2
 
 - CLI Snapshot not working issue fixed

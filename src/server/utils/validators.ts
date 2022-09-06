@@ -116,7 +116,8 @@ export const getValidDb = (
   if (_.isEmpty(userData) || !_.isPlainObject(userData)) return _.cloneDeep(Defaults.Db);
 
   const normalizedDb = normalizeDb(userData, dbMode);
-  const injectedDb = getInjectedDb(normalizedDb, getValidInjectors(injectors, { root, mockServer }));
+  const validInjectors = getValidInjectors(injectors, { root, mockServer });
+  const injectedDb = getInjectedDb(normalizedDb, validInjectors);
 
   const validDb = reverse
     ? _.fromPairs(Object.entries(injectedDb).reverse())
@@ -125,7 +126,7 @@ export const getValidDb = (
   return validDb;
 };
 
-export const getValidRouteConfig = <T extends UserTypes.RouteConfig>(route: string, routeConfig: T, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
+export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
   if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], directUse: true };
 
   if (!_.isPlainObject(routeConfig) || !routeConfig._config) {

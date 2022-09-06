@@ -8,16 +8,14 @@ import * as ValidTypes from '../types/valid.types';
 import { getValidRoute, getValidRouteConfig } from './validators';
 
 // { "/route1,/route2": { ... } } -> { "/route1": {...}, "/route2": { ... } }
-export const normalizeDb = <T>(object: T, dbMode: DbMode = Defaults.Config.dbMode): T => {
-  const flattenedRoutes = {} as T;
-  Object.entries(object)
-    .forEach(([routePath, routeConfig]: [string, UserTypes.RouteConfig]) => {
-      const routesChunk = routePath.split(",");
-      routesChunk.map(getValidRoute).forEach(route => {
-        flattenedRoutes[route] = getValidRouteConfig(route, routeConfig, dbMode);
-      })
-    })
-  return flattenedRoutes;
+export const normalizeDb = (object: UserTypes.Db, dbMode: DbMode = Defaults.Config.dbMode): UserTypes.Db => {
+  const normalizedDbEntries = Object.entries(object)
+    .map(([routePath, routeConfig]) => {
+      return routePath.split(",").map(route => (
+        [getValidRoute(route), getValidRouteConfig(route, routeConfig, dbMode)]
+      ));
+    }).flat()
+  return _.fromPairs(normalizedDbEntries) as UserTypes.Db;
 }
 
 // Combines Injector Configs with the Db Configs
@@ -91,24 +89,24 @@ export const cleanObject = (obj: any) => {
   } catch (err) { }
 }
 
-export const cleanDb = (db: ValidTypes.Db | UserTypes.Db, dbMode: DbMode = 'mock') => {
+export const getCleanDb = (db: ValidTypes.Db | UserTypes.Db, dbMode: DbMode = 'mock'): UserTypes.Db => {
   for (let routePath in db) {
     db[routePath] = cleanRouteConfig(db[routePath] as UserTypes.RouteConfig, dbMode);
   }
+  return db;
 }
 
 // Removes id, _config ( if only mock is available ) and all other empty values in route configs
 export const cleanRouteConfig = (routeConfig: ValidTypes.RouteConfig | UserTypes.RouteConfig, dbMode: DbMode = 'mock'): UserTypes.RouteConfig => {
   if (!routeConfig._config) return routeConfig; // clean routeConfig only if _config is set to true
 
-  let userTypeRouteConfig = routeConfig as any;
+  const userTypeRouteConfig = routeConfig as any;
   delete userTypeRouteConfig.id;
 
   // Remove all empty list and objects
   cleanObject(userTypeRouteConfig);
 
   const routeConfigKeys = Object.keys(userTypeRouteConfig);
-
 
   if (!routeConfigKeys.length) return userTypeRouteConfig;
   if (!routeConfigKeys.includes("_config")) return userTypeRouteConfig

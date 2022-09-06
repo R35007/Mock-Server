@@ -21,7 +21,7 @@ import { LaunchServerOptions, ResourceOptions, SetterOptions } from './types/com
 import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
-import { cleanDb, flatQuery, replaceObj } from './utils';
+import { getCleanDb, flatQuery, replaceObj } from './utils';
 import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares } from './utils/validators';
 
 export class MockServer extends GettersSetters {
@@ -346,8 +346,8 @@ export class MockServer extends GettersSetters {
       return { [dbById![0]]: dbById![1] }
     }
     const db = id ? findById(id) : this.db;
-    if (req.query._clean) cleanDb(db, this.config.dbMode);
-    res.send(db);
+    const resultDb = req.query._clean ? getCleanDb(db, this.config.dbMode) : db;
+    res.send(resultDb);
   }
 
   #updateRouteConfig = (req: express.Request, res: express.Response) => {
