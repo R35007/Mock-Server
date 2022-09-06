@@ -1278,7 +1278,7 @@ mockServer.setMiddlewares(middlewares, { root, merge, log });
 mockServer.setInjectors(injectors, { root, merge, log });
 mockServer.setRewriters(rewriters, { root, merge, log });
 mockServer.setStore(store, { root, merge, log });
-mockServer.setDb(Db, { root, merge, log });
+mockServer.setDb(Db, { root, merge, log, injectors, reverse, dbMode });
 ```
 
 ### **Validators**
