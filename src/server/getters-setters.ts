@@ -3,10 +3,10 @@ import express from "express";
 import { Server } from "http";
 import * as _ from 'lodash';
 import * as Defaults from './defaults';
-import { DbSetterOptions, GetData, SetData, SetterOptions } from "./types/common.types";
+import { GetData, SetData, SetterOptions } from "./types/common.types";
 import * as Params from "./types/param.types";
 import * as ValidTypes from "./types/valid.types";
-import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidStore } from './utils/validators';
+import { getValidConfig, getValidInjectors, getValidMiddlewares, getValidStore } from './utils/validators';
 import ora from 'ora';
 
 export class GettersSetters {
@@ -53,7 +53,17 @@ export class GettersSetters {
     } as GetData;
   };
 
-  getDb = () => this.#db;
+  getDb = (routePath?: string | string[]) => {
+    if (!routePath) return this.#db;
+
+    const routePaths = ([] as string[]).concat(routePath as string);
+    if (routePaths.length === 1) return this.#db[routePaths[0]];
+
+    return routePaths.reduce((res, route) => {
+      return this.#db[route] ? { ...res, [route]: this.#db[route] } : res;
+    }, {});
+  };
+  getRewriters = () => this.#rewriters;
   getStore = () => this.#store;
 
   protected _getServerDetails = () => ({
@@ -85,11 +95,9 @@ export class GettersSetters {
 
   setData(data: SetData = {}, options: SetterOptions = {}) {
     data.config && this.setConfig(data.config, options);
-    data.rewriters && this.setRewriters(data.rewriters, options);
     data.middlewares && this.setMiddlewares(data.middlewares, options);
     data.injectors && this.setInjectors(data.injectors, options);
     data.store && this.setStore(data.store, options);
-    data.db && this.setDb(data.db, options);
   };
 
   setConfig(config?: Params.Config, { root = this.#config.root, merge, log }: SetterOptions = {}) {
@@ -109,14 +117,6 @@ export class GettersSetters {
     };
 
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
-  }
-
-  setRewriters(rewriters?: Params.Rewriters, { root = this.#config.root, merge, log }: SetterOptions = {}) {
-    const spinner = !global.quiet && log && ora('Loading Rewriters...').start();
-    const oldRewriters = this.#rewriters;
-    const newRewriters = getValidRewriters(rewriters, { root, mockServer: this._getServerDetails() });
-    this.#rewriters = merge ? { ...oldRewriters, ...newRewriters } : newRewriters;
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Rewriters Loaded.") });
   }
 
   setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log }: SetterOptions = {}) {
@@ -141,22 +141,5 @@ export class GettersSetters {
     const newStore = getValidStore(store, { root, mockServer: this._getServerDetails() });
     this.#store = merge ? { ...oldStore, ...newStore } : newStore;
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
-  }
-
-  setDb(db?: Params.Db,
-    {
-      merge,
-      log,
-      root = this.#config.root,
-      injectors = this.#injectors,
-      reverse = this.#config.reverse,
-      dbMode = this.#config.dbMode,
-    }: DbSetterOptions = {}) {
-    const spinner = !global.quiet && log && ora('Loading Db...').start();
-    const oldDb = this.#db;
-    const newDb = getValidDb(db, { root, injectors, reverse, dbMode, mockServer: this._getServerDetails() });
-    this.#db = merge ? { ...oldDb, ...newDb } : newDb;
-    this.initialDb = _.cloneDeep(this.#db);
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Db.") });
   }
 }

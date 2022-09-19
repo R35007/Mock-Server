@@ -1,5 +1,6 @@
 import * as express from "express";
 import HelperMiddlewares from '../middlewares';
+import RouteConfigSetters from '../route-config-setters';
 import * as ParamTypes from './param.types';
 import * as UserTypes from './user.types';
 import * as ValidTypes from './valid.types';
@@ -10,14 +11,14 @@ export type Default_Options = Partial<Omit<ValidTypes.Config, 'port' | 'host' | 
 
 export type Default_Middlewares = typeof HelperMiddlewares;
 export type User_Middlweares = { [x: string]: express.RequestHandler | Array<express.RequestHandler> }
-export type Global_Middlweares = { _globals?: express.RequestHandler | Array<express.RequestHandler> }
+export type Global_Middlweares = { globals?: express.RequestHandler | Array<express.RequestHandler> }
 export type HarMiddleware = {
-  _harEntryCallback?: (entry: HarEntry, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
-  _harDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromHAR: UserTypes.Db) => UserTypes.Db
+  harEntryCallback?: (entry: HarEntry, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
+  harDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromHAR: UserTypes.Db) => UserTypes.Db
 }
 export type KibanaMiddleware = {
-  _kibanaHitsCallback?: (hit: HIT, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
-  _kibanaDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromKibana: UserTypes.Db) => UserTypes.Db
+  kibanaHitsCallback?: (hit: HIT, routePath: string, routeConfig: UserTypes.RouteConfig) => { [key: string]: UserTypes.RouteConfig }
+  kibanaDbCallback?: (data: string | UserTypes.Db | { [key: string]: Omit<Object, "__config"> | any[] | string } | HAR, dbFromKibana: UserTypes.Db) => UserTypes.Db
 }
 export type MiddlewareNames = keyof Default_Middlewares
 
@@ -29,7 +30,7 @@ export interface Locals {
   data: any;
   config: ValidTypes.Config;
   getStore: () => ValidTypes.Store;
-  getDb: () => ValidTypes.Db;
+  getDb: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db;
 }
 
 export type HIT = {
@@ -83,11 +84,9 @@ export type PathDetails = {
 }
 
 export type SetData = {
-  db?: ParamTypes.Db,
   injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
   store?: ParamTypes.Store,
-  rewriters?: ParamTypes.Rewriters,
   config?: ParamTypes.Config,
 }
 
@@ -104,8 +103,8 @@ export type Server = {
   app?: express.Application,
   routes?: string[],
   data?: GetData,
-  getDb?: () => ValidTypes.Db
   getStore?: () => ValidTypes.Store
+  getDb?: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db,
 }
 
 export type SetterOptions = {
@@ -140,6 +139,12 @@ export type LaunchServerOptions = {
   log?: boolean
 }
 
+export type RewriterOptions = {
+  root?: string;
+  router?: express.Router,
+  log?: boolean | string,
+}
+
 export type ResourceOptions = {
   reverse?: boolean,
   injectors?: ParamTypes.Injectors,
@@ -150,4 +155,7 @@ export type ResourceOptions = {
   log?: boolean | string,
 }
 
-
+export type ResourceReturns = {
+  router: express.Router,
+  create: (routePath: string, ...middlewares: UserTypes.Middleware_Config[]) => RouteConfigSetters
+}

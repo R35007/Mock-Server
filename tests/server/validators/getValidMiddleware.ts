@@ -16,8 +16,8 @@ export const shouldGetValidMiddleware = () => {
 
     describe('should return custom Middlewares from a valid Path string', () => {
       const expectedMiddleware = { ...Defaults.Middlewares, ...require("../../mock/middlewares/middlewares.js") };
-      delete expectedMiddleware.dummy; // deletes it sinces its not a functions
-      expectedMiddleware._globals = [expectedMiddleware._globals[0]] // filters to only function
+      delete expectedMiddleware.dummy; // deletes it since its not a functions
+      expectedMiddleware.globals = [expectedMiddleware.globals[0]] // filters to only function
 
       test.each([
         ["invalid .json file", "/middlewares.json", Defaults.Middlewares],

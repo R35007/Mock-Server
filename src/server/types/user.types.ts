@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import * as express from "express";
-import { Default_Middlewares, Global_Middlweares, HarMiddleware, KibanaMiddleware, MiddlewareNames, RoutePairs, User_Middlweares } from './common.types';
+import { Default_Middlewares, Global_Middlweares, MiddlewareNames, RoutePairs, User_Middlweares } from './common.types';
 import * as ValidTypes from './valid.types';
 
 export type Config = Partial<ValidTypes.Config>;
@@ -11,7 +11,7 @@ export type Db =
   | { [key: string]: any[] }
   | { [key: string]: string };
 export type Injectors = InjectorConfig[];
-export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & HarMiddleware & KibanaMiddleware & User_Middlweares>
+export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & User_Middlweares>
 export type Rewriters = RoutePairs;
 export type Store = Object;
 

@@ -17,6 +17,7 @@ export const shouldGetValidInjectors = () => {
     describe('should return custom Injectors from a valid Path string', () => {
 
       const jsFile = require("../../mock/injectors/injectors.js");
+      jsFile[0].routes = [jsFile[0].routes] // always give list for routes
       const jsonFile = require("../../mock/injectors/injectors.json");
 
       test.each([

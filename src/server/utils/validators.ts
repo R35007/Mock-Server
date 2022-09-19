@@ -55,8 +55,12 @@ export const getValidMiddlewares = (
     }
   }
 
-  if (_.isFunction(validMiddlewares._globals)) {
-    validMiddlewares._globals = [validMiddlewares._globals]
+  if (_.isFunction(validMiddlewares.globals)) {
+    validMiddlewares.globals = [validMiddlewares.globals]
+  }
+
+  if (_.isEmpty(validMiddlewares.globals)) {
+    validMiddlewares.globals = [(_rq, _res, next) => { next() }]
   }
 
   return { ...Defaults.Middlewares, ...validMiddlewares };

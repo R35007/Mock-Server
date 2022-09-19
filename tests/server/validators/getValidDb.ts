@@ -18,6 +18,7 @@ export const shouldGetValidDb = () => {
 
     describe('should return custom db from a valid Path string', () => {
       const jsFile = require("../../mock/db/db.js");
+      delete jsFile["/comment"].middlewares; //deletes /comments middleware since its empty
       const jsonFile = require("../../mock/db/db.json");
 
       test.each([
@@ -25,6 +26,8 @@ export const shouldGetValidDb = () => {
         ["valid .json file", "./db.json", jsonFile],
         ["valid folder", "./", { ...jsFile, ...jsonFile }],
       ])('If %s path is passed', (_condition, dbPath, expected) => {
+
+
         const root = path.join(__dirname, "../../mock/db");
         const db = getValidDb(dbPath as string, { root });
         expect(db).toEqual(expected);

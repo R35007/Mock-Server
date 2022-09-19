@@ -51,7 +51,7 @@ const setMiddleware = () => {
     it('should set custom middlewares', async () => {
       const middleware = { "logger": () => { } }
       mockServer.setMiddlewares(middleware)
-      expect(mockServer.data.middlewares).toEqual({ ...Defaults.Middlewares, ...middleware });
+      expect(Object.keys(mockServer.data.middlewares)).toStrictEqual(Object.keys({ ...Defaults.Middlewares, ...middleware }));
     });
   });
 }
@@ -75,67 +75,6 @@ const setInjectors = () => {
   });
 }
 
-const setDb = () => {
-  describe('mockServer.setDb() : ', () => {
-    let mockServer: MockServer;
-    beforeEach(() => { mockServer = MockServer.Create() });
-    afterEach(async () => { await MockServer.Destroy() });
-
-    it('should set default db', async () => {
-      mockServer.setDb();
-      expect(mockServer.data.db).toEqual({});
-    });
-
-    it('should set custom db with reverse order', async () => {
-      const db = { "/posts": { id: "1", name: "Siva" }, "/comments": { id: "1", postId: "1", name: "Siva" } }
-      const injectors = [{ routes: ["/posts"], delay: 1000 }]
-
-      mockServer.setConfig({ reverse: true })
-      mockServer.setInjectors(injectors)
-      mockServer.setDb(db)
-
-      expect(mockServer.data.db).toEqual({
-        "/comments": {
-          _config: true,
-          id: toBase64("/comments"),
-          mock: { id: "1", postId: "1", name: "Siva" }
-        },
-        "/posts": {
-          _config: true,
-          id: toBase64("/posts"),
-          delay: 1000,
-          mock: { id: "1", name: "Siva" }
-        }
-      });
-      expect(Object.keys(mockServer.data.db)[0]).toBe("/comments")
-    });
-
-    it('should set custom db without reverse order', async () => {
-      const db = { "/posts": { id: "1", name: "Siva" }, "/comments": { id: "1", postId: "1", name: "Siva" } }
-      const injectors = [{ routes: ["/posts"], delay: 1000 }]
-
-      mockServer.setConfig({ reverse: false })
-      mockServer.setInjectors(injectors)
-      mockServer.setDb(db)
-
-      expect(mockServer.data.db).toEqual({
-        "/posts": {
-          _config: true,
-          id: toBase64("/posts"),
-          delay: 1000,
-          mock: { id: "1", name: "Siva" }
-        },
-        "/comments": {
-          _config: true,
-          id: toBase64("/comments"),
-          mock: { id: "1", postId: "1", name: "Siva" }
-        },
-      });
-      expect(Object.keys(mockServer.data.db)[0]).toBe("/posts")
-    });
-  });
-}
-
 const setStore = () => {
   describe('mockServer.setStore() : ', () => {
     let mockServer: MockServer;
@@ -151,25 +90,6 @@ const setStore = () => {
       const store = { "/posts": { id: "1", name: "Siva" }, "/comments": { id: "1", postId: "1", name: "Siva" } }
       mockServer.setStore(store)
       expect(mockServer.data.store).toEqual(store);
-    });
-  });
-}
-
-const setRewriters = () => {
-  describe('mockServer.setRewriters() : ', () => {
-    let mockServer: MockServer;
-    beforeEach(() => { mockServer = MockServer.Create() });
-    afterEach(async () => { await MockServer.Destroy() });
-
-    it('should set default rewriters', async () => {
-      mockServer.setRewriters();
-      expect(mockServer.data.rewriters).toEqual({});
-    });
-
-    it('should set custom store', async () => {
-      const rewriters = { "api/*": "/$1" }
-      mockServer.setRewriters(rewriters)
-      expect(mockServer.data.rewriters).toEqual(rewriters);
     });
   });
 }
@@ -197,7 +117,9 @@ const setData = () => {
       const rewriters = { "/api/*": "/$1" }
       const config = { root: __dirname }
 
-      mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
+      mockServer.setData({ injectors, middlewares, store, config });
+      mockServer.rewriter(rewriters);
+      mockServer.resources(db);
       expect(mockServer.data.db).toEqual({
         "/comments": {
           _config: true,
@@ -212,7 +134,7 @@ const setData = () => {
         }
       });
       expect(mockServer.data.config).toEqual({ ...Defaults.Config, root: __dirname });
-      expect(mockServer.data.middlewares).toEqual({ ...Defaults.Middlewares, ...middlewares });
+      expect(Object.keys(mockServer.data.middlewares)).toStrictEqual(Object.keys({ ...Defaults.Middlewares, ...middlewares }));
       expect(mockServer.data.store).toEqual(store);
       expect(mockServer.data.injectors).toEqual(injectors);
     });
@@ -242,9 +164,7 @@ describe("Getter and Setter", () => {
   setConfig(); // Set config
   setMiddleware(); // Set middlewares
   setInjectors(); // Set injectors
-  setDb(); // Set db
   setStore(); // Set store
-  setRewriters(); // Set rewriters
   setData(); // Set db, middlewares, injectors, rewriters, store, config
   getData(); // Get data
 })

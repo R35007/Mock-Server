@@ -1,3 +1,31 @@
+## v11.0.0
+
+- renamed - `_globals` to `globals` in middlewares.
+- removed - `mockServer.setDb` method. Use `mockServer.rewriters` to set rewriters.
+- removed - `mockServer.setRewriters` method. Use `mockServer.resources` to set Db.
+- updated - `mockServer.resources` will now return `{ create, router}`.
+- updated - `res.locals.getDb` accepts a routePath as a param.
+  Type:
+  ```ts
+  getDb(routePath?: string | string[]): ValidTypes.RouteConfig | ValidTypes.Db;
+  ```
+- added - `mockServer.resources().create`. Helps to create new route with config and mocks.
+  For Example: `server.js`
+
+  ```js
+  const resources = mockServer.resources();
+
+  resources
+    .create("/new/route", (req, res, next) => {
+      next();
+    })
+    .mock("Working")
+    .delay(2000)
+    .done();
+
+  app.use(resources.router);
+  ```
+
 ## v10.3.3
 
 - Bug Fixes and code improvements

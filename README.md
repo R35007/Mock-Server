@@ -166,7 +166,7 @@ const app = mockServer.app;
 
 app.use(rewriter); // Make sure to use this at first, before all the resources
 app.use(defaults); // Add default Middlewares.
-app.use(resources); // Add Database
+app.use(resources.router); // Add Database
 app.use(homePage); // Create the Mock Server Home Page
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
@@ -209,7 +209,7 @@ const app = mockServer.app;
 
 // Adds Database and returns a new express router
 const resources = mockServer.resources("./db.json");
-app.use(resources);
+app.use(resources.router);
 
 // Add new database. This will be added to the existing database and will not override the existing route if exist
 const newDb = {
@@ -220,7 +220,7 @@ const newDb = {
   profile: { name: "foo" }, // will not be added since its already exist in resource
 };
 const newResource = mockServer.resources(newDb);
-app.use(resources);
+app.use(resources.router);
 
 mockServer.startServer();
 ```
@@ -261,6 +261,94 @@ const todosResource = mockServer.resources(todos, {
   middlewares,
 });
 app.use(todosResource);
+
+mockServer.startServer();
+```
+
+Please check [resources](#resources) api for more custom option reference.
+
+#### **Database with Create method**
+
+We can create database using create method by resources.
+
+For Example: `server.js`
+
+```js
+const { MockServer } = require("@r35007/mock-server");
+const mockServer = MockServer.Create({ root: __dirname });
+const app = mockServer.app;
+const resources = mockServer.resources();
+
+resources.create("/todos", (req, res, next) => {next()})
+.mock({"userId": 1 "id": 1 "title": "Marvel" "completed": false})
+.delay(1000) // delay in milliseconds
+.done(); //  Make sure to call done method to create the route.
+
+resources.create("/photos")
+.fetch("https://jsonplaceholder.typicode.com/photos")
+.fetchCount(3);
+.done();
+
+app.use(resources.router);
+
+mockServer.startServer();
+```
+
+All available methods to create a route.
+`server.js`
+
+```js
+const { MockServer } = require("@r35007/mock-server");
+const mockServer = MockServer.Create({ root: __dirname });
+const app = mockServer.app;
+const resources = mockServer.resources();
+
+middlewares = [
+  (req, res, next) => {
+    next();
+  },
+  (req, res, next) => {
+    next();
+  },
+];
+
+const db = resources
+  .create("/todos", ...middlewares) // can give n number of middlewares and names here
+  .id("todos")
+  .description("todos route")
+  .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
+  .fetch("https://jsonplaceholder.typicode.com/todos")
+  .mockFirst(false)
+  .statusCode(200)
+  .delay(0) // delay in milliseconds
+  .fetchCount(1)
+  .skipFetchError(false)
+  .directUse(false)
+  .done(); //  Make sure to call done method to create the route.
+console.log(db);
+/* db will return the generated db object. This will not be added to the mockserver db until we call done() method
+{
+  "/todos": {
+    "id":"todos",
+    "description": "todos route",
+    "mock":{
+      "userId": 1,
+      "id": 1,
+      "title": "Marvel",
+      "completed": false
+    },
+    "fetch": "https://jsonplaceholder.typicode.com/todos",
+    "mockFirst": false,
+    "statusCode": 200,
+    "delay": 0,
+    "fetchCount": 1,
+    "skipFetchError": false,
+    "directUse": false
+  }
+}
+*/
+
+app.use(resources.router);
 
 mockServer.startServer();
 ```
@@ -325,7 +413,7 @@ const resources = mockServer.resources({
     middlewares: ["DataWrapper"], // Picks the DataWrapper middleware from middlewares.js
   },
 });
-app.use(resources); // Add Database
+app.use(resources.router); // Add Database
 ```
 
 Please check [Setters](#setters) for more api reference.
@@ -389,7 +477,7 @@ app.use(mockServer.middlewares._globals);
 // Can also set injectors using setData
 // mockServer.setData({ injectors:  "./injectors.json"});
 
-app.use(resources); // Add Database
+app.use(resources.router); // Add Database
 ```
 
 Please check [Setters](#setters) for more api reference.
@@ -672,21 +760,21 @@ For Example : `server.js` :
 const path = require("path");
 const public = path.join(process.cwd(), "public");
 const config = {
-  port: 3000,          // Set Port to 0 to pick a random available port.
-  host: "localhost",   // Set Host to empty string to pick the Local Ip Address.
+  port: 3000, // Set Port to 0 to pick a random available port.
+  host: "localhost", // Set Host to empty string to pick the Local Ip Address.
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
-  base: "",            // Mount db on a base url
-  id: "id",            // Set db id attribute.
-  dbMode: "mock",      // Give one of 'multi', 'fetch', 'mock'
-  static: public,      // Path to host a static files. Give empty string to avoid hosting public folder by default
-  reverse: false,      // Generate routes in reverse order
-  logger: true,        // Enable api logger
-  noCors: false,       // Disable CORS
-  noGzip: false,       // Disable data compression
-  readOnly: false,     // Allow only GET calls
-  bodyParser: true,    // Enable body-parser
-  cookieParser: true,  // Enable cookie-parser
-  quiet: false,        // Disable console logs
+  base: "", // Mount db on a base url
+  id: "id", // Set db id attribute.
+  dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
+  static: public, // Path to host a static files. Give empty string to avoid hosting public folder by default
+  reverse: false, // Generate routes in reverse order
+  logger: true, // Enable api logger
+  noCors: false, // Disable CORS
+  noGzip: false, // Disable data compression
+  readOnly: false, // Allow only GET calls
+  bodyParser: true, // Enable body-parser
+  cookieParser: true, // Enable cookie-parser
+  quiet: false, // Disable console logs
 };
 
 new MockServer(config).launchServer("./db.json");
@@ -739,17 +827,17 @@ Routes which as a object with `_config: true` as considered as a route config.
 
 ```ts
 interface RouteConfig {
-  _config?: boolean;                    // Make sure to set this to true to use this object as a route configuration.
-  id?: string;                          // sets a base64 encoded route. If not given, will be generated.
-  description?: string;                 // Description about this Route.
-  statusCode?: number;                  // Set custom status code in number between 100 to 600.
-  delay?: number;                       // Set custom delay in milliseconds.
-  fetch?: string | AxiosRequestConfig;  // Set path to fetch a file. Path will be relative to `config.root`. Always make fetch call first.
-  fetchCount?: number;                  // Set custom fetch count. Set to -1 to fetch infinite times. Default: 1
-  mock?: any;                           // Set custom Mock Response. If fetch is given then it returns the fetch response.
-  mockFirst?: boolean;                  // If true, It returns the mock response first else returns the fetch response . Default: false
-  skipFetchError?: boolean;             // If true it skips any fetch error and send the mock data as response. Default: false.
-  store?: object;                       // Helps to store any values for later use
+  _config?: boolean; // Make sure to set this to true to use this object as a route configuration.
+  id?: string; // sets a base64 encoded route. If not given, will be generated.
+  description?: string; // Description about this Route.
+  statusCode?: number; // Set custom status code in number between 100 to 600.
+  delay?: number; // Set custom delay in milliseconds.
+  fetch?: string | AxiosRequestConfig; // Set path to fetch a file. Path will be relative to `config.root`. Always make fetch call first.
+  fetchCount?: number; // Set custom fetch count. Set to -1 to fetch infinite times. Default: 1
+  mock?: any; // Set custom Mock Response. If fetch is given then it returns the fetch response.
+  mockFirst?: boolean; // If true, It returns the mock response first else returns the fetch response . Default: false
+  skipFetchError?: boolean; // If true it skips any fetch error and send the mock data as response. Default: false.
+  store?: object; // Helps to store any values for later use
   middlewares?: express.RequestHandler | Array<express.RequestHandler> | string; // Set custom middleware specific to this route
 
   // This will be auto generated from the fetch call it makes.
@@ -1121,7 +1209,7 @@ Create db resources. It uses global injectors, middlewares and config to crete d
 
 ```js
 const resources = mockServer.resources("./db.json");
-app.use(resources);
+app.use(resources.router);
 ```
 
 Create db resources with custom injectors and middlewares. It won't use global injectors and middlewares.
@@ -1137,7 +1225,25 @@ const resources = mockServer.resources("./db.json", {
   router: express.Router();
   log: false
 });
-app.use(resources);
+
+middlewares = (req, res, next) => { next() };
+
+// /todos will be added to existing db
+const db = resources
+  .create("/todos", middlewares) // can give n number of middlewares and names here
+  .id("todos")
+  .description("todos route")
+  .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
+  .fetch("https://jsonplaceholder.typicode.com/todos")
+  .mockFirst(false)
+  .statusCode(200)
+  .delay(0) // delay in milliseconds
+  .fetchCount(1)
+  .skipFetchError(false)
+  .directUse(false)
+  .done();
+
+app.use(resources.router);
 ```
 
 **`Params`**

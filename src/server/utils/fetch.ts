@@ -193,8 +193,15 @@ export const requireData = (data?: any, {
   exclude = [],
 }: { exclude?: string[], root?: string, isList?: boolean, onlyIndex?: boolean, recursive?: boolean } = {}) => {
   if (!data) return;
+
   if (_.isFunction(data)) return data;
-  if (_.isString(data)) return requireFile(parseUrl(data, root), { exclude, recursive, isList, onlyIndex });
-  if (_.isPlainObject(data) || _.isArray(data)) return _.cloneDeep(data);
+  
+  if (_.isString(data)) return requireData(
+    requireFile(parseUrl(data, root), { exclude, recursive, isList, onlyIndex }),
+    { root, isList, onlyIndex, recursive, exclude }
+  );
+
+  if (isList && _.isArray(data)) return _.cloneDeep(data);
+  if (!isList && _.isPlainObject(data)) return _.cloneDeep(data);
   return;
 }

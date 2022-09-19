@@ -8,7 +8,6 @@ import Fetch, { FetchFile, FetchUrl, setRequestUrl } from './fetch';
 import FinalMiddleware from './finalMiddleware';
 import InitialMiddleware from './initialMiddleware';
 import PageNotFound from './pageNotFound';
-import Rewriter from './rewriter';
 
 const _IterateResponse = (_req, res, next) => {
   const storeKey = "_IterateResponse"
@@ -169,7 +168,8 @@ const HelperMiddlewares = {
   _ReadOnly,
   _Fetch,
   _FetchFile,
-  _FetchUrl
+  _FetchUrl,
+  globals: [(_req, _res, next) => { next() }]
 }
 
 export {
@@ -177,7 +177,6 @@ export {
   Delay,
   Defaults,
   Fetch,
-  Rewriter,
   PageNotFound,
   ErrorHandler,
   FinalMiddleware,

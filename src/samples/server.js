@@ -15,11 +15,10 @@ mockServer.setData({
   injectors: "./injectors.json",
   middlewares: "./middlewares.js",
   store: "./store.json",
-  rewriters: "./rewriters.json"
 }, { log }) // pass mockServer instance to use it in middleware.js method
 
 // Make sure to use this at first, before all the resources
-const rewriter = mockServer.rewriter();
+const rewriter = mockServer.rewriter("./rewriters.json");
 app.use(rewriter);
 
 // Returns the default middlewares
@@ -41,7 +40,19 @@ app.get("/echo", (req, res) => res.jsonp(req.query));
 
 // Creates resources and returns the express router
 const resources = mockServer.resources("./db.json", { log });
-app.use(resources);
+
+resources.create("/path/to/route")
+  .mock({})
+  .delay(2000)
+  .done();
+
+resources.create("/path/to/route/2")
+  .mock({ data: "Working" })
+  .done();
+
+resources.create("/path").done();
+
+app.use(resources.router);
 
 // Create the Mock Server Home Page
 const homePage = mockServer.homePage({ log });

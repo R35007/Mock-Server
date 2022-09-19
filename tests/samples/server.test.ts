@@ -35,7 +35,7 @@ const server = () => {
       })
 
       const resources = mockServer.resources("./db.json");
-      app.use(mockServer.config.base, resources);
+      app.use(mockServer.config.base, resources.router);
 
       const dataResources = mockServer.resources({
         "/data": {
@@ -48,7 +48,7 @@ const server = () => {
           }
         }
       })
-      app.use(mockServer.config.base, dataResources)
+      app.use(mockServer.config.base, dataResources.router)
 
       const homePage = mockServer.homePage();
       app.use(mockServer.config.base, homePage);

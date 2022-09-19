@@ -1,8 +1,9 @@
 import chalk from "chalk";
 import express from "express";
+import rewrite from 'express-urlrewrite';
+import * as fs from 'fs';
 import { Server } from "http";
 import * as _ from 'lodash';
-import * as fs from 'fs';
 import ora from 'ora';
 import path from "path";
 import enableDestroy from 'server-destroy';
@@ -14,15 +15,15 @@ import {
   Fetch,
   FinalMiddleware,
   InitialMiddleware,
-  PageNotFound,
-  Rewriter
+  PageNotFound
 } from './middlewares';
-import { LaunchServerOptions, ResourceOptions, SetterOptions } from './types/common.types';
+import RouteConfigSetters from './route-config-setters';
+import { LaunchServerOptions, ResourceOptions, ResourceReturns, RewriterOptions } from './types/common.types';
 import * as ParamTypes from "./types/param.types";
 import * as UserTypes from "./types/user.types";
 import * as ValidTypes from "./types/valid.types";
-import { getCleanDb, flatQuery, replaceObj } from './utils';
-import { getValidConfig, getValidDb, getValidInjectors, getValidMiddlewares } from './utils/validators';
+import { flatQuery, getCleanDb, replaceObj } from './utils';
+import { getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidRoute } from './utils/validators';
 
 export class MockServer extends GettersSetters {
 
@@ -66,18 +67,18 @@ export class MockServer extends GettersSetters {
   ): Promise<Server | undefined> {
     const app = this.app;
 
-    this.setData({ injectors, middlewares, store, rewriters });
+    this.setData({ injectors, middlewares, store }, { log });
 
-    const rewriter = this.rewriter();
+    const rewriter = this.rewriter(rewriters!, { log });
     app.use(rewriter);
 
-    const defaults = this.defaults();
+    const defaults = this.defaults({}, { log });
     app.use(defaults);
 
-    this.middlewares._globals && app.use(this.middlewares._globals);
+    app.use(this.middlewares.globals);
 
     const resources = this.resources(db, { router, log });
-    app.use(this.config.base, resources);
+    app.use(this.config.base, resources.router);
 
     const homePage = this.homePage({ log });
     app.use(this.config.base, homePage);
@@ -90,18 +91,43 @@ export class MockServer extends GettersSetters {
 
   defaults(
     options?: UserTypes.Config,
-    { root = this.config.root }: SetterOptions = {}
-  ) {
-    const validConfig = options ? getValidConfig({ ...this.config, ...options }, { root }) : this.config
-    return Defaults(validConfig);
+    { root = this.config.root, log = false }: {
+      root?: string;
+      log?: boolean | string,
+    } = {}
+  ): express.Router[] {
+    const logText = `${log}` === "true" ? "Defaults" : log;
+    const spinner = !global.quiet && `${log}` !== "false" && ora(`Loading ${logText}...`).start();
+
+    if (!_.isEmpty(options)) this.setConfig(options, { root, merge: true });
+
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
+
+    return Defaults(this.config);
   }
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
-    { root = this.config.root, log }: SetterOptions = {}
+    { root = this.config.root, router = express.Router(), log = false }: RewriterOptions = {}
   ): express.Router {
-    rewriters && this.setRewriters(rewriters, { root, log, merge: true })
-    return Rewriter(this.rewriters);
+
+    if (_.isEmpty(rewriters)) return router;
+
+    const logText = `${log}` === "true" ? "Rewriters" : log;
+    const spinner = !global.quiet && `${log}` !== "false" && ora(`Loading ${logText}...`).start();
+
+    const newRewriters = getValidRewriters(rewriters, { root, mockServer: this._getServerDetails() });
+    const oldRewriters = this.getRewriters();
+
+    Object.entries(newRewriters).forEach(([routePath, rewritePath]) => {
+      if (!oldRewriters[routePath]) {
+        oldRewriters[routePath] = rewritePath;
+        router.use(rewrite(routePath, rewritePath))
+      }
+    })
+
+    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
+    return router;
   }
 
   resources(
@@ -115,33 +141,46 @@ export class MockServer extends GettersSetters {
       router = express.Router(),
       log = false
     }: ResourceOptions = {},
-  ): express.Router {
+  ): ResourceReturns {
+
+    const create = (routePath: string, ...expressMiddlewares: UserTypes.Middleware_Config[]) => {
+      const validRoute = getValidRoute(routePath);
+      const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat());
+      const parent = this;
+      RouteConfigSetters.prototype.done = function () {
+        parent.resources(this.db, { injectors, middlewares, reverse, dbMode, router, root });
+        return this.db;
+      }
+      return routeConfigSetters;
+    }
+
+    if (_.isEmpty(db)) return { router, create };
+
+
     const logText = `${log}` === "true" ? "Db Resources" : log;
     const spinner = !global.quiet && `${log}` !== "false" && ora(`Loading ${logText}...`).start();
 
     const mockServer = this._getServerDetails();
     const validMiddlewares = middlewares ? getValidMiddlewares(middlewares, { root, mockServer }) : this.middlewares;
     const validInjectors = injectors ? getValidInjectors(injectors, { root, mockServer }) : this.injectors;
-    const validDb = db ? getValidDb(db, { root, injectors: validInjectors, reverse, dbMode, mockServer }) : this.db;
+    const validDb = getValidDb(db, { root, injectors: validInjectors, reverse, dbMode, mockServer });
 
     Object.entries(validDb).forEach(([routePath, routeConfig]: [string, ValidTypes.RouteConfig]) =>
       this.#createRoute(routePath, routeConfig, router, validMiddlewares)
     );
 
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
-    return router;
+    return { router, create };
   };
 
   #createRoute = (routePath: string, routeConfig: ValidTypes.RouteConfig, router: express.Router, validMiddlewares: ValidTypes.Middlewares) => {
     if (this.routes.includes(routePath)) return; // If routes are already added to resource then do nothing
+
     this.routes.push(routePath);
+    this.getDb()[routePath] = routeConfig;
+    this.initialDb[routePath] = _.cloneDeep(routeConfig);
 
-    if (!this.getDb()[routePath]) {
-      this.getDb()[routePath] = routeConfig;
-      this.initialDb[routePath] = _.cloneDeep(routeConfig);
-    }
-
-    const middlewareList = this.#getMiddlewareList(routePath, routeConfig, validMiddlewares);
+    const middlewareList = this.#getMiddlewareList(routePath, validMiddlewares, routeConfig.middlewares, routeConfig.directUse);
 
     if (routeConfig.directUse) {
       router.use(routePath, middlewareList);
@@ -150,12 +189,12 @@ export class MockServer extends GettersSetters {
     router?.all(routePath, middlewareList);
   }
 
-  #getMiddlewareList = (routePath: string, routeConfig: ValidTypes.RouteConfig, validMiddlewares: ValidTypes.Middlewares) => {
-    const middlewares = (routeConfig.middlewares || [])
+  #getMiddlewareList = (routePath: string, validMiddlewares: ValidTypes.Middlewares, routeMiddlewares?: UserTypes.Middleware_Config[], directUse: boolean = false) => {
+    const middlewares = (routeMiddlewares || [])
       .map(middleware => _.isString(middleware) ? validMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
-    if (routeConfig.directUse) return middlewares;
+    if (directUse) return middlewares;
 
     return [
       InitialMiddleware(routePath, this.config, this.getDb, this.getStore),
@@ -268,7 +307,7 @@ export class MockServer extends GettersSetters {
       const _routePaths = ids.map(id => Object.keys(this.initialDb).find(r => this.initialDb[r].id == id)).filter(Boolean) as string[];
       const routePathToReset = [..._routePaths, ...routePaths];
       const restoredRoutes = routePathToReset.reduce((result, routePath) => {
-        replaceObj(this.getDb()[routePath], _.cloneDeep(this.initialDb[routePath]))
+        replaceObj(this.getDb(routePath), _.cloneDeep(this.initialDb[routePath]))
         return { ...result, [routePath]: this.db[routePath] }
       }, {});
       return restoredRoutes
