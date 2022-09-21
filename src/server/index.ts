@@ -145,7 +145,7 @@ export class MockServer extends GettersSetters {
 
     const create = (routePath: string, ...expressMiddlewares: UserTypes.Middleware_Config[]) => {
       const validRoute = getValidRoute(routePath);
-      const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat());
+      const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat(), this.config.dbMode);
       const parent = this;
       RouteConfigSetters.prototype.done = function () {
         parent.resources(this.db, { injectors, middlewares, reverse, dbMode, router, root });
@@ -180,7 +180,7 @@ export class MockServer extends GettersSetters {
     this.getDb()[routePath] = routeConfig;
     this.initialDb[routePath] = _.cloneDeep(routeConfig);
 
-    const middlewareList = this.#getMiddlewareList(routePath, validMiddlewares, routeConfig.middlewares, routeConfig.directUse);
+    const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
 
     if (routeConfig.directUse) {
       router.use(routePath, middlewareList);
@@ -189,9 +189,10 @@ export class MockServer extends GettersSetters {
     router?.all(routePath, middlewareList);
   }
 
-  #getMiddlewareList = (routePath: string, validMiddlewares: ValidTypes.Middlewares, routeMiddlewares?: UserTypes.Middleware_Config[], directUse: boolean = false) => {
-    const middlewares = (routeMiddlewares || [])
-      .map(middleware => _.isString(middleware) ? validMiddlewares[middleware] : middleware)
+  #getMiddlewareList = (routePath: string, routeMiddlewares?: UserTypes.Middleware_Config | UserTypes.Middleware_Config[], globalMiddlewares: ValidTypes.Middlewares = this.middlewares, directUse: boolean = false) => {
+    const middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeMiddlewares || [])
+      .filter(Boolean)
+      .map(middleware => _.isString(middleware) ? globalMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
     if (directUse) return middlewares;

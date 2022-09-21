@@ -1,3 +1,30 @@
+## v11.1.0
+
+- added - `headers` in routeConfigs. Now we can add custom response headers in routeConfig
+  For Example: `db.json`
+  ```json
+  {
+    "/route": {
+      "_config": true,
+      "mock": "My Response",
+      "headers": { "Content-Type": "test/plain" }
+    }
+  }
+  ```
+- added - `send()`, `status()`, `headers()` in `mockServer.resources().create()` method.
+  For Example:
+  ```js
+  const resources = mockServer.resources();
+  resources.create("/new/route/1").send("My Response").status(200).done();
+  resources
+    .create("/new/route/2")
+    .send("https://jsonplaceholder.typicode.com/posts") //  will set to `mock` or `fetch` based on dbMode
+    .headers({ "Content-Type": "application/json" })
+    .headers("Content-Length", 123)
+    .done();
+  app.use(resources.router);
+  ```
+
 ## v11.0.0
 
 - renamed - `_globals` to `globals` in middlewares.
@@ -19,7 +46,7 @@
     .create("/new/route", (req, res, next) => {
       next();
     })
-    .mock("Working")
+    .mock("My Response")
     .delay(2000)
     .done();
 

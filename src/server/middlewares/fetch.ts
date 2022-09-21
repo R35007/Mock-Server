@@ -33,6 +33,12 @@ export const FetchUrl = async (_req, res, next) => {
 
   locals.data = fetchData.isError ? (routeConfig.skipFetchError ? routeConfig.mock : fetchData.response) : fetchData.response;
 
+  if (_.isPlainObject(fetchData.headers) && !_.isEmpty(fetchData.headers)) {
+    Object.entries(fetchData.headers as object).forEach(([headerName, value]) => {
+      res.set(headerName, value);
+    })
+  };
+
   next();
 }
 
@@ -68,9 +74,9 @@ export const setRequestUrl = (req, res) => {
   const fetchCount = parseInt(`${routeConfig.fetchCount ?? ''}`);
   routeConfig.fetchCount = isNaN(fetchCount) ? 1 : fetchCount;
   const fetch = getUrlDetail(req, res);
-  
+
   if (!fetch) return;
-  
+
   routeConfig._request = fetch.request;
   routeConfig._isFile = fetch.isFile;
   routeConfig._extension = fetch.extension;

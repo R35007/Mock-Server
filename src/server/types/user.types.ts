@@ -32,6 +32,7 @@ export type RouteConfig = {
   mockFirst?: boolean;
   middlewares?: Middleware_Config | Middleware_Config[];
   directUse?: boolean
+  headers?: object;
 }
 
 export type InjectorConfig = {

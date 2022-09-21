@@ -23,6 +23,12 @@ export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?
       delete locals.routeConfig._isFile;
       delete locals.routeConfig._extension;
 
+      if (_.isPlainObject(routeConfig.headers) && !_.isEmpty(routeConfig.headers)) {
+        Object.entries(routeConfig.headers as object).forEach(([headerName, value]) => {
+          res.set(headerName, value);
+        })
+      }
+
       if (routeConfig.mockFirst && routeConfig.mock !== undefined) {
         locals.data = routeConfig.mock;
         next();

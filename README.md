@@ -280,14 +280,23 @@ const app = mockServer.app;
 const resources = mockServer.resources();
 
 resources.create("/todos", (req, res, next) => {next()})
-.mock({"userId": 1 "id": 1 "title": "Marvel" "completed": false})
-.delay(1000) // delay in milliseconds
-.done(); //  Make sure to call done method to create the route.
+  .mock({"userId": 1 "id": 1 "title": "Marvel" "completed": false})
+  .delay(1000) // delay in milliseconds
+  .done(); //  Make sure to call done method to create the route.
 
 resources.create("/photos")
-.fetch("https://jsonplaceholder.typicode.com/photos")
-.fetchCount(3);
-.done();
+  .fetch("https://jsonplaceholder.typicode.com/photos")
+  .fetchCount(3);
+  .done();
+
+const dbMode = 'multi';
+resources.create("/users")
+  .send("https://jsonplaceholder.typicode.com/users", dbMode) // value will be to set to `mock` or `fetch` based on dbMode
+  .done();
+
+resources.create("/posts")
+  .send({ userId: 1 id: 1 title: "Marvel" body: "My First post"})
+  .done();
 
 app.use(resources.router);
 
@@ -314,16 +323,18 @@ middlewares = [
 
 const db = resources
   .create("/todos", ...middlewares) // can give n number of middlewares and names here
+  .send("My Response", mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode
   .id("todos")
   .description("todos route")
   .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
   .fetch("https://jsonplaceholder.typicode.com/todos")
   .mockFirst(false)
-  .statusCode(200)
+  .statusCode(200) // or .status(200) can also be used
   .delay(0) // delay in milliseconds
   .fetchCount(1)
   .skipFetchError(false)
   .directUse(false)
+  .headers({}) // Set response Headers
   .done(); //  Make sure to call done method to create the route.
 console.log(db);
 /* db will return the generated db object. This will not be added to the mockserver db until we call done() method
@@ -343,7 +354,8 @@ console.log(db);
     "delay": 0,
     "fetchCount": 1,
     "skipFetchError": false,
-    "directUse": false
+    "directUse": false,
+    "headers": {}
   }
 }
 */
@@ -831,6 +843,7 @@ interface RouteConfig {
   id?: string; // sets a base64 encoded route. If not given, will be generated.
   description?: string; // Description about this Route.
   statusCode?: number; // Set custom status code in number between 100 to 600.
+  headers?: object; // Set custom response headers.
   delay?: number; // Set custom delay in milliseconds.
   fetch?: string | AxiosRequestConfig; // Set path to fetch a file. Path will be relative to `config.root`. Always make fetch call first.
   fetchCount?: number; // Set custom fetch count. Set to -1 to fetch infinite times. Default: 1
@@ -1231,6 +1244,7 @@ middlewares = (req, res, next) => { next() };
 // /todos will be added to existing db
 const db = resources
   .create("/todos", middlewares) // can give n number of middlewares and names here
+  .send("My Response", 'multi') // response will set to `mock` or `fetch` based on dbMode
   .id("todos")
   .description("todos route")
   .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
@@ -1241,6 +1255,7 @@ const db = resources
   .fetchCount(1)
   .skipFetchError(false)
   .directUse(false)
+  .headers({}) // set response headers
   .done();
 
 app.use(resources.router);

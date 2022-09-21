@@ -1,22 +1,27 @@
 import { AxiosRequestConfig } from 'axios';
 import { toBase64 } from './utils';
 import * as UserTypes from "./types/user.types";
+import { DbMode } from './types/common.types';
+import _ from 'lodash';
 
 interface Done {
   done: () => { [key: string]: UserTypes.RouteConfig }
 }
 
 export default class RouteConfigSetters implements Done {
-  routePath!: string;
-
+  #dbMode: DbMode;
+  routePath: string;
   db = {};
 
   constructor(
     routePath: string,
     routeMiddlewares: UserTypes.Middleware_Config[],
+    dbMode: DbMode
   ) {
     this.routePath = routePath;
-    this.db[routePath] = { _config: true, id: toBase64(routePath), middlewares: routeMiddlewares };
+    this.#dbMode = dbMode;
+    this.db[routePath] = { _config: true, id: toBase64(routePath) };
+    if (routeMiddlewares.length) { this.db[routePath].middlewares = routeMiddlewares };
   }
 
   id(value: string) {
@@ -27,6 +32,33 @@ export default class RouteConfigSetters implements Done {
     this.db[this.routePath].description = value;
     return this;
   }
+  send(value: any, dbMode: DbMode = this.#dbMode) {
+    let attribute = dbMode === 'fetch' ? 'fetch' : 'mock';
+    if (dbMode === 'multi') {
+      attribute = typeof value === 'string' ? 'fetch' : 'mock';
+    }
+    this.db[this.routePath][attribute] = value;
+    return this;
+  }
+  headers(key: string | object, value?: any) {
+    if (_.isPlainObject(key)) {
+      if (_.isPlainObject(this.db[this.routePath].headers)) {
+        Object.entries(key).forEach(([headerName, value]) => {
+          this.db[this.routePath].headers[headerName] = value;
+        })
+      } else {
+        this.db[this.routePath].headers = value;
+      }
+    }
+
+    if (_.isString(key)) {
+      if (_.isPlainObject(this.db[this.routePath].headers)) {
+        this.db[this.routePath].headers[key] = value;
+      } else {
+        this.db[this.routePath].headers = { [key]: value };
+      }
+    }
+  }
   mock(value: any) {
     this.db[this.routePath].mock = value;
     return this;
@@ -36,6 +68,10 @@ export default class RouteConfigSetters implements Done {
     return this;
   }
   statusCode(value: number) {
+    this.db[this.routePath].statusCode = value;
+    return this;
+  }
+  status(value: number) {
     this.db[this.routePath].statusCode = value;
     return this;
   }
