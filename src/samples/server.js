@@ -78,4 +78,4 @@ mockServer.startServer()
 // or
 // You can also run thru CLI command
 
-// mock-server --watch --db=db.json --m=middleware.js --i=injectors.json --r=rewrites.json --s=store.json
+// mock-server --watch --db=db.json --md=middleware.js --in=injectors.json --rw=rewrites.json --st=store.json
