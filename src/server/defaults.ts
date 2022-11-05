@@ -18,6 +18,7 @@ export const Config: ValidTypes.Config = {
   bodyParser: true, // Enable body-parser
   cookieParser: true, // Enable cookie-parser
   quiet: false, // Prevent from console logs
+  log: false, // Prevent from console logs
 };
 
 export const Middlewares: ValidTypes.Middlewares = HelperMiddlewares;

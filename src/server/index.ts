@@ -62,7 +62,7 @@ export class MockServer extends GettersSetters {
       store,
       rewriters,
       router,
-      log
+      log = this.config.log
     }: LaunchServerOptions = {}
   ): Promise<Server | undefined> {
     const app = this.app;
@@ -91,7 +91,7 @@ export class MockServer extends GettersSetters {
 
   defaults(
     options?: UserTypes.Config,
-    { root = this.config.root, log = false }: {
+    { root = this.config.root, log = this.config.log }: {
       root?: string;
       log?: boolean | string,
     } = {}
@@ -108,7 +108,7 @@ export class MockServer extends GettersSetters {
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
-    { root = this.config.root, router = express.Router(), log = false }: RewriterOptions = {}
+    { root = this.config.root, router = express.Router(), log = this.config.log }: RewriterOptions = {}
   ): express.Router {
 
     if (_.isEmpty(rewriters)) return router;
@@ -139,16 +139,16 @@ export class MockServer extends GettersSetters {
       root = this.config.root,
       dbMode = this.config.dbMode,
       router = express.Router(),
-      log = false
+      log = this.config.log
     }: ResourceOptions = {},
   ): ResourceReturns {
 
     const create = (routePath: string, ...expressMiddlewares: UserTypes.Middleware_Config[]) => {
       const validRoute = getValidRoute(routePath);
-      const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat(), this.config.dbMode);
+      const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat(), dbMode);
       const parent = this;
-      RouteConfigSetters.prototype.done = function () {
-        parent.resources(this.db, { injectors, middlewares, reverse, dbMode, router, root });
+      RouteConfigSetters.prototype.done = function ({ log = parent.config.log } = {}) {
+        parent.resources(this.db, { injectors, middlewares, reverse, dbMode, router, root, log });
         return this.db;
       }
       return routeConfigSetters;
@@ -315,7 +315,7 @@ export class MockServer extends GettersSetters {
     }
   }
 
-  homePage({ log }: { log?: boolean } = {}): express.Router {
+  homePage({ log = this.config.log }: { log?: boolean } = {}): express.Router {
     const spinner = !global.quiet && log && ora(`Loading HomePage Resources...`).start();
 
     const router = express.Router();

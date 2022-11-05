@@ -1,3 +1,15 @@
+## v11.2.0
+
+- added - `log` in CLI param and `Config` - Helps to added setter logs in console.
+- added - `reply` as alias for `send` in create router config method
+
+```js
+const resources = mockServer.resources();
+resources.create("/post").send({ name: "foo", id: 1 });
+resources.create("/comment").reply({ name: "foo", id: 1 }); // reply is alias for send
+app.use(resources.router);
+```
+
 ## v11.1.0
 
 - added - `headers` in routeConfigs. Now we can add custom response headers in routeConfig

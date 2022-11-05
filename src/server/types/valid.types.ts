@@ -18,6 +18,7 @@ export type Config = {
   bodyParser: boolean;
   cookieParser: boolean;
   quiet: boolean;
+  log: boolean;
 };
 export type Db = { [key: string]: RouteConfig }
 export type Injectors = InjectorConfig[];

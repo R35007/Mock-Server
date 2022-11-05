@@ -110,7 +110,7 @@ export type Server = {
 export type SetterOptions = {
   root?: string;
   merge?: boolean;
-  log?: boolean;
+  log?: string | boolean;
 }
 
 export type DbSetterOptions = SetterOptions & {

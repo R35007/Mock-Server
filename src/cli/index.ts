@@ -15,7 +15,7 @@ import argv from './argv';
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
 const pkg = JSON.parse(pkgStr);
 
-let mockServer;
+let mockServer: MockServer;
 
 pleaseUpgradeNode(pkg, {
   message: function (requiredVersion) {
@@ -90,7 +90,7 @@ const getSnapshot = (snapshots) => {
 
 const init = async () => {
   const args = argv(pkg);
-  const { _: [source], db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, ...configArgs } = args;
+  const { _: [source], db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, log, ...configArgs } = args;
 
   const _root = path.resolve(process.cwd(), root);
 
@@ -108,8 +108,10 @@ const init = async () => {
     middlewares: _middlewares,
     injectors: _injectors,
     store: _store,
-    rewriters: _rewriters
-  }
+    rewriters: _rewriters,
+    log
+  };
+
   try {
     await mockServer.launchServer(_db, launchServerOptions);
   } catch (err) {

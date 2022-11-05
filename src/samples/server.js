@@ -1,11 +1,11 @@
 const { MockServer } = require("@r35007/mock-server");
 // const MockServer = require("@r35007/mock-server").default; // For default import
 
-const log = false; // Set to true to see setter logs. It will not be shown if quiet is set to true.
+const log = true; // Set to true to see setter logs. It will not be shown if quiet is set to true.
 const quiet = false; // Set to true to avoid console logs
 const port = 3000; // Set Port to 0 to pick a random available port. default: 3000
 const host = "localhost"; // Set empty string to set your Local Ip Address
-const config = { root: __dirname, port, host, quiet };
+const config = { root: __dirname, port, host, quiet, log };
 const mockServer = MockServer.Create(config);
 
 const app = mockServer.app;
@@ -15,7 +15,7 @@ mockServer.setData({
   injectors: "./injectors.json",
   middlewares: "./middlewares.js",
   store: "./store.json",
-}, { log }) // pass mockServer instance to use it in middleware.js method
+}) // pass mockServer instance to use it in middleware.js method
 
 // Make sure to use this at first, before all the resources
 const rewriter = mockServer.rewriter("./rewriters.json");
@@ -39,23 +39,23 @@ app.use((req, res, next) => {
 app.get("/echo", (req, res) => res.jsonp(req.query));
 
 // Creates resources and returns the express router
-const resources = mockServer.resources("./db.json", { log });
+const resources = mockServer.resources("./db.json", { log: false });
 
 resources.create("/path/to/route")
   .mock({})
   .delay(2000)
-  .done();
+  .done({ log: "/path/to/route" });
 
 resources.create("/path/to/route/2")
   .mock({ data: "Working" })
-  .done();
+  .done({ log: false });
 
 resources.create("/path").done();
 
 app.use(resources.router);
 
 // Create the Mock Server Home Page
-const homePage = mockServer.homePage({ log });
+const homePage = mockServer.homePage();
 app.use(homePage);
 
 app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match

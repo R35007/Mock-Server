@@ -121,6 +121,7 @@ Options:
       --bodyParser, --bp    Enable body-parser                    [boolean] [default: true]
       --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: true]
   -l, --logger              Enable logger                         [boolean] [default: true]
+      --log                 Enable Setter Logs                    [boolean] [default: false]
   -w, --watch               Watch for changes                     [boolean] [default: false]
   -q, --quiet               Prevent console logs                  [boolean] [default: false]
   -h, --help                Show help                             [boolean]
@@ -260,7 +261,7 @@ const todosResource = mockServer.resources(todos, {
   injectors,
   middlewares,
 });
-app.use(todosResource);
+app.use(todosResource.router);
 
 mockServer.startServer();
 ```
@@ -323,19 +324,19 @@ middlewares = [
 
 const db = resources
   .create("/todos", ...middlewares) // can give n number of middlewares and names here
-  .send("My Response", mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode
+  .send("My Response", mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode. alias rely
   .id("todos")
   .description("todos route")
   .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
   .fetch("https://jsonplaceholder.typicode.com/todos")
   .mockFirst(false)
-  .statusCode(200) // or .status(200) can also be used
+  .statusCode(200) // alias status(200) can also be used
   .delay(0) // delay in milliseconds
   .fetchCount(1)
   .skipFetchError(false)
   .directUse(false)
   .headers({}) // Set response Headers
-  .done(); //  Make sure to call done method to create the route.
+  .done({ log: true }); //  Make sure to call done method to create the route.
 console.log(db);
 /* db will return the generated db object. This will not be added to the mockserver db until we call done() method
 {

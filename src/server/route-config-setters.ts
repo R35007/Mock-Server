@@ -5,7 +5,7 @@ import { DbMode } from './types/common.types';
 import _ from 'lodash';
 
 interface Done {
-  done: () => { [key: string]: UserTypes.RouteConfig }
+  done: (param?: { log?: string | boolean }) => { [key: string]: UserTypes.RouteConfig }
 }
 
 export default class RouteConfigSetters implements Done {
@@ -40,6 +40,8 @@ export default class RouteConfigSetters implements Done {
     this.db[this.routePath][attribute] = value;
     return this;
   }
+  reply = this.send;
+
   headers(key: string | object, value?: any) {
     if (_.isPlainObject(key)) {
       if (_.isPlainObject(this.db[this.routePath].headers)) {
@@ -71,10 +73,8 @@ export default class RouteConfigSetters implements Done {
     this.db[this.routePath].statusCode = value;
     return this;
   }
-  status(value: number) {
-    this.db[this.routePath].statusCode = value;
-    return this;
-  }
+  status = this.statusCode;
+
   delay(value: number) {
     this.db[this.routePath].delay = value;
     return this;

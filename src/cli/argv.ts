@@ -24,6 +24,7 @@ interface Options {
   cookieParser: boolean;
   watch: boolean;
   quiet: boolean;
+  log: boolean;
   _: (string)[];
   $0: string;
 }
@@ -55,6 +56,7 @@ export default (pkg) => {
     logger:       { alias: 'l',  description: 'Enable logger',                         type: "boolean", default: true                                       },
     watch:        { alias: 'w',  description: 'Watch for changes',                     type: "boolean", default: false                                      },
     quiet:        { alias: 'q',  description: 'Prevent console logs',                  type: "boolean", default: false                                      },
+    log:          { alias: 'log',description: 'Log Setters',                           type: "boolean", default: false                                      },
   })
   .boolean('readOnly')
   .boolean('noCors')

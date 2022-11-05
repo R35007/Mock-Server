@@ -100,7 +100,7 @@ export class GettersSetters {
     data.store && this.setStore(data.store, options);
   };
 
-  setConfig(config?: Params.Config, { root = this.#config.root, merge, log }: SetterOptions = {}) {
+  setConfig(config?: Params.Config, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Config...').start();
     const oldConfig = this.#config;
     const newConfig = getValidConfig(config, { root, mockServer: this._getServerDetails() });
@@ -119,7 +119,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
   }
 
-  setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log }: SetterOptions = {}) {
+  setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Middlewares...').start();
     const oldMiddlewares = this.#middlewares;
     const newMiddlewares = getValidMiddlewares(middleware, { root, mockServer: this._getServerDetails() });
@@ -127,7 +127,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Middlewares Loaded.") });
   }
 
-  setInjectors(injectors?: Params.Injectors, { root = this.#config.root, merge, log }: SetterOptions = {}) {
+  setInjectors(injectors?: Params.Injectors, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Injectors...').start();
     const oldInjectors = this.#injectors;
     const newInjectors = getValidInjectors(injectors, { root, mockServer: this._getServerDetails() });
@@ -135,7 +135,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Injectors Loaded.") });
   }
 
-  setStore(store?: Params.Store, { root = this.#config.root, merge, log }: SetterOptions = {}) {
+  setStore(store?: Params.Store, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Store...').start();
     const oldStore = this.#store;
     const newStore = getValidStore(store, { root, mockServer: this._getServerDetails() });
