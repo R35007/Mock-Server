@@ -44,7 +44,7 @@ export default async (req, res, _next) => {
         sendResponse(req, res, response);
       }
     }
-  } catch (err) {
+  } catch (err: any) {
     res.send(err.message || '')
   }
 }

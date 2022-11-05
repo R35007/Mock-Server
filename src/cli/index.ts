@@ -32,7 +32,7 @@ const getDataFromUrl = async (data?: string, root?: string) => {
         const response = await axios.get(data).then(resp => resp.data);
         spinner && spinner.stopAndPersist({ symbol: chalk.green("✔"), text: chalk.green("GET: ") + chalk.gray(data) });
         return response;
-      } catch (err) {
+      } catch (err: any) {
         spinner && spinner.stopAndPersist({ symbol: chalk.red("✖"), text: chalk.red(`GET: `) + chalk.gray(data) });
         console.error(chalk.red(err.message));
         process.exit(1);
@@ -45,7 +45,7 @@ const getDataFromUrl = async (data?: string, root?: string) => {
       }
       return resolvedPath;
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error(chalk.red(err.message));
     process.exit(1);
   }
@@ -56,7 +56,7 @@ const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServe
     process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
     await MockServer.Destroy(mockServer);
     !mockServer.server && await mockServer.launchServer(db, launchServerOptions);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err.message);
     process.exit(1);
   }
@@ -82,7 +82,7 @@ const getSnapshot = (snapshots) => {
       const cleanDb = getCleanDb(mockServer.db, mockServer.config.dbMode);
       fs.writeFileSync(file, JSON.stringify(cleanDb, null, 2), 'utf-8');
       console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(chalk.red(err.message));
     }
   });
@@ -114,7 +114,7 @@ const init = async () => {
 
   try {
     await mockServer.launchServer(_db, launchServerOptions);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
     process.exit(1);
   }

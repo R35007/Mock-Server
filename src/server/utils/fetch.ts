@@ -31,7 +31,7 @@ export const requireFile = (directoryPath: string, {
       const str = fs.readFileSync(file.filePath, "utf-8");
       return JPH.parse(str)
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(chalk.red(`Error reading ${file.filePath}`));
     console.error(error.message);
     return;
@@ -51,7 +51,7 @@ export const getObject = (files: PathDetails[]): object => {
         if (_.isEmpty(str) || !_.isPlainObject(JPH.parse(str))) return mock
         return { ...mock, ...JPH.parse(str) };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
       console.error(error.message);
       return mock;
@@ -73,7 +73,7 @@ export const getList = (files: PathDetails[]): any[] => {
         if (_.isEmpty(str) || !_.isArray(JPH.parse(str))) return mock
         return [...mock, ...JPH.parse(str)];
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
       console.error(error.message);
       return mock;
@@ -133,7 +133,7 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
       const str = fs.readFileSync(filePath, "utf-8");
       fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error(chalk.red(err.message));
     fetchData = {
       isError: true,
@@ -164,7 +164,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
         fetchData.response = response.data ?? {};
       }
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error(chalk.red(err.message));
     fetchData = {
       isError: true,

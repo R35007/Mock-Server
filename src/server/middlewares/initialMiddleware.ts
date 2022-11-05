@@ -39,7 +39,7 @@ export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?
         locals.data = routeConfig.mock;
         next();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error.message);
       next(error);
     }

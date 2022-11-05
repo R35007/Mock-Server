@@ -87,7 +87,7 @@ export const cleanObject = (obj: any) => {
       if (obj[key] !== undefined && typeof obj[key] === 'object' && _.isEmpty(obj[key])) delete obj[key]; // delete If empty object 
       if (obj[key] !== undefined && !_.isEmpty(obj[key]) && _.isPlainObject(obj[key])) cleanObject(obj[key]); // cleanObject if the value is object
     }
-  } catch (err) { }
+  } catch (err: any) { }
 }
 
 export const getCleanDb = (db: ValidTypes.Db | UserTypes.Db, dbMode: DbMode = 'mock'): UserTypes.Db => {
@@ -137,7 +137,7 @@ export const isCollection = (arr: any[]): boolean => {
 const getURLPathName = (url = '') => {
   try {
     return new URL(url)?.pathname || '';
-  } catch (error) {
+  } catch (error: any) {
     return '';
   }
 }
@@ -145,7 +145,7 @@ const getURLPathName = (url = '') => {
 const getParsedJSON = (json = '') => {
   try {
     return JSON.parse(json)
-  } catch (error) {
+  } catch (error: any) {
     return json;
   }
 }
@@ -251,7 +251,7 @@ export const extractDbFromHAR = (
     if (!isHAR) return;
     const dbFromHar: UserTypes.Db = getDbFromHarEntries(entries, harEntryCallback, iterateDuplicateRoutes);
     return harDbCallback?.(har, dbFromHar) || dbFromHar
-  } catch (err) {
+  } catch (err: any) {
     console.error(err.message);
     return
   }
@@ -269,7 +269,7 @@ export const extractDbFromKibana = (
     if (!isKibana) return;
     const dbFromHits: UserTypes.Db = getDbFromKibanaHits(hits, kibanaHitsCallback, iterateDuplicateRoutes);
     return KibanaDbCallback?.(kibana, dbFromHits) || dbFromHits
-  } catch (err) {
+  } catch (err: any) {
     console.error(err.message);
     return
   }
@@ -284,7 +284,7 @@ export const interpolate = (object: Object, format: string = "") => {
     const keys = _.keys(object);
     const values = _.values(object);
     return new Function(...keys, `return \`${format}\`;`)(...values);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error.message);
     return format;
   }

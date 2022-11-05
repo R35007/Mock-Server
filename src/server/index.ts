@@ -42,12 +42,12 @@ export class MockServer extends GettersSetters {
 
   static Destroy = async (mockServer?: MockServer) => {
     if (mockServer) {
-      try { await mockServer.stopServer() } catch (err) { console.error(err.message) }
+      try { await mockServer.stopServer() } catch (err: any) { console.error(err.message) }
       mockServer.resetServer();
       if (mockServer === MockServer.#mockServer) MockServer.#mockServer = undefined;
       return undefined;
     } else {
-      try { await MockServer.#mockServer?.stopServer() } catch (err) { console.error(err.message) }
+      try { await MockServer.#mockServer?.stopServer() } catch (err: any) { console.error(err.message) }
       MockServer.#mockServer?.resetServer();
       MockServer.#mockServer = undefined;
       return undefined;

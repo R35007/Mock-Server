@@ -49,7 +49,7 @@ modalTextControls.forEach(formControl => {
         const value = JSON.parse(target.value);
         set(formValues, target.name, value);
         type = 'JSON';
-      } catch (err) {
+      } catch (err: any) {
         const value = target.value;
         set(formValues, target.name, value);
         type = 'STRING';

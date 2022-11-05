@@ -3,13 +3,13 @@ async function init() {
 
   try {
     resources = await request(localhost + "/_db");
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
   }
 
   try {
     rewriters = await request(localhost + "/_rewriters");
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
   }
   createResourcesList(resources);
@@ -129,7 +129,7 @@ async function setIframeData($event, routePath) {
     $frameLoader.style.display = "grid";
     $dataContainer.style.display = "block";
     setIFrameSrc(routePath);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
   }
 }

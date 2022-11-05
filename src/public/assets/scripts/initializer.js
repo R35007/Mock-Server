@@ -43,7 +43,7 @@ let $bsToast;
 try {
   $routeBsModal = new bootstrap.Modal($routeModal);
   $bsToast = new bootstrap.Toast($toast, { animation: true, delay: 2000 });
-} catch (err) {
+} catch (err: any) {
   console.log(err);
   $routeBsModal = {};
   $bsToast = {};
