@@ -115,6 +115,7 @@ Options:
       --id                  Set database id property              [string]  [default: "id"]
       --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"]
       --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
+      --reverse, --rv       Generate Route in revere order        [boolean] [default: false]
       --readOnly, --ro      Allow only GET requests               [boolean] [default: false]
       --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean] [default: false]
       --noGzip, --ng        Disable GZIP Content-Encoding         [boolean] [default: false]
