@@ -75,24 +75,33 @@ export class GettersSetters {
   })
 
   init() {
+    this.clearServerAddress();
+    this.setExpressApp();
+    this.setDefaults();
+  }
+
+  clearServerAddress() {
     this.port = undefined;
     this.server = undefined;
     this.address = undefined;
     this.listeningTo = undefined;
-
-    this.app = express().set("json spaces", 2);
-    this.routes = [];
-
-    this.#config = _.cloneDeep(Defaults.Config);
-    this.#middlewares = _.cloneDeep(Defaults.Middlewares);
-    this.#injectors = _.cloneDeep(Defaults.Injectors);
-    this.#rewriters = _.cloneDeep(Defaults.Rewriters);
-    this.#db = _.cloneDeep(Defaults.Db);
-    this.#store = _.cloneDeep(Defaults.Store);
-
-    this.initialDb = _.cloneDeep(Defaults.Db);
   }
 
+  setDefaults() {
+    this.setDefaultDb();
+    this.setDefaultConfig();
+    this.setDefaultMiddlewares();
+    this.setDefaultInjectors();
+    this.setDefaultStore();
+    this.setDefaultRewriters();
+  }
+
+  setDefaultData() {
+    this.setDefaultConfig();
+    this.setDefaultMiddlewares();
+    this.setDefaultInjectors();
+    this.setDefaultStore();
+  }
   setData(data: SetData = {}, options: SetterOptions = {}) {
     data.config && this.setConfig(data.config, options);
     data.middlewares && this.setMiddlewares(data.middlewares, options);
@@ -100,6 +109,7 @@ export class GettersSetters {
     data.store && this.setStore(data.store, options);
   };
 
+  setDefaultConfig() { this.#config = _.cloneDeep(Defaults.Config); }
   setConfig(config?: Params.Config, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Config...').start();
     const oldConfig = this.#config;
@@ -119,6 +129,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
   }
 
+  setDefaultMiddlewares() { this.#middlewares = _.cloneDeep(Defaults.Middlewares); }
   setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Middlewares...').start();
     const oldMiddlewares = this.#middlewares;
@@ -127,6 +138,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Middlewares Loaded.") });
   }
 
+  setDefaultInjectors() { this.#injectors = _.cloneDeep(Defaults.Injectors); }
   setInjectors(injectors?: Params.Injectors, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Injectors...').start();
     const oldInjectors = this.#injectors;
@@ -135,11 +147,22 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Injectors Loaded.") });
   }
 
+  setDefaultStore() { this.#store = _.cloneDeep(Defaults.Store); }
   setStore(store?: Params.Store, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Store...').start();
     const oldStore = this.#store;
     const newStore = getValidStore(store, { root, mockServer: this._getServerDetails() });
     this.#store = merge ? { ...oldStore, ...newStore } : newStore;
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
+  }
+
+  setDefaultDb() {
+    this.#db = _.cloneDeep(Defaults.Db);
+    this.initialDb = _.cloneDeep(Defaults.Db);
+  }
+  setDefaultRewriters() { this.#rewriters = _.cloneDeep(Defaults.Rewriters); }
+  setExpressApp() {
+    this.app = express().set("json spaces", 2);
+    this.routes = [];
   }
 }

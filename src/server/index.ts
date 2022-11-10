@@ -1,11 +1,15 @@
+import axios from "axios";
 import chalk from "chalk";
+import * as watcher from 'chokidar';
 import express from "express";
 import rewrite from 'express-urlrewrite';
 import * as fs from 'fs';
 import { Server } from "http";
 import * as _ from 'lodash';
+import { nanoid } from 'nanoid';
 import ora from 'ora';
 import path from "path";
+import * as pathToRegexp from 'path-to-regexp';
 import enableDestroy from 'server-destroy';
 import { GettersSetters } from './getters-setters';
 import {
@@ -28,6 +32,16 @@ import { getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, 
 export class MockServer extends GettersSetters {
 
   static #mockServer: MockServer | undefined;
+
+  static _ = _;
+  static express = express;
+  static chalk = chalk;
+  static axios = axios;
+  static watcher = watcher;
+  static pathToRegexp = pathToRegexp;
+  static nanoid = nanoid;
+  static ora = ora;
+
   constructor(config?: ParamTypes.Config) { super(config) }
 
   static Create = (config?: ParamTypes.Config) => {
@@ -69,7 +83,7 @@ export class MockServer extends GettersSetters {
 
     this.setData({ injectors, middlewares, store }, { log });
 
-    const rewriter = this.rewriter(rewriters!, { log });
+    const rewriter = this.rewriter(rewriters, { log });
     app.use(rewriter);
 
     const defaults = this.defaults({}, { log });
@@ -254,10 +268,7 @@ export class MockServer extends GettersSetters {
         resolve(this.server!);
       }).on("error", (err) => {
         spinner.stop();
-        this.port = undefined;
-        this.server = undefined;
-        this.address = undefined;
-        this.listeningTo = undefined;
+        this.clearServerAddress();
         console.error(chalk.red("\nServer Failed to Start!"));
         console.error(err.message);
         reject(err);
@@ -282,10 +293,7 @@ export class MockServer extends GettersSetters {
           console.error(err.message);
           return reject(err);
         }
-        this.port = undefined;
-        this.server = undefined;
-        this.address = undefined;
-        this.listeningTo = undefined;
+        this.clearServerAddress();
 
         spinner.stop();
         process.stdout.write(chalk.green("Mock Server Stopped!"));

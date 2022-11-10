@@ -1,3 +1,31 @@
+## v12.0.0
+
+- added node packages in MockServer instance
+
+  - `MockServer._` - lodash.
+  - `MockServer.axios` - axios.
+  - `MockServer.express` - express.
+  - `MockServer.chalk` - chalk.
+  - `MockServer.watcher` - chokidar.
+  - `MockServer.pathToRegexp` - pathToRegexp.
+  - `MockServer.nanoid` - nanoid.
+  - `MockServer.ora` - ora
+
+- added setter methods to reset to defaults
+
+  - `mockserver.setDefaults()` - sets default db, injectors, middlewares, store, rewriters, config
+  - `mockserver.setDefaultData()` - sets default injectors, middlewares, store, config
+  - `mockserver.setDefaultDb()` - sets default db
+  - `mockserver.setDefaultInjectors()` - sets default injectors
+  - `mockserver.setDefaultMiddlewares()` - sets default middlewares
+  - `mockserver.setDefaultRewriters()` - sets default rewriters
+  - `mockserver.setDefaultStore()` - sets default store
+  - `mockserver.setDefaultConfig()` - sets default config
+
+- added more methods
+  - `mockserver.clearServerAddress()` - sets current port, address, listeningTo, server to `undefined`
+  - `mockserver.setExpressApp()` - create a new express app to the MockServer instance.
+
 ## v11.2.0
 
 - added - `log` in CLI param and `Config` - Helps to added setter logs in console.

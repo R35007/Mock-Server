@@ -105,13 +105,13 @@ Options:
   -P, --port                Set port                              [number]  [default: 3000]
   -H, --host                Set host                              [string]  [default: "localhost"]
   -r, --root                Set root directory.                   [string]  [default: "./"]
-  -s, --static              Set static files directory            [string]
-  -b, --base                Set base route path                   [string]
-      --db                  Path to database file                 [string]
-      --middlewares, --md   Path to middlewares file              [string]
-      --injectors, --in     Path to Injectors file                [string]
-      --store, --st         Path to Store file                    [string]
-      --rewriters, --rw     Path to Rewriter file                 [string]
+  -s, --static              Set static files directory            [string]  [default: "./public"]
+  -b, --base                Set base route path                   [string]  [default: ""]
+      --db                  Path to database file                 [string]  [default: "./db.json"]
+      --middlewares, --md   Path to middlewares file              [string]  [default: "./middlewares.js"]
+      --injectors, --in     Path to Injectors file                [string]  [default: "./injectors.json"]
+      --store, --st         Path to Store file                    [string]  [default: "./store.json"]
+      --rewriters, --rw     Path to Rewriter file                 [string]  [default: "./rewriters.json"]
       --id                  Set database id property              [string]  [default: "id"]
       --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"]
       --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
@@ -1385,6 +1385,16 @@ const rewriters = mockServer.rewriters;
 const config = mockServer.config;
 const store = mockServer.store;
 const initialDb = mockServer.initialDb;
+
+// Node Package exposes
+const _ = MockServer._ // lodash.
+const axios = MockServer.axios // axios.
+const express = MockServer.express // express.
+const chalk = MockServer.chalk // chalk.
+const watcher = MockServer.watcher // chokidar.
+const pathToRegexp = MockServer.pathToRegexp // pathToRegexp.
+const nanoid = MockServer.nanoid // nanoid.
+const ora = MockServer.ora // ora
 ```
 
 ### **Setters**
@@ -1402,6 +1412,19 @@ mockServer.setInjectors(injectors, { root, merge, log });
 mockServer.setRewriters(rewriters, { root, merge, log });
 mockServer.setStore(store, { root, merge, log });
 mockServer.setDb(Db, { root, merge, log, injectors, reverse, dbMode });
+
+// Set to Defaults
+mockserver.setDefaults(); // sets default db, injectors, middlewares, store, rewriters, config
+mockserver.setDefaultData(); // sets default injectors, middlewares, store, config
+mockserver.setDefaultDb(); // sets default db
+mockserver.setDefaultInjectors(); // sets default injectors
+mockserver.setDefaultMiddlewares(); // sets default middlewares
+mockserver.setDefaultRewriters(); // sets default rewriters
+mockserver.setDefaultStore(); // sets default store
+mockserver.setDefaultConfig(); // sets default config
+
+mockserver.clearServerAddress(); // sets current port, address, listeningTo, server to `undefined`
+mockserver.setExpressApp(); // create a new express app to the MockServer instance.
 ```
 
 ### **Validators**
