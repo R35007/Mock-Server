@@ -3,6 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import pleaseUpgradeNode from 'please-upgrade-node';
 import MockServer from "../server";
+import chalk from "chalk";
+import watcher from "chokidar";
+import axios from "axios";
+import ora from "ora";
 import { LaunchServerOptions } from '../server/types/common.types';
 import * as ParamTypes from '../server/types/param.types';
 import { getCleanDb } from '../server/utils';
@@ -11,11 +15,9 @@ import argv from './argv';
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
 const pkg = JSON.parse(pkgStr);
 
-let mockServer: MockServer;
-
 pleaseUpgradeNode(pkg, {
   message: function (requiredVersion) {
-    return MockServer.chalk.red(`Please upgrade Node.\n@r35007/mock-server requires at least version ` + MockServer.chalk.yellow(requiredVersion) + ` of Node.`)
+    return chalk.red(`Please upgrade Node.\n@r35007/mock-server requires at least version ` + chalk.yellow(requiredVersion) + ` of Node.`)
   }
 })
 
@@ -23,33 +25,33 @@ const getDataFromUrl = async (data?: string, root?: string) => {
   try {
     if (!data) return;
     if (data.startsWith("http")) {
-      const spinner = !global.quiet ? MockServer.ora(`GET: ` + MockServer.chalk.gray(data)).start() : false;
+      const spinner = !global.quiet ? ora(`GET: ` + chalk.gray(data)).start() : false;
       try {
-        const response = await MockServer.axios.get(data).then(resp => resp.data);
-        spinner && spinner.stopAndPersist({ symbol: MockServer.chalk.green("✔"), text: MockServer.chalk.green("GET: ") + MockServer.chalk.gray(data) });
+        const response = await axios.get(data).then(resp => resp.data);
+        spinner && spinner.stopAndPersist({ symbol: chalk.green("✔"), text: chalk.green("GET: ") + chalk.gray(data) });
         return response;
       } catch (err: any) {
-        spinner && spinner.stopAndPersist({ symbol: MockServer.chalk.red("✖"), text: MockServer.chalk.red(`GET: `) + MockServer.chalk.gray(data) });
-        console.error(MockServer.chalk.red(err.message));
+        spinner && spinner.stopAndPersist({ symbol: chalk.red("✖"), text: chalk.red(`GET: `) + chalk.gray(data) });
+        console.error(chalk.red(err.message));
         process.exit(1);
       }
     } else {
       const resolvedPath = path.resolve(root!, data);
       if (!fs.existsSync(resolvedPath)) {
-        console.error(MockServer.chalk.red(`Invalid Path : ${resolvedPath}`));
+        console.error(chalk.red(`Invalid Path : ${resolvedPath}`));
         process.exit(1);
       }
       return resolvedPath;
     }
   } catch (err: any) {
-    console.error(MockServer.chalk.red(err.message));
+    console.error(chalk.red(err.message));
     process.exit(1);
   }
 };
 
-const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
+const restartServer = async (changedPath: string, mockServer: MockServer, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
   try {
-    process.stdout.write(MockServer.chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + MockServer.chalk.gray(` has changed, reloading...\n`));
+    process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
     await MockServer.Destroy(mockServer);
     !mockServer.server && await mockServer.launchServer(db, launchServerOptions);
   } catch (err: any) {
@@ -59,17 +61,17 @@ const restartServer = async (changedPath: string, db: ParamTypes.Db, launchServe
 }
 
 const uncaughtException = (error) => {
-  console.error(MockServer.chalk.red('Something went wrong!'), error);
+  console.error(chalk.red('Something went wrong!'), error);
   process.exit(1);
 }
 
 const errorHandler = () => {
-  console.error(MockServer.chalk.red(`Error, can't read from stdin`));
-  console.error(MockServer.chalk.red(`Creating a snapshot from the CLI won't be possible`));
+  console.error(chalk.red(`Error, can't read from stdin`));
+  console.error(chalk.red(`Creating a snapshot from the CLI won't be possible`));
 }
 
-const getSnapshot = (snapshots) => {
-  process.stdout.write("\n" + MockServer.chalk.gray('Type s + enter at any time to create a snapshot of the database') + "\n");
+const getSnapshot = (snapshots, mockServer: MockServer) => {
+  process.stdout.write("\n" + chalk.gray('Type s + enter at any time to create a snapshot of the database') + "\n");
   process.stdin.on('data', chunk => {
     try {
       if (chunk.toString().trim().toLowerCase() !== 's') return;
@@ -77,9 +79,9 @@ const getSnapshot = (snapshots) => {
       const file = path.join(snapshots, filename);
       const cleanDb = getCleanDb(mockServer.db, mockServer.config.dbMode);
       fs.writeFileSync(file, JSON.stringify(cleanDb, null, 2), 'utf-8');
-      console.log(MockServer.chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
+      console.log(chalk.green('Saved snapshot to ') + `${path.relative(process.cwd(), file)}\n`);
     } catch (err: any) {
-      console.error(MockServer.chalk.red(err.message));
+      console.error(chalk.red(err.message));
     }
   });
 }
@@ -91,7 +93,7 @@ const init = async () => {
   const _root = path.resolve(process.cwd(), root);
 
   const _config = { ...configArgs, root: _root };
-  mockServer = new MockServer(_config);
+  const mockServer = MockServer.Create(_config);
   global.quiet = _config.quiet;
 
   const _db = await getDataFromUrl(db, _root);
@@ -119,11 +121,11 @@ const init = async () => {
     .filter(x => typeof x === 'string').filter(Boolean) as string[];
 
   if (watch) {
-    const watcher = MockServer.watcher.watch(filesToWatch);
-    watcher.on('change', (changedPath, _event) => restartServer(changedPath, _db, launchServerOptions));
+    const watch = watcher.watch(filesToWatch);
+    watch.on('change', (changedPath, _event) => restartServer(changedPath, mockServer, _db, launchServerOptions));
   }
 
-  getSnapshot(snapshots);
+  getSnapshot(snapshots, mockServer);
 
   process.on('uncaughtException', uncaughtException);
   process.stdin.setEncoding('utf8');

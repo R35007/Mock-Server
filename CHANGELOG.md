@@ -1,3 +1,25 @@
+## v12.1.0
+
+- import other useful node packages as follows
+
+  ```js
+  const {
+    MockServer,
+    express, // express
+    lodash, // lodash
+    nanoid, // nanoid
+    spinner, // ora
+    pathToRegexp, // path-to-regexp
+    chalk, // chalk
+    axios, // axios
+    watcher, // chokidar.
+  } = require("@r35007/mock-server");
+  ```
+
+- renamed `mockserver.setExpressApp()` to `mockserver.createExpressApp()`
+- fixed - `MockServer.Destroy()` resets server config to default config which makes us to recreate the mockServer using `MockServer.Create()` method.
+  Now we don't want to recreate MockServer instance after destroy. `MockServer.Destroy()` destroys the express server and resets all the data to defaults except server config.
+
 ## v12.0.0
 
 - added node packages in MockServer instance

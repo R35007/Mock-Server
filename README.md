@@ -56,6 +56,7 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
         <li> <a href="#errorhandler">errorHandler</a> </li>
         <li> <a href="#getters">Getters</a> </li>
         <li> <a href="#setters">Setters</a> </li>
+        <li> <a href="#libs">Libs</a> </li>
         <li> <a href="#validators">Validators</a> </li>
       </ul>
   </details>
@@ -1365,6 +1366,9 @@ app.use(mockServer.errorHandler);
 ### **Getters**
 
 ```js
+const MockServer = require('@r35007/mock-server').default;
+const mockServer = MockServer.Create();
+
 // Please avoid directly modify or setting values to these variable.
 // Use Setter method to modify or set any values.
 
@@ -1400,6 +1404,9 @@ const ora = MockServer.ora // ora
 ### **Setters**
 
 ```js
+const MockServer = require("@r35007/mock-server").default;
+const mockServer = MockServer.Create();
+
 mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
 
 //or
@@ -1425,6 +1432,24 @@ mockserver.setDefaultConfig(); // sets default config
 
 mockserver.clearServerAddress(); // sets current port, address, listeningTo, server to `undefined`
 mockserver.setExpressApp(); // create a new express app to the MockServer instance.
+```
+
+### **Libs**
+
+Few Libraries has been exposed for ease
+
+```js
+const {
+  MockServer,
+  express, // express
+  lodash, // lodash
+  nanoid, // nanoid
+  spinner, // ora
+  pathToRegexp, // path-to-regexp
+  chalk, // chalk
+  axios, // axios
+  watcher, // chokidar.
+} = require("@r35007/mock-server");
 ```
 
 ### **Validators**

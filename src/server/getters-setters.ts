@@ -19,7 +19,7 @@ export class GettersSetters {
 
   app!: express.Application;
   routes!: string[];
-
+  rewriterRoutes!: string[];
   initialDb!: ValidTypes.Db;
 
   #config!: ValidTypes.Config;
@@ -76,7 +76,7 @@ export class GettersSetters {
 
   init() {
     this.clearServerAddress();
-    this.setExpressApp();
+    this.createExpressApp();
     this.setDefaults();
   }
 
@@ -161,8 +161,10 @@ export class GettersSetters {
     this.initialDb = _.cloneDeep(Defaults.Db);
   }
   setDefaultRewriters() { this.#rewriters = _.cloneDeep(Defaults.Rewriters); }
-  setExpressApp() {
+  createExpressApp() {
     this.app = express().set("json spaces", 2);
     this.routes = [];
+    this.rewriterRoutes = [];
+    return this.app;
   }
 }

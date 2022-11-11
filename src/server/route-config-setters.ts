@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { toBase64 } from './utils';
 import * as UserTypes from "./types/user.types";
 import { DbMode } from './types/common.types';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 interface Done {
   done: (param?: { log?: string | boolean }) => { [key: string]: UserTypes.RouteConfig }

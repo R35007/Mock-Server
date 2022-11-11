@@ -1,15 +1,15 @@
 import axios from "axios";
 import chalk from "chalk";
-import * as watcher from 'chokidar';
+import * as watcher from "chokidar";
 import express from "express";
 import rewrite from 'express-urlrewrite';
 import * as fs from 'fs';
 import { Server } from "http";
 import * as _ from 'lodash';
-import { nanoid } from 'nanoid';
+import * as nanoid from "nanoid";
 import ora from 'ora';
 import path from "path";
-import * as pathToRegexp from 'path-to-regexp';
+import * as pathToRegexp from "path-to-regexp";
 import enableDestroy from 'server-destroy';
 import { GettersSetters } from './getters-setters';
 import {
@@ -33,15 +33,6 @@ export class MockServer extends GettersSetters {
 
   static #mockServer: MockServer | undefined;
 
-  static _ = _;
-  static express = express;
-  static chalk = chalk;
-  static axios = axios;
-  static watcher = watcher;
-  static pathToRegexp = pathToRegexp;
-  static nanoid = nanoid;
-  static ora = ora;
-
   constructor(config?: ParamTypes.Config) { super(config) }
 
   static Create = (config?: ParamTypes.Config) => {
@@ -56,12 +47,11 @@ export class MockServer extends GettersSetters {
 
   static Destroy = async (mockServer?: MockServer) => {
     if (mockServer) {
-      try { await mockServer.stopServer() } catch (err: any) { console.error(err.message) }
+      try { await mockServer.stopServer() } catch (err: any) { };
       mockServer.resetServer();
-      if (mockServer === MockServer.#mockServer) MockServer.#mockServer = undefined;
       return undefined;
     } else {
-      try { await MockServer.#mockServer?.stopServer() } catch (err: any) { console.error(err.message) }
+      try { await MockServer.#mockServer?.stopServer() } catch (err: any) { }
       MockServer.#mockServer?.resetServer();
       MockServer.#mockServer = undefined;
       return undefined;
@@ -134,10 +124,11 @@ export class MockServer extends GettersSetters {
     const oldRewriters = this.getRewriters();
 
     Object.entries(newRewriters).forEach(([routePath, rewritePath]) => {
-      if (!oldRewriters[routePath]) {
-        oldRewriters[routePath] = rewritePath;
-        router.use(rewrite(routePath, rewritePath))
-      }
+      if (this.rewriterRoutes.includes(routePath)) return;  // If routes are already added to rewriters then do nothing
+
+      this.rewriterRoutes.push(routePath)
+      oldRewriters[routePath] = rewritePath;
+      router.use(rewrite(routePath, rewritePath))
     })
 
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
@@ -220,7 +211,7 @@ export class MockServer extends GettersSetters {
     ];
   }
 
-  startServer(port?: number, host?: string): Promise<Server | undefined> {
+  async startServer(port?: number, host?: string): Promise<Server | undefined> {
 
     if (_.isInteger(port) || !_.isEmpty(host)) {
       this.setConfig({
@@ -234,75 +225,97 @@ export class MockServer extends GettersSetters {
 
     const spinner = ora('Starting Server...').start();
 
-    return new Promise((resolve, reject) => {
+    // If server is already running then throw error
+    if (this.server) {
+      spinner.stop();
+      this.port = undefined;
+      this.address = undefined;
+      this.listeningTo = undefined;
+      const { port } = this.server.address() as { address: string; family: string; port: number; };
+      console.error(chalk.red("\nServer already listening to port : ") + chalk.yellow(port));
+      throw new Error("Server already listening to port : " + port);
+    }
 
-      if (this.server) {
-        spinner.stop();
-        this.port = undefined;
-        this.address = undefined;
-        this.listeningTo = undefined;
-        const { port } = this.server.address() as { address: string; family: string; port: number; };
-        console.error(chalk.red("\nServer already listening to port : ") + chalk.yellow(port));
-        return reject(new Error("Server already listening to port : " + port));
-      }
-
-      this.server = this.app.listen(_port, _host, async () => {
-        spinner.stop();
-        process.stdout.write(chalk.green("\nMock Server Started!\n"));
-
-        const serverAddress = this.server!.address() as { address: string; family: string; port: number; };
-        this.port = serverAddress.port;
-        this.address = serverAddress.address;
-        this.listeningTo = `http://${_host}:${this.port}${_base}`;
-
-        console.log("\n" + chalk.whiteBright("Access URLs:"));
-        console.log(chalk.gray("-----------------------------------"));
-        process.stdout.write("Localhost: " + chalk.magenta(`http://${_host}:${this.port}${_base}`));
-        console.log("\n      LAN: " + chalk.magenta(`http://${this.address}:${this.port}${_base}`));
-        console.log(chalk.gray("-----------------------------------"));
-        console.log(chalk.blue("Press CTRL+C to stop"));
-
-        process.stdout.write("\n" + chalk.gray("listening...") + "\n");
-
-        enableDestroy(this.server!); // Enhance with a destroy function
-        resolve(this.server!);
-      }).on("error", (err) => {
-        spinner.stop();
-        this.clearServerAddress();
-        console.error(chalk.red("\nServer Failed to Start!"));
-        console.error(err.message);
-        reject(err);
+    try {
+      this.server = await new Promise((resolve, reject) => {
+        const server = this.app
+          .listen(_port, _host, async () => { resolve(server) })
+          .on("error", (err) => { reject(err) })
       })
-    })
+
+      if (!this.server) throw new Error("Server Failed to Start.");
+
+      enableDestroy(this.server); // Enhance with a destroy function
+
+      spinner.stop();
+      process.stdout.write(chalk.green("\nMock Server Started!\n"));
+
+      const serverAddress = (this.server.address() || {}) as { address: string; family: string; port: number; };
+      this.port = serverAddress.port || this.config.port;
+      this.address = serverAddress.address;
+      this.listeningTo = `http://${_host}:${this.port}${_base}`;
+
+      console.log("\n" + chalk.whiteBright("Access URLs:"));
+      console.log(chalk.gray("-----------------------------------"));
+      process.stdout.write("Localhost: " + chalk.magenta(`http://${_host}:${this.port}${_base}`));
+      console.log("\n      LAN: " + chalk.magenta(`http://${this.address}:${this.port}${_base}`));
+      console.log(chalk.gray("-----------------------------------"));
+      console.log(chalk.blue("Press CTRL+C to stop"));
+
+      process.stdout.write("\n" + chalk.gray("listening...") + "\n");
+      return this.server;
+    } catch (err: any) {
+      spinner.stop();
+      this.clearServerAddress();
+      console.error(chalk.red("\nServer Failed to Start!"));
+      console.error(err.message);
+      throw err
+    }
   };
 
-  stopServer(): Promise<boolean> {
+  async stopServer(): Promise<boolean> {
     const spinner = ora('Stopping Server...').start();
-    return new Promise((resolve, reject) => {
 
-      if (!this.server || !this.server?.destroy) {
-        spinner && spinner.stop();
-        console.error(chalk.red("\nNo Server to Stop"));
-        return reject(new Error("No Server to Stop"));
-      }
+    // If there is no server to stop then throw error
+    if (!this.server || !this.server?.destroy) {
+      spinner && spinner.stop();
+      console.error(chalk.red("\nNo Server to Stop"));
+      throw new Error("No Server to Stop");
+    }
 
-      this.server?.destroy?.((err) => {
-        if (err) {
-          spinner.stop();
-          console.error(chalk.red("\nServer Failed to Stop!"));
-          console.error(err.message);
-          return reject(err);
-        }
-        this.clearServerAddress();
+    try {
+      const isServerStopped = await new Promise((resolve, reject) => {
+        this.server?.destroy?.((err) => {
+          if (err) { return reject(err) };
+          resolve(true);
+        })
+      });
 
-        spinner.stop();
-        process.stdout.write(chalk.green("Mock Server Stopped!"));
-        resolve(true);
-      })
-    })
+      if (!isServerStopped) throw new Error("Server Failed to Stop.");
+
+      this.clearServerAddress();
+      spinner.stop();
+      process.stdout.write(chalk.green("Mock Server Stopped!"));
+
+      return true;
+
+    } catch (err: any) {
+      spinner.stop();
+      console.error(chalk.red("\nServer Failed to Stop!"));
+      console.error(err.message);
+      throw err;
+    }
   };
 
-  resetServer = this.init;
+  resetServer() {
+    this.clearServerAddress();
+    this.createExpressApp();
+    this.setDefaultDb();
+    this.setDefaultMiddlewares();
+    this.setDefaultInjectors();
+    this.setDefaultStore();
+    this.setDefaultRewriters();
+  }
 
   pageNotFound = PageNotFound;
 
@@ -414,5 +427,16 @@ export class MockServer extends GettersSetters {
     res.send(response);
   }
 }
+
+export {
+  express,
+  _ as lodash,
+  nanoid,
+  ora as spinner,
+  pathToRegexp,
+  chalk,
+  axios,
+  watcher
+};
 
 export default MockServer;

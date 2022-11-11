@@ -4,7 +4,7 @@ import * as ValidTypes from './types/valid.types';
 
 export const Config: ValidTypes.Config = {
   port: 3000, // Set Port to 0 to pick a random available port.
-  host: "localhost", // Set custom host 
+  host: "localhost", // Set custom host. Set empty string to set your Local Ip Address
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
   base: "", // Mount db on a base url
   id: "id", // Set db id attribute.
@@ -18,7 +18,7 @@ export const Config: ValidTypes.Config = {
   bodyParser: true, // Enable body-parser
   cookieParser: true, // Enable cookie-parser
   quiet: false, // Prevent from console logs
-  log: false, // Prevent from console logs
+  log: false, // Prevent from setter logs
 };
 
 export const Middlewares: ValidTypes.Middlewares = HelperMiddlewares;
