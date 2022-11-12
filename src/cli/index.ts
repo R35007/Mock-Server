@@ -15,15 +15,23 @@ import argv from './argv';
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
 const pkg = JSON.parse(pkgStr);
 
+const args = argv(pkg);
+const { _: [source], db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, ...configArgs } = args;
+const config = { ...configArgs, root: path.resolve(process.cwd(), root) };
+
+global.quiet = config.quiet;
+
+const mockServer = MockServer.Create(config);
+
 pleaseUpgradeNode(pkg, {
   message: function (requiredVersion) {
     return chalk.red(`Please upgrade Node.\n@r35007/mock-server requires at least version ` + chalk.yellow(requiredVersion) + ` of Node.`)
   }
 })
 
-const getDataFromUrl = async (data?: string, root?: string) => {
+const getDataFromUrl = async (data?: string) => {
   try {
-    if (!data) return;
+    if (!data) return {};
     if (data.startsWith("http")) {
       const spinner = !global.quiet ? ora(`GET: ` + chalk.gray(data)).start() : false;
       try {
@@ -33,32 +41,21 @@ const getDataFromUrl = async (data?: string, root?: string) => {
       } catch (err: any) {
         spinner && spinner.stopAndPersist({ symbol: chalk.red("✖"), text: chalk.red(`GET: `) + chalk.gray(data) });
         console.error(chalk.red(err.message));
-        process.exit(1);
+        return {};
       }
     } else {
-      const resolvedPath = path.resolve(root!, data);
+      const resolvedPath = path.resolve(config.root, data);
       if (!fs.existsSync(resolvedPath)) {
         console.error(chalk.red(`Invalid Path : ${resolvedPath}`));
-        process.exit(1);
+        return {};
       }
       return resolvedPath;
     }
   } catch (err: any) {
     console.error(chalk.red(err.message));
-    process.exit(1);
+    return {};
   }
 };
-
-const restartServer = async (changedPath: string, mockServer: MockServer, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
-  try {
-    process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
-    await MockServer.Destroy(mockServer);
-    !mockServer.server && await mockServer.launchServer(db, launchServerOptions);
-  } catch (err: any) {
-    console.error(err.message);
-    process.exit(1);
-  }
-}
 
 const uncaughtException = (error) => {
   console.error(chalk.red('Something went wrong!'), error);
@@ -70,7 +67,7 @@ const errorHandler = () => {
   console.error(chalk.red(`Creating a snapshot from the CLI won't be possible`));
 }
 
-const getSnapshot = (snapshots, mockServer: MockServer) => {
+const getSnapshot = (snapshots) => {
   process.stdout.write("\n" + chalk.gray('Type s + enter at any time to create a snapshot of the database') + "\n");
   process.stdin.on('data', chunk => {
     try {
@@ -86,46 +83,48 @@ const getSnapshot = (snapshots, mockServer: MockServer) => {
   });
 }
 
+const startServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
+  try {
+    const server = await mockServer.launchServer(db, launchServerOptions);
+    return server;
+  } catch (err: any) {
+    console.error(err.message);
+    process.exit(1);
+  }
+}
+
+const restartServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, changedPath: string) => {
+  try {
+    process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
+    mockServer.server && await MockServer.Destroy(mockServer).then(() => startServer(db, launchServerOptions));
+  } catch (err: any) {
+    console.error(err.message);
+    process.exit(1);
+  }
+}
+
 const init = async () => {
-  const args = argv(pkg);
-  const { _: [source], db = source, injectors, middlewares, store, rewriters, root, watch, snapshots, log, ...configArgs } = args;
-
-  const _root = path.resolve(process.cwd(), root);
-
-  const _config = { ...configArgs, root: _root };
-  const mockServer = MockServer.Create(_config);
-  global.quiet = _config.quiet;
-
-  const _db = await getDataFromUrl(db, _root);
-  const _middlewares = await getDataFromUrl(middlewares, _root);
-  const _injectors = await getDataFromUrl(injectors, _root);
-  const _store = await getDataFromUrl(store, _root);
-  const _rewriters = await getDataFromUrl(rewriters, _root);
+  const _db = await getDataFromUrl(db);
+  const _middlewares = await getDataFromUrl(middlewares);
+  const _injectors = await getDataFromUrl(injectors);
+  const _store = await getDataFromUrl(store);
+  const _rewriters = await getDataFromUrl(rewriters);
 
   const launchServerOptions = {
     middlewares: _middlewares,
     injectors: _injectors,
     store: _store,
-    rewriters: _rewriters,
-    log
+    rewriters: _rewriters
   };
 
-  try {
-    await mockServer.launchServer(_db, launchServerOptions);
-  } catch (err: any) {
-    console.error(err);
-    process.exit(1);
-  }
-
-  const filesToWatch = ([_config, _store, _db, _middlewares, _injectors, _rewriters])
-    .filter(x => typeof x === 'string').filter(Boolean) as string[];
+  await startServer(_db, launchServerOptions)
 
   if (watch) {
-    const watch = watcher.watch(filesToWatch);
-    watch.on('change', (changedPath, _event) => restartServer(changedPath, mockServer, _db, launchServerOptions));
+    const fileWatcher = watcher.watch(config.root);
+    fileWatcher.on('change', (changedPath, _event) => restartServer(_db, launchServerOptions, changedPath));
   }
 
-  getSnapshot(snapshots, mockServer);
+  getSnapshot(snapshots);
 
   process.on('uncaughtException', uncaughtException);
   process.stdin.setEncoding('utf8');

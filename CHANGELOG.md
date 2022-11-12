@@ -1,3 +1,7 @@
+## v12.2.0
+
+ - CLI breaking for an invalid path issue fixed.
+
 ## v12.1.0
 
 - import other useful node packages as follows
