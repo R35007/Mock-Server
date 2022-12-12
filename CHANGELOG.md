@@ -1,3 +1,7 @@
+## v12.2.1
+
+ - Readme update.
+
 ## v12.2.0
 
  - CLI breaking for an invalid path issue fixed.

@@ -1492,7 +1492,7 @@ const route = getValidRoute(route); // splits route by comma and adds a slash ('
 
 [Thinker.mock-server](https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server)
 
-![thinker.mock-server](src/img/VSCode_Extension.gif)
+![thinker.mock-server](https://user-images.githubusercontent.com/23217228/206978718-3f4bdcbd-2e7a-4d7b-b4aa-651165a5781b.gif)
 
 ## Author
 
