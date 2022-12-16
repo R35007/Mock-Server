@@ -6,6 +6,7 @@ import { DbMode, HAR, HarEntry, HarMiddleware, HIT, KIBANA, KibanaMiddleware } f
 import * as UserTypes from '../types/user.types';
 import * as ValidTypes from '../types/valid.types';
 import { getValidRoute, getValidRouteConfig } from './validators';
+import * as cjson from 'comment-json';
 
 // { "/route1,/route2": { ... } } -> { "/route1": {...}, "/route2": { ... } }
 export const normalizeDb = (object: UserTypes.Db, dbMode: DbMode = Defaults.Config.dbMode): UserTypes.Db => {
@@ -144,7 +145,7 @@ const getURLPathName = (url = '') => {
 
 const getParsedJSON = (json = '') => {
   try {
-    return JSON.parse(json)
+    return cjson.parse(json)
   } catch (error: any) {
     return json;
   }

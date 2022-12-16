@@ -5,6 +5,7 @@ test
 *.map
 coverage
 package-lock.json
+*.tgz
 
 public/_assets/css/**.min.css
 public/_assets/js/**.min.js

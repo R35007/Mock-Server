@@ -1,21 +1,24 @@
 {
   "name": "@r35007/mock-server",
-  "version": "13.0.0",
+  "version": "13.0.1",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
   },
-  "main": "dist/server/index.js",
-  "types": "dist/server/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "node dist/server/index.js",
-    "start:sample": "node src/samples/server.js",
+    "start": "node dist/index.js",
     "mock-server": "node dist/cli/index.js",
     "test:all": "jest --collectCoverage --collectCoverageFrom=src/server/**/*.ts --silent --runInBand --verbose --no-cache"
   },
   "files": [
     "dist",
-    "public"
+    "public",
+    "!public/_assets/css/**.scss",
+    "public/_assets/css/**.min.css",
+    "!public/_assets/js/**.js",
+    "public/_assets/js/**.min.js"
   ],
   "engines": {
     "node": ">=12"

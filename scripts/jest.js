@@ -14,12 +14,12 @@ const root = path.resolve(__dirname, "../");
 const getValidSourcePath = (sourcePath) => {
   if (fs.existsSync(sourcePath)) return sourcePath;
   const dir = path.dirname(sourcePath); // get folder of the sourcePath
-  if (dir === path.resolve(__dirname, '../src/server')) return dir;
+  if (dir === path.resolve(__dirname, '../src')) return dir;
   return getValidSourcePath(dir);
 }
 
 const collectCoverageFromPath = (testFilePath) => {
-  const sourceFilePath = testFilePath.replace("tests/server", "src/server").replace(".test.ts", ".ts");
+  const sourceFilePath = testFilePath.replace("tests", "src").replace(".test.ts", ".ts");
   const validSourcePath = getValidSourcePath(sourceFilePath);
   const relativeSourcePath = path.relative(root, validSourcePath).replace(/\\/g, '/');
 

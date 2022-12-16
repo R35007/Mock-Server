@@ -1,3 +1,7 @@
+## v13.0.1
+
+- Build issue fix.
+
 ## v13.0.0
 
  - Supported JSON with comments.

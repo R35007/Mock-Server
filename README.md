@@ -1465,7 +1465,7 @@ const {
   getValidConfig,
   getValidStore,
   getValidRouteConfig,
-} = require("@r35007/mock-server/dist/server/utils/validators");
+} = require("@r35007/mock-server/dist/utils/validators");
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
