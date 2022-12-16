@@ -1,5 +1,3 @@
-"use strict";
-
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,7 +8,6 @@ import morgan from 'morgan';
 import * as Defaults from '../defaults';
 import { Default_Options } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
-const errorhandler = require('errorhandler');
 var responseTime = require('response-time');
 
 export default (opts: Default_Options) => {
@@ -43,15 +40,10 @@ export default (opts: Default_Options) => {
     }));
   }
 
-  // only use in development
-  if (process.env.NODE_ENV === 'development') {
-    arr.push(errorhandler());
-  }
-
   // Logger
   if (_opts.logger) {
     arr.push(morgan('dev', {
-      skip: (req: any) => process.env.NODE_ENV === 'test' || req.originalUrl?.includes('/_assets/') || false
+      skip: (req: any) => process.env.NODE_ENV === 'test' || req.originalUrl?.includes('/assets/') || false
     }));
   }
 

@@ -1,6 +1,6 @@
 import path from "path";
 import request from 'supertest';
-import { MockServer } from '../../../src/server';
+import { MockServer } from '../../../src';
 
 
 export const routeConfig = () => {
@@ -70,10 +70,10 @@ export const routeConfig = () => {
     });
 
     it('should fetch data from file path', async () => {
-      const db = { "/users": { _config: true, fetch: "./src/samples/data/users.json" } }
+      const db = { "/users": { _config: true, fetch: "./tests/mock/db/db.json" } }
       await mockServer.launchServer(db);
       const response = await request(mockServer.app).get("/users");
-      expect(response.body).toEqual(require("../../../src/samples/data/users.json"));
+      expect(response.body).toEqual(require("../../../tests/mock/db/db.json"));
     });
 
     it('should fetch data from http url', async () => {

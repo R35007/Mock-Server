@@ -1,9 +1,9 @@
 
 import path from "path";
-import * as Defaults from "../../../src/server/defaults";
-import * as ParamTypes from "../../../src/server/types/param.types";
-import { toBase64 } from '../../../src/server/utils';
-import { getValidDb } from "../../../src/server/utils/validators";
+import * as Defaults from "../../../src/defaults";
+import * as ParamTypes from "../../../src/types/param.types";
+import { toBase64 } from '../../../src/utils';
+import { getValidDb } from "../../../src/utils/validators";
 import { invalidInputChecks } from '../Helpers';
 
 export const shouldGetValidDb = () => {

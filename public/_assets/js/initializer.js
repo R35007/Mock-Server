@@ -6,7 +6,6 @@ let totalRoutesCount = 0;
 let filteredRoutesCount = 0;
 
 const homePageRoutes = [
-  "/_assets/bootstrap",
   "/_assets",
   "/_db/:id?",
   "/_rewriters",
@@ -43,7 +42,7 @@ let $bsToast;
 try {
   $routeBsModal = new bootstrap.Modal($routeModal);
   $bsToast = new bootstrap.Toast($toast, { animation: true, delay: 2000 });
-} catch (err: any) {
+} catch (err) {
   console.log(err);
   $routeBsModal = {};
   $bsToast = {};

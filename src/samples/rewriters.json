@@ -1,4 +1,0 @@
-{
-  "/api/*": "/$1",
-  "/posts/:id/comments": "/fetch/comments/proxy?postId=:id"
-}

@@ -2,9 +2,9 @@
 import { Router } from 'express';
 import ip from "ip";
 import request from 'supertest';
-import * as Defaults from "../../src/server/defaults";
-import { MockServer } from "../../src/server/index";
-import { Db, Injectors, Middlewares, Rewriters, Store } from '../../src/server/types/user.types';
+import * as Defaults from "../../src/defaults";
+import { MockServer } from "../../src/index";
+import { Db, Injectors, Middlewares, Rewriters, Store } from '../../src/types/user.types';
 
 const constructor = () => {
   describe('new MockServer()', () => {

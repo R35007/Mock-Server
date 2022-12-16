@@ -1,7 +1,7 @@
 
-import * as Defaults from "../../src/server/defaults";
-import { MockServer } from "../../src/server/index";
-import { toBase64 } from '../../src/server/utils';
+import * as Defaults from "../../src/defaults";
+import { MockServer } from "../../src/index";
+import { toBase64 } from '../../src/utils';
 
 const constructor = () => {
   describe('new MockServer() : ', () => {

@@ -1,7 +1,7 @@
 import path from "path";
-import * as Defaults from "../../../src/server/defaults";
-import * as ParamTypes from '../../../src/server/types/param.types';
-import { getValidInjectors } from '../../../src/server/utils/validators';
+import * as Defaults from "../../../src/defaults";
+import * as ParamTypes from '../../../src/types/param.types';
+import { getValidInjectors } from '../../../src/utils/validators';
 import { invalidInputChecks } from '../Helpers';
 
 export const shouldGetValidInjectors = () => {

@@ -2,7 +2,7 @@ import axios from 'axios';
 import ip from "ip";
 import path from "path";
 import request from "supertest";
-import { MockServer } from '../../../src/server';
+import { MockServer } from '../../../src';
 
 export const config = () => {
   describe('Testing all Configs', () => {

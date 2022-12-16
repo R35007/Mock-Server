@@ -5,4 +5,6 @@ test
 *.map
 coverage
 package-lock.json
-public
+
+public/_assets/css/**.min.css
+public/_assets/js/**.min.js

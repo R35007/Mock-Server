@@ -1,3 +1,9 @@
+## v13.0.0
+
+ - Supported JSON with comments.
+ - Added bootstrap css and js file inbuilt for Homepage stylings.
+ - code structural changes.
+  
 ## v12.2.1
 
  - Readme update.

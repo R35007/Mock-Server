@@ -1,5 +1,5 @@
 import path from 'path';
-import { MockServer } from '../../src/server';
+import { MockServer } from '../../src';
 
 const server = () => {
   describe('Server Testing', () => {

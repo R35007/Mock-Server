@@ -2,14 +2,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import pleaseUpgradeNode from 'please-upgrade-node';
-import MockServer from "../server";
+import MockServer from "../";
 import chalk from "chalk";
 import watcher from "chokidar";
 import axios from "axios";
 import ora from "ora";
-import { LaunchServerOptions } from '../server/types/common.types';
-import * as ParamTypes from '../server/types/param.types';
-import { getCleanDb } from '../server/utils';
+import { LaunchServerOptions } from '../types/common.types';
+import * as ParamTypes from '../types/param.types';
+import { getCleanDb } from '../utils';
 import argv from './argv';
 
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');

@@ -3,7 +3,6 @@ import chalk from "chalk";
 import * as watcher from "chokidar";
 import express from "express";
 import rewrite from 'express-urlrewrite';
-import * as fs from 'fs';
 import { Server } from "http";
 import * as _ from 'lodash';
 import * as nanoid from "nanoid";
@@ -341,15 +340,10 @@ export class MockServer extends GettersSetters {
 
     const router = express.Router();
 
-    // Get Bootstrap path from nearest node_modules
-    let bootstrapDir = path.join(__dirname, '../../node_modules/bootstrap/dist');
-    bootstrapDir = fs.existsSync(bootstrapDir) ? bootstrapDir : path.join(__dirname, '../../../../bootstrap/dist');
-
-    const homePageDir = path.join(__dirname, '../../public');
+    const homePageDir = path.join(__dirname, '../public');
     router.use(express.static(homePageDir));  // Serve Mock Server HomePage
 
     const homePageRoutes = {
-      "/_assets/bootstrap": express.static(bootstrapDir),
       "/_db/:id?": (req: express.Request, res: express.Response) => {
         switch (req.method) {
           case 'POST': return this.#addDb(req, res, router);

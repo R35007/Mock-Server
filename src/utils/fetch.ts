@@ -2,7 +2,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 import * as fs from 'fs';
-import JPH from 'json-parse-helpfulerror';
+import * as cjson from 'comment-json';
 import * as _ from 'lodash';
 import * as path from 'path';
 import { PathDetails } from '../types/common.types';
@@ -29,7 +29,7 @@ export const requireFile = (directoryPath: string, {
       return require(require.resolve(file.filePath));
     } else {
       const str = fs.readFileSync(file.filePath, "utf-8");
-      return JPH.parse(str)
+      return cjson.parse(str, undefined, true);
     }
   } catch (error: any) {
     console.log(chalk.red(`Error reading ${file.filePath}`));
@@ -48,8 +48,8 @@ export const getObject = (files: PathDetails[]): object => {
         return { ...mock, ...obj };
       } else {
         const str = fs.readFileSync(file.filePath, "utf-8");
-        if (_.isEmpty(str) || !_.isPlainObject(JPH.parse(str))) return mock
-        return { ...mock, ...JPH.parse(str) };
+        if (_.isEmpty(str) || !_.isPlainObject(cjson.parse(str, undefined, true))) return mock
+        return { ...mock, ...cjson.parse(str, undefined, true) as object };
       }
     } catch (error: any) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
@@ -70,8 +70,8 @@ export const getList = (files: PathDetails[]): any[] => {
         return [...mock, ...obj];
       } else {
         const str = fs.readFileSync(file.filePath, "utf-8");
-        if (_.isEmpty(str) || !_.isArray(JPH.parse(str))) return mock
-        return [...mock, ...JPH.parse(str)];
+        if (_.isEmpty(str) || !_.isArray(cjson.parse(str, undefined, true))) return mock
+        return [...mock, ...cjson.parse(str, undefined, true) as any[]];
       }
     } catch (error: any) {
       console.log(chalk.red(`Error reading ${file.filePath}`));
@@ -126,12 +126,12 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
   try {
     if ([".json", ".jsonc", ".har"].includes(extension)) {
       const str = fs.readFileSync(filePath, "utf-8");
-      fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
+      fetchData.response = _.isEmpty(str) ? {} : cjson.parse(str, undefined, true)
     } else if (extension === ".txt") {
       fetchData.response = fs.readFileSync(filePath, "utf8")
     } else {
       const str = fs.readFileSync(filePath, "utf-8");
-      fetchData.response = _.isEmpty(str) ? {} : JPH.parse(str)
+      fetchData.response = _.isEmpty(str) ? {} : cjson.parse(str, undefined, true)
     }
   } catch (err: any) {
     console.error(chalk.red(err.message));

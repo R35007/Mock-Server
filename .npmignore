@@ -10,3 +10,9 @@ package-lock.json
 tests
 jest.config.js
 scripts
+
+public/_assets/css/**.scss
+public/_assets/js/**.js
+
+!public/_assets/js/**.min.js
+!public/_assets/css/**.min.css
