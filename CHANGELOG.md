@@ -1,3 +1,7 @@
+## v13.0.2
+
+- Fixed - Parse Error: Content-Length can't be present with Transfer-Encoding.
+  
 ## v13.0.1
 
 - Build issue fix.

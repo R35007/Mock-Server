@@ -33,11 +33,17 @@ export const FetchUrl = async (_req, res, next) => {
 
   locals.data = fetchData.isError ? (routeConfig.skipFetchError ? routeConfig.mock : fetchData.response) : fetchData.response;
 
+  // Setting response headers
   if (_.isPlainObject(fetchData.headers) && !_.isEmpty(fetchData.headers)) {
     Object.entries(fetchData.headers as object).forEach(([headerName, value]) => {
       res.set(headerName, value);
     })
   };
+
+  // Removing Content-Length and Transfer-Encoding due to Parse Error: 
+  // Content-Length can't be present with Transfer-Encoding
+  res.removeHeader("Content-Length");
+  res.removeHeader("Transfer-Encoding");
 
   next();
 }
