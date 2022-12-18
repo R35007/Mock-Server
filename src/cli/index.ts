@@ -88,7 +88,6 @@ const startServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerO
     const server = await mockServer.launchServer(db, launchServerOptions);
     return server;
   } catch (err: any) {
-    console.error(err.message);
     process.exit(1);
   }
 }

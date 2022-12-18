@@ -1,3 +1,8 @@
+## v13.0.3
+
+- set `process.env.NODE_ENV` to `test` to remove all console logs.
+- Fixed - If already a server is running at a same port cli throws error twice issue fixed.
+  
 ## v13.0.2
 
 - Fixed - Parse Error: Content-Length can't be present with Transfer-Encoding.

@@ -30,6 +30,12 @@ export class GettersSetters {
   #rewriters!: ValidTypes.Rewriters;
 
   constructor(config?: Params.Config) {
+    if (process.env.NODE_ENV === 'test') {
+      global.originalWrite = process.stdout.write;
+      process.stdout.write = () => false;
+    } else {
+      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
+    }
     global.quiet = false;
     console.log(chalk.blueBright("\n{^_^}/~ Hi!"));
     this.init();

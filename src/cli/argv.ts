@@ -33,7 +33,7 @@ export default (pkg) => {
   const options = yargs.config('config')
   .usage('mock-server [options] <source>')
   .options({
-    config:       { alias: 'c',  description: 'Path to config file',                   type: "string",  default: "mock-server-config"                         },
+    config:       { alias: 'c',  description: 'Path to config file',                   type: "string",  default: "mock-server-config"                       },
     port:         { alias: 'P',  description: 'Set port',                              type: "number",  default: 3000                                       },
     host:         { alias: 'H',  description: 'Set host',                              type: "string",  default: 'localhost'                                },
     root:         { alias: 'r',  description: 'Set root directory.',                   type: "string",  default: './'                                       },
