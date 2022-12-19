@@ -6,6 +6,7 @@ test
 coverage
 package-lock.json
 *.tgz
+samples
 
 public/_assets/css/**.min.css
 public/_assets/js/**.min.js
