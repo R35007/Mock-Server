@@ -10,8 +10,8 @@ export type Db =
   | { [key: string]: Omit<Object, "_config"> }
   | { [key: string]: any[] }
   | { [key: string]: string };
+  export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & User_Middlweares>
 export type Injectors = InjectorConfig[];
-export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & User_Middlweares>
 export type Rewriters = RoutePairs;
 export type Store = Object;
 

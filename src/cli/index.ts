@@ -10,7 +10,7 @@ import ora from "ora";
 import { LaunchServerOptions } from '../types/common.types';
 import * as ParamTypes from '../types/param.types';
 import { getCleanDb } from '../utils';
-import argv from './argv';
+import argv, { Paths, Configs } from './argv';
 
 const pkgStr = fs.readFileSync(path.join(__dirname, "../../package.json"), 'utf8');
 const pkg = JSON.parse(pkgStr);
@@ -131,3 +131,22 @@ const init = async () => {
 }
 
 init();
+
+// These configs are only meant for vscode Mock Server Extension and not for CLI
+export type extensionConfigs = {
+  paths: Partial<Paths>,
+  environment: string,
+  watchFiles: string[],
+  ignoreFiles: string[],
+  duplicates: boolean,
+  homePage: boolean,
+  openInside: boolean,
+  showInfoMsg: boolean,
+  statusBar: {
+    show: boolean,
+    position: "Right" | "Left",
+    priority: number
+  }
+}
+
+export type CliOptions = Partial<Paths & Configs> & Partial<extensionConfigs>

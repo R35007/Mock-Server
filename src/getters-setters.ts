@@ -26,8 +26,8 @@ export class GettersSetters {
   #db!: ValidTypes.Db;
   #middlewares!: ValidTypes.Middlewares;
   #injectors!: ValidTypes.Injectors;
-  #store!: ValidTypes.Store;
   #rewriters!: ValidTypes.Rewriters;
+  #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
     if (process.env.NODE_ENV === 'test') {
@@ -51,10 +51,10 @@ export class GettersSetters {
   get data(): GetData {
     return {
       db: this.db,
-      injectors: this.injectors,
       middlewares: this.middlewares,
-      store: this.store,
+      injectors: this.injectors,
       rewriters: this.rewriters,
+      store: this.store,
       config: this.config
     } as GetData;
   };
@@ -94,12 +94,12 @@ export class GettersSetters {
   }
 
   setDefaults() {
-    this.setDefaultDb();
     this.setDefaultConfig();
+    this.setDefaultDb();
     this.setDefaultMiddlewares();
     this.setDefaultInjectors();
-    this.setDefaultStore();
     this.setDefaultRewriters();
+    this.setDefaultStore();
   }
 
   setDefaultData() {
@@ -135,6 +135,11 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
   }
 
+  setDefaultDb() {
+    this.#db = _.cloneDeep(Defaults.Db);
+    this.initialDb = _.cloneDeep(Defaults.Db);
+  }
+
   setDefaultMiddlewares() { this.#middlewares = _.cloneDeep(Defaults.Middlewares); }
   setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Middlewares...').start();
@@ -153,6 +158,8 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Injectors Loaded.") });
   }
 
+  setDefaultRewriters() { this.#rewriters = _.cloneDeep(Defaults.Rewriters); }
+
   setDefaultStore() { this.#store = _.cloneDeep(Defaults.Store); }
   setStore(store?: Params.Store, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Store...').start();
@@ -162,11 +169,7 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
   }
 
-  setDefaultDb() {
-    this.#db = _.cloneDeep(Defaults.Db);
-    this.initialDb = _.cloneDeep(Defaults.Db);
-  }
-  setDefaultRewriters() { this.#rewriters = _.cloneDeep(Defaults.Rewriters); }
+ 
   createExpressApp() {
     this.app = express().set("json spaces", 2);
     this.routes = [];

@@ -84,18 +84,18 @@ export type PathDetails = {
 }
 
 export type SetData = {
-  injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
+  injectors?: ParamTypes.Injectors,
   store?: ParamTypes.Store,
   config?: ParamTypes.Config,
 }
 
 export type GetData = {
   db: ValidTypes.Db;
-  injectors: ValidTypes.Injectors;
   middlewares: ValidTypes.Middlewares;
-  store: ValidTypes.Store;
+  injectors: ValidTypes.Injectors;
   rewriters: ValidTypes.Rewriters
+  store: ValidTypes.Store;
   config: ValidTypes.Config;
 }
 
@@ -131,10 +131,10 @@ export type DbValidatorOptions = ValidatorOptions & {
 }
 
 export type LaunchServerOptions = {
-  injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
-  store?: ParamTypes.Store,
+  injectors?: ParamTypes.Injectors,
   rewriters?: ParamTypes.Rewriters,
+  store?: ParamTypes.Store,
   router?: express.Router,
   log?: boolean
 }
@@ -147,8 +147,8 @@ export type RewriterOptions = {
 
 export type ResourceOptions = {
   reverse?: boolean,
-  injectors?: ParamTypes.Injectors,
   middlewares?: ParamTypes.Middlewares,
+  injectors?: ParamTypes.Injectors,
   root?: string;
   router?: express.Router,
   dbMode?: DbMode,

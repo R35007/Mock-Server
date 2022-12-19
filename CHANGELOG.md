@@ -1,3 +1,7 @@
+## v13.1.0
+
+- Added - Type for CLI options. 
+
 ## v13.0.3
 
 - set `process.env.NODE_ENV` to `test` to remove all console logs.

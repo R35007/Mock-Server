@@ -21,8 +21,8 @@ export type Config = {
   log: boolean;
 };
 export type Db = { [key: string]: RouteConfig }
-export type Injectors = InjectorConfig[];
 export type Middlewares = Default_Middlewares & Global_Middlweares & HarMiddleware & KibanaMiddleware & User_Middlweares
+export type Injectors = InjectorConfig[];
 export type Rewriters = RoutePairs;
 export type Store = Object;
 

@@ -21,8 +21,8 @@ export const Config: ValidTypes.Config = {
   log: false, // Prevent from setter logs
 };
 
+export const Db: ValidTypes.Db = {};
 export const Middlewares: ValidTypes.Middlewares = HelperMiddlewares;
 export const Injectors: ValidTypes.Injectors = [];
 export const Rewriters: ValidTypes.Rewriters = {};
 export const Store: ValidTypes.Store = {};
-export const Db: ValidTypes.Db = {};

@@ -60,10 +60,10 @@ export class MockServer extends GettersSetters {
   async launchServer(
     db?: ParamTypes.Db,
     {
-      injectors,
       middlewares,
-      store,
+      injectors,
       rewriters,
+      store,
       router,
       log = this.config.log
     }: LaunchServerOptions = {}
@@ -137,8 +137,8 @@ export class MockServer extends GettersSetters {
   resources(
     db?: ParamTypes.Db,
     {
-      injectors,
       middlewares,
+      injectors,
       reverse = this.config.reverse,
       root = this.config.root,
       dbMode = this.config.dbMode,
