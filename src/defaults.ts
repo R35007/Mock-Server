@@ -19,6 +19,7 @@ export const Config: ValidTypes.Config = {
   cookieParser: true, // Enable cookie-parser
   quiet: false, // Prevent from console logs
   log: false, // Prevent from setter logs
+  homePage: true // Enable Mock Server Home page
 };
 
 export const Db: ValidTypes.Db = {};

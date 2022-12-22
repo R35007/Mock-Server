@@ -1,5 +1,5 @@
 
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as cjson from 'comment-json';
@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import { PathDetails } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
+import { getParsedJSON } from '.';
 
 export const requireFile = (directoryPath: string, {
   exclude = [],
@@ -126,12 +127,12 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
   try {
     if ([".json", ".jsonc", ".har"].includes(extension)) {
       const str = fs.readFileSync(filePath, "utf-8");
-      fetchData.response = _.isEmpty(str) ? {} : cjson.parse(str, undefined, true)
+      fetchData.response = _.isEmpty(str) ? {} : getParsedJSON(str);
     } else if (extension === ".txt") {
       fetchData.response = fs.readFileSync(filePath, "utf8")
     } else {
       const str = fs.readFileSync(filePath, "utf-8");
-      fetchData.response = _.isEmpty(str) ? {} : cjson.parse(str, undefined, true)
+      fetchData.response = _.isEmpty(str) ? {} : getParsedJSON(str);
     }
   } catch (err: any) {
     console.error(chalk.red(err.message));
@@ -141,29 +142,26 @@ export const getFileData = (filePath: string, extension: string): ValidTypes.Fet
       message: err.message,
       response: {},
     };
-  }
-
+  };
   return fetchData;
-}
+};
 
 export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidTypes.FetchData> => {
   let fetchData: ValidTypes.FetchData = { isError: false, };
   try {
+    let response: AxiosResponse;
     if (request.url?.match(/\.(jpeg|jpg|gif|png)$/gi)) {
-      fetchData.response = `<img src="${request.url}">`;
+      response = await axios.get(request.url!, { responseType: "arraybuffer" });
     } else {
-      const response = await axios(request);
-      fetchData = {
-        isError: false,
-        status: response.status,
-        headers: response.headers
-      };
-      if (response.headers["content-type"]?.match(/image\/(jpeg|jpg|gif|png)$/gi)) {
-        fetchData.response = `<img src="${request.url}">`
-      } else {
-        fetchData.response = response.data ?? {};
-      }
+      response = await axios(request);
     }
+    fetchData = {
+      isImage: response.headers["content-type"]?.match(/image\/(jpeg|jpg|gif|png)$/gi)?.length > 0,
+      isError: false,
+      statusCode: response.status,
+      headers: response.headers,
+      response: response.data
+    };
   } catch (err: any) {
     console.error(chalk.red(err.message));
     fetchData = {
@@ -172,7 +170,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
       message: err.message || err.response?.statusText || "Internal Server Error",
       response: err.response?.data ?? {},
       headers: err.response?.headers,
-      status: err.response?.status,
+      statusCode: err.response?.status,
     };
   }
   return fetchData;
@@ -195,7 +193,7 @@ export const requireData = (data?: any, {
   if (!data) return;
 
   if (_.isFunction(data)) return data;
-  
+
   if (_.isString(data)) return requireData(
     requireFile(parseUrl(data, root), { exclude, recursive, isList, onlyIndex }),
     { root, isList, onlyIndex, recursive, exclude }

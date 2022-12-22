@@ -30,16 +30,35 @@ export class GettersSetters {
   #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
+    // Suppress terminal logs on testing environments
     if (process.env.NODE_ENV === 'test') {
       global.originalWrite = process.stdout.write;
       process.stdout.write = () => false;
     } else {
       if (global.originalWrite) { process.stdout.write = global.originalWrite; }
     }
-    global.quiet = false;
+
+    // Suppress console logs if quiet is set to true
+    const quiet = typeof config === "object" ? Boolean(config.quiet) : false;
+    this.#suppressLogs(quiet);
+
     console.log(chalk.blueBright("\n{^_^}/~ Hi!"));
+
+    global.quiet = false;
+
     this.init();
     config && this.setConfig(config);
+  }
+
+   // Suppress console logs if quiet is set to true
+  #suppressLogs(quiet: boolean) {
+    if (quiet) {
+      if (!global.consoleOriginal) global.consoleOriginal = { ...global.console };
+      global.console = { ...global.console, log: () => { }, warn: () => { } };
+    } else {
+      if (global.consoleOriginal) global.console = { ...global.consoleOriginal };
+      delete global.consoleOriginal
+    };
   }
 
   get config() { return _.cloneDeep(this.#config) };
@@ -124,13 +143,7 @@ export class GettersSetters {
 
 
     global.quiet = this.#config.quiet;
-    if (this.#config.quiet) {
-      if (!global.consoleOriginal) global.consoleOriginal = { ...global.console };
-      global.console = { ...global.console, log: () => { }, warn: () => { } };
-    } else {
-      if (global.consoleOriginal) global.console = { ...global.consoleOriginal };
-      delete global.consoleOriginal
-    };
+    this.#suppressLogs(this.#config.quiet);
 
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
   }
@@ -169,7 +182,6 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
   }
 
- 
   createExpressApp() {
     this.app = express().set("json spaces", 2);
     this.routes = [];

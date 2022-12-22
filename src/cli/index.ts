@@ -121,7 +121,7 @@ const init = async () => {
   if (watch) {
     const fileWatcher = watcher.watch(config.root);
     fileWatcher.on('change', (changedPath, _event) => restartServer(_db, launchServerOptions, changedPath));
-  }
+  };
 
   getSnapshot(snapshots);
 
@@ -134,18 +134,16 @@ init();
 
 // These configs are only meant for vscode Mock Server Extension and not for CLI
 export type extensionConfigs = {
-  paths: Partial<Paths>,
   environment: string,
   watchFiles: string[],
   ignoreFiles: string[],
   duplicates: boolean,
-  homePage: boolean,
   openInside: boolean,
   showInfoMsg: boolean,
   statusBar: {
-    show: boolean,
+    show: "true" | "false",
     position: "Right" | "Left",
-    priority: number
+    priority: string | number
   }
 }
 

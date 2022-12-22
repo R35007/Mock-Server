@@ -135,7 +135,7 @@ export const isCollection = (arr: any[]): boolean => {
   return true;
 }
 
-const getURLPathName = (url = '') => {
+export const getURLPathName = (url = '') => {
   try {
     return new URL(url)?.pathname || '';
   } catch (error: any) {
@@ -143,9 +143,9 @@ const getURLPathName = (url = '') => {
   }
 }
 
-const getParsedJSON = (json = '') => {
+export const getParsedJSON = (json = '') => {
   try {
-    return cjson.parse(json)
+    return cjson.parse(json, undefined, true)
   } catch (error: any) {
     return json;
   }

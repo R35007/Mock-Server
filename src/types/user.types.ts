@@ -47,6 +47,7 @@ export type FetchData = {
   response?: any;
   stack?: any;
   headers?: any;
-  status?: number;
+  statusCode?: number;
+  isImage?: boolean;
 }
 

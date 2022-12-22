@@ -294,17 +294,18 @@
       }
     }
 
-    #download {
+    #download,
+    #close {
       opacity: 0.7;
       margin: 0 1rem;
       margin-right: calc(1rem - 0.27rem);
+
+      &:hover {
+        opacity: 0.9;
+      }
     }
 
-    #download:hover {
-      opacity: 0.9;
-    }
-
-    .btn:active,
+    #close:hover .btn:active,
     .btn:hover,
     .btn:focus {
       border: 0;

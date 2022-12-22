@@ -1,3 +1,11 @@
+## v14.0.0
+
+- Added - `homePage` in config. Set to false to disable Mock Server Homepage.
+- Fixed - Fetching image response getting as a image tag string instead of blob.
+- Fixed - Giving Enter in search textbox in Mock Server Homepage keeps on loading the page.
+- Added - Shows number of routes hosted in a server after starting the server.
+- Removed - Hi text in terminal if `quiet` flag is set to true.
+  
 ## v13.1.0
 
 - Added - Type for CLI options. 

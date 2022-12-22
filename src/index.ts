@@ -28,6 +28,9 @@ import * as ValidTypes from "./types/valid.types";
 import { flatQuery, getCleanDb, replaceObj } from './utils';
 import { getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidRoute } from './utils/validators';
 
+// Helps to require .jsonc file using require("./path/db.jsonc")
+require("jsonc-require");
+
 export class MockServer extends GettersSetters {
 
   static #mockServer: MockServer | undefined;
@@ -80,11 +83,13 @@ export class MockServer extends GettersSetters {
 
     app.use(this.middlewares.globals);
 
+    if(this.config.homePage) {
+      const homePage = this.homePage({ log });
+      app.use(this.config.base, homePage);
+    }
+
     const resources = this.resources(db, { router, log });
     app.use(this.config.base, resources.router);
-
-    const homePage = this.homePage({ log });
-    app.use(this.config.base, homePage);
 
     app.use(this.pageNotFound);
     app.use(this.errorHandler);
@@ -262,6 +267,8 @@ export class MockServer extends GettersSetters {
       console.log(chalk.blue("Press CTRL+C to stop"));
 
       process.stdout.write("\n" + chalk.gray("listening...") + "\n");
+      console.log(`Number of routes: ${this.routes.length}\n`);
+      
       return this.server;
     } catch (err: any) {
       spinner.stop();

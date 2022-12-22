@@ -19,6 +19,7 @@ export type Config = {
   cookieParser: boolean;
   quiet: boolean;
   log: boolean;
+  homePage: boolean;
 };
 export type Db = { [key: string]: RouteConfig }
 export type Middlewares = Default_Middlewares & Global_Middlweares & HarMiddleware & KibanaMiddleware & User_Middlweares

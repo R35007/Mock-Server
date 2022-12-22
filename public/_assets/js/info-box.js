@@ -11,8 +11,9 @@ function hideInfoBox($li) {
 }
 
 function showInfoBox($li, id) {
-  const [routePath, routeConfig] = findEntry(id);
+  const [_routePath, routeConfig] = findEntry(id);
   const isDefaultRoute = routeConfig?._default;
+  window.routeConfig = routeConfig;
 
   $li.classList.add("expanded");
   $li.appendChild(
@@ -85,13 +86,18 @@ function fieldSet(obj, id) {
   }).join("")
 }
 
-// Todo: Need to optimize the code
 function getKeyVal(key, val, id) {
-  if (key === "_default") return '';
-  if ((!['mock', 'response'].includes(key) && !(val + '')?.length) || val === null || val === undefined || key === "_config") return '';
 
-  if (!ObjectKeys.includes(key) && Array.isArray(val) && val.every(v => typeof v === "string")) {
-    if (!['mock', 'response'].includes(key) && !val.length) return '';
+  // Return if key is _default or _config
+  if (key === "_default" || key === "_config") return '';
+
+  // Return if val is empty
+  if (typeof val === "undefined"
+    || val === null
+    || (typeof val === "string" && !val.trim().length)) return '';
+
+  // Create a badges if the value is a array of string
+  if (Array.isArray(val) && val.every(v => typeof v === "string")) {
     return `
       <div class="row px-3">
         <label class="key col col-form-label p-0">${key} :</label>
@@ -99,17 +105,20 @@ function getKeyVal(key, val, id) {
         ${getBadges(val).join("")}
         </div>
       </div>`;
-  } else if (typeof val === "object" || ObjectKeys.includes(key)) {
-    if (!['mock', 'response'].includes(key) && !Object.keys(val).length) return ''
-    if ((val + "").trim().match(/<img(.*)>$/)) {
-      return `
-      <div class="row px-3">
-        <label class="key col col-form-label p-0">${key} :</label>
-        <div class="val col">
-          <div class="img">${val}</div>
-        </div>
-      </div>`;
-    }
+  }
+
+  if (typeof val === "object" && !Array.isArray(val) && val.type === "Buffer") {
+    return `
+    <div class="row px-3">
+      <label class="key col col-form-label p-0">${key} :</label>
+      <div class="val col">
+        <div class="img"><img src="${window.routeConfig._request.url}" /></div>
+      </div>
+    </div>`;
+  }
+
+  // Show values in Textarea if Key is one of Textarea field or the value is a array or object
+  if (textAreaKeys.includes(key) || typeof val === "object") {
     return `
     <div class="row px-3">
       <label class="key col col-form-label p-0 w-100" style="max-width: 100%">
@@ -124,22 +133,13 @@ function getKeyVal(key, val, id) {
         <textarea class="form-control" rows="5">${typeof val === 'object' ? JSON.stringify(val, null, 2) : val}</textarea>
       </div>
     </div>`;
-  } else if ((val + "").indexOf("<img") >= 0) {
-    return `
+  }
+
+  return `
     <div class="row px-3">
       <label class="key col col-form-label p-0">${key} :</label>
-      <div class="val col">
-        <div class="img">${val}</div>
-      </div>
+      <div class="val col">${val}</div>
     </div>`;
-  } else {
-    if (!(val + "").trim().length) return '';
-    return `
-      <div class="row px-3">
-        <label class="key col col-form-label p-0">${key} :</label>
-        <div class="val col">${val}</div>
-      </div>`;
-  }
 }
 
-const ObjectKeys = ["fetch", "mock", "fetchData", "fetchError", "store", "_request", "stack", "response"];
+const textAreaKeys = ["fetch", "mock", "response", "store", "_request", "stack"];

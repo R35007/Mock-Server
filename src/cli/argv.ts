@@ -27,6 +27,7 @@ export type Configs = {
   watch: boolean;
   quiet: boolean;
   log: boolean;
+  homePage: boolean;
 }
 
 export type CliOptions = Paths & Configs & {
@@ -62,6 +63,7 @@ export default (pkg) => {
       watch: { alias: 'w', description: 'Watch for changes', type: "boolean", default: false },
       quiet: { alias: 'q', description: 'Prevent console logs', type: "boolean", default: false },
       log: { alias: 'log', description: 'Prevent setters logs', type: "boolean", default: false },
+      homePage: { alias: 'hp', description: 'Enable Home Page', type: "boolean", default: true },
     })
     .boolean('reverse')
     .boolean('readOnly')
@@ -73,6 +75,7 @@ export default (pkg) => {
     .boolean('watch')
     .boolean('quiet')
     .boolean('log')
+    .boolean('homePage')
     .help('help').alias('help', 'h')
     .example('mock-server db.json', '')
     .example('mock-server --watch db.json', '')

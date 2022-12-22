@@ -103,7 +103,7 @@
                 <h6 class="mb-0"><span id="resources-count" class="badge bg-secondary"
                     style="font-size: 0.7rem; margin: 0 1rem;"></span></h6>
                 <div class="flex-1">
-                  <form class="d-flex align-items-center w-100 justify-content-end">
+                  <form class="d-flex align-items-center w-100 justify-content-end" onsubmit="return false;">
                     <input type="search" id="search" class="form-control bg-white search me-2" oninput="filterRoutes()"
                       placeholder="Search resources here" aria-label="Search" />
                     <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><span class="fw-bolder">↱↲</span></span>
@@ -156,8 +156,8 @@
           <a title="download" id="download" class="m-0 btn btn-primary" download href="">
             <span class="fw-bolder">⇩</span>
           </a>
-          <a title="close" class="m-0 btn btn-primary" onclick="toggleDataContainer(false)">
-            <span class="fw-bolder">X</span>
+          <a title="close" id="close" class="m-0 btn btn-primary" onclick="toggleDataContainer(false)">
+            <span class="fw-bolder">x</span>
           </a>
         </div>
       </nav>
