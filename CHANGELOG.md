@@ -1,3 +1,9 @@
+## v14.0.1
+
+- Fixed - `setConfig` not merging new config with existing config object if merge option is set to true issue fixed
+- Fixed - `mockServer.defaults` not merging new config with existing config object issue fixed
+- Added - Error logs are added if an invalid path is specified
+
 ## v14.0.0
 
 - Added - `homePage` in config. Set to false to disable Mock Server Homepage.

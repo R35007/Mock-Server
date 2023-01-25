@@ -194,10 +194,15 @@ export const requireData = (data?: any, {
 
   if (_.isFunction(data)) return data;
 
-  if (_.isString(data)) return requireData(
-    requireFile(parseUrl(data, root), { exclude, recursive, isList, onlyIndex }),
-    { root, isList, onlyIndex, recursive, exclude }
-  );
+  if (_.isString(data)) {
+    const parsedUrl = parseUrl(data, root);
+    if (data.length && !fs.existsSync(parsedUrl)) {
+      process.stdout.write("\n" + chalk.red("Invalid Path: ") + chalk.yellow(parsedUrl) + "\n");
+      return {};
+    }
+    const requiredFile = requireFile(parsedUrl, { exclude, recursive, isList, onlyIndex });
+    return requireData(requiredFile, { root, isList, onlyIndex, recursive, exclude });
+  }
 
   if (isList && _.isArray(data)) return _.cloneDeep(data);
   if (!isList && _.isPlainObject(data)) return _.cloneDeep(data);

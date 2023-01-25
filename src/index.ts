@@ -83,7 +83,7 @@ export class MockServer extends GettersSetters {
 
     app.use(this.middlewares.globals);
 
-    if(this.config.homePage) {
+    if (this.config.homePage) {
       const homePage = this.homePage({ log });
       app.use(this.config.base, homePage);
     }
@@ -106,9 +106,7 @@ export class MockServer extends GettersSetters {
   ): express.Router[] {
     const logText = `${log}` === "true" ? "Defaults" : log;
     const spinner = !global.quiet && `${log}` !== "false" && ora(`Loading ${logText}...`).start();
-
     if (!_.isEmpty(options)) this.setConfig(options, { root, merge: true });
-
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray(`${logText} Loaded.`) });
 
     return Defaults(this.config);
@@ -268,7 +266,7 @@ export class MockServer extends GettersSetters {
 
       process.stdout.write("\n" + chalk.gray("listening...") + "\n");
       console.log(`Number of routes: ${this.routes.length}\n`);
-      
+
       return this.server;
     } catch (err: any) {
       spinner.stop();

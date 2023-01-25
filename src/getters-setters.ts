@@ -30,27 +30,17 @@ export class GettersSetters {
   #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
-    // Suppress terminal logs on testing environments
-    if (process.env.NODE_ENV === 'test') {
-      global.originalWrite = process.stdout.write;
-      process.stdout.write = () => false;
-    } else {
-      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
-    }
+    global.quiet = typeof config === "object" ? Boolean(config.quiet) : false
 
-    // Suppress console logs if quiet is set to true
-    const quiet = typeof config === "object" ? Boolean(config.quiet) : false;
-    this.#suppressLogs(quiet);
+    this.#suppressTerminalLogs(); // Suppress terminal logs on testing environments
+    this.#suppressLogs(global.quiet); // Suppress console logs if quiet is set to true
 
     console.log(chalk.blueBright("\n{^_^}/~ Hi!"));
-
-    global.quiet = false;
-
     this.init();
     config && this.setConfig(config);
   }
 
-   // Suppress console logs if quiet is set to true
+  // Suppress console logs if quiet is set to true
   #suppressLogs(quiet: boolean) {
     if (quiet) {
       if (!global.consoleOriginal) global.consoleOriginal = { ...global.console };
@@ -59,6 +49,16 @@ export class GettersSetters {
       if (global.consoleOriginal) global.console = { ...global.consoleOriginal };
       delete global.consoleOriginal
     };
+  }
+
+  // Suppress console logs if quiet is set to true
+  #suppressTerminalLogs() {
+    if (process.env.NODE_ENV === 'test') {
+      global.originalWrite = process.stdout.write;
+      process.stdout.write = () => false;
+    } else {
+      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
+    }
   }
 
   get config() { return _.cloneDeep(this.#config) };
@@ -137,10 +137,11 @@ export class GettersSetters {
   setDefaultConfig() { this.#config = _.cloneDeep(Defaults.Config); }
   setConfig(config?: Params.Config, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Config...').start();
-    const oldConfig = this.#config;
+    
+    const oldConfig = this.#config || Defaults.Config;
     const newConfig = getValidConfig(config, { root, mockServer: this._getServerDetails() });
-    this.#config = merge ? { ...oldConfig, ...newConfig } : newConfig;
-
+    
+    this.#config = merge ? { ...Defaults.Config, ...oldConfig, ...newConfig } : { ...Defaults.Config, ...newConfig };
 
     global.quiet = this.#config.quiet;
     this.#suppressLogs(this.#config.quiet);

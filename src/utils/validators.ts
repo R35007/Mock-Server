@@ -21,17 +21,17 @@ export const getValidConfig = (
   const parsedRoot = parseUrl(userConfig.root, Defaults.Config.root);
   const _root = getStats(parsedRoot)?.isDirectory ? parsedRoot : Defaults.Config.root;
 
-  const validConfig = {
+  const validConfig: UserTypes.Config = {
     ...userConfig,
-    root: _root,
-    dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : Defaults.Config.dbMode,
-    port: _.isNaN(parseInt(userConfig.port as any)) ? Defaults.Config.port : parseInt(userConfig.port as any),
-    host: (`${userConfig.host}`).trim() === '' ? ip.address() : _.isEmpty(userConfig.host) ? Defaults.Config.host : userConfig.host,
-    base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : Defaults.Config.base,
-    static: typeof userConfig.static !== 'undefined' ? parseUrl(userConfig.static, _root) : Defaults.Config.static,
+    root: userConfig.root ? _root : undefined,
+    dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : undefined,
+    port: !_.isNaN(parseInt(userConfig.port as any)) ? parseInt(userConfig.port as any) : undefined,
+    host: !_.isEmpty(userConfig.host) ? _.isString(userConfig.host) && userConfig.host.trim() === '' ? ip.address() : userConfig.host : undefined,
+    base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : undefined,
+    static: typeof userConfig.static !== 'undefined' ? parseUrl(userConfig.static, _root) : undefined,
   };
 
-  return { ...Defaults.Config, ...validConfig } as ValidTypes.Config;
+  return _.omitBy(validConfig, _.isUndefined) as ValidTypes.Config;
 };
 
 export const getValidMiddlewares = (
