@@ -30,7 +30,7 @@ export class GettersSetters {
   #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
-    global.quiet = typeof config === "object" ? config.quiet : false
+    global.quiet = typeof config === "object" ? config.quiet : false;
 
     this.#suppressTerminalLogs(); // Suppress terminal logs on testing environments
     this.#suppressLogs(global.quiet); // Suppress console logs if quiet is set to true

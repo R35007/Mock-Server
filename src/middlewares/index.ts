@@ -67,6 +67,7 @@ const _CrudOperation = (req, res, next) => {
     console.error(chalk.red("To use ") + chalk.yellowBright("_CurdResponse") + chalk.red(" method the data must be of type Array"));
     return next();
   }
+  
   if (!store[storeKey]) store[storeKey] = _.cloneDeep(locals.data);
   const data = store[storeKey];
 

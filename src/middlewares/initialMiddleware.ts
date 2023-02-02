@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import { Locals } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 import { setRequestUrl } from './fetch';
+import { setHeaders } from './finalMiddleware';
 
 export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db, getStore: () => ValidTypes.Store) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -17,28 +18,24 @@ export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?
       locals.getStore = getStore;
       locals.config = config;
 
-      locals.data = undefined;
+      locals.data = routeConfig.mock;
+      locals.statusCode = routeConfig.statusCode;
+      locals.headers = routeConfig.headers;
 
       delete locals.routeConfig._request;
       delete locals.routeConfig._isFile;
       delete locals.routeConfig._extension;
 
-      if (_.isPlainObject(routeConfig.headers) && !_.isEmpty(routeConfig.headers)) {
-        Object.entries(routeConfig.headers as object).forEach(([headerName, value]) => {
-          res.setHeader(headerName, value);
-        })
+      setHeaders(res, locals.headers);
+
+      if (routeConfig.mockFirst && routeConfig.mock !== undefined) return next();
+
+      if (!_.isEmpty(routeConfig.fetch)) {
+        setRequestUrl(req, res);
+        return next();
       }
 
-      if (routeConfig.mockFirst && routeConfig.mock !== undefined) {
-        locals.data = routeConfig.mock;
-        next();
-      } else if (!_.isEmpty(routeConfig.fetch)) {
-        setRequestUrl(req, res);
-        next();
-      } else {
-        locals.data = routeConfig.mock;
-        next();
-      }
+      next();
     } catch (error: any) {
       console.error(error.message);
       next(error);

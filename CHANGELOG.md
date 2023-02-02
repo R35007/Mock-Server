@@ -1,3 +1,8 @@
+## v14.2.0
+
+- Added - `locals.statusCode` - Directly set any statuscode to locals using middleware.
+- Added - `locals.headers` - Directly set any response headers to locals using middleware.
+  
 ## v14.1.2
 
 - Fixed - Cache Control header issue fixed.

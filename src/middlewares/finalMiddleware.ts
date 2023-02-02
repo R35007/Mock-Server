@@ -10,12 +10,12 @@ const sendResponse = (req: express.Request, res: express.Response, response) => 
   res.sendFile(response);
 }
 
-const setStatus = (res: express.Response, status?: number) => {
+const setStatusCode = (res: express.Response, status?: number) => {
   if (!status) return;
   if (status && status >= 100 && status < 600) res.status(status);
 }
 
-const setHeaders = (res: express.Response, headers?: object) => {
+export const setHeaders = (res: express.Response, headers?: object) => {
   if (!isPlainObject(headers) || _.isEmpty(headers)) return;
 
   Object.entries(headers as object).forEach(([headerName, value]) => {
@@ -41,32 +41,26 @@ export default async (req: express.Request, res: express.Response, _next) => {
     if (res.headersSent) return; // return if headers are already sent
 
     const locals = <Locals>res.locals;
-    const routeConfig = locals.routeConfig
+    const routeConfig = locals.routeConfig;
 
-    const fetchData = routeConfig.fetchData;
+    setStatusCode(res, locals.statusCode);
+    setHeaders(res, locals.headers);
 
-    const response = routeConfig.mockFirst ? locals.routeConfig.mock : locals.data ?? fetchData?.response ?? locals.routeConfig.mock;
-    const status = routeConfig.mockFirst ? (!fetchData || !fetchData.statusCode || (fetchData.isError && !routeConfig.skipFetchError)) ? routeConfig.statusCode : fetchData.statusCode : routeConfig.statusCode;
-    const headers = routeConfig.mockFirst || (routeConfig.skipFetchError && fetchData?.isError) ? !_.isEmpty(fetchData?.headers) ? fetchData!.headers : routeConfig.headers : routeConfig.headers;
-
-    setStatus(res, status);
-    setHeaders(res, headers);
-
-    if (fetchData?.isImage) {
-      res.setHeader('Content-Type', 'image/png');
-      return res.send(Buffer.from(fetchData.response));
+    if (routeConfig.fetchData?.isImage) {
+      res.set('Content-Type', 'image/png');
+      return res.send(Buffer.from(locals.data));
     }
 
     // send File for the the file types other than ".json", ".jsonc", ".har", ".txt", ""
     if (routeConfig._isFile && locals.routeConfig._request?.url && ![".json", ".jsonc", ".har", ".txt", ""].includes(routeConfig._extension || '')) {
       if (routeConfig.fetchCount == 0) {
-        return sendResponse(req, res, locals.routeConfig.mock);
+        return sendResponse(req, res, locals.data);
       }
       locals.routeConfig.fetchCount!--;
       return res.sendFile(locals.routeConfig._request!.url!);
     }
 
-    return sendResponse(req, res, response);
+    return sendResponse(req, res, locals.data);
   } catch (err: any) {
     res.send(err.message || '')
   }

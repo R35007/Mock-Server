@@ -28,6 +28,8 @@ export interface Locals {
   routePath: string;
   routeConfig: ValidTypes.RouteConfig;
   data: any;
+  statusCode: number | undefined;
+  headers: object| undefined;
   config: ValidTypes.Config;
   getStore: () => ValidTypes.Store;
   getDb: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db;
