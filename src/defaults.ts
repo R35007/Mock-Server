@@ -14,6 +14,7 @@ export const Config: ValidTypes.Config = {
   logger: true, // Enable api logger
   noCors: false, // Disable CORS
   noGzip: false, // Disable data compression
+  noCache: true, // Disable cache
   readOnly: false, // Allow only GET calls
   bodyParser: true, // Enable body-parser
   cookieParser: true, // Enable cookie-parser

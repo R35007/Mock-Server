@@ -16,7 +16,7 @@ export default class {
     const query = req.query;
     const params = req.params;
 
-    const ids = flatQuery(params.id || query.id, true) as number[];
+    const ids = flatQuery(params[lodashId.id] || query[lodashId.id] || params.id || query.id, true) as number[];
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
     const _start = flatQuery(query._start, true)[0] as number;

@@ -19,13 +19,21 @@ const setHeaders = (res: express.Response, headers?: object) => {
   if (!isPlainObject(headers) || _.isEmpty(headers)) return;
 
   Object.entries(headers as object).forEach(([headerName, value]) => {
-    res.set(headerName, value);
+    res.setHeader(headerName, value);
   })
 
-  // Removing Content-Length and Transfer-Encoding due to Parse Error: 
+  // Removing Content-Length if Transfer-Encoding is present: 
   // Content-Length can't be present with Transfer-Encoding
-  res.removeHeader("Content-Length");
-  res.removeHeader("Transfer-Encoding");
+  if (res.hasHeader('Transfer-Encoding')) {
+    res.removeHeader("Content-Length");
+  }
+
+  // set no cache
+  if (res.locals.config.noCache) {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '-1');
+  }
 }
 
 export default async (req: express.Request, res: express.Response, _next) => {
@@ -37,7 +45,7 @@ export default async (req: express.Request, res: express.Response, _next) => {
 
     const fetchData = routeConfig.fetchData;
 
-    const response = fetchData?.response ?? locals.data ?? locals.routeConfig.mock;
+    const response = locals.data ?? fetchData?.response ?? locals.routeConfig.mock;
     const status = (!fetchData || !fetchData.statusCode || (fetchData.isError && !routeConfig.skipFetchError)) ? routeConfig.statusCode : fetchData.statusCode;
     const headers = _.isEmpty(fetchData?.headers) ? routeConfig.headers : fetchData!.headers;
 
@@ -45,7 +53,6 @@ export default async (req: express.Request, res: express.Response, _next) => {
     setHeaders(res, headers);
 
     if (fetchData?.isImage) {
-      res.set('Content-Type', 'image/png');
       res.setHeader('Content-Type', 'image/png');
       return res.send(Buffer.from(fetchData.response));
     }

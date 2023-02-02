@@ -25,7 +25,7 @@ export default (opts: Default_Options) => {
   }
 
   // gives response time in Response Header X-Response-Time
-  arr.push(responseTime({ suffix: false }));
+  arr.push(responseTime());
 
   // Compress all requests
   if (!_opts.noGzip) {
@@ -49,20 +49,19 @@ export default (opts: Default_Options) => {
 
   // No cache for IE
   // https://support.microsoft.com/en-us/kb/234067
-  arr.push((_req, res, next) => {
-    res.header('Cache-Control', 'no-cache');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '-1');
-    next();
-  });
+  if(_opts.noCache) {
+    arr.push((_req, res, next) => {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '-1');
+      next();
+    });
+  }
 
   // Add delay
   arr.push((req, _res, next) => {
     const delay = parseInt(req.query._delay);
-    setTimeout(() => {
-      delete req.query._delay;
-      next();
-    }, !isNaN(delay) ? delay : 0);
+    !isNaN(delay) ? setTimeout(() => { delete req.query._delay; next(); }, delay) : next();
   });
 
   // Read-only

@@ -60,16 +60,6 @@ export const FetchFile = (_req, res, next) => {
   delete routeConfig.store?.["_CrudOperation"];
 
   locals.data = fetchData.isError ? (routeConfig.skipFetchError ? routeConfig.mock : fetchData.response) : fetchData.response;
-
-  Object.entries(fetchData.headers as object || {}).forEach(([headerName, value]) => {
-    res.set(headerName, value);
-  })
-
-  // Removing Content-Length and Transfer-Encoding due to Parse Error: 
-  // Content-Length can't be present with Transfer-Encoding
-  res.removeHeader("Content-Length");
-  res.removeHeader("Transfer-Encoding");
-
   next();
 }
 

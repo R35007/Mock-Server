@@ -30,7 +30,7 @@ export class GettersSetters {
   #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
-    global.quiet = typeof config === "object" ? Boolean(config.quiet) : false
+    global.quiet = typeof config === "object" ? config.quiet : false
 
     this.#suppressTerminalLogs(); // Suppress terminal logs on testing environments
     this.#suppressLogs(global.quiet); // Suppress console logs if quiet is set to true
@@ -38,6 +38,16 @@ export class GettersSetters {
     console.log(chalk.blueBright("\n{^_^}/~ Hi!"));
     this.init();
     config && this.setConfig(config);
+  }
+
+  // Suppress console logs if quiet is set to true
+  #suppressTerminalLogs() {
+    if (process.env.NODE_ENV === 'test') {
+      global.originalWrite = process.stdout.write;
+      process.stdout.write = () => false;
+    } else {
+      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
+    }
   }
 
   // Suppress console logs if quiet is set to true
@@ -51,16 +61,7 @@ export class GettersSetters {
     };
   }
 
-  // Suppress console logs if quiet is set to true
-  #suppressTerminalLogs() {
-    if (process.env.NODE_ENV === 'test') {
-      global.originalWrite = process.stdout.write;
-      process.stdout.write = () => false;
-    } else {
-      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
-    }
-  }
-
+  
   get config() { return _.cloneDeep(this.#config) };
   get db() { return _.cloneDeep(this.#db) };
   get middlewares() { return _.cloneDeep(this.#middlewares) };

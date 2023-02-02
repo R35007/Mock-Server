@@ -35,8 +35,8 @@
           $iframeDocument.body.style.margin = "0";
           $iframeDocument.body.style.fontFamily = "calibri";
 
-          $iframeDocument.body.style.fontSize = urlParams?.get("_dataFontSize") ?? "1.1rem";
-          $iframeDocument.body.style.lineHeight = urlParams?.get("_dataLineHeight") ?? "1.4";
+          if (urlParams?.get("_dataFontSize")) $iframeDocument.body.style.fontSize;
+          if (urlParams?.get("_dataLineHeight")) $iframeDocument.body.style.lineHeight = urlParams?.get("_dataLineHeight");
           $iframeDocument.body.style.padding = urlParams?.get("_dataPadding") ?? "1.3rem";
 
           const pre = $iframeDocument.body.getElementsByTagName("pre");
@@ -106,7 +106,8 @@
                   <form class="d-flex align-items-center w-100 justify-content-end" onsubmit="return false;">
                     <input type="search" id="search" class="form-control bg-white search me-2" oninput="filterRoutes()"
                       placeholder="Search resources here" aria-label="Search" />
-                    <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><span class="fw-bolder">↱↲</span></span>
+                    <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="init()"><span
+                        class="fw-bolder">↱↲</span></span>
                   </form>
                 </div>
               </div>
@@ -161,7 +162,7 @@
           </a>
         </div>
       </nav>
-      <main>
+      <main class="position-relative">
         <div id="iframe-loader" style="display: none;">
           <div class="loader-wrapper">
             <div class="spinner-border text-primary" role="status">

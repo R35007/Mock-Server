@@ -110,7 +110,7 @@ function ResourceItem(routePath, routeConfig) {
   <li id="${routeConfig.id}" class="nav-item w-100 mt-1 overflow-hidden" style="display: block">
     <div class="header d-flex align-items-center w-100" style="${isDefaultRoute ? 'filter:grayscale(0.6)' : 'filter:grayscale(0.1)'}">
       <span role="button" class="info-icon action-icon" onclick="toggleInfoBox('${routeConfig.id}')"><span class="icon">i</span></span>  
-      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(this,'${routePath}')" type="button">
+      <a class="nav-link py-2 pe-3 ps-0" onclick="setIframeData(event, this,'${routePath}')" type="button">
         <span class="route-path" style="word-break:break-all">${routePath}</span>
       </a>
     </div>
@@ -118,10 +118,31 @@ function ResourceItem(routePath, routeConfig) {
 `;
 }
 
-async function setIframeData($event, routePath) {
+function getUrl(routePath) {
+  if (routePath.startsWith("http")) return routePath;
+
+  if (!routePath?.trim().length) return localhost
+
+  // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
+  let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1, 100) : r).join("/");
+  validRoutePath = validRoutePath.replace(/\/$/gi, "") // removing trailing slash. ex: /posts/ -> /posts
+
+  const url = localhost + validRoutePath;
+
+  return url;
+}
+
+async function setIframeData($event, $this, routePath) {
+  // If on ctrl+click or cmd+click then open the link in new tab
+  if ($event.ctrlKey || $event.metaKey) {
+    const url = getUrl(routePath);
+    window.open(url, "_blank");
+    return;
+  }
+  
   try {
     clearActiveLink();
-    $event.parentNode.classList.add("active");
+    $this.parentNode.classList.add("active");
     try {
       $iframeData.contentWindow.document.open();
       $iframeData.contentWindow.document.close();
@@ -142,25 +163,15 @@ function clearActiveLink() {
 }
 
 function setIFrameSrc(routePath) {
-  if (routePath.startsWith("http")) {
-    $resourceRedirect.href = routePath;
-    $iframeUrl.value = routePath;
-    $iframeData.src = routePath;
-    $download.href = routePath;
-  } else if (routePath?.trim().length) {
-    // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
-    let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1, 100) : r).join("/");
-    validRoutePath = validRoutePath.replace(/\/$/gi, "") // removing trailing slash. ex: /posts/ -> /posts
-
-    const url = localhost + validRoutePath;
-
+  const url = getUrl(routePath);
+  if (routePath?.trim().length) {
     $resourceRedirect.href = url;
     $iframeUrl.value = url;
     $iframeData.src = url;
     $download.href = url;
   } else {
-    $resourceRedirect.href = localhost;
-    $iframeUrl.value = localhost;
+    $resourceRedirect.href = url;
+    $iframeUrl.value = url;
     $iframeData.src = '';
     $download.href = '';
   }

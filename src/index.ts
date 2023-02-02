@@ -185,7 +185,7 @@ export class MockServer extends GettersSetters {
 
     this.routes.push(routePath);
     this.getDb()[routePath] = routeConfig;
-    this.initialDb[routePath] = _.cloneDeep(routeConfig);
+    this.initialDb[routePath] = _.cloneDeep(routeConfig);   
 
     const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
 
@@ -194,6 +194,17 @@ export class MockServer extends GettersSetters {
       return;
     }
     router?.all(routePath, middlewareList);
+
+    // /users -> false
+    // /users/:id -> true
+    // /users/:id? -> true
+    const isRouteEndswithParam = (routePath) => /(:[a-zA-Z]+\?)|(:[a-zA-Z]+)$/.test(routePath);
+    if (isRouteEndswithParam(routePath) || this.routes.includes(routePath + "/:id")) return;
+
+    const middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares || []).filter(Boolean);
+    if (!middlewares.includes("_AdvancedSearch") && !middlewares.includes("_CrudOperation")) return;
+
+    router?.all(routePath + `/:${this.config.id || "id"}`, middlewareList);
   }
 
   #getMiddlewareList = (routePath: string, routeMiddlewares?: UserTypes.Middleware_Config | UserTypes.Middleware_Config[], globalMiddlewares: ValidTypes.Middlewares = this.middlewares, directUse: boolean = false) => {

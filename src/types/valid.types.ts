@@ -14,6 +14,7 @@ export type Config = {
   logger: boolean;
   noGzip: boolean;
   noCors: boolean;
+  noCache: boolean;
   readOnly: boolean;
   bodyParser: boolean;
   cookieParser: boolean;

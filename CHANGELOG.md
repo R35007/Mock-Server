@@ -1,3 +1,11 @@
+## v14.1.0
+
+- Fixed - response is delayed issue fixed by adding `Transfer-Encoding`: `chunked` in response headers.
+- Fixed - `_IterateResponse` middleware not working issue fixed.
+- Added - On `Ctrl+Click` or `Cmd+Click` the link in home page will open the link in new tab.
+- Added - `noCache` option to config. Default to `true`. Set to `false` to enable cache.
+- Added - `/:id` params will to added to route if the the route has a `_AdvancedSearch` or `_CrudOperation` middleware and don't have ends with a param.
+  
 ## v14.0.1
 
 - Fixed - `setConfig` not merging new config with existing config object if merge option is set to true issue fixed
