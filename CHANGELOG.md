@@ -1,3 +1,7 @@
+## v14.1.2
+
+- Fixed - Cache Control header issue fixed.
+  
 ## v14.1.1
 
 - Fixed - Types issue fixes

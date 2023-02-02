@@ -1,4 +1,4 @@
-import express from "express";
+import * as express from "express";
 import * as _ from "lodash";
 import { Locals } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';

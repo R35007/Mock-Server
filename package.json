@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "14.1.1",
+  "version": "14.1.2",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"

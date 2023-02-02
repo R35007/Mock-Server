@@ -51,9 +51,9 @@ export default (opts: Default_Options) => {
   // https://support.microsoft.com/en-us/kb/234067
   if(_opts.noCache) {
     arr.push((_req, res, next) => {
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '-1');
+      res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '-1');
       next();
     });
   }

@@ -1,5 +1,5 @@
-import _, { isPlainObject } from 'lodash';
 import * as express from "express";
+import _, { isPlainObject } from 'lodash';
 import { Locals } from '../types/common.types';
 import { interpolate } from '../utils';
 
@@ -19,7 +19,7 @@ const setHeaders = (res: express.Response, headers?: object) => {
   if (!isPlainObject(headers) || _.isEmpty(headers)) return;
 
   Object.entries(headers as object).forEach(([headerName, value]) => {
-    res.setHeader(headerName, value);
+    res.set(headerName, value);
   })
 
   // Removing Content-Length if Transfer-Encoding is present: 
@@ -30,9 +30,9 @@ const setHeaders = (res: express.Response, headers?: object) => {
 
   // set no cache
   if (res.locals.config.noCache) {
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '-1');
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '-1');
   }
 }
 
@@ -45,9 +45,9 @@ export default async (req: express.Request, res: express.Response, _next) => {
 
     const fetchData = routeConfig.fetchData;
 
-    const response = locals.data ?? fetchData?.response ?? locals.routeConfig.mock;
-    const status = (!fetchData || !fetchData.statusCode || (fetchData.isError && !routeConfig.skipFetchError)) ? routeConfig.statusCode : fetchData.statusCode;
-    const headers = _.isEmpty(fetchData?.headers) ? routeConfig.headers : fetchData!.headers;
+    const response = routeConfig.mockFirst ? locals.routeConfig.mock : locals.data ?? fetchData?.response ?? locals.routeConfig.mock;
+    const status = routeConfig.mockFirst ? (!fetchData || !fetchData.statusCode || (fetchData.isError && !routeConfig.skipFetchError)) ? routeConfig.statusCode : fetchData.statusCode : routeConfig.statusCode;
+    const headers = routeConfig.mockFirst || (routeConfig.skipFetchError && fetchData?.isError) ? !_.isEmpty(fetchData?.headers) ? fetchData!.headers : routeConfig.headers : routeConfig.headers;
 
     setStatus(res, status);
     setHeaders(res, headers);

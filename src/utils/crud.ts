@@ -1,4 +1,4 @@
-import express from 'express';
+import * as express from 'express';
 import * as _ from 'lodash';
 import * as lodashIdMixin from "lodash-id";
 import { nanoid } from 'nanoid';
