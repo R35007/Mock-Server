@@ -7,6 +7,6 @@ export default (req, res, next) => {
   const _delay = parseInt(delay as any || 0, 10);
 
   if (!_delay || isNaN(_delay)) return next();
-  
-  setTimeout(next, _delay);
+
+  setTimeout(() => next(), _delay);
 }

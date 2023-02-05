@@ -1,3 +1,7 @@
+## v15.1.0
+
+- Fixed - Transfer Encoding header issue fixed.
+
 ## v15.0.0
 
 - Updated - axios node package to version `1.3.2`.

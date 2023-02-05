@@ -8,15 +8,10 @@ export default (_req, res, next) => {
 
   if (!_.isPlainObject(headers) || _.isEmpty(headers)) return next();
 
-  Object.entries(headers as object).forEach(([headerName, value]) => {
+  // Set Response Headers
+  Object.entries(headers).forEach(([headerName, value]) => {
     res.set(headerName, value);
   })
-
-  // Removing Content-Length if Transfer-Encoding is chunked: 
-  // Content-Length can't be present with Transfer-Encoding
-  if (res.get('Transfer-Encoding') === 'chunked') {
-    res.removeHeader("Content-Length");
-  }
 
   // set no cache
   if (res.locals.config.noCache) {

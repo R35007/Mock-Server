@@ -156,11 +156,15 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
       response = await axios(request);
     }
     const isImage = response.headers["content-type"]?.match(/image\/(jpeg|jpg|gif|png)$/gi)?.length > 0;
+    const headers = { ...response.headers || {} };
+    delete headers["transfer-encoding"];
+    delete headers["content-length"];
+
     fetchData = {
       isImage,
+      headers,
       isError: false,
       statusCode: response.status,
-      headers: { ...response.headers || {} },
       response: response.data
     };
   } catch (err: any) {
