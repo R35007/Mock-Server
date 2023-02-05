@@ -11,11 +11,12 @@ import * as ValidTypes from '../types/valid.types';
 var responseTime = require('response-time');
 
 export default (opts: Default_Options) => {
-
-
   const _opts = { ...Defaults.Config, ...opts } as ValidTypes.Config;
 
   const arr: any[] = [];
+
+  // gives response time in Response Header X-Response-Time
+  arr.push(responseTime());
 
   // Serve static files
   if (fs.existsSync(_opts.static)) {
@@ -23,9 +24,6 @@ export default (opts: Default_Options) => {
     router.use(_opts.base, express.static(_opts.static))
     arr.push(router);
   }
-
-  // gives response time in Response Header X-Response-Time
-  arr.push(responseTime());
 
   // Compress all requests
   if (!_opts.noGzip) {
@@ -57,12 +55,6 @@ export default (opts: Default_Options) => {
       next();
     });
   }
-
-  // Add delay
-  arr.push((req, _res, next) => {
-    const delay = parseInt(req.query._delay);
-    !isNaN(delay) ? setTimeout(() => { delete req.query._delay; next(); }, delay) : next();
-  });
 
   // Read-only
   if (_opts.readOnly) {

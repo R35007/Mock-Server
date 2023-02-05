@@ -1,9 +1,13 @@
-## v14.2.0
+## v15.0.0
 
+- Updated - axios node package to version `1.3.2`.
+- Added - `noCache` in Mock Server CLI options.
 - Added - `locals.statusCode` - Directly set any statuscode to locals using middleware.
 - Added - `locals.headers` - Directly set any response headers to locals using middleware.
+- Added - Editing `Headers`, `Fetch Headers`, `Fetch StatusCode` in Mock Server Homepage.
+- Fixed - Checkbox in Home page Modal not setting to false value issue fixed.
   
-## v14.1.2
+## v14.2.0
 
 - Fixed - Cache Control header issue fixed.
   

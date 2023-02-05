@@ -4,10 +4,12 @@ import { Locals } from "../types/common.types";
 import CRUD from '../utils/crud';
 import Defaults from './defaults';
 import Delay from './delay';
+import StatusCode from './statusCode';
+import Headers from './headers';
 import ErrorHandler from './errorHandler';
 import Fetch, { FetchFile, FetchUrl, setRequestUrl } from './fetch';
-import FinalMiddleware from './finalMiddleware';
-import InitialMiddleware from './initialMiddleware';
+import SendResponse from './sendResponse';
+import Initializer from './initializer';
 import PageNotFound from './pageNotFound';
 
 const _IterateResponse = (_req, res, next) => {
@@ -182,13 +184,15 @@ const HelperMiddlewares = {
 }
 
 export {
-  InitialMiddleware,
+  Initializer,
   Delay,
+  StatusCode,
+  Headers,
   Defaults,
   Fetch,
   PageNotFound,
   ErrorHandler,
-  FinalMiddleware,
+  SendResponse,
 };
 
 export default HelperMiddlewares;

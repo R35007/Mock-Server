@@ -209,6 +209,21 @@
                 <input type="text" class="form-control" name="description" id="description">
               </div>
             </div>
+            <!-- mock response-->
+            <div class="row mb-3">
+              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
+                  Mock Response ▸
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_mock">
+                <span id="mock-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="mock" id="mock" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
             <!-- statusCode -->
             <div class="row mb-3">
               <label for="statusCode" class="col-sm-2 col-form-label">Status Code</label>
@@ -226,17 +241,77 @@
                 </div>
               </div>
             </div>
-            <!-- mockFirst -->
+            <!-- headers -->
             <div class="row mb-3">
-              <label for="mockFirst" class="col-sm-2 col-form-label">Mock First</label>
-              <div class="col-sm-10 d-flex align-items-center">
-                <div class="form-check form-switch">
-                  <input class="form-check-input shadow-none" type="checkbox" name="mockFirst" id="mockFirst"
-                    value="true">
-                </div>
+              <label for="headers" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_headers" aria-expanded="false" aria-controls="_headers">
+                  Headers ▸
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_headers">
+                <span id="headers-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="headers" id="headers" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
               </div>
             </div>
-            <!-- fetchCount -->
+            <!-- fetch Url-->
+            <div class="row mb-3">
+              <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
+                  Fetch Url ▸
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_fetch">
+                <span id="fetch-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="fetch" id="fetch" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- fetch response -->
+            <div class="row mb-3">
+              <label for="fetchResponse" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_fetchResponse" aria-expanded="false"
+                  aria-controls="_fetchResponse">
+                  Fetch Response ▸
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_fetchResponse">
+                <span id="fetchData.response-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="fetchData.response" id="fetchResponse" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- fetch statusCode -->
+            <div class="row mb-3">
+              <label for="fetchStatusCode" class="col-sm-2 col-form-label">Fetch Status Code</label>
+              <div class="col-sm-10">
+                <input type="number" class="form-control" min="100" max="600" name="fetchData.statusCode"
+                  id="fetchStatusCode">
+              </div>
+            </div>
+            <!-- fetch headers -->
+            <div class="row mb-3">
+              <label for="fetchHeaders" class="col-form-label w-100" style="max-width: 100%">
+                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#_fetchHeaders" aria-expanded="false"
+                  aria-controls="_fetchHeaders">
+                  Fetch Headers ▸
+                </button>
+              </label>
+              <div class="col-12 collapse position-relative" id="_fetchHeaders">
+                <span id="fetchData.headers-badge" style="top: -1.8rem; right: 1rem;"
+                  class="position-absolute badge bg-secondary ms-4"></span>
+                <textarea class="form-control" name="fetchData.headers" id="fetchHeaders" rows="5"
+                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              </div>
+            </div>
+            <!-- fetch count -->
             <div class="row mb-3">
               <label for="fetchCount" class="col-sm-2 col-form-label">Fetch Count</label>
               <div class="col-sm-10">
@@ -253,50 +328,14 @@
                 </div>
               </div>
             </div>
-            <!-- mock -->
+            <!-- mockFirst -->
             <div class="row mb-3">
-              <label for="mock" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#_mock" aria-expanded="false" aria-controls="_mock">
-                  Mock ▸
-                </button>
-              </label>
-              <div class="col-12 collapse position-relative" id="_mock">
-                <span id="mock-badge" style="top: -1.8rem; right: 1rem;"
-                  class="position-absolute badge bg-secondary ms-4"></span>
-                <textarea class="form-control" name="mock" id="mock" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-              </div>
-            </div>
-            <!-- fetch -->
-            <div class="row mb-3">
-              <label for="fetch" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#_fetch" aria-expanded="false" aria-controls="_fetch">
-                  Fetch ▸
-                </button>
-              </label>
-              <div class="col-12 collapse position-relative" id="_fetch">
-                <span id="fetch-badge" style="top: -1.8rem; right: 1rem;"
-                  class="position-absolute badge bg-secondary ms-4"></span>
-                <textarea class="form-control" name="fetch" id="fetch" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
-              </div>
-            </div>
-            <!-- fetchData response -->
-            <div class="row mb-3">
-              <label for="fetchResponse" class="col-form-label w-100" style="max-width: 100%">
-                <button class="btn btn-white fw-semibold border-0 p-0 shadow-none collapsed" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#_fetchResponse" aria-expanded="false"
-                  aria-controls="_fetchResponse">
-                  Fetch Response ▸
-                </button>
-              </label>
-              <div class="col-12 collapse position-relative" id="_fetchResponse">
-                <span id="fetchData.response-badge" style="top: -1.8rem; right: 1rem;"
-                  class="position-absolute badge bg-secondary ms-4"></span>
-                <textarea class="form-control" name="fetchData.response" id="fetchResponse" rows="5"
-                  onkeydown="allowTabSpaces(event, this)"></textarea>
+              <label for="mockFirst" class="col-sm-2 col-form-label">Mock First</label>
+              <div class="col-sm-10 d-flex align-items-center">
+                <div class="form-check form-switch">
+                  <input class="form-check-input shadow-none" type="checkbox" name="mockFirst" id="mockFirst"
+                    value="true">
+                </div>
               </div>
             </div>
             <!-- store -->

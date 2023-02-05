@@ -24,7 +24,7 @@ function showInfoBox($li, id) {
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div class="route-config p-1">${fieldSet(routeConfig, routeConfig.id)}</div>
+      <div class="route-config p-1">${fieldSet(routeConfig, routeConfig)}</div>
       <div class="actions justify-content-end p-2" style="display: ${isDefaultRoute ? 'none' : 'flex'}">
         <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i>Reset</i></span>
         <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i>Edit</i></span>
@@ -66,7 +66,8 @@ async function refresh(id) {
   showToast(`${routePath} Refreshed Successfully`);
 }
 
-function fieldSet(obj, id) {
+function fieldSet(obj, routeConfig) {
+  const id = routeConfig.id
   return Object.entries(orderRouteConfig(obj)).map(([key, val]) => {
     if (key === "fetchData" && Object.keys(val || {}).length) {
       return `
@@ -78,15 +79,16 @@ function fieldSet(obj, id) {
               ${key} ▸
             </button>   
           </label>
-          <div class="val col-12 collapse ps-0" id="id-${id.replace(/\=/g, "")}_${key}">${fieldSet(val, id)}</div>
+          <div class="val col-12 collapse ps-0" id="id-${id.replace(/\=/g, "")}_${key}">${fieldSet(val, routeConfig)}</div>
       </div>`
     } else {
-      return getKeyVal(key, val, id);
+      return getKeyVal(key, val, routeConfig);
     }
   }).join("")
 }
 
-function getKeyVal(key, val, id) {
+function getKeyVal(key, val, routeConfig) {
+  const id = routeConfig.id;
 
   // Return if key is _default or _config
   if (key === "_default" || key === "_config") return '';
@@ -107,12 +109,12 @@ function getKeyVal(key, val, id) {
       </div>`;
   }
 
-  if (typeof val === "object" && !Array.isArray(val) && val.type === "Buffer") {
+  if (typeof val === "object" && !Array.isArray(val) && val.type === "Buffer" && routeConfig._request?.url) {
     return `
     <div class="row px-3">
       <label class="key col col-form-label p-0">${key} :</label>
       <div class="val col">
-        <div class="img"><img src="${window.routeConfig._request.url}" /></div>
+        <div class="img"><img src="${routeConfig._request.url}" /></div>
       </div>
     </div>`;
   }

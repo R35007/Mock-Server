@@ -7,9 +7,30 @@ import { getFileData, getStats, getUrlData, parseUrl } from '../utils/fetch';
 const Fetch = async (req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
+
+  if (routeConfig.fetchCount == 0) return FetchZero(req, res, next);
+
   if (!routeConfig._request?.url) return next();
-  if (routeConfig._request?.url?.startsWith("http")) { FetchUrl(req, res, next) }
-  else { FetchFile(req, res, next) }
+  if (routeConfig._request.url.startsWith("http")) return FetchUrl(req, res, next);
+  if (routeConfig._isFile) return FetchFile(req, res, next);
+  
+  next();
+}
+
+const FetchZero = (_req, res, next) => {
+  const locals = res.locals as Locals;
+  const routeConfig = locals.routeConfig;
+
+  if (!routeConfig.mockFirst && !_.isEmpty(routeConfig.fetchData) && routeConfig.fetchCount == 0) {
+    const { isError, response, statusCode, headers, isImage } = routeConfig.fetchData || {};
+    locals.data = isError
+      ? (routeConfig.skipFetchError ? locals.data : isImage ? Buffer.from(response) : response)
+      : isImage ? Buffer.from(response) : response;
+    locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
+    locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
+  }
+
+  return next();
 }
 
 export const FetchUrl = async (_req, res, next) => {
@@ -18,19 +39,13 @@ export const FetchUrl = async (_req, res, next) => {
 
   if (!routeConfig._request?.url?.startsWith("http")) return next();
 
-  if (routeConfig.fetchCount == 0) {
-    const { isError, response, statusCode, headers } = routeConfig.fetchData || {};
-    locals.data = isError ? (routeConfig.skipFetchError ? locals.data : response) : response;
-    locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
-    locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
-    return next();
-  }
+  if (routeConfig.fetchCount == 0) return next();
 
   const fetchData = await getUrlData(routeConfig._request!);
 
   routeConfig.fetchData = fetchData;
   routeConfig.fetchCount!--;
-  
+
   delete routeConfig.store?.["_IterateResponse"];
   delete routeConfig.store?.["_IterateRoutes"];
   delete routeConfig.store?.["_CrudOperation"];
@@ -48,15 +63,9 @@ export const FetchFile = (_req, res, next) => {
   const routeConfig = locals.routeConfig;
 
   const { _request, _extension = '' } = routeConfig;
-  if (_request?.url?.startsWith("http") || ![".json", ".jsonc", ".har", ".txt", ""].includes(_extension)) return next();
+  if (_request?.url?.startsWith("http") || ![".json", ".jsonc", ".har", ".txt"].includes(_extension)) return next();
 
-  if (routeConfig.fetchCount == 0) {
-    const { isError, response, statusCode, headers } = routeConfig.fetchData || {};
-    locals.data = isError ? (routeConfig.skipFetchError ? locals.data : response) : response;
-    locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
-    locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
-    return next();
-  }
+  if (routeConfig.fetchCount == 0) return next();
 
   const fetchData = getFileData(_request!.url!, _extension);
   routeConfig.fetchData = fetchData;
@@ -66,10 +75,8 @@ export const FetchFile = (_req, res, next) => {
   delete routeConfig.store?.["_IterateRoutes"];
   delete routeConfig.store?.["_CrudOperation"];
 
-  const { isError, response, statusCode, headers } = fetchData || {};
+  const { isError, response } = fetchData || {};
   locals.data = isError ? (routeConfig.skipFetchError ? locals.data : response) : response;
-  locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
-  locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
 
   next();
 }

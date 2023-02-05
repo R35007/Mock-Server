@@ -14,10 +14,12 @@ import { GettersSetters } from './getters-setters';
 import {
   Defaults,
   Delay,
+  StatusCode,
+  Headers,
   ErrorHandler,
   Fetch,
-  FinalMiddleware,
-  InitialMiddleware,
+  SendResponse,
+  Initializer,
   PageNotFound
 } from './middlewares';
 import RouteConfigSetters from './route-config-setters';
@@ -185,7 +187,7 @@ export class MockServer extends GettersSetters {
 
     this.routes.push(routePath);
     this.getDb()[routePath] = routeConfig;
-    this.initialDb[routePath] = _.cloneDeep(routeConfig);   
+    this.initialDb[routePath] = _.cloneDeep(routeConfig);
 
     const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
 
@@ -208,19 +210,23 @@ export class MockServer extends GettersSetters {
   }
 
   #getMiddlewareList = (routePath: string, routeMiddlewares?: UserTypes.Middleware_Config | UserTypes.Middleware_Config[], globalMiddlewares: ValidTypes.Middlewares = this.middlewares, directUse: boolean = false) => {
-    const middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeMiddlewares || [])
+    const userMiddlewares = ([] as UserTypes.Middleware_Config[]).concat(routeMiddlewares || [])
       .filter(Boolean)
       .map(middleware => _.isString(middleware) ? globalMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
-    if (directUse) return middlewares;
+    if (directUse) return userMiddlewares;
 
     return [
-      InitialMiddleware(routePath, this.config, this.getDb, this.getStore),
+      Initializer(routePath, this.config, this.getDb, this.getStore),
       Delay,
       Fetch,
-      ...middlewares,
-      FinalMiddleware
+      StatusCode,
+      Headers,
+      ...userMiddlewares,
+      StatusCode,
+      Headers,
+      SendResponse
     ];
   }
 
@@ -430,7 +436,13 @@ export class MockServer extends GettersSetters {
     Object.entries(dbToUpdate).forEach(([routePath, routeConfig]) => {
       delete routeConfig.middlewares;
       if (db[routePath]) {
-        replaceObj(db[routePath], { ...db[routePath], ...routeConfig });
+
+        const fetchData = { ...(db[routePath].fetchData || {}), ...(routeConfig.fetchData || {}) };
+        replaceObj(db[routePath], {
+          ...db[routePath],
+          ...routeConfig,
+          ...(Object.keys(fetchData).length ? { fetchData } : {})
+        });
         response[routePath] = db[routePath]
       }
     })

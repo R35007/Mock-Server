@@ -3,7 +3,6 @@ import * as _ from "lodash";
 import { Locals } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 import { setRequestUrl } from './fetch';
-import { setHeaders } from './finalMiddleware';
 
 export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db, getStore: () => ValidTypes.Store) => {
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -25,8 +24,6 @@ export default (routePath: string, config: ValidTypes.Config, getDb: (routePath?
       delete locals.routeConfig._request;
       delete locals.routeConfig._isFile;
       delete locals.routeConfig._extension;
-
-      setHeaders(res, locals.headers);
 
       if (routeConfig.mockFirst && routeConfig.mock !== undefined) return next();
 

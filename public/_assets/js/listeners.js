@@ -43,7 +43,7 @@ const modalSwitchControls = document.querySelectorAll('#route-config-form .form-
 
 modalTextControls.forEach(formControl => {
   formControl.addEventListener('input', ({ target }) => {
-    if (['mock', 'fetch', 'store', 'fetchData.response'].includes(target.name)) {
+    if (['mock', 'fetch', 'store', 'headers', 'fetchData.response', 'fetchData.headers'].includes(target.name)) {
       let type = 'JSON';
       try {
         const value = JSON.parse(target.value);
@@ -63,7 +63,7 @@ modalTextControls.forEach(formControl => {
 })
 modalSwitchControls.forEach(formControl => {
   formControl.addEventListener('click', ({ target }) => {
-    const value = target.value;
+    const value = target.checked;
     set(formValues, target.name, value);
   });
 })

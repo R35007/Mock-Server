@@ -21,6 +21,7 @@ export type Configs = {
   readOnly: boolean;
   noCors: boolean;
   noGzip: boolean;
+  noCache: boolean;
   logger: boolean;
   bodyParser: boolean;
   cookieParser: boolean;
@@ -57,6 +58,7 @@ export default (pkg) => {
       readOnly: { alias: 'ro', description: 'Allow only GET requests', type: "boolean", default: false },
       noCors: { alias: 'nc', description: 'Disable Cross-Origin Resource Sharing', type: "boolean", default: false },
       noGzip: { alias: 'ng', description: 'Disable GZIP Content-Encoding', type: "boolean", default: false },
+      noCache: { alias: 'nch', description: 'Disable Cache', type: "boolean", default: true },
       bodyParser: { alias: 'bp', description: 'Enable body-parser', type: "boolean", default: true },
       cookieParser: { alias: 'cp', description: 'Enable cookie-parser', type: "boolean", default: true },
       logger: { alias: 'l', description: 'Enable logger', type: "boolean", default: true },
@@ -69,6 +71,7 @@ export default (pkg) => {
     .boolean('readOnly')
     .boolean('noCors')
     .boolean('noGzip')
+    .boolean('noCache')
     .boolean('logger')
     .boolean('bodyParser')
     .boolean('cookieParser')

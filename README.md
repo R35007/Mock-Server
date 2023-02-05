@@ -7,7 +7,6 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 </META>
 
 ## Table of contents
-
 - [Getting started](#getting-started)
 - [CLI Usage](#cli-usage)
 - [Using JS Module](#using-js-module)
@@ -120,6 +119,7 @@ Options:
       --readOnly, --ro      Allow only GET requests               [boolean] [default: false]
       --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean] [default: false]
       --noGzip, --ng        Disable GZIP Content-Encoding         [boolean] [default: false]
+      --noCache, --nch      Disable Caching                       [boolean] [default: true]
       --bodyParser, --bp    Enable body-parser                    [boolean] [default: true]
       --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: true]
   -l, --logger              Enable logger                         [boolean] [default: true]
@@ -786,6 +786,7 @@ const config = {
   logger: true, // Enable api logger
   noCors: false, // Disable CORS
   noGzip: false, // Disable data compression
+  noCache: true, // Disable Caching
   readOnly: false, // Allow only GET calls
   bodyParser: true, // Enable body-parser
   cookieParser: true, // Enable cookie-parser

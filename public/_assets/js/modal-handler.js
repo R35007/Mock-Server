@@ -8,7 +8,9 @@ function openModal($button) {
   setFormDataType('mock', '');
   setFormDataType('fetch', '');
   setFormDataType('store', '');
+  setFormDataType('headers', '');
   setFormDataType('fetchData.response', '');
+  setFormDataType('fetchData.headers', '');
 
   modalType === "update" && updateRoute(id);
   modalType === "clone" && cloneRoute(id);
@@ -62,11 +64,13 @@ function setFormValues(routeConfig, routePath) {
     skipFetchError,
     mock,
     store,
+    headers,
     middlewares,
     fetchData = {}
   } = routeConfig;
 
   const fetchResp = fetchData.response;
+  const fetchHeaders = fetchData.headers;
 
   $routeConfigForm.id.value = id || '';
   $routeConfigForm.routePath.value = routePath || '';
@@ -81,12 +85,17 @@ function setFormValues(routeConfig, routePath) {
   $routeConfigForm.mock.value = typeof mock === 'object' ? JSON.stringify(mock, null, 8) : mock ?? '';
   $routeConfigForm.fetch.value = typeof fetch === 'object' ? JSON.stringify(fetch, null, 8) : fetch ?? '';
   $routeConfigForm.store.value = typeof store === 'object' ? JSON.stringify(store, null, 8) : store ?? '';
+  $routeConfigForm.headers.value = typeof headers === 'object' ? JSON.stringify(headers, null, 8) : headers ?? '';
   $routeConfigForm["fetchData.response"].value = typeof fetchResp === 'object' ? JSON.stringify(fetchResp, null, 8) : fetchResp ?? '';
+  $routeConfigForm["fetchData.headers"].value = typeof fetchResp === 'object' ? JSON.stringify(fetchResp, null, 8) : fetchResp ?? '';
+  $routeConfigForm["fetchData.statusCode"].value = fetchData.statusCode ?? '';
 
   setFormDataType('mock', typeof mock === 'object' ? 'JSON' : 'STRING');
   setFormDataType('fetch', typeof fetch === 'object' ? 'JSON' : 'STRING');
   setFormDataType('store', typeof store === 'object' ? 'JSON' : 'STRING');
+  setFormDataType('headers', typeof headers === 'object' ? 'JSON' : 'STRING');
   setFormDataType('fetchData.response', typeof fetchResp === 'object' ? 'JSON' : 'STRING');
+  setFormDataType('fetchData.headers', typeof fetchHeaders === 'object' ? 'JSON' : 'STRING');
 }
 
 async function updateRouteConfig(updatedRouteConfig) {
