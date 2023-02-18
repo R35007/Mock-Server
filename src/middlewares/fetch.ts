@@ -8,80 +8,55 @@ const Fetch = async (req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
 
-  if (routeConfig.fetchCount == 0) return FetchZero(req, res, next);
-
-  if (!routeConfig._request?.url) return next();
-  if (routeConfig._request.url.startsWith("http")) return FetchUrl(req, res, next);
-  if (routeConfig._isFile) return FetchFile(req, res, next);
+  // If mockFirst is true and mock data is defined then skip fetch
+  if (routeConfig.mockFirst && routeConfig.mock !== undefined) return next();
   
-  next();
-}
+  // If Data is already fetched and the fetch count is zero then send fetch response from fetchData
+  if (routeConfig.fetchCount == 0 && !_.isEmpty(routeConfig.fetchData)) return setFetchData(locals, next);
+  
+  // If it don't has any fetch url or request object then skip fetch
+  if (_.isEmpty(routeConfig.fetch)) return next();
 
-const FetchZero = (_req, res, next) => {
-  const locals = res.locals as Locals;
-  const routeConfig = locals.routeConfig;
+  // generate valid request object from fetch attribute
+  setRequestUrl(req, res);
 
-  if (!routeConfig.mockFirst && !_.isEmpty(routeConfig.fetchData) && routeConfig.fetchCount == 0) {
-    const { isError, response, statusCode, headers, isImage } = routeConfig.fetchData || {};
-    locals.data = isError
-      ? (routeConfig.skipFetchError ? locals.data : isImage ? Buffer.from(response) : response)
-      : isImage ? Buffer.from(response) : response;
-    locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
-    locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
+  // if it doesn't has a valid request url then skip fetch 
+  if (!routeConfig._request?.url) return next();
+
+  // url starts with http then fetch data from url else skip fetch
+  if (routeConfig._request.url.startsWith("http")) {
+    routeConfig.fetchData = await getUrlData(routeConfig._request!);
   }
 
-  return next();
-}
+  // if url is a file and is one of .json, .jsonc, .har, .txt file then fetch file else skip fetch
+  if (routeConfig._isFile && [".json", ".jsonc", ".har", ".txt"].includes(routeConfig._extension || '')) {
+    routeConfig.fetchData = getFileData(routeConfig._request!.url!);
+  }
 
-export const FetchUrl = async (_req, res, next) => {
-  const locals = res.locals as Locals;
-  const routeConfig = locals.routeConfig;
-
-  if (!routeConfig._request?.url?.startsWith("http")) return next();
-
-  if (routeConfig.fetchCount == 0) return next();
-
-  const fetchData = await getUrlData(routeConfig._request!);
-
-  routeConfig.fetchData = fetchData;
+  // reduce fetch count
   routeConfig.fetchCount!--;
 
+  // delete route config store cache due to new fetch data.
   delete routeConfig.store?.["_IterateResponse"];
   delete routeConfig.store?.["_IterateRoutes"];
   delete routeConfig.store?.["_CrudOperation"];
 
-  const { isError, response, statusCode, headers } = fetchData || {};
-  locals.data = isError ? (routeConfig.skipFetchError ? locals.data : response) : response;
+  // set fetch data to locals
+  return setFetchData(locals, next);
+}
+
+const setFetchData = (locals, next) => {
+  const routeConfig = locals.routeConfig;
+
+  const { isError, response, statusCode, headers, isImage } = routeConfig.fetchData || {};
+  locals.data = isError ? (routeConfig.skipFetchError ? locals.data : isImage ? Buffer.from(response) : response) : isImage ? Buffer.from(response) : response;
   locals.statusCode = isError ? (routeConfig.skipFetchError ? locals.statusCode : statusCode) : statusCode;
   locals.headers = isError ? (routeConfig.skipFetchError ? locals.headers : headers) : headers;
 
   next();
 }
 
-export const FetchFile = (_req, res, next) => {
-  const locals = res.locals as Locals;
-  const routeConfig = locals.routeConfig;
-
-  const { _request, _extension = '' } = routeConfig;
-  if (_request?.url?.startsWith("http") || ![".json", ".jsonc", ".har", ".txt"].includes(_extension)) return next();
-
-  if (routeConfig.fetchCount == 0) return next();
-
-  const fetchData = getFileData(_request!.url!, _extension);
-  routeConfig.fetchData = fetchData;
-  routeConfig.fetchCount!--;
-
-  delete routeConfig.store?.["_IterateResponse"];
-  delete routeConfig.store?.["_IterateRoutes"];
-  delete routeConfig.store?.["_CrudOperation"];
-
-  const { isError, response } = fetchData || {};
-  locals.data = isError ? (routeConfig.skipFetchError ? locals.data : response) : response;
-
-  next();
-}
-
-export const setRequestUrl = (req, res) => {
+const setRequestUrl = (req, res) => {
   const locals = res.locals;
   const routeConfig = locals.routeConfig;
 

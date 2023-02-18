@@ -24,7 +24,7 @@ export const getValidConfig = (
   const validConfig: UserTypes.Config = {
     ...userConfig,
     root: userConfig.root ? _root : undefined,
-    dbMode: ['multi', 'fetch', 'mock'].includes(userConfig.dbMode || '') ? userConfig.dbMode : undefined,
+    dbMode: ['multi', 'fetch', 'mock', 'config'].includes(userConfig.dbMode || '') ? userConfig.dbMode : undefined,
     port: !_.isNaN(parseInt(userConfig.port as any)) ? parseInt(userConfig.port as any) : undefined,
     host: !_.isEmpty(userConfig.host) ? _.isString(userConfig.host) && userConfig.host.trim() === '' ? ip.address() : userConfig.host : undefined,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : undefined,
@@ -133,6 +133,11 @@ export const getValidDb = (
 export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
   if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], directUse: true };
 
+  // if db mode is config then strictly expect an config object
+  if (dbMode === 'config' && _.isPlainObject(routeConfig)) return { id: toBase64(route), mock: {}, ...routeConfig, _config: true };
+  if (dbMode === 'config' && !_.isPlainObject(routeConfig)) return { id: toBase64(route), mock: {}, _config: true };
+
+  // If its not already a config object then define a config based on db mode
   if (!_.isPlainObject(routeConfig) || !routeConfig._config) {
     if (dbMode === 'multi' && _.isString(routeConfig)) return { _config: true, id: toBase64(route), fetch: routeConfig }
     if (dbMode === 'multi' && !_.isString(routeConfig)) return { _config: true, id: toBase64(route), mock: routeConfig }
@@ -140,13 +145,13 @@ export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbM
     if (dbMode === 'fetch') return { _config: true, id: toBase64(route), fetch: routeConfig as object }
   };
 
-  routeConfig.id = `${routeConfig.id || ''}` || toBase64(route)
+  routeConfig.id = `${routeConfig.id || ''}` || toBase64(route);
 
   if (routeConfig.middlewares) {
     routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);
-    if (!routeConfig.middlewares.length) delete routeConfig.middlewares
+    if (!routeConfig.middlewares.length) delete routeConfig.middlewares;
   }
-  return routeConfig as ValidTypes.RouteConfig
+  return routeConfig as ValidTypes.RouteConfig;
 }
 
 export const getValidInjectorConfig = (routeConfig: UserTypes.InjectorConfig): ValidTypes.InjectorConfig => {
@@ -154,7 +159,7 @@ export const getValidInjectorConfig = (routeConfig: UserTypes.InjectorConfig): V
   if (routeConfig.middlewares) {
     routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);
   }
-  return routeConfig as ValidTypes.InjectorConfig
+  return routeConfig as ValidTypes.InjectorConfig;
 }
 
 export const getValidRoute = (route: string): string => {

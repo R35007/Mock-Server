@@ -7,7 +7,7 @@ import Delay from './delay';
 import StatusCode from './statusCode';
 import Headers from './headers';
 import ErrorHandler from './errorHandler';
-import Fetch, { FetchFile, FetchUrl, setRequestUrl } from './fetch';
+import Fetch from './fetch';
 import SendResponse from './sendResponse';
 import Initializer from './initializer';
 import PageNotFound from './pageNotFound';
@@ -150,21 +150,7 @@ const _ReadOnly = (req, res, next) => {
     res.sendStatus(403); // Forbidden
   }
 }
-const _Fetch = (req, res, next) => {
-  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
-  setRequestUrl(req, res);
-  Fetch(req, res, next);
-}
-const _FetchUrl = (req, res, next) => {
-  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
-  setRequestUrl(req, res);
-  FetchUrl(req, res, next);
-}
-const _FetchFile = (req, res, next) => {
-  if (_.isEmpty(res.locals.routeConfig.fetch)) return next();
-  setRequestUrl(req, res);
-  FetchFile(req, res, next);
-}
+const _Fetch = Fetch;
 
 const HelperMiddlewares = {
   _IterateResponse,
@@ -178,8 +164,6 @@ const HelperMiddlewares = {
   _FetchOnly,
   _ReadOnly,
   _Fetch,
-  _FetchFile,
-  _FetchUrl,
   globals: [(_req, _res, next) => { next() }]
 }
 

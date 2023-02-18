@@ -1,3 +1,24 @@
+## v16.0.0
+
+- Added - Support for `.cjs` file extension. When package.json has a type `module` then provide a `.cjs` file extension path to require a javascript file.
+- Added - `dbMode: "config"`. If dbMode is `config` then it expects always a config object to a route and setting `_config: true` is an optional attribute when dbMode is in `config`.
+  - For Example: If dbMode is `config` then in `db.json`
+  ```js
+  const db = {
+    "/user": { mock: { id: 1, user: "foo" } }, // -> "/user": { _config: true, "mock": { "id": 1, "user": "foo" } }
+    "/users": [
+      { id: 1, user: "foo" },
+      { id: 2, user: "bar" },
+    ], // -> "/user": { _config: true, "mock": { } }.
+    "/auth": (req, res, next) => {
+      next();
+    }, // -> This route directly uses the middleware without any helper middleware wrappers.
+  };
+  ```
+- Removed - `Edit`, `Refresh`, `Reset` etc.. Action buttons for a direct use route in a Home Page.
+- Fixed - Calling next middleware sends `Page not found` issue resolved.
+- Code optimized.
+
 ## v15.1.0
 
 - Fixed - Transfer Encoding header issue fixed.
@@ -10,15 +31,15 @@
 - Added - `locals.headers` - Directly set any response headers to locals using middleware.
 - Added - Editing `Headers`, `Fetch Headers`, `Fetch StatusCode` in Mock Server Homepage.
 - Fixed - Checkbox in Home page Modal not setting to false value issue fixed.
-  
+
 ## v14.2.0
 
 - Fixed - Cache Control header issue fixed.
-  
+
 ## v14.1.1
 
 - Fixed - Types issue fixes
-  
+
 ## v14.1.0
 
 - Fixed - response is delayed issue fixed by adding `Transfer-Encoding`: `chunked` in response headers.
@@ -26,7 +47,7 @@
 - Added - On `Ctrl+Click` or `Cmd+Click` the link in home page will open the link in new tab.
 - Added - `noCache` option to config. Default to `true`. Set to `false` to enable cache.
 - Added - `/:id` params will to added to route if the the route has a `_AdvancedSearch` or `_CrudOperation` middleware and don't have ends with a param.
-  
+
 ## v14.0.1
 
 - Fixed - `setConfig` not merging new config with existing config object if merge option is set to true issue fixed
@@ -40,37 +61,37 @@
 - Fixed - Giving Enter in search textbox in Mock Server Homepage keeps on loading the page.
 - Added - Shows number of routes hosted in a server after starting the server.
 - Removed - Hi text in terminal if `quiet` flag is set to true.
-  
+
 ## v13.1.0
 
-- Added - Type for CLI options. 
+- Added - Type for CLI options.
 
 ## v13.0.3
 
 - set `process.env.NODE_ENV` to `test` to remove all console logs.
 - Fixed - If already a server is running at a same port cli throws error twice issue fixed.
-  
+
 ## v13.0.2
 
 - Fixed - Parse Error: Content-Length can't be present with Transfer-Encoding.
-  
+
 ## v13.0.1
 
 - Build issue fix.
 
 ## v13.0.0
 
- - Supported JSON with comments.
- - Added bootstrap css and js file inbuilt for Homepage stylings.
- - code structural changes.
-  
+- Supported JSON with comments.
+- Added bootstrap css and js file inbuilt for Homepage stylings.
+- code structural changes.
+
 ## v12.2.1
 
- - Readme update.
+- Readme update.
 
 ## v12.2.0
 
- - CLI breaking for an invalid path issue fixed.
+- CLI breaking for an invalid path issue fixed.
 
 ## v12.1.0
 

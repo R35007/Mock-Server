@@ -22,14 +22,14 @@ export type KibanaMiddleware = {
 }
 export type MiddlewareNames = keyof Default_Middlewares
 
-export type DbMode = 'mock' | 'fetch' | 'multi';
+export type DbMode = 'mock' | 'fetch' | 'multi' | 'config';
 
 export interface Locals {
   routePath: string;
   routeConfig: ValidTypes.RouteConfig;
   data: any;
   statusCode: number | undefined;
-  headers: object| undefined;
+  headers: object | undefined;
   config: ValidTypes.Config;
   getStore: () => ValidTypes.Store;
   getDb: (routePath?: string | string[]) => ValidTypes.RouteConfig | ValidTypes.Db;

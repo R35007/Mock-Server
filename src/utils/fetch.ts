@@ -9,76 +9,70 @@ import { PathDetails } from '../types/common.types';
 import * as ValidTypes from '../types/valid.types';
 import { getParsedJSON } from '.';
 
+export const importJsModuleSync = (modulePath: string) => {
+  delete require.cache[require.resolve(modulePath)];
+  return require(require.resolve(modulePath));
+}
+
+export const importJsonModuleSync = (modulePath: string) => {
+  try {
+    const str = fs.readFileSync(modulePath, "utf-8");
+    return JSON.parse(str);
+  } catch (err) {
+    const str = fs.readFileSync(modulePath, "utf-8");
+    return cjson.parse(str, undefined, true);
+  }
+}
+
 export const requireFile = (directoryPath: string, {
   exclude = [],
   recursive = true,
   isList = false,
   onlyIndex = true
 }: { exclude?: string[], recursive?: boolean, isList?: boolean, onlyIndex?: boolean } = {}) => {
-  const filesList = getFilesList(directoryPath, { exclude: exclude, recursive, onlyIndex });
-  const files = filesList.filter((f) => [".json", ".jsonc", ".har", ".js"].includes(f.extension));
 
-  if (!files.length) return;
+  const stats = getStats(directoryPath);
 
-  if (files.length > 1)
-    return isList ? getList(files) : getObject(files)
+  // If path doesn't exist then return
+  if (!stats) return;
 
-  const file = files[0];
-  try {
-    if (path.extname(file.filePath) === ".js") {
-      delete require.cache[require.resolve(file.filePath)];
-      return require(require.resolve(file.filePath));
-    } else {
-      const str = fs.readFileSync(file.filePath, "utf-8");
-      return cjson.parse(str, undefined, true);
+  // Get File data
+  if (stats.isFile) {
+    try {
+      if (stats.extension.endsWith("js")) return importJsModuleSync(stats.filePath);
+      return importJsonModuleSync(stats.filePath);
+    } catch (error: any) {
+      console.log(chalk.red(`Error reading ${stats.filePath}`));
+      console.error(error.message);
+      return;
     }
-  } catch (error: any) {
-    console.log(chalk.red(`Error reading ${file.filePath}`));
-    console.error(error.message);
-    return;
   }
+
+  // If given path is a Directory then return accumulated data of all files in the directoryPath
+
+  const filesList = getFilesList(directoryPath, { exclude: exclude, recursive, onlyIndex });
+
+  if (!filesList.length) return;
+
+  if (filesList.length === 1) return requireFile(filesList[0].filePath, { exclude, recursive, isList, onlyIndex });
+
+  return isList ? getList(filesList) : getObject(filesList);
 };
 
 export const getObject = (files: PathDetails[]): object => {
   const obj = files.reduce((mock, file) => {
-    try {
-      if (path.extname(file.filePath) === ".js") {
-        delete require.cache[require.resolve(file.filePath)];
-        const obj = require(require.resolve(file.filePath));
-        if (_.isEmpty(obj) || !_.isPlainObject(obj)) return mock
-        return { ...mock, ...obj };
-      } else {
-        const str = fs.readFileSync(file.filePath, "utf-8");
-        if (_.isEmpty(str) || !_.isPlainObject(cjson.parse(str, undefined, true))) return mock
-        return { ...mock, ...cjson.parse(str, undefined, true) as object };
-      }
-    } catch (error: any) {
-      console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.error(error.message);
-      return mock;
-    }
+    const data = requireFile(file.filePath);
+    if (_.isEmpty(data) || !_.isPlainObject(data)) return mock;
+    return { ...mock, ...data };
   }, {});
   return obj;
 };
 
 export const getList = (files: PathDetails[]): any[] => {
   const list = files.reduce((mock, file) => {
-    try {
-      if (path.extname(file.filePath) === ".js") {
-        delete require.cache[require.resolve(file.filePath)];
-        const obj = require(require.resolve(file.filePath));
-        if (_.isEmpty(obj) || !_.isArray(obj)) return mock
-        return [...mock, ...obj];
-      } else {
-        const str = fs.readFileSync(file.filePath, "utf-8");
-        if (_.isEmpty(str) || !_.isArray(cjson.parse(str, undefined, true))) return mock
-        return [...mock, ...cjson.parse(str, undefined, true) as any[]];
-      }
-    } catch (error: any) {
-      console.log(chalk.red(`Error reading ${file.filePath}`));
-      console.error(error.message);
-      return mock;
-    }
+    const data = requireFile(file.filePath);
+    if (_.isEmpty(data) || !_.isArray(data)) return mock;
+    return [...mock, ...data];
   }, [] as any[]);
   return list;
 };
@@ -122,8 +116,9 @@ export const getStats = (directoryPath: string): PathDetails | undefined => {
   return { fileName, extension, filePath: directoryPath, isFile: stats.isFile(), isDirectory: stats.isDirectory() };
 };
 
-export const getFileData = (filePath: string, extension: string): ValidTypes.FetchData => {
+export const getFileData = (filePath: string): ValidTypes.FetchData => {
   let fetchData: ValidTypes.FetchData = { isError: false };
+  const extension = path.extname(filePath);
   try {
     if ([".json", ".jsonc", ".har"].includes(extension)) {
       const str = fs.readFileSync(filePath, "utf-8");

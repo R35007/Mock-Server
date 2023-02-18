@@ -16,7 +16,7 @@ export type Configs = {
   host: string;
   base: string;
   id: string;
-  dbMode: "mock" | "fetch" | "multi",
+  dbMode: "mock" | "fetch" | "multi" | "config",
   reverse: boolean;
   readOnly: boolean;
   noCors: boolean;
@@ -52,7 +52,7 @@ export default (pkg) => {
       store: { alias: 'st', description: 'Path to Store file', type: "string", },
       rewriters: { alias: 'rw', description: 'Path to Rewriter file', type: "string", },
       id: { alias: '', description: 'Set database id property', type: "string", default: 'id' },
-      dbMode: { alias: 'dm', description: 'Set Db mode', type: "string", default: "mock", choices: ['mock', 'fetch', 'multi'] },
+      dbMode: { alias: 'dm', description: 'Set Db mode', type: "string", default: "mock", choices: ['mock', 'fetch', 'multi', 'config'] },
       snapshots: { alias: 'ss', description: 'Set snapshots directory', type: "string", default: './' },
       reverse: { alias: 'rv', description: 'Generate routes in reverse order', type: "boolean", default: false },
       readOnly: { alias: 'ro', description: 'Allow only GET requests', type: "boolean", default: false },

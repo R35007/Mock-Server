@@ -215,7 +215,7 @@ export class MockServer extends GettersSetters {
       .map(middleware => _.isString(middleware) ? globalMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
-    if (directUse) return userMiddlewares;
+    if (directUse) return [...userMiddlewares, (_req, res, _next) => { if (res.headersSent) return; res.send({}) }];
 
     return [
       Initializer(routePath, this.config, this.getDb, this.getStore),

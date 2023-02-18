@@ -12,7 +12,7 @@ function hideInfoBox($li) {
 
 function showInfoBox($li, id) {
   const [_routePath, routeConfig] = findEntry(id);
-  const isDefaultRoute = routeConfig?._default;
+  const hideActions = routeConfig?._default || routeConfig.directUse;
   window.routeConfig = routeConfig;
 
   $li.classList.add("expanded");
@@ -25,12 +25,14 @@ function showInfoBox($li, id) {
         </div>
       </div>
       <div class="route-config p-1">${fieldSet(routeConfig, routeConfig)}</div>
-      <div class="actions justify-content-end p-2" style="display: ${isDefaultRoute ? 'none' : 'flex'}">
-        <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i>Reset</i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i>Edit</i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="clone" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}"><i>Clone</i></span>
-        <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="refresh('${routeConfig.id}')"><i>Refresh</i></span>
-      </div>
+      ${hideActions ? "" :
+        `<div class="actions justify-content-end p-2" style="display: flex">
+          <span role="button" class="px-2 pe-1 action-icon" title="reset" onclick="reset('${routeConfig.id}')"><i>Reset</i></span>
+          <span role="button" class="px-2 pe-1 action-icon" title="edit" onclick="openModal(this)" data-type="update" data-id="${routeConfig.id}"><i>Edit</i></span>
+          <span role="button" class="px-2 pe-1 action-icon" title="clone" onclick="openModal(this)" data-type="clone" data-id="${routeConfig.id}"><i>Clone</i></span>
+          <span role="button" class="px-2 pe-1 action-icon" title="refresh" onclick="refresh('${routeConfig.id}')"><i>Refresh</i></span>
+        </div>`
+      }
     </div>`
     )
   );
