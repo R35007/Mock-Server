@@ -192,8 +192,8 @@ export class MockServer extends GettersSetters {
     const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
 
     if (routeConfig.directUse) {
-      router.use(routePath, middlewareList);
-      return;
+      if (middlewareList.length === 1) return router.use(routePath, middlewareList[0]);
+      return router.use(routePath, middlewareList);
     }
     router?.all(routePath, middlewareList);
 
@@ -215,7 +215,7 @@ export class MockServer extends GettersSetters {
       .map(middleware => _.isString(middleware) ? globalMiddlewares[middleware] : middleware)
       .filter(_.isFunction)
 
-    if (directUse) return [...userMiddlewares, (_req, res, _next) => { if (res.headersSent) return; res.send({}) }];
+    if (directUse) return userMiddlewares;
 
     return [
       Initializer(routePath, this.config, this.getDb, this.getStore),

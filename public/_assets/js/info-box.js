@@ -13,7 +13,7 @@ function hideInfoBox($li) {
 function showInfoBox($li, id) {
   const [_routePath, routeConfig] = findEntry(id);
   const hideActions = routeConfig?._default || routeConfig.directUse;
-  window.routeConfig = routeConfig;
+  routeConfig.middlewares = routeConfig.middlewares?.filter(Boolean);
 
   $li.classList.add("expanded");
   $li.appendChild(
@@ -60,9 +60,9 @@ async function refresh(id) {
   $infoBoxLoader.classList.add("d-block");
 
   const refreshedRoute = await window.fetch(localhost + "/_db/" + id).then((res) => res.json());
-
   const [routePath, routeConfig] = Object.entries(refreshedRoute)[0];
   resources[routePath] = routeConfig;
+
   toggleInfoBox(id);
   toggleInfoBox(id);
   showToast(`${routePath} Refreshed Successfully`);

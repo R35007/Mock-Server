@@ -22,7 +22,8 @@ export default async (req, res, _next) => {
   const response = locals.data || {};
 
   if (_.isBuffer(response) || _.isArrayBuffer(response)) return res.send(response);
-  if (_.isPlainObject(response)) return res.jsonp(response);
+  if (_.isPlainObject(response) || _.isArray(response)) return res.jsonp(response);
   if (_.isString(response)) return res.send(interpolate({ config: locals.config, req: _.cloneDeep(req) }, response));
+  if (_.isInteger(response)) return res.send(response.toString());
   res.send(response);
 }

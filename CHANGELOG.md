@@ -1,3 +1,9 @@
+## v16.1.0
+
+- Fixed - Restarting server on file change event takes long time issue fixed.
+- Fixed - On Calling `next` method in direct use of a middleware sends empty object issue fixed.
+- Modified - CLI optimized
+
 ## v16.0.0
 
 - Added - Support for `.cjs` file extension. When package.json has a type `module` then provide a `.cjs` file extension path to require a javascript file.

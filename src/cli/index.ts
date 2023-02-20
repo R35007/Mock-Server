@@ -31,7 +31,7 @@ pleaseUpgradeNode(pkg, {
 
 const getDataFromUrl = async (data?: string) => {
   try {
-    if (!data) return {};
+    if (!data) return;
     if (data.startsWith("http")) {
       const spinner = !global.quiet ? ora(`GET: ` + chalk.gray(data)).start() : false;
       try {
@@ -40,14 +40,14 @@ const getDataFromUrl = async (data?: string) => {
         return response;
       } catch (err: any) {
         spinner && spinner.stopAndPersist({ symbol: chalk.red("✖"), text: chalk.red(`GET: `) + chalk.gray(data) });
-        console.error(chalk.red(err.message));
-        return {};
+        process.stdout.write("\n" + chalk.red("Error: ") + chalk.yellow(err.message) + "\n");
+        return;
       }
     } else {
       const resolvedPath = path.resolve(config.root, data);
       if (!fs.existsSync(resolvedPath)) {
-        console.error(chalk.red(`Invalid Path : ${resolvedPath}`));
-        return {};
+        process.stdout.write("\n" + chalk.red("Invalid Path: ") + chalk.yellow(resolvedPath) + "\n");
+        return;
       }
       return resolvedPath;
     }
@@ -57,14 +57,17 @@ const getDataFromUrl = async (data?: string) => {
   }
 };
 
-const uncaughtException = (error) => {
+const uncaughtException = async (error, fileWatcher: watcher.FSWatcher) => {
   console.error(chalk.red('Something went wrong!'), error);
+  await fileWatcher.close();
   process.exit(1);
 }
 
-const errorHandler = () => {
+const errorHandler = async (fileWatcher: watcher.FSWatcher) => {
   console.error(chalk.red(`Error, can't read from stdin`));
   console.error(chalk.red(`Creating a snapshot from the CLI won't be possible`));
+  await fileWatcher.close();
+  process.exit(1);
 }
 
 const getSnapshot = (snapshots) => {
@@ -94,8 +97,9 @@ const startServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerO
 
 const restartServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, changedPath: string) => {
   try {
+    if (!mockServer.server) return;
     process.stdout.write(chalk.yellow("\n" + path.relative(process.cwd(), changedPath)) + chalk.gray(` has changed, reloading...\n`));
-    mockServer.server && await MockServer.Destroy(mockServer).then(() => startServer(db, launchServerOptions));
+    await MockServer.Destroy(mockServer).then(() => startServer(db, launchServerOptions));
   } catch (err: any) {
     console.error(err.message);
     process.exit(1);
@@ -116,18 +120,30 @@ const init = async () => {
     rewriters: _rewriters
   };
 
-  await startServer(_db, launchServerOptions)
+  await startServer(_db, launchServerOptions);
+
+  let fileWatcher: watcher.FSWatcher;
 
   if (watch) {
-    const fileWatcher = watcher.watch(config.root);
+    const filesToWatch = [
+      _db,
+      _middlewares,
+      _injectors,
+      _store,
+      _rewriters,
+    ]
+      .filter(Boolean)
+      .filter(file => typeof file === 'string')
+      .filter(file => fs.existsSync(file))
+    fileWatcher = watcher.watch(filesToWatch);
     fileWatcher.on('change', (changedPath, _event) => restartServer(_db, launchServerOptions, changedPath));
   };
 
   getSnapshot(snapshots);
 
-  process.on('uncaughtException', uncaughtException);
+  process.on('uncaughtException', (error) => uncaughtException(error, fileWatcher));
   process.stdin.setEncoding('utf8');
-  process.stdin.on('error', errorHandler);
+  process.stdin.on('error', () => errorHandler(fileWatcher));
 }
 
 init();
