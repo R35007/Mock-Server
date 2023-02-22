@@ -61,7 +61,7 @@ export class GettersSetters {
     };
   }
 
-  
+
   get config() { return _.cloneDeep(this.#config) };
   get db() { return _.cloneDeep(this.#db) };
   get middlewares() { return _.cloneDeep(this.#middlewares) };
@@ -138,10 +138,10 @@ export class GettersSetters {
   setDefaultConfig() { this.#config = _.cloneDeep(Defaults.Config); }
   setConfig(config?: Params.Config, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Config...').start();
-    
+
     const oldConfig = this.#config || Defaults.Config;
     const newConfig = getValidConfig(config, { root, mockServer: this._getServerDetails() });
-    
+
     this.#config = merge ? { ...Defaults.Config, ...oldConfig, ...newConfig } : { ...Defaults.Config, ...newConfig };
 
     global.quiet = this.#config.quiet;
@@ -184,8 +184,8 @@ export class GettersSetters {
     spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
   }
 
-  createExpressApp() {
-    this.app = express().set("json spaces", 2);
+  createExpressApp(app?: express.Application) {
+    this.app = app || express().set("json spaces", 2);
     this.routes = [];
     this.rewriterRoutes = [];
     return this.app;

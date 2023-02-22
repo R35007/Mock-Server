@@ -138,6 +138,7 @@ export type LaunchServerOptions = {
   rewriters?: ParamTypes.Rewriters,
   store?: ParamTypes.Store,
   router?: express.Router,
+  app?: express.Application,
   log?: boolean
 }
 

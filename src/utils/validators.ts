@@ -29,6 +29,7 @@ export const getValidConfig = (
     host: !_.isEmpty(userConfig.host) ? _.isString(userConfig.host) && userConfig.host.trim() === '' ? ip.address() : userConfig.host : undefined,
     base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : undefined,
     static: typeof userConfig.static !== 'undefined' ? parseUrl(userConfig.static, _root) : undefined,
+    id: !_.isEmpty(userConfig.id) && _.isString(userConfig.id) ? userConfig.id : undefined
   };
 
   return _.omitBy(validConfig, _.isUndefined) as ValidTypes.Config;

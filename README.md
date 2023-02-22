@@ -566,7 +566,7 @@ Route store helps to store any values which can be accessed on by that particula
 This stores values cannot be able to accessed by the other routes.
 Route Store can be accessed using `res.locals.routeConfig.store` inside the middleware.
 
-The middlewares `_CrudOperations`, `_IterateRoutes`, `_IterateResponse` uses the Route store to manipulate response.
+The middlewares `_IterateRoutes` and `_IterateResponse` uses the Route store to manipulate response.
 
 #### **Local Store**
 
@@ -658,7 +658,7 @@ Now go and hit [http://localhost:3000/middleware/example/\_IterateRoutes](http:/
 
 ### **AdvancedSearch**
 
-`_AdvancedSearch` middleware helps to filter and do the advanced search from data.Following are the operations performed by this method.
+By default all route helps to filter and do the advanced search from data. Following are the operations performed by this method.
 
 #### Filter
 
@@ -740,8 +740,7 @@ GET /posts?q=internet&_text=success
 
 ### **CrudOperations**
 
-`_CrudOperations` middleware handles all the crud operations of the given data.
-By default it also handles the `_AdvancedSearch` operations.
+By default handles all the crud operations of the given data.
 
 > Note: The mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
 

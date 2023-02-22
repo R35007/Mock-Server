@@ -1,13 +1,13 @@
 import chalk from 'chalk';
 import * as _ from 'lodash';
 import { Locals } from "../types/common.types";
-import CRUD from '../utils/crud';
 import Defaults from './defaults';
 import Delay from './delay';
 import StatusCode from './statusCode';
 import Headers from './headers';
 import ErrorHandler from './errorHandler';
 import Fetch from './fetch';
+import CrudOperation from './crudOperation';
 import SendResponse from './sendResponse';
 import Initializer from './initializer';
 import PageNotFound from './pageNotFound';
@@ -54,52 +54,6 @@ const _IterateRoutes = (req, res, next) => {
   store[storeKey].nextIndex++;
 
   next("route");
-}
-const _CrudOperation = (req, res, next) => {
-
-  const storeKey = "_CrudOperation";
-  const method = req.method;
-  const locals = res.locals as Locals;
-  const routeConfig = locals.routeConfig;
-
-  routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
-  const store = routeConfig.store || {};
-
-  if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
-    console.error(chalk.red("To use ") + chalk.yellowBright("_CurdResponse") + chalk.red(" method the data must be of type Array"));
-    return next();
-  }
-  
-  if (!store[storeKey]) store[storeKey] = _.cloneDeep(locals.data);
-  const data = store[storeKey];
-
-  if (method.toLowerCase() === 'get') {
-    locals.data = CRUD.search(req, res, data);
-  } else if (method.toLowerCase() === 'put') {
-    locals.data = CRUD.replace(req, res, data);
-  } else if (method.toLowerCase() === 'patch') {
-    locals.data = CRUD.update(req, res, data);
-  } else if (method.toLowerCase() === 'post') {
-    locals.data = CRUD.insert(req, res, data);
-  } else if (method.toLowerCase() === 'delete') {
-    locals.data = CRUD.remove(req, res, data);
-  }
-  next();
-}
-const _AdvancedSearch = (req, res, next) => {
-  const method = req.method;
-  const locals = res.locals as Locals;
-  
-  if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) {
-    console.error(chalk.red("To use ") + chalk.yellowBright("_AdvancedSearch") + chalk.red(" method the data must be of type Array"));
-    return next();
-  }
-
-  if (method.toLowerCase() === 'get') {
-    locals.data = CRUD.search(req, res, locals.data);
-  }
-  
-  next();
 }
 const _FetchTillData = (_req, res, next) => {
   const locals = res.locals as Locals;
@@ -155,8 +109,6 @@ const _Fetch = Fetch;
 const HelperMiddlewares = {
   _IterateResponse,
   _IterateRoutes,
-  _CrudOperation,
-  _AdvancedSearch,
   _FetchTillData,
   _SetFetchDataToMock,
   _SetStoreDataToMock,
@@ -174,6 +126,7 @@ export {
   Headers,
   Defaults,
   Fetch,
+  CrudOperation,
   PageNotFound,
   ErrorHandler,
   SendResponse,

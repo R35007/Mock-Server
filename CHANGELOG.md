@@ -1,3 +1,9 @@
+## v17.0.0
+
+- Removed - expose of `_CrudOperation` and `_AdvancedSearch` middlewares and removed and added implicitly. Now all of our routes can have the CRUD operations and Advanced Search
+- Modified - Only `express.static()` method is used as `app.use()` and all other routes with `directUse: true` is used using `app.all()`.
+- Modified - Now in `createExpressApp` and `launchServer` method an additional param is added where we can pass our own express app (`express()`) as an optional param the sets to the mockServer app instance.
+
 ## v16.1.0
 
 - Fixed - Restarting server on file change event takes long time issue fixed.

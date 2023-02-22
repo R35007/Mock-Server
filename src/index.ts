@@ -18,6 +18,7 @@ import {
   Headers,
   ErrorHandler,
   Fetch,
+  CrudOperation,
   SendResponse,
   Initializer,
   PageNotFound
@@ -70,11 +71,10 @@ export class MockServer extends GettersSetters {
       rewriters,
       store,
       router,
+      app = this.app,
       log = this.config.log
     }: LaunchServerOptions = {}
   ): Promise<Server | undefined> {
-    const app = this.app;
-
     this.setData({ injectors, middlewares, store }, { log });
 
     const rewriter = this.rewriter(rewriters, { log });
@@ -191,20 +191,20 @@ export class MockServer extends GettersSetters {
 
     const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
 
-    if (routeConfig.directUse) {
-      if (middlewareList.length === 1) return router.use(routePath, middlewareList[0]);
-      return router.use(routePath, middlewareList);
+    if (middlewareList.length === 1) {
+      if (middlewareList[0].name === 'serveStatic') return router.use(routePath, middlewareList[0]);
+      return router.all(routePath, middlewareList[0]);
     }
+
     router?.all(routePath, middlewareList);
 
-    // /users -> false
-    // /users/:id -> true
-    // /users/:id? -> true
-    const isRouteEndswithParam = (routePath) => /(:[a-zA-Z]+\?)|(:[a-zA-Z]+)$/.test(routePath);
-    if (isRouteEndswithParam(routePath) || this.routes.includes(routePath + "/:id")) return;
-
-    const middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares || []).filter(Boolean);
-    if (!middlewares.includes("_AdvancedSearch") && !middlewares.includes("_CrudOperation")) return;
+    // if the current route ends with config id param or if the routes list has already route that ends with config id param then return
+    if (
+      routePath.endsWith(`:${this.config.id}`)
+      || routePath.endsWith(`:${this.config.id}?`)
+      || this.routes.includes(routePath + `/:${this.config.id}`)
+      || this.routes.includes(routePath + `/:${this.config.id}?`)
+    ) return;
 
     router?.all(routePath + `/:${this.config.id || "id"}`, middlewareList);
   }
@@ -223,6 +223,7 @@ export class MockServer extends GettersSetters {
       Fetch,
       StatusCode,
       Headers,
+      CrudOperation,
       ...userMiddlewares,
       StatusCode,
       Headers,
