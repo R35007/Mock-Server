@@ -1,3 +1,7 @@
+## v17.0.1
+
+- Fixed - Api not returning response by given param id issue fixed.
+
 ## v17.0.0
 
 - Removed - expose of `_CrudOperation` and `_AdvancedSearch` middlewares and removed and added implicitly. Now all of our routes can have the CRUD operations and Advanced Search

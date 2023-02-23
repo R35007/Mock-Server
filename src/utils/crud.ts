@@ -10,13 +10,14 @@ lodashId.mixin(lodashIdMixin);
 export default class {
 
   static search = (req: express.Request, res: express.Response, data: any[]) => {
-    lodashId.id = res.locals?.config?.id || 'id';
+    const config = res.locals?.config || {};
+    lodashId.id = config.id || 'id';
 
     let _data = _.cloneDeep(data);
     const query = req.query;
     const params = req.params;
 
-    const ids = flatQuery(params[lodashId.id] || query[lodashId.id] || params.id || query.id, true) as number[];
+    const ids = flatQuery(params[lodashId.id || config.id || 'id'] || query[lodashId.id || config.id || 'id']);
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
     const _start = flatQuery(query._start, true)[0] as number;
