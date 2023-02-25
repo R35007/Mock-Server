@@ -1,3 +1,7 @@
+## v17.1.0
+
+- Fixed - Crud Operation and Search Operation issue fixed.
+
 ## v17.0.1
 
 - Fixed - Api not returning response by given param id issue fixed.

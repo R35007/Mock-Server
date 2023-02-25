@@ -12,12 +12,13 @@ export default class {
   static search = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
     lodashId.id = config.id || 'id';
+    const id = lodashId.id || config.id || 'id';
 
     let _data = _.cloneDeep(data);
     const query = req.query;
     const params = req.params;
 
-    const ids = flatQuery(params[lodashId.id || config.id || 'id'] || query[lodashId.id || config.id || 'id']);
+    const ids = flatQuery(params[id] || query[id]);
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
     const _start = flatQuery(query._start, true)[0] as number;
@@ -104,14 +105,14 @@ export default class {
     if (isRange) {
       const startIndex = _start ?? 0;
       const endIndex = _end ?? _data.length;
-      _data = _data.slice(startIndex, endIndex)
+      _data = _data.slice(startIndex, endIndex) || [];
     }
 
     // Pagination
     if (_page !== undefined) {
       const chunks = _.chunk(_data, _limit ?? 10);
       const links: any = {};
-      const fullURL = `http://${req.get('host')}${req.baseUrl}`;
+      const fullURL = `http://${req.get('host')}${req.originalUrl}`;
 
       links.first = fullURL.replace(`_page=${_page}`, `_page=1`);
       if (_page > 1) links.prev = fullURL.replace(`_page=${_page}`, `_page=${_page - 1}`);
@@ -119,42 +120,46 @@ export default class {
       links.last = fullURL.replace(`_page=${_page}`, `_page=${chunks.length}`);
 
       res.links(links);
-      _data = chunks[_page - 1];
+      _data = chunks[_page - 1] || [];
     }
 
     // Limit
     if (_limit !== undefined) {
-      _data = _.take(_data, _limit)
+      _data = _.take(_data, _limit) || [];
     }
 
-    // Head
+    // First
     if (_first == 'true') {
       _data = _.head(_data)
     }
 
-    // Limit
+    // Last
     if (_last == 'true') {
       _data = _.last(_data)
     }
 
+    // Set Headers
     if (_start || _end || _limit || _page) {
       res.setHeader('X-Total-Count', data.length);
       res.setHeader('Access-Control-Expose-Headers', `X-Total-Count${_page ? ', Link' : ''}`);
     }
 
-    return (params.id && _data?.length === 1) ? _data[0] : _data;
-
+    if (params[id] && _.isArray(_data) && _data?.length === 0) return {};
+    if (params[id] && _.isArray(_data) && _data?.length === 1) return _data[0];
+    return _data;
   }
 
   static insert = (req: express.Request, res: express.Response, data: any[]) => {
-    const id = res.locals?.config?.id || 'id';
-    lodashId.id = id;
+    const config = res.locals?.config || {};
+    lodashId.id = config.id || 'id';
+    const id = lodashId.id || config.id || 'id';
+
     lodashId.createId = (coll) => {
       if (_.isEmpty(coll)) {
         return 1;
       } else {
-        let maxId = lodashId.maxBy(coll, id)[id]; // Increment integer id or generate string id
-        return _.isFinite(maxId) ? ++maxId : nanoid(7);
+        let maxId = parseInt(lodashId.maxBy(coll, id)[id], 10); // Increment integer id or generate string id
+        return !_.isNaN(maxId) ? ++maxId : nanoid(7);
       }
     }
     const body = [].concat(req.body);
@@ -165,42 +170,49 @@ export default class {
   }
 
   static remove = (req: express.Request, res: express.Response, data: any[]) => {
-    lodashId.id = res.locals?.config?.id || 'id';
-    if (req.params.id) {
-      return lodashId.removeById(data, req.params.id)
+    const config = res.locals?.config || {};
+    lodashId.id = config.id || 'id';
+    const id = lodashId.id || config.id || 'id';
+
+    if (req.params[id]) {
+      return lodashId.removeById(data, req.params[id])
     } else if (!_.isEmpty(req.query)) {
       return lodashId.removeWhere(data, req.query)
     }
-    return;
+    return {};
   }
 
   static update = (req: express.Request, res: express.Response, data: any[]) => {
-    lodashId.id = res.locals?.config?.id || 'id';
-    const body = [].concat(req.body)[0];
-    if (_.isEmpty(body)) return;
+    const config = res.locals?.config || {};
+    lodashId.id = config.id || 'id';
+    const id = lodashId.id || config.id || 'id';
 
-    if (req.params.id) {
-      return lodashId.updateById(data, req.params.id, body)
+    const body = [].concat(req.body)[0];
+    if (_.isEmpty(body)) return {};
+
+    if (req.params[id]) {
+      return lodashId.updateById(data, req.params[id], body)
     } else if (!_.isEmpty(req.query)) {
       return lodashId.updateWhere(data, req.query, body)
     }
-    return;
+    return {};
   }
 
   static replace = (req: express.Request, res: express.Response, data: any[]) => {
-    const id = res.locals?.config?.id || 'id';
-    lodashId.id = id;
+    const config = res.locals?.config || {};
+    lodashId.id = config.id || 'id';
+    const id = lodashId.id || config.id || 'id';
+
     const body = [].concat(req.body)[0];
+    if (_.isEmpty(body)) return {};
 
-    if (_.isEmpty(body)) return;
-
-    if (req.params.id) {
-      return lodashId.replaceById(data, req.params.id, body)
+    if (req.params[id]) {
+      return lodashId.replaceById(data, req.params[id], body)
     } else if (!_.isEmpty(req.query)) {
       const matchedIds = _.filter(data, req.query).map(d => d[id]);
       return matchedIds.reduce((res, matchedId) => res.concat(lodashId.replaceById(data, matchedId, body)), [])
     }
-    return;
+    return {};
   }
 
 }
