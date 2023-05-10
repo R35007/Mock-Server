@@ -187,7 +187,7 @@ const homePage = () => {
       expect(response.body).toEqual(expected);
     }
 
-    const put = async (url: string, payload: object, expected: any) => {
+    const put = async (url: string, payload:  { [key: string]: any }, expected: any) => {
       const response = await request(mockServer.app).put(url).send(payload);
       homePageRoutes.forEach(route => delete response.body[route]);
       homePageRoutes.forEach(route => delete expected[route]);

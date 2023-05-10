@@ -8,10 +8,10 @@ export default (err, _req, res, next) => {
     res.send(response.data);
   } else {
     res.status(err.status || 500);
-    res.send(err.message || "Internal Server Error")
-    if (err.message !== "Page Not Found") {
-      console.log(chalk.red("\nError. Something went wrong !"));
-      console.log(chalk.gray(err.message) + "\n");
+    res.send(err.message || 'Internal Server Error');
+    if (err.message !== 'Page Not Found') {
+      console.log(chalk.red('\nError. Something went wrong !'));
+      console.log(chalk.gray(err.message) + '\n');
     }
   }
 };

@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "17.1.0",
+  "version": "18.0.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js"
@@ -10,6 +10,12 @@
   "scripts": {
     "start": "node dist/index.js",
     "mock-server": "node dist/cli/index.js",
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0 .",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --loglevel silent --ignore-unknown --find-config-path --check .",
+    "format:fix": "prettier --loglevel silent --ignore-unknown --find-config-path --write .",
+    "lint:ts": "tsc --noEmit",
+    "clean": "rimraf node_modules package-lock.json coverage dist",
     "test:all": "jest --collectCoverage --collectCoverageFrom=src/server/**/*.ts --silent --runInBand --verbose --no-cache"
   },
   "files": [
@@ -97,8 +103,21 @@
     "@types/server-destroy": "^1.0.1",
     "@types/supertest": "^2.0.12",
     "@types/yargs": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.5",
+    "@typescript-eslint/parser": "^5.59.5",
+    "eslint": "^8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-semistandard": "^17.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-define-config": "^1.20.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
     "jest": "^27.5.1",
     "nodemon": "^2.0.19",
+    "prettier": "^2.8.8",
     "supertest": "^6.2.2",
     "ts-jest": "^27.1.4"
   }

@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { Locals } from '../types/common.types';
+import type { Locals } from '../types/common.types';
 
 export default (_req, res, next) => {
-  const locals = res.locals as Locals || {};
+  const locals = (res.locals as Locals) || {};
 
   const headers = locals.headers || locals.routeConfig?.headers;
 
@@ -11,7 +11,7 @@ export default (_req, res, next) => {
   // Set Response Headers
   Object.entries(headers).forEach(([headerName, value]) => {
     res.set(headerName, value);
-  })
+  });
 
   // set no cache
   if (res.locals.config.noCache) {
@@ -21,4 +21,4 @@ export default (_req, res, next) => {
   }
 
   next();
-}
+};

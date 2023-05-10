@@ -1,0 +1,12 @@
+node_modules
+dist
+.vscode
+test
+*.map
+coverage
+package-lock.json
+*.tgz
+samples
+public
+scripts
+tests

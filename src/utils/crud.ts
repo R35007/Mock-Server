@@ -1,6 +1,6 @@
-import * as express from 'express';
+import type * as express from 'express';
 import * as _ from 'lodash';
-import * as lodashIdMixin from "lodash-id";
+import * as lodashIdMixin from 'lodash-id';
 import { nanoid } from 'nanoid';
 import { flatQuery } from '.';
 
@@ -8,7 +8,6 @@ const lodashId = _ as any; // just to remove type when using mixin
 lodashId.mixin(lodashIdMixin);
 
 export default class {
-
   static search = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
     lodashId.id = config.id || 'id';
@@ -44,11 +43,11 @@ export default class {
 
     // Filters By Id
     if (ids.length) {
-      _data = ids.map(id => lodashId.getById(_data, id)).filter(Boolean);
+      _data = ids.map((id) => lodashId.getById(_data, id)).filter(Boolean);
     }
 
     // Automatically delete query parameters that can't be found in database
-    Object.keys(query).forEach(key => {
+    Object.keys(query).forEach((key) => {
       for (const i in _data) {
         const path = key.replace(/(_lte|_gte|_ne|_like)$/, '');
         if (_.has(_data[i], path) || key === 'callback' || key === '_') return;
@@ -57,14 +56,22 @@ export default class {
     });
 
     // Makes query.id=1,2 to query.id=[1,2]
-    for (let key in query) {
-      query[key] = flatQuery(query[key]) as string[]
+    for (const key in query) {
+      query[key] = flatQuery(query[key]) as string[];
     }
 
     // Partial Text Search
     const searchTexts = [..._text, ...q].filter(Boolean);
     if (searchTexts.filter(Boolean).length) {
-      _data = _data.filter(d => searchTexts.some(_t => _.values(d).join(", ")?.toLowerCase().indexOf((`${_t || ''}`)?.toLowerCase()) >= 0));
+      _data = _data.filter((d) =>
+        searchTexts.some(
+          (_t) =>
+            _.values(d)
+              .join(', ')
+              ?.toLowerCase()
+              .indexOf(`${_t || ''}`?.toLowerCase()) >= 0
+        )
+      );
     }
 
     // Attribute Filter
@@ -75,10 +82,9 @@ export default class {
       const isLike = /_like$/.test(key);
       const path = key.replace(/(_lte|_gte|_ne|_like)$/, '');
 
-
-      _data = _data.filter(obj => {
+      _data = _data.filter((obj) => {
         const objVal = _.get(obj, path);
-        const valMatchList = _val.map(v => {
+        const valMatchList = _val.map((v) => {
           if (objVal === undefined || objVal === null) {
             return undefined;
           }
@@ -93,13 +99,13 @@ export default class {
             return v == objVal.toString();
           }
         });
-        const isMatched = valMatchList.reduce((a, b) => isDifferent ? a && b : a || b);
-        return isMatched
+        const isMatched = valMatchList.reduce((a, b) => (isDifferent ? a && b : a || b));
+        return isMatched;
       });
-    })
+    });
 
     // Sort and Order
-    _data = _.orderBy(_data, _sort, _order.map(o => (`${o || ''}`).toLowerCase()) as Array<"asc" | "desc">);
+    _data = _.orderBy(_data, _sort, _order.map((o) => `${o || ''}`.toLowerCase()) as Array<'asc' | 'desc'>);
 
     // Ranging
     if (isRange) {
@@ -114,7 +120,7 @@ export default class {
       const links: any = {};
       const fullURL = `http://${req.get('host')}${req.originalUrl}`;
 
-      links.first = fullURL.replace(`_page=${_page}`, `_page=1`);
+      links.first = fullURL.replace(`_page=${_page}`, '_page=1');
       if (_page > 1) links.prev = fullURL.replace(`_page=${_page}`, `_page=${_page - 1}`);
       if (_page < chunks.length) links.next = fullURL.replace(`_page=${_page}`, `_page=${_page + 1}`);
       links.last = fullURL.replace(`_page=${_page}`, `_page=${chunks.length}`);
@@ -130,12 +136,12 @@ export default class {
 
     // First
     if (_first == 'true') {
-      _data = _.head(_data)
+      _data = _.head(_data);
     }
 
     // Last
     if (_last == 'true') {
-      _data = _.last(_data)
+      _data = _.last(_data);
     }
 
     // Set Headers
@@ -147,7 +153,7 @@ export default class {
     if (params[id] && _.isArray(_data) && _data?.length === 0) return {};
     if (params[id] && _.isArray(_data) && _data?.length === 1) return _data[0];
     return _data;
-  }
+  };
 
   static insert = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
@@ -161,13 +167,13 @@ export default class {
         let maxId = parseInt(lodashId.maxBy(coll, id)[id], 10); // Increment integer id or generate string id
         return !_.isNaN(maxId) ? ++maxId : nanoid(7);
       }
-    }
+    };
     const body = [].concat(req.body);
     if (_.isEmpty(body)) return;
     body.forEach((b: any) => delete b.id);
     const insertedData = body.reduce((res, b) => res.concat(lodashId.insert(data, b)), []);
     return insertedData;
-  }
+  };
 
   static remove = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
@@ -175,12 +181,12 @@ export default class {
     const id = lodashId.id || config.id || 'id';
 
     if (req.params[id]) {
-      return lodashId.removeById(data, req.params[id])
+      return lodashId.removeById(data, req.params[id]);
     } else if (!_.isEmpty(req.query)) {
-      return lodashId.removeWhere(data, req.query)
+      return lodashId.removeWhere(data, req.query);
     }
     return {};
-  }
+  };
 
   static update = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
@@ -191,12 +197,12 @@ export default class {
     if (_.isEmpty(body)) return {};
 
     if (req.params[id]) {
-      return lodashId.updateById(data, req.params[id], body)
+      return lodashId.updateById(data, req.params[id], body);
     } else if (!_.isEmpty(req.query)) {
-      return lodashId.updateWhere(data, req.query, body)
+      return lodashId.updateWhere(data, req.query, body);
     }
     return {};
-  }
+  };
 
   static replace = (req: express.Request, res: express.Response, data: any[]) => {
     const config = res.locals?.config || {};
@@ -207,12 +213,11 @@ export default class {
     if (_.isEmpty(body)) return {};
 
     if (req.params[id]) {
-      return lodashId.replaceById(data, req.params[id], body)
+      return lodashId.replaceById(data, req.params[id], body);
     } else if (!_.isEmpty(req.query)) {
-      const matchedIds = _.filter(data, req.query).map(d => d[id]);
-      return matchedIds.reduce((res, matchedId) => res.concat(lodashId.replaceById(data, matchedId, body)), [])
+      const matchedIds = _.filter(data, req.query).map((d) => d[id]);
+      return matchedIds.reduce((res, matchedId) => res.concat(lodashId.replaceById(data, matchedId, body)), []);
     }
     return {};
-  }
-
+  };
 }

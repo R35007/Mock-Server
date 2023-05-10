@@ -1,15 +1,15 @@
-import { Locals } from '../types/common.types';
+import type { Locals } from '../types/common.types';
 import * as _ from 'lodash';
 import CRUD from '../utils/crud';
 
 const CrudOperation = (req, res, next) => {
-  const storeKey = "_CrudOperation";
+  const storeKey = '_CrudOperation';
   const method = req.method;
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
-  
+
   // return if the data is not a collection.
-  if (!(_.isArray(locals.data) && locals.data.every(d => _.isPlainObject(d)))) return next();
+  if (!(_.isArray(locals.data) && locals.data.every((d) => _.isPlainObject(d)))) return next();
 
   routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
   const store = routeConfig.store || {};
@@ -29,6 +29,6 @@ const CrudOperation = (req, res, next) => {
     locals.data = CRUD.remove(req, res, data);
   }
   next();
-}
+};
 
 export default CrudOperation;

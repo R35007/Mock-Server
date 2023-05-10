@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import * as _ from 'lodash';
-import { Locals } from "../types/common.types";
+import type { Locals } from '../types/common.types';
 import Defaults from './defaults';
 import Delay from './delay';
 import StatusCode from './statusCode';
@@ -13,18 +13,18 @@ import Initializer from './initializer';
 import PageNotFound from './pageNotFound';
 
 const _IterateResponse = (_req, res, next) => {
-  const storeKey = "_IterateResponse"
+  const storeKey = '_IterateResponse';
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
   routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
   const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
-    console.error(chalk.red("To use ") + chalk.yellowBright("_IterateResponse") + chalk.red(" method the data must be of type Array"));
+    console.error(chalk.red('To use ') + chalk.yellowBright('_IterateResponse') + chalk.red(' method the data must be of type Array'));
     return next();
   }
 
-  if (!store[storeKey]?.nextIndex || (store[storeKey].nextIndex > locals.data.length - 1)) {
+  if (!store[storeKey]?.nextIndex || store[storeKey].nextIndex > locals.data.length - 1) {
     store[storeKey] = { currentIndex: -1, nextIndex: 0 };
   }
   locals.data = locals.data[store[storeKey].nextIndex];
@@ -32,20 +32,20 @@ const _IterateResponse = (_req, res, next) => {
   store[storeKey].nextIndex++;
 
   next();
-}
+};
 const _IterateRoutes = (req, res, next) => {
-  const storeKey = "_IterateRoutes"
+  const storeKey = '_IterateRoutes';
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
   routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
   const store = routeConfig.store || {};
 
   if (!Array.isArray(locals.data)) {
-    console.error(chalk.red("To use ") + chalk.yellowBright("_IterateRoutes") + chalk.red(" method the data must be of type Array"));
+    console.error(chalk.red('To use ') + chalk.yellowBright('_IterateRoutes') + chalk.red(' method the data must be of type Array'));
     return next();
   }
 
-  if (!store[storeKey]?.nextIndex || (store[storeKey].nextIndex > locals.data.length - 1)) {
+  if (!store[storeKey]?.nextIndex || store[storeKey].nextIndex > locals.data.length - 1) {
     store[storeKey] = { currentIndex: -1, nextIndex: 0 };
   }
 
@@ -53,8 +53,8 @@ const _IterateRoutes = (req, res, next) => {
   store[storeKey].currentIndex++;
   store[storeKey].nextIndex++;
 
-  next("route");
-}
+  next('route');
+};
 const _FetchTillData = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
@@ -67,7 +67,7 @@ const _FetchTillData = (_req, res, next) => {
     routeConfig.fetchCount = -1;
   }
   next();
-}
+};
 const _SetFetchDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
@@ -76,7 +76,7 @@ const _SetFetchDataToMock = (_req, res, next) => {
     routeConfig.mock = isError ? (routeConfig.skipFetchError ? routeConfig.mock : response) : response;
   }
   next();
-}
+};
 const _SetStoreDataToMock = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
@@ -84,52 +84,45 @@ const _SetStoreDataToMock = (_req, res, next) => {
     routeConfig.mock = routeConfig.store;
   }
   next();
-}
+};
 const _MockOnly = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
   locals.data = routeConfig.mock;
   next();
-}
+};
 const _FetchOnly = (_req, res, next) => {
   const locals = res.locals as Locals;
   const routeConfig = locals.routeConfig;
   locals.data = routeConfig.fetchData?.response || {};
   next();
-}
+};
 const _ReadOnly = (req, res, next) => {
   if (req.method === 'GET') {
     next(); // Continue
   } else {
     res.sendStatus(403); // Forbidden
   }
-}
+};
 const _Fetch = Fetch;
 
 const HelperMiddlewares = {
+  _Fetch,
+  _FetchOnly,
+  _FetchTillData,
   _IterateResponse,
   _IterateRoutes,
-  _FetchTillData,
+  _MockOnly,
+  _ReadOnly,
   _SetFetchDataToMock,
   _SetStoreDataToMock,
-  _MockOnly,
-  _FetchOnly,
-  _ReadOnly,
-  _Fetch,
-  globals: [(_req, _res, next) => { next() }]
-}
-
-export {
-  Initializer,
-  Delay,
-  StatusCode,
-  Headers,
-  Defaults,
-  Fetch,
-  CrudOperation,
-  PageNotFound,
-  ErrorHandler,
-  SendResponse,
+  globals: [
+    (_req, _res, next) => {
+      next();
+    },
+  ],
 };
+
+export { Initializer, Delay, StatusCode, Headers, Defaults, Fetch, CrudOperation, PageNotFound, ErrorHandler, SendResponse };
 
 export default HelperMiddlewares;

@@ -1,6 +1,14 @@
-import { AxiosRequestConfig } from 'axios';
-import { DbMode, Default_Middlewares, Global_Middlweares, HarMiddleware, KibanaMiddleware, RoutePairs, User_Middlweares } from './common.types';
-import * as UserTypes from "./user.types";
+import type { AxiosRequestConfig } from 'axios';
+import type {
+  DbMode,
+  DefaultMiddlewares,
+  GlobalMiddlweares,
+  HarMiddleware,
+  KibanaMiddleware,
+  RoutePairs,
+  UserMiddlweares,
+} from './common.types';
+import type * as UserTypes from './user.types';
 
 export type Config = {
   root: string;
@@ -8,7 +16,7 @@ export type Config = {
   host: string;
   base: string;
   id: string;
-  dbMode: DbMode
+  dbMode: DbMode;
   static: string;
   reverse: boolean;
   logger: boolean;
@@ -22,22 +30,19 @@ export type Config = {
   log: boolean;
   homePage: boolean;
 };
-export type Db = { [key: string]: RouteConfig }
-export type Middlewares = Default_Middlewares & Global_Middlweares & HarMiddleware & KibanaMiddleware & User_Middlweares
-export type Injectors = InjectorConfig[];
-export type Rewriters = RoutePairs;
-export type Store = Object;
+
+export type FetchData = UserTypes.FetchData;
 
 export type RouteConfig = UserTypes.RouteConfig & {
   id: string;
-  middlewares?: UserTypes.Middleware_Config[]
-  fetchData?: FetchData
+  middlewares?: UserTypes.Middleware_Config[];
+  fetchData?: FetchData;
 
   // fetchData Utils
   _isFile?: boolean;
-  _request?: AxiosRequestConfig,
+  _request?: AxiosRequestConfig;
   _extension?: string;
-}
+};
 
 export type InjectorConfig = {
   routes: string[];
@@ -45,4 +50,8 @@ export type InjectorConfig = {
   exact?: boolean;
 } & Partial<RouteConfig>;
 
-export type FetchData = UserTypes.FetchData
+export type Db = { [key: string]: RouteConfig };
+export type Middlewares = DefaultMiddlewares & GlobalMiddlweares & HarMiddleware & KibanaMiddleware & UserMiddlweares;
+export type Injectors = InjectorConfig[];
+export type Rewriters = RoutePairs;
+export type Store = object;

@@ -1,12 +1,12 @@
-import express from "express";
+import type express from 'express';
 import ip from 'ip';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { getInjectedDb, isCollection, normalizeDb, toBase64 } from '.';
 import * as Defaults from '../defaults';
-import { DbMode, DbValidatorOptions, ValidatorOptions } from '../types/common.types';
-import * as ParamTypes from "../types/param.types";
-import * as UserTypes from "../types/user.types";
-import * as ValidTypes from "../types/valid.types";
+import type { DbMode, DbValidatorOptions, ValidatorOptions } from '../types/common.types';
+import type * as ParamTypes from '../types/param.types';
+import type * as UserTypes from '../types/user.types';
+import type * as ValidTypes from '../types/valid.types';
 import { getStats, parseUrl, requireData } from './fetch';
 
 export const getValidConfig = (
@@ -23,13 +23,17 @@ export const getValidConfig = (
 
   const validConfig: UserTypes.Config = {
     ...userConfig,
-    root: userConfig.root ? _root : undefined,
+    base: userConfig.base && getValidRoute(userConfig.base) !== '/' ? getValidRoute(userConfig.base) : undefined,
     dbMode: ['multi', 'fetch', 'mock', 'config'].includes(userConfig.dbMode || '') ? userConfig.dbMode : undefined,
+    host: !_.isEmpty(userConfig.host)
+      ? _.isString(userConfig.host) && userConfig.host.trim() === ''
+        ? ip.address()
+        : userConfig.host
+      : undefined,
+    id: !_.isEmpty(userConfig.id) && _.isString(userConfig.id) ? userConfig.id : undefined,
     port: !_.isNaN(parseInt(userConfig.port as any)) ? parseInt(userConfig.port as any) : undefined,
-    host: !_.isEmpty(userConfig.host) ? _.isString(userConfig.host) && userConfig.host.trim() === '' ? ip.address() : userConfig.host : undefined,
-    base: userConfig.base && getValidRoute(userConfig.base) !== "/" ? getValidRoute(userConfig.base) : undefined,
+    root: userConfig.root ? _root : undefined,
     static: typeof userConfig.static !== 'undefined' ? parseUrl(userConfig.static, _root) : undefined,
-    id: !_.isEmpty(userConfig.id) && _.isString(userConfig.id) ? userConfig.id : undefined
   };
 
   return _.omitBy(validConfig, _.isUndefined) as ValidTypes.Config;
@@ -47,31 +51,35 @@ export const getValidMiddlewares = (
   const validMiddlewares: ValidTypes.Middlewares = {} as ValidTypes.Middlewares;
 
   const middlewareNames = Object.keys(userMiddlewares);
-  for (let name of middlewareNames) {
+  for (const name of middlewareNames) {
     if (_.isFunction(userMiddlewares[name])) {
       validMiddlewares[name] = userMiddlewares[name]!;
     } else if (_.isArray(userMiddlewares[name])) {
-      const validMiddlewaresList = (userMiddlewares[name] as []).filter(m => _.isFunction(m));
+      const validMiddlewaresList = (userMiddlewares[name] as []).filter((m) => _.isFunction(m));
       validMiddlewaresList.length && (validMiddlewares[name] = validMiddlewaresList);
     }
   }
 
   if (_.isFunction(validMiddlewares.globals)) {
-    validMiddlewares.globals = [validMiddlewares.globals]
+    validMiddlewares.globals = [validMiddlewares.globals];
   }
 
   if (_.isEmpty(validMiddlewares.globals)) {
-    validMiddlewares.globals = [(_rq, _res, next) => { next() }]
+    validMiddlewares.globals = [
+      (_rq, _res, next) => {
+        next();
+      },
+    ];
   }
 
   return { ...Defaults.Middlewares, ...validMiddlewares };
-}
+};
 
 export const getValidInjectors = (
   injectors?: ParamTypes.Injectors,
   { root = Defaults.Config.root, mockServer }: ValidatorOptions = {}
 ): ValidTypes.Injectors => {
-  const requiredData = requireData(injectors, { root, isList: true });
+  const requiredData = requireData(injectors, { isList: true, root });
   const userInjectors: UserTypes.InjectorConfig = _.isFunction(requiredData) ? requiredData(mockServer) : requiredData;
 
   if (_.isEmpty(userInjectors) || !_.isArray(userInjectors) || !isCollection(userInjectors)) return _.cloneDeep(Defaults.Injectors);
@@ -112,7 +120,7 @@ export const getValidDb = (
     injectors = Defaults.Injectors,
     root = Defaults.Config.root,
     reverse = Defaults.Config.reverse,
-    dbMode = Defaults.Config.dbMode
+    dbMode = Defaults.Config.dbMode,
   }: DbValidatorOptions = {}
 ): ValidTypes.Db => {
   const requiredData = requireData(data, { root });
@@ -121,52 +129,54 @@ export const getValidDb = (
   if (_.isEmpty(userData) || !_.isPlainObject(userData)) return _.cloneDeep(Defaults.Db);
 
   const normalizedDb = normalizeDb(userData, dbMode);
-  const validInjectors = getValidInjectors(injectors, { root, mockServer });
+  const validInjectors = getValidInjectors(injectors, { mockServer, root });
   const injectedDb = getInjectedDb(normalizedDb, validInjectors);
 
-  const validDb = reverse
-    ? _.fromPairs(Object.entries(injectedDb).reverse())
-    : injectedDb;
+  const validDb = reverse ? _.fromPairs(Object.entries(injectedDb).reverse()) : injectedDb;
 
   return validDb;
 };
 
 export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
-  if (_.isFunction(routeConfig)) return { _config: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler], directUse: true };
+  if (_.isFunction(routeConfig))
+    return { _config: true, directUse: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler] };
 
   // if db mode is config then strictly expect an config object
   if (dbMode === 'config' && _.isPlainObject(routeConfig)) return { id: toBase64(route), mock: {}, ...routeConfig, _config: true };
-  if (dbMode === 'config' && !_.isPlainObject(routeConfig)) return { id: toBase64(route), mock: {}, _config: true };
+  if (dbMode === 'config' && !_.isPlainObject(routeConfig)) return { _config: true, id: toBase64(route), mock: {} };
 
   // If its not already a config object then define a config based on db mode
   if (!_.isPlainObject(routeConfig) || !routeConfig._config) {
-    if (dbMode === 'multi' && _.isString(routeConfig)) return { _config: true, id: toBase64(route), fetch: routeConfig }
-    if (dbMode === 'multi' && !_.isString(routeConfig)) return { _config: true, id: toBase64(route), mock: routeConfig }
-    if (dbMode === 'mock') return { _config: true, id: toBase64(route), mock: routeConfig }
-    if (dbMode === 'fetch') return { _config: true, id: toBase64(route), fetch: routeConfig as object }
-  };
+    if (dbMode === 'multi' && _.isString(routeConfig)) return { _config: true, fetch: routeConfig, id: toBase64(route) };
+    if (dbMode === 'multi' && !_.isString(routeConfig)) return { _config: true, id: toBase64(route), mock: routeConfig };
+    if (dbMode === 'mock') return { _config: true, id: toBase64(route), mock: routeConfig };
+    if (dbMode === 'fetch') return { _config: true, fetch: routeConfig as object, id: toBase64(route) };
+  }
 
   routeConfig.id = `${routeConfig.id || ''}` || toBase64(route);
 
   if (routeConfig.middlewares) {
-    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);
+    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat((routeConfig.middlewares as UserTypes.Middleware_Config) || []);
     if (!routeConfig.middlewares.length) delete routeConfig.middlewares;
   }
   return routeConfig as ValidTypes.RouteConfig;
-}
+};
 
 export const getValidInjectorConfig = (routeConfig: UserTypes.InjectorConfig): ValidTypes.InjectorConfig => {
   routeConfig.routes = ([] as string[]).concat(routeConfig.routes as string).map(getValidRoute);
   if (routeConfig.middlewares) {
-    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat(routeConfig.middlewares as UserTypes.Middleware_Config || []);
+    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat((routeConfig.middlewares as UserTypes.Middleware_Config) || []);
   }
   return routeConfig as ValidTypes.InjectorConfig;
-}
+};
 
 export const getValidRoute = (route: string): string => {
-  const trimmedRoute = "/" + route.split('/')
-    .filter(x => x.trim())
-    .map(x => x.trim())
-    .join('/');
+  const trimmedRoute =
+    '/' +
+    route
+      .split('/')
+      .filter((x) => x.trim())
+      .map((x) => x.trim())
+      .join('/');
   return trimmedRoute;
-}
+};

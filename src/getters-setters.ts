@@ -1,16 +1,15 @@
-import chalk from "chalk";
-import express from "express";
-import { Server } from "http";
+import chalk from 'chalk';
+import express from 'express';
+import type { Server } from 'http';
 import * as _ from 'lodash';
 import * as Defaults from './defaults';
-import { GetData, SetData, SetterOptions } from "./types/common.types";
-import * as Params from "./types/param.types";
-import * as ValidTypes from "./types/valid.types";
+import type { GetData, SetData, SetterOptions } from './types/common.types';
+import type * as Params from './types/param.types';
+import type * as ValidTypes from './types/valid.types';
 import { getValidConfig, getValidInjectors, getValidMiddlewares, getValidStore } from './utils/validators';
 import ora from 'ora';
 
 export class GettersSetters {
-
   // port, address, listeningTo will be undefined when server is stopped
   port: number | undefined; // gives current running port.
   server: Server | undefined; //  gives current running server.
@@ -30,12 +29,12 @@ export class GettersSetters {
   #store!: ValidTypes.Store;
 
   constructor(config?: Params.Config) {
-    global.quiet = typeof config === "object" ? config.quiet : false;
+    global.quiet = typeof config === 'object' ? config.quiet : false;
 
     this.#suppressTerminalLogs(); // Suppress terminal logs on testing environments
     this.#suppressLogs(global.quiet); // Suppress console logs if quiet is set to true
 
-    console.log(chalk.blueBright("\n{^_^}/~ Hi!"));
+    console.log(chalk.blueBright('\n{^_^}/~ Hi!'));
     this.init();
     config && this.setConfig(config);
   }
@@ -46,7 +45,9 @@ export class GettersSetters {
       global.originalWrite = process.stdout.write;
       process.stdout.write = () => false;
     } else {
-      if (global.originalWrite) { process.stdout.write = global.originalWrite; }
+      if (global.originalWrite) {
+        process.stdout.write = global.originalWrite;
+      }
     }
   }
 
@@ -54,30 +55,47 @@ export class GettersSetters {
   #suppressLogs(quiet: boolean) {
     if (quiet) {
       if (!global.consoleOriginal) global.consoleOriginal = { ...global.console };
-      global.console = { ...global.console, log: () => { }, warn: () => { } };
+      global.console = { ...global.console, log: () => {}, warn: () => {} };
     } else {
       if (global.consoleOriginal) global.console = { ...global.consoleOriginal };
-      delete global.consoleOriginal
-    };
+      delete global.consoleOriginal;
+    }
   }
 
+  get config() {
+    return _.cloneDeep(this.#config);
+  }
 
-  get config() { return _.cloneDeep(this.#config) };
-  get db() { return _.cloneDeep(this.#db) };
-  get middlewares() { return _.cloneDeep(this.#middlewares) };
-  get injectors() { return _.cloneDeep(this.#injectors) };
-  get rewriters() { return _.cloneDeep(this.#rewriters) };
-  get store() { return _.cloneDeep(this.#store) };
+  get db() {
+    return _.cloneDeep(this.#db);
+  }
+
+  get middlewares() {
+    return _.cloneDeep(this.#middlewares);
+  }
+
+  get injectors() {
+    return _.cloneDeep(this.#injectors);
+  }
+
+  get rewriters() {
+    return _.cloneDeep(this.#rewriters);
+  }
+
+  get store() {
+    return _.cloneDeep(this.#store);
+  }
+
   get data(): GetData {
     return {
+      config: this.config,
       db: this.db,
-      middlewares: this.middlewares,
       injectors: this.injectors,
+      middlewares: this.middlewares,
       rewriters: this.rewriters,
       store: this.store,
-      config: this.config
     } as GetData;
-  };
+  }
 
   getDb = (routePath?: string | string[]) => {
     if (!routePath) return this.#db;
@@ -89,16 +107,17 @@ export class GettersSetters {
       return this.#db[route] ? { ...res, [route]: this.#db[route] } : res;
     }, {});
   };
+
   getRewriters = () => this.#rewriters;
   getStore = () => this.#store;
 
   protected _getServerDetails = () => ({
     app: this.app,
-    routes: this.routes,
     data: this.data,
     getDb: this.getDb,
-    getStore: this.getStore
-  })
+    getStore: this.getStore,
+    routes: this.routes,
+  });
 
   init() {
     this.clearServerAddress();
@@ -128,26 +147,30 @@ export class GettersSetters {
     this.setDefaultInjectors();
     this.setDefaultStore();
   }
+
   setData(data: SetData = {}, options: SetterOptions = {}) {
     data.config && this.setConfig(data.config, options);
     data.middlewares && this.setMiddlewares(data.middlewares, options);
     data.injectors && this.setInjectors(data.injectors, options);
     data.store && this.setStore(data.store, options);
-  };
+  }
 
-  setDefaultConfig() { this.#config = _.cloneDeep(Defaults.Config); }
+  setDefaultConfig() {
+    this.#config = _.cloneDeep(Defaults.Config);
+  }
+
   setConfig(config?: Params.Config, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Config...').start();
 
     const oldConfig = this.#config || Defaults.Config;
-    const newConfig = getValidConfig(config, { root, mockServer: this._getServerDetails() });
+    const newConfig = getValidConfig(config, { mockServer: this._getServerDetails(), root });
 
     this.#config = merge ? { ...Defaults.Config, ...oldConfig, ...newConfig } : { ...Defaults.Config, ...newConfig };
 
     global.quiet = this.#config.quiet;
     this.#suppressLogs(this.#config.quiet);
 
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Config Loaded.") });
+    spinner && spinner.stopAndPersist({ symbol: '✔', text: chalk.gray('Config Loaded.') });
   }
 
   setDefaultDb() {
@@ -155,37 +178,48 @@ export class GettersSetters {
     this.initialDb = _.cloneDeep(Defaults.Db);
   }
 
-  setDefaultMiddlewares() { this.#middlewares = _.cloneDeep(Defaults.Middlewares); }
+  setDefaultMiddlewares() {
+    this.#middlewares = _.cloneDeep(Defaults.Middlewares);
+  }
+
   setMiddlewares(middleware?: Params.Middlewares, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Middlewares...').start();
     const oldMiddlewares = this.#middlewares;
-    const newMiddlewares = getValidMiddlewares(middleware, { root, mockServer: this._getServerDetails() });
+    const newMiddlewares = getValidMiddlewares(middleware, { mockServer: this._getServerDetails(), root });
     this.#middlewares = merge ? { ...oldMiddlewares, ...newMiddlewares } : newMiddlewares;
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Middlewares Loaded.") });
+    spinner && spinner.stopAndPersist({ symbol: '✔', text: chalk.gray('Middlewares Loaded.') });
   }
 
-  setDefaultInjectors() { this.#injectors = _.cloneDeep(Defaults.Injectors); }
+  setDefaultInjectors() {
+    this.#injectors = _.cloneDeep(Defaults.Injectors);
+  }
+
   setInjectors(injectors?: Params.Injectors, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Injectors...').start();
     const oldInjectors = this.#injectors;
-    const newInjectors = getValidInjectors(injectors, { root, mockServer: this._getServerDetails() });
+    const newInjectors = getValidInjectors(injectors, { mockServer: this._getServerDetails(), root });
     this.#injectors = merge ? [...oldInjectors, ...newInjectors] : newInjectors;
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Injectors Loaded.") });
+    spinner && spinner.stopAndPersist({ symbol: '✔', text: chalk.gray('Injectors Loaded.') });
   }
 
-  setDefaultRewriters() { this.#rewriters = _.cloneDeep(Defaults.Rewriters); }
+  setDefaultRewriters() {
+    this.#rewriters = _.cloneDeep(Defaults.Rewriters);
+  }
 
-  setDefaultStore() { this.#store = _.cloneDeep(Defaults.Store); }
+  setDefaultStore() {
+    this.#store = _.cloneDeep(Defaults.Store);
+  }
+
   setStore(store?: Params.Store, { root = this.#config.root, merge, log = this.config.log }: SetterOptions = {}) {
     const spinner = !global.quiet && log && ora('Loading Store...').start();
     const oldStore = this.#store;
-    const newStore = getValidStore(store, { root, mockServer: this._getServerDetails() });
+    const newStore = getValidStore(store, { mockServer: this._getServerDetails(), root });
     this.#store = merge ? { ...oldStore, ...newStore } : newStore;
-    spinner && spinner.stopAndPersist({ symbol: "✔", text: chalk.gray("Store Loaded.") });
+    spinner && spinner.stopAndPersist({ symbol: '✔', text: chalk.gray('Store Loaded.') });
   }
 
   createExpressApp(app?: express.Application) {
-    this.app = app || express().set("json spaces", 2);
+    this.app = app || express().set('json spaces', 2);
     this.routes = [];
     this.rewriterRoutes = [];
     return this.app;

@@ -5,12 +5,12 @@ import express from 'express';
 import fs from 'fs';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
+import responseTime from 'response-time';
 import * as Defaults from '../defaults';
-import { Default_Options } from '../types/common.types';
-import * as ValidTypes from '../types/valid.types';
-var responseTime = require('response-time');
+import type { DefaultOptions } from '../types/common.types';
+import type * as ValidTypes from '../types/valid.types';
 
-export default (opts: Default_Options) => {
+export default (opts: DefaultOptions) => {
   const _opts = { ...Defaults.Config, ...opts } as ValidTypes.Config;
 
   const arr: any[] = [];
@@ -21,7 +21,7 @@ export default (opts: Default_Options) => {
   // Serve static files
   if (fs.existsSync(_opts.static)) {
     const router = express.Router();
-    router.use(_opts.base, express.static(_opts.static))
+    router.use(_opts.base, express.static(_opts.static));
     arr.push(router);
   }
 
@@ -32,22 +32,26 @@ export default (opts: Default_Options) => {
 
   // Enable CORS for all the requests, including static files
   if (!_opts.noCors) {
-    arr.push(cors({
-      origin: true,
-      credentials: true
-    }));
+    arr.push(
+      cors({
+        credentials: true,
+        origin: true,
+      })
+    );
   }
 
   // Logger
   if (_opts.logger) {
-    arr.push(morgan('dev', {
-      skip: (req: any) => process.env.NODE_ENV === 'test' || req.originalUrl?.includes('/_assets/') || false
-    }));
+    arr.push(
+      morgan('dev', {
+        skip: (req: any) => process.env.NODE_ENV === 'test' || req.originalUrl?.includes('/_assets/') || false,
+      })
+    );
   }
 
   // No cache for IE
   // https://support.microsoft.com/en-us/kb/234067
-  if(_opts.noCache) {
+  if (_opts.noCache) {
     arr.push((_req, res, next) => {
       res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.set('Pragma', 'no-cache');
@@ -75,10 +79,10 @@ export default (opts: Default_Options) => {
 
   // Cookie parser
   if (_opts.cookieParser) {
-    arr.push(cookieParser())
+    arr.push(cookieParser());
   }
 
-  arr.push(methodOverride())
+  arr.push(methodOverride());
 
   return arr;
 };

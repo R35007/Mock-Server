@@ -1,45 +1,7 @@
-import { AxiosRequestConfig } from 'axios';
-import * as express from "express";
-import { Default_Middlewares, Global_Middlweares, MiddlewareNames, RoutePairs, User_Middlweares } from './common.types';
-import * as ValidTypes from './valid.types';
-
-export type Config = Partial<ValidTypes.Config>;
-export type Db =
-  { [key: string]: RouteConfig }
-  | { [key: string]: express.RequestHandler }
-  | { [key: string]: Omit<Object, "_config"> }
-  | { [key: string]: any[] }
-  | { [key: string]: string };
-  export type Middlewares = Partial<Default_Middlewares & Global_Middlweares & User_Middlweares>
-export type Injectors = InjectorConfig[];
-export type Rewriters = RoutePairs;
-export type Store = Object;
-
-
-export type Middleware_Config = express.RequestHandler | MiddlewareNames | string;
-export type RouteConfig = {
-  _config: boolean;
-  id?: string | number;
-  description?: string;
-  mock?: any;
-  fetch?: string | AxiosRequestConfig;
-  fetchData?: FetchData;
-  store?: object;
-  statusCode?: number;
-  delay?: number;
-  fetchCount?: number;
-  skipFetchError?: boolean;
-  mockFirst?: boolean;
-  middlewares?: Middleware_Config | Middleware_Config[];
-  directUse?: boolean
-  headers?: object;
-}
-
-export type InjectorConfig = {
-  routes: string | string[];
-  override?: boolean;
-  exact?: boolean;
-} & Partial<RouteConfig>;
+import type { AxiosRequestConfig } from 'axios';
+import type * as express from 'express';
+import type { DefaultMiddlewares, GlobalMiddlweares, MiddlewareNames, RoutePairs, UserMiddlweares } from './common.types';
+import type * as ValidTypes from './valid.types';
 
 export type FetchData = {
   isError: boolean;
@@ -49,5 +11,42 @@ export type FetchData = {
   headers?: any;
   statusCode?: number;
   isImage?: boolean;
-}
+};
 
+export type Middlewares = Partial<DefaultMiddlewares & GlobalMiddlweares & UserMiddlweares>;
+export type Middleware_Config = express.RequestHandler | MiddlewareNames | string;
+
+export type RouteConfig = {
+  _config: boolean;
+  id?: string | number;
+  description?: string;
+  mock?: any;
+  fetch?: string | AxiosRequestConfig;
+  fetchData?: FetchData;
+  store?: { [key: string]: any };
+  statusCode?: number;
+  delay?: number;
+  fetchCount?: number;
+  skipFetchError?: boolean;
+  mockFirst?: boolean;
+  middlewares?: Middleware_Config | Middleware_Config[];
+  directUse?: boolean;
+  headers?: { [key: string]: any };
+};
+
+export type InjectorConfig = {
+  routes: string | string[];
+  override?: boolean;
+  exact?: boolean;
+} & Partial<RouteConfig>;
+
+export type Config = Partial<ValidTypes.Config>;
+export type Db =
+  | { [key: string]: RouteConfig }
+  | { [key: string]: express.RequestHandler }
+  | { [key: string]: Omit<object, '_config'> }
+  | { [key: string]: any[] }
+  | { [key: string]: string };
+export type Injectors = InjectorConfig[];
+export type Rewriters = RoutePairs;
+export type Store = { [key: string]: any };
