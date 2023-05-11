@@ -1,20 +1,19 @@
-
 // Load Iframe on entering a url in the iframe search box
 function setIframeSource(code, value) {
   // Number 13 is the "Enter" key on the keyboard
-  if (code === 13 || code === "Enter") {
+  if (code === 13 || code === 'Enter') {
     try {
       $iframeData.contentWindow.document.open();
       $iframeData.contentWindow.document.close();
-    } catch { }
-    $frameLoader.style.display = "grid";
+    } catch {}
+    $frameLoader.style.display = 'grid';
     $iframeData.src = value;
   }
-  $resourceRedirect.href = value
+  $resourceRedirect.href = value;
   $download.href = value;
 }
 
-$iframeUrl.addEventListener("keyup", function (event) {
+$iframeUrl.addEventListener('keyup', function (event) {
   let code;
   if (event.key !== undefined) {
     code = event.key;
@@ -31,9 +30,9 @@ const scrollContainer = document.querySelector('#resources-container main');
 scrollContainer.addEventListener('scroll', (e) => {
   const nav = scrollContainer.querySelector('nav');
   if (scrollContainer.scrollTop > 0) {
-    nav.style.boxShadow = "0 8px 10px -11px #212121";
+    nav.style.boxShadow = '0 8px 10px -11px #212121';
   } else {
-    nav.style.boxShadow = "none";
+    nav.style.boxShadow = 'none';
   }
 });
 
@@ -41,7 +40,7 @@ scrollContainer.addEventListener('scroll', (e) => {
 const modalTextControls = document.querySelectorAll('#route-config-form .form-control');
 const modalSwitchControls = document.querySelectorAll('#route-config-form .form-check-input');
 
-modalTextControls.forEach(formControl => {
+modalTextControls.forEach((formControl) => {
   formControl.addEventListener('input', ({ target }) => {
     if (['mock', 'fetch', 'store', 'headers', 'fetchData.response', 'fetchData.headers'].includes(target.name)) {
       let type = 'JSON';
@@ -53,23 +52,23 @@ modalTextControls.forEach(formControl => {
         const value = target.value;
         set(formValues, target.name, value);
         type = 'STRING';
-      };
+      }
       setFormDataType(target.name, type);
     } else {
       const value = target.value;
       set(formValues, target.name, value);
     }
   });
-})
-modalSwitchControls.forEach(formControl => {
+});
+modalSwitchControls.forEach((formControl) => {
   formControl.addEventListener('click', ({ target }) => {
     const value = target.checked;
     set(formValues, target.name, value);
   });
-})
+});
 
 // On Modal Submit Listener
-$routeConfigForm.addEventListener("submit", function (e) {
+$routeConfigForm.addEventListener('submit', function (e) {
   e.preventDefault();
 
   if (!Object.keys(formValues).length) {
@@ -79,17 +78,17 @@ $routeConfigForm.addEventListener("submit", function (e) {
 
   const id = $routeConfigForm.id?.value?.trim();
   const updatedRouteConfig = { _config: true, ...formValues, id };
-  updatedRouteConfig.id ? updateRouteConfig(updatedRouteConfig) : addNewRoute(updatedRouteConfig)
-})
+  updatedRouteConfig.id ? updateRouteConfig(updatedRouteConfig) : addNewRoute(updatedRouteConfig);
+});
 
 // Set Dark mode
-$darkModeSwitch.addEventListener("click", function (event) {
+$darkModeSwitch.addEventListener('click', function (event) {
   const isChecked = event.target.checked;
   if (isChecked) {
-    localStorage.setItem("theme", "dark");
-    document.getElementsByTagName("html")[0].dataset.theme = "dark";
+    localStorage.setItem('theme', 'dark');
+    document.getElementsByTagName('html')[0].dataset.theme = 'dark';
   } else {
-    localStorage.removeItem("theme")
-    document.getElementsByTagName("html")[0].dataset.theme = "";
+    localStorage.removeItem('theme');
+    document.getElementsByTagName('html')[0].dataset.theme = '';
   }
-})
+});

@@ -1,12 +1,12 @@
 module.exports = {
-  "/comment": {
+  '/comment': {
     _config: true,
-    id: "1",
+    id: '1',
     middlewares: [],
     mock: {
       id: 1,
       postId: 1,
-      name: "Siva"
-    }
-  }
-}
+      name: 'Siva',
+    },
+  },
+};

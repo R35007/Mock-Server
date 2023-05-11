@@ -1,3 +1,3 @@
 module.exports = {
-  "post": { id: "1", name: "siva" }
-}
+  post: { id: '1', name: 'siva' },
+};

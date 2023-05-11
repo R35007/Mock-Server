@@ -1,5 +1,5 @@
 function toggleDataContainer(shouldOpen) {
-  $dataContainer.style.display = shouldOpen ? "block" : "none";
+  $dataContainer.style.display = shouldOpen ? 'block' : 'none';
 }
 
 // A function is used for dragging and moving
@@ -16,20 +16,20 @@ function dragElement(element) {
       dataContainerWidth: $dataContainer.offsetWidth,
     };
 
-    $resourcesContainer.style.pointerEvents = "none";
-    $dataContainer.style.pointerEvents = "none";
+    $resourcesContainer.style.pointerEvents = 'none';
+    $dataContainer.style.pointerEvents = 'none';
     document.onmousemove = onMouseMove;
     document.onmouseup = () => {
-      $resourcesContainer.style.pointerEvents = "all";
-      $dataContainer.style.pointerEvents = "all";
+      $resourcesContainer.style.pointerEvents = 'all';
+      $dataContainer.style.pointerEvents = 'all';
       document.onmousemove = document.onmouseup = null; // clears drag event
-    }
+    };
   }
 
   function onMouseMove(e) {
     var delta = {
       x: e.clientX - md.e.clientX,
-      y: e.clientY - md.e.clientY
+      y: e.clientY - md.e.clientY,
     };
 
     // Prevent negative-sized elements
@@ -37,17 +37,16 @@ function dragElement(element) {
     let dataContainerWidth = md.dataContainerWidth - deltaX;
     let dataContainerMinWidth = (md.dataContainerWidth / 100) * 35;
 
-    if(dataContainerWidth < dataContainerMinWidth) {
-      $dataContainer.style.display = "none"
-    }else{
-      $dataContainer.style.display = "block"
+    if (dataContainerWidth < dataContainerMinWidth) {
+      $dataContainer.style.display = 'none';
+    } else {
+      $dataContainer.style.display = 'block';
     }
 
     delta.x = Math.min(Math.max(delta.x, -md.resourcesContainerWidth), md.dataContainerWidth);
-    element.style.left = md.offsetLeft + delta.x + "px";
-    $dataContainer.style.width = dataContainerWidth + "px";
+    element.style.left = md.offsetLeft + delta.x + 'px';
+    $dataContainer.style.width = dataContainerWidth + 'px';
   }
 }
 
-
-dragElement(document.getElementById("separator"));
+dragElement(document.getElementById('separator'));

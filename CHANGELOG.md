@@ -25,12 +25,12 @@
   - For Example: If dbMode is `config` then in `db.json`
   ```js
   const db = {
-    "/user": { mock: { id: 1, user: "foo" } }, // -> "/user": { _config: true, "mock": { "id": 1, "user": "foo" } }
-    "/users": [
-      { id: 1, user: "foo" },
-      { id: 2, user: "bar" },
+    '/user': { mock: { id: 1, user: 'foo' } }, // -> "/user": { _config: true, "mock": { "id": 1, "user": "foo" } }
+    '/users': [
+      { id: 1, user: 'foo' },
+      { id: 2, user: 'bar' },
     ], // -> "/user": { _config: true, "mock": { } }.
-    "/auth": (req, res, next) => {
+    '/auth': (req, res, next) => {
       next();
     }, // -> This route directly uses the middleware without any helper middleware wrappers.
   };
@@ -128,7 +128,7 @@
     chalk, // chalk
     axios, // axios
     watcher, // chokidar.
-  } = require("@r35007/mock-server");
+  } = require('@r35007/mock-server');
   ```
 
 - renamed `mockserver.setExpressApp()` to `mockserver.createExpressApp()`
@@ -170,8 +170,8 @@
 
 ```js
 const resources = mockServer.resources();
-resources.create("/post").send({ name: "foo", id: 1 });
-resources.create("/comment").reply({ name: "foo", id: 1 }); // reply is alias for send
+resources.create('/post').send({ name: 'foo', id: 1 });
+resources.create('/comment').reply({ name: 'foo', id: 1 }); // reply is alias for send
 app.use(resources.router);
 ```
 
@@ -192,12 +192,12 @@ app.use(resources.router);
   For Example:
   ```js
   const resources = mockServer.resources();
-  resources.create("/new/route/1").send("My Response").status(200).done();
+  resources.create('/new/route/1').send('My Response').status(200).done();
   resources
-    .create("/new/route/2")
-    .send("https://jsonplaceholder.typicode.com/posts") //  will set to `mock` or `fetch` based on dbMode
-    .headers({ "Content-Type": "application/json" })
-    .headers("Content-Length", 123)
+    .create('/new/route/2')
+    .send('https://jsonplaceholder.typicode.com/posts') //  will set to `mock` or `fetch` based on dbMode
+    .headers({ 'Content-Type': 'application/json' })
+    .headers('Content-Length', 123)
     .done();
   app.use(resources.router);
   ```
@@ -220,10 +220,10 @@ app.use(resources.router);
   const resources = mockServer.resources();
 
   resources
-    .create("/new/route", (req, res, next) => {
+    .create('/new/route', (req, res, next) => {
       next();
     })
-    .mock("My Response")
+    .mock('My Response')
     .delay(2000)
     .done();
 
@@ -324,14 +324,14 @@ app.use(resources.router);
   For example: `db.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 module.exports = (mockServer) => {
   if (mockServer) {
     // This can be undefined If you don't pass the mockServer instance.
   }
   return {
     // Your Db here
-    "/post": { id: 1, name: "foo" },
+    '/post': { id: 1, name: 'foo' },
   };
 };
 
@@ -436,11 +436,11 @@ getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, 
   Example of imports :
 
   ```js
-  const { MockServer } = require("@r35007/mock-server");
-  const MockServer = require("@r35007/mock-server").default;
+  const { MockServer } = require('@r35007/mock-server');
+  const MockServer = require('@r35007/mock-server').default;
 
-  import MockServer from "@r35007/mock-server";
-  import { MockServer } from "@r35007/mock-server";
+  import MockServer from '@r35007/mock-server';
+  import { MockServer } from '@r35007/mock-server';
   ```
 
 ## v7.1.0
@@ -467,12 +467,12 @@ getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, 
 
     ```js
     const db = {
-      route1: "My Response",
-      route2: { _config: true, fetch: "./path/to/fetch/data" },
+      route1: 'My Response',
+      route2: { _config: true, fetch: './path/to/fetch/data' },
     };
 
     // The above db will be transformed to
-    const validDb = getValidDb(db, "./", { mode: "mock" });
+    const validDb = getValidDb(db, './', { mode: 'mock' });
     console.log(validDb);
     /* 
     { 
@@ -488,12 +488,12 @@ getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, 
     // Note: If the mode is `fetch` then the direct route value will be set to fetch attribute in the routeConfig
 
     const db = {
-      route1: "./path/to/fetch/data",
-      route2: { _config: true, mock: "My Response" },
+      route1: './path/to/fetch/data',
+      route2: { _config: true, mock: 'My Response' },
     };
 
     // The above db will be transformed to
-    const validDb = getValidDb(db, "./", { mode: "fetch" });
+    const validDb = getValidDb(db, './', { mode: 'fetch' });
     console.log(validDb);
     /* 
     { 
@@ -509,7 +509,7 @@ getValidDb(data?: ParamTypes.Db | undefined, { mockServer, injectors, rootPath, 
   ```js
   const db = {
     route1: (req, res) => {
-      res.send("My Response");
+      res.send('My Response');
     },
   };
 
@@ -576,13 +576,13 @@ const getValidDb: (
 
 ```ts
 // Types that you get in mockServer.data or from validator methods
-import * as ValidTypes from "@r35007/mock-server/dist/server/types/valid.types";
+import * as ValidTypes from '@r35007/mock-server/dist/server/types/valid.types';
 // Types that you can give to the methods and apis
-import * as UserTypes from "@r35007/mock-server/dist/server/types/user.types";
+import * as UserTypes from '@r35007/mock-server/dist/server/types/user.types';
 // Other Common Types
-import * as CommonTypes from "@r35007/mock-server/dist/server/types/common.types";
+import * as CommonTypes from '@r35007/mock-server/dist/server/types/common.types';
 // Types that you can give to give to the methods and apis. mostly combination of string and UserTypes
-import * as ParamTypes from "@r35007/mock-server/dist/server/types/param.types";
+import * as ParamTypes from '@r35007/mock-server/dist/server/types/param.types';
 
 // Example
 const config: UserTypes.Config = { port: 4000 };
@@ -864,16 +864,8 @@ way 2:
       routesToGroup?: string[];
       routeRewrite?: KeyValString;
     },
-    entryCallback?: (
-      entry: object,
-      routePath: string,
-      routeConfig: RouteConfig,
-      pathToRegexp: pathToRegexp
-    ) => Routes,
-    finalCallback?: (
-      generatedMock: Routes,
-      pathToRegexp: pathToRegexp
-    ) => Routes
+    entryCallback?: (entry: object, routePath: string, routeConfig: RouteConfig, pathToRegexp: pathToRegexp) => Routes,
+    finalCallback?: (generatedMock: Routes, pathToRegexp: pathToRegexp) => Routes
   ) => Routes;
   ```
 

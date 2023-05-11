@@ -6,8 +6,8 @@ module.exports = {
       tsconfig: 'tsconfig.test.json',
     },
   },
-  "moduleNameMapper": {
-    "axios": "axios/dist/node/axios.cjs"
+  moduleNameMapper: {
+    axios: 'axios/dist/node/axios.cjs',
   },
   moduleFileExtensions: ['js', 'json', 'node', 'ts'],
   preset: 'ts-jest',

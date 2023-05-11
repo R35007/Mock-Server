@@ -1,15 +1,14 @@
 :root {
-
   --bs-primary-hs: 216, 98%;
   --l: 52%;
   --bs-primary-darker: hsl(var(--bs-primary-hs), calc(var(--l) - 10%));
   --bs-light: var(--bs-gray-200);
   --bs-light-rgb: 233, 236, 239;
-  --bs-border-radius: 0.280rem;
+  --bs-border-radius: 0.28rem;
 }
 
 .btn {
-  --bs-btn-border-radius: 0.280rem;
+  --bs-btn-border-radius: 0.28rem;
 }
 
 * {
@@ -39,7 +38,6 @@
 }
 
 #page-loader {
-
   .backdrop {
     position: fixed;
   }
@@ -72,7 +70,7 @@
   }
 
   main {
-    height: #{"calc(100vh - 2.8rem)"};
+    height: #{'calc(100vh - 2.8rem)'};
     overflow-x: hidden;
     overflow-y: auto;
     background: var(--bs-gray-300);
@@ -138,8 +136,7 @@
           border-radius: 0.2rem;
 
           &.expanded {
-            box-shadow: 0 -2px 1px rgb(0 0 0 / 0%), 0 2px 2px rgb(0 0 0 / 14%),
-              0 1px 5px rgb(0 0 0 / 14%);
+            box-shadow: 0 -2px 1px rgb(0 0 0 / 0%), 0 2px 2px rgb(0 0 0 / 14%), 0 1px 5px rgb(0 0 0 / 14%);
             margin-bottom: 10px;
 
             .header {
@@ -247,7 +244,6 @@
       }
     }
   }
-
 }
 
 #separator {
@@ -277,7 +273,7 @@
   min-width: 40rem;
 
   main {
-    height: #{"calc(100vh - 2.8rem)"};
+    height: #{'calc(100vh - 2.8rem)'};
     overflow-x: hidden;
     overflow-y: auto;
   }
@@ -433,10 +429,8 @@ input:focus:-webkit-autofill {
   box-shadow: 0 0 0px 1000px var(--bs-white) inset !important;
 }
 
-
 /* Dark Theme Overrides */
-html[data-theme="dark"] {
-
+html[data-theme='dark'] {
   --bs-primary: #0069ba;
   --bs-primary-rgb: 0, 105, 186;
 
@@ -494,7 +488,7 @@ html[data-theme="dark"] {
     --bs-primary-rgb: var(--bs-light-rgb);
 
     .btn-primary {
-      @extend .btn-secondary
+      @extend .btn-secondary;
     }
 
     input {
@@ -524,7 +518,7 @@ html[data-theme="dark"] {
     }
 
     input:not(.form-check-input) {
-      border-radius: 0.20rem;
+      border-radius: 0.2rem;
       background-color: var(--bs-white);
       border-color: var(--bs-white);
       color: var(--bs-body-color);
@@ -537,7 +531,7 @@ html[data-theme="dark"] {
 
     .modal-footer {
       .btn-secondary {
-        --bs-btn-bg: #373d43
+        --bs-btn-bg: #373d43;
       }
     }
   }
@@ -557,7 +551,6 @@ html[data-theme="dark"] {
   }
 
   #resources-container {
-
     #mock-server-nav-header {
       --bs-dark-rgb: var(--bs-light-rgb);
 
@@ -570,13 +563,12 @@ html[data-theme="dark"] {
       --bs-navbar-brand-color: #e9ecef;
 
       #search {
-        color: #e9ecef
+        color: #e9ecef;
       }
     }
 
     .info-box {
       background-color: var(--bs-gray-900);
-
     }
 
     #routes-list {
@@ -601,9 +593,7 @@ html[data-theme="dark"] {
           }
         }
       }
-
     }
-
   }
 
   .info-box {

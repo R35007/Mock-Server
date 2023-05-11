@@ -1,52 +1,52 @@
 async function init() {
-  $search.value = "";
+  $search.value = '';
 
   try {
-    resources = await request(localhost + "/_db");
+    resources = await request(localhost + '/_db');
   } catch (err) {
     console.log(err);
   }
 
   try {
-    rewriters = await request(localhost + "/_rewriters");
+    rewriters = await request(localhost + '/_rewriters');
   } catch (err) {
     console.error(err);
   }
   createResourcesList(resources);
   Object.entries(rewriters).length && createRewritersList(rewriters);
 
-  showToast("Resources Loaded Successfully");
+  showToast('Resources Loaded Successfully');
 }
 
 function setHomePageRoutes(resources) {
-  const routesList = Object.keys(resources)
+  const routesList = Object.keys(resources);
 
-  if (!routesList.includes("/_db"))
-    resources["/_db"] = {
-      id: window.btoa("/_db"),
-      description: "Get Db snapshot. Use ?_clean=true to get a refined clean Db.",
+  if (!routesList.includes('/_db'))
+    resources['/_db'] = {
+      id: window.btoa('/_db'),
+      description: 'Get Db snapshot. Use ?_clean=true to get a refined clean Db.',
       _default: true,
-    }
+    };
 
-  if (!routesList.includes("/_routes"))
-    resources["/_routes"] = {
-      id: window.btoa("/_routes"),
-      description: "Get List of routes used.",
+  if (!routesList.includes('/_routes'))
+    resources['/_routes'] = {
+      id: window.btoa('/_routes'),
+      description: 'Get List of routes used.',
       _default: true,
-    }
+    };
 
-  if (!routesList.includes("/_store"))
-    resources["/_store"] = {
-      id: window.btoa("/_store"),
-      description: "Get Store values.",
+  if (!routesList.includes('/_store'))
+    resources['/_store'] = {
+      id: window.btoa('/_store'),
+      description: 'Get Store values.',
       _default: true,
-    }
+    };
 }
 
 function createResourcesList(resources) {
   // collects all expanded list to restore after refresh
   const expandedList = [];
-  $resourcesList.querySelectorAll("li.expanded").forEach(li => expandedList.push(li.id));
+  $resourcesList.querySelectorAll('li.expanded').forEach((li) => expandedList.push(li.id));
 
   // removes all the resources list
   while ($resourcesList.lastElementChild) {
@@ -62,8 +62,9 @@ function createResourcesList(resources) {
 }
 
 function createRewritersList(rewriters) {
-  $rewritersList.innerHTML = Object.entries(rewriters).map(([key, val]) => {
-    return `
+  $rewritersList.innerHTML = Object.entries(rewriters)
+    .map(([key, val]) => {
+      return `
     <li class="nav-item w-100 mt-1 overflow-hidden d-block">
       <div class="header d-flex align-items-center w-100" style='filter:grayscale(0.6)'">
         <a class="nav-link py-2 px-4">
@@ -73,9 +74,10 @@ function createRewritersList(rewriters) {
         </a>
       </div>
     </li>
-    `
-  }).join("")
-  $rewritersContainer.style.display = "block";
+    `;
+    })
+    .join('');
+  $rewritersContainer.style.display = 'block';
 }
 
 function ResourceList(resources) {
@@ -83,7 +85,9 @@ function ResourceList(resources) {
   setRoutesCount(totalRoutesCount);
 
   return `
-    ${Object.entries(resources).map((routesEntry) => ResourceItem(...routesEntry)).join("")}
+    ${Object.entries(resources)
+      .map((routesEntry) => ResourceItem(...routesEntry))
+      .join('')}
     <li id="no-resource" class="nav-item w-100 mt-2" style="display: none">
       <span class="p-2 px-3 d-block bg-light text-center">
         <span> No Resources Found</span>
@@ -119,13 +123,16 @@ function ResourceItem(routePath, routeConfig) {
 }
 
 function getUrl(routePath) {
-  if (routePath.startsWith("http")) return routePath;
+  if (routePath.startsWith('http')) return routePath;
 
-  if (!routePath?.trim().length) return localhost
+  if (!routePath?.trim().length) return localhost;
 
   // remove optional params> ex : /posts/:id? -> /posts/,  /posts/:id/comments -> /posts/1/comments
-  let validRoutePath = routePath.split("/").map(r => r.indexOf(":") >= 0 ? r.indexOf("?") >= 0 ? "" : random(1, 100) : r).join("/");
-  validRoutePath = validRoutePath.replace(/\/$/gi, "") // removing trailing slash. ex: /posts/ -> /posts
+  let validRoutePath = routePath
+    .split('/')
+    .map((r) => (r.indexOf(':') >= 0 ? (r.indexOf('?') >= 0 ? '' : random(1, 100)) : r))
+    .join('/');
+  validRoutePath = validRoutePath.replace(/\/$/gi, ''); // removing trailing slash. ex: /posts/ -> /posts
 
   const url = localhost + validRoutePath;
 
@@ -136,19 +143,19 @@ async function setIframeData($event, $this, routePath) {
   // If on ctrl+click or cmd+click then open the link in new tab
   if ($event.ctrlKey || $event.metaKey) {
     const url = getUrl(routePath);
-    window.open(url, "_blank");
+    window.open(url, '_blank');
     return;
   }
-  
+
   try {
     clearActiveLink();
-    $this.parentNode.classList.add("active");
+    $this.parentNode.classList.add('active');
     try {
       $iframeData.contentWindow.document.open();
       $iframeData.contentWindow.document.close();
-    } catch { }
-    $frameLoader.style.display = "grid";
-    $dataContainer.style.display = "block";
+    } catch {}
+    $frameLoader.style.display = 'grid';
+    $dataContainer.style.display = 'block';
     setIFrameSrc(routePath);
   } catch (err) {
     console.error(err);
@@ -156,9 +163,9 @@ async function setIframeData($event, $this, routePath) {
 }
 
 function clearActiveLink() {
-  const li = $resourcesList.querySelectorAll("li .header");
+  const li = $resourcesList.querySelectorAll('li .header');
   for (let i = 0; i < li.length; i++) {
-    li[i].classList.remove("active");
+    li[i].classList.remove('active');
   }
 }
 
@@ -180,15 +187,15 @@ function setIFrameSrc(routePath) {
 function filterRoutes() {
   let searchText, routePath, i, txtValue;
   searchText = $search.value.toUpperCase();
-  routePath = $resourcesList.querySelectorAll(".route-path");
+  routePath = $resourcesList.querySelectorAll('.route-path');
   filteredRoutesCount = 0;
   for (i = 0; i < routePath.length; i++) {
     txtValue = routePath[i].textContent || routePath[i].innerText;
     if (txtValue.toUpperCase().indexOf(searchText) > -1) {
-      routePath[i].parentNode.parentNode.parentNode.style.display = "block";
+      routePath[i].parentNode.parentNode.parentNode.style.display = 'block';
       filteredRoutesCount++;
     } else {
-      routePath[i].parentNode.parentNode.parentNode.style.display = "none";
+      routePath[i].parentNode.parentNode.parentNode.style.display = 'none';
     }
   }
   setRoutesCount(totalRoutesCount, filteredRoutesCount, searchText);
@@ -196,21 +203,17 @@ function filterRoutes() {
 }
 
 function setRoutesCount(totalRoutesCount, filteredRoutesCount, searchText) {
-  const count = searchText?.length
-    ? `${filteredRoutesCount} / ${totalRoutesCount}`
-    : totalRoutesCount;
+  const count = searchText?.length ? `${filteredRoutesCount} / ${totalRoutesCount}` : totalRoutesCount;
   $resourcesCount.innerHTML = count;
 }
 
 function showNoResource(show) {
-  document.getElementById("no-resource").style.display = show
-    ? "block"
-    : "none";
+  document.getElementById('no-resource').style.display = show ? 'block' : 'none';
 }
 
 async function resetAll() {
-  resources = await request(localhost + "/_reset");
-  showToast("Routes Restored Successfully");
+  resources = await request(localhost + '/_reset');
+  showToast('Routes Restored Successfully');
   createResourcesList(resources);
 }
 

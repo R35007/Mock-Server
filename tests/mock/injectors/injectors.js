@@ -1,11 +1,11 @@
 module.exports = [
   {
-    routes: "/(.*)",
+    routes: '/(.*)',
     delay: 2000,
   },
   {
-    routes: ["/posts", "/comments"],
+    routes: ['/posts', '/comments'],
     statusCode: 500,
-    override: true
+    override: true,
   },
-]
+];

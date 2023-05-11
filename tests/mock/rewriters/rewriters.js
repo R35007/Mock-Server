@@ -1,3 +1,3 @@
 module.exports = {
-  "/posts/:category": "/posts?category=:category",
-}
+  '/posts/:category': '/posts?category=:category',
+};

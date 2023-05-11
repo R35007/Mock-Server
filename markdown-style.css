@@ -10,7 +10,7 @@ body {
   font-size: 15px;
   color: #333;
   background: #fff;
-  font-family: Helvetica, Arial, "PingFang SC", "Microsoft YaHei", "WenQuanYi Micro Hei", "tohoma,sans-serif";
+  font-family: Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'tohoma,sans-serif';
   margin: 0;
   padding: 20px 10%;
 }
@@ -75,17 +75,17 @@ a {
   box-shadow: none !important;
 }
 
-h1:first-child>a:empty:after {
-  content: "\25B2";
+h1:first-child > a:empty:after {
+  content: '\25B2';
 }
 
-h1:first-child>a:empty {
+h1:first-child > a:empty {
   position: fixed;
   bottom: 10px;
   right: 10px;
   color: white !important;
   text-decoration: none;
-  font-family: "Courier New", Courier, monospace;
+  font-family: 'Courier New', Courier, monospace;
   text-align: center;
   display: inline-block;
   border-radius: 50px;
@@ -99,7 +99,7 @@ h1:first-child>a:empty {
   transition: 0.2s all ease-in;
 }
 
-h1:first-child>a:empty:hover {
+h1:first-child > a:empty:hover {
   opacity: 0.8;
 }
 
@@ -107,7 +107,7 @@ code {
   color: var(--primary);
   background-color: var(--primary-bg-light);
   border-radius: 4px;
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
   font-size: 90%;
 }
 
@@ -130,5 +130,5 @@ table tr:nth-child(even) {
 }
 
 .function_ {
-  color: #e7d405
+  color: #e7d405;
 }
