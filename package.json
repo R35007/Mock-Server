@@ -16,7 +16,7 @@
     "format:fix": "prettier --loglevel silent --ignore-unknown --find-config-path --write .",
     "lint:ts": "tsc --noEmit",
     "clean": "rimraf node_modules package-lock.json coverage dist",
-    "test:all": "jest --collectCoverage --collectCoverageFrom=src/server/**/*.ts --silent --runInBand --verbose --no-cache"
+    "test:all": "jest --collectCoverage --collectCoverageFrom=src/**/*.ts --silent --runInBand --verbose --no-cache"
   },
   "files": [
     "dist",

@@ -1,7 +1,7 @@
 import type { Locals } from '../../types/common.types';
 
 export const _SetDelay = (req, res, next) => {
-  const locals = (res.locals as Locals) || {};
+  const locals = res.locals as Locals;
 
   const delay = locals.routeConfig?.delay || [].concat(req.query?._delay || 0)[0];
   const _delay = parseInt((delay as any) || 0, 10);

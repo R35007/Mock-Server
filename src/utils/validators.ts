@@ -25,11 +25,14 @@ export const getValidConfig = (
     ...userConfig,
     base: userConfig.base && getValidRoute(userConfig.base) !== '/' ? getValidRoute(userConfig.base) : undefined,
     dbMode: ['multi', 'fetch', 'mock', 'config'].includes(userConfig.dbMode || '') ? userConfig.dbMode : undefined,
-    host: !_.isEmpty(userConfig.host)
-      ? _.isString(userConfig.host) && userConfig.host.trim() === ''
-        ? ip.address()
-        : userConfig.host
-      : undefined,
+    host:
+      typeof userConfig.host !== 'undefined'
+        ? _.isString(userConfig.host)
+          ? userConfig.host.trim() === ''
+            ? ip.address()
+            : userConfig.host
+          : undefined
+        : undefined,
     id: !_.isEmpty(userConfig.id) && _.isString(userConfig.id) ? userConfig.id : undefined,
     port: !_.isNaN(parseInt(userConfig.port as any)) ? parseInt(userConfig.port as any) : undefined,
     root: userConfig.root ? _root : undefined,

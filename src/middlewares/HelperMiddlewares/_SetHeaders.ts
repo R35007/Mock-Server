@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import type { Locals } from '../../types/common.types';
 
 export const _SetHeaders = (_req, res, next) => {
-  const locals = (res.locals as Locals) || {};
+  const locals = res.locals as Locals;
 
   const headers = locals.headers || locals.routeConfig?.headers;
 
