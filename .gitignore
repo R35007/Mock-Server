@@ -1,6 +1,5 @@
 node_modules
 dist
-.vscode
 test
 *.map
 coverage

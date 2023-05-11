@@ -1,8 +1,8 @@
-import type { Locals } from '../types/common.types';
 import * as _ from 'lodash';
-import CRUD from '../utils/crud';
+import type { Locals } from '../../types/common.types';
+import CRUD from '../../utils/crud';
 
-const CrudOperation = (req, res, next) => {
+export const _CrudOperation = async (req, res, next) => {
   const storeKey = '_CrudOperation';
   const method = req.method;
   const locals = res.locals as Locals;
@@ -30,5 +30,3 @@ const CrudOperation = (req, res, next) => {
   }
   next();
 };
-
-export default CrudOperation;

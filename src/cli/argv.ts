@@ -1,4 +1,6 @@
 import * as yargs from 'yargs';
+// Import cosmiconfig module
+import { cosmiconfig } from 'cosmiconfig';
 
 export type Paths = {
   root: string;
@@ -37,14 +39,36 @@ export type CliOptions = Paths &
     _: string[];
   };
 
-export default (pkg) => {
+export default async (pkg) => {
+  const moduleNames = ['mock-server', 'mockserver'];
+  const searchPlaces = [
+    'package.json',
+    ...moduleNames.map((moduleName) => `.${moduleName}rc`),
+    ...moduleNames.map((moduleName) => `.${moduleName}rc.json`),
+    ...moduleNames.map((moduleName) => `.${moduleName}rc.js`),
+    ...moduleNames.map((moduleName) => `.${moduleName}rc.cjs`),
+    ...moduleNames.map((moduleName) => `.${moduleName}.config.json`),
+    ...moduleNames.map((moduleName) => `.${moduleName}.config.js`),
+    ...moduleNames.map((moduleName) => `.${moduleName}.config.cjs`),
+    ...moduleNames.map((moduleName) => `${moduleName}-config.json`),
+    ...moduleNames.map((moduleName) => `${moduleName}-config.js`),
+    ...moduleNames.map((moduleName) => `${moduleName}-config.cjs`),
+  ];
+
+  // Create a cosmiconfig explorer
+  const explorer = cosmiconfig('mock-server', { searchPlaces });
+  const config = await explorer
+    .search()
+    .then((res) => res?.config || {})
+    .catch(() => {});
+
   const options = yargs
-    .config('config')
+    .config('config', () => config)
     .usage('mock-server [options] <source>')
     .options({
       base: { alias: 'b', default: '', description: 'Set base route path', type: 'string' },
       bodyParser: { alias: 'bp', default: true, description: 'Enable body-parser', type: 'boolean' },
-      config: { alias: 'c', default: 'mock-server-config', description: 'Path to config file', type: 'string' },
+      config: { alias: 'c', default: '.mockserverrc.json', description: 'Path to config file', type: 'string' },
       cookieParser: { alias: 'cp', default: true, description: 'Enable cookie-parser', type: 'boolean' },
       db: { alias: '', description: 'Path to database file', type: 'string' },
       dbMode: { alias: 'dm', choices: ['mock', 'fetch', 'multi', 'config'], default: 'mock', description: 'Set Db mode', type: 'string' },

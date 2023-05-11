@@ -1,13 +1,14 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
 import chalk from 'chalk';
-import * as fs from 'fs';
 import * as cjson from 'comment-json';
+import * as fs from 'fs';
+import * as fsProm from 'fs/promises';
 import * as _ from 'lodash';
 import * as path from 'path';
+import { getParsedJSON } from '.';
 import type { PathDetails } from '../types/common.types';
 import type * as ValidTypes from '../types/valid.types';
-import { getParsedJSON } from '.';
 
 export const importJsModuleSync = (modulePath: string) => {
   delete require.cache[require.resolve(modulePath)];
@@ -116,17 +117,17 @@ export const getStats = (directoryPath: string): PathDetails | undefined => {
   return { extension, fileName, filePath: directoryPath, isDirectory: stats.isDirectory(), isFile: stats.isFile() };
 };
 
-export const getFileData = (filePath: string): ValidTypes.FetchData => {
+export const getFileData = async (filePath: string): Promise<ValidTypes.FetchData> => {
   let fetchData: ValidTypes.FetchData = { isError: false };
   const extension = path.extname(filePath);
   try {
     if (['.json', '.jsonc', '.har'].includes(extension)) {
-      const str = fs.readFileSync(filePath, 'utf-8');
+      const str = await fsProm.readFile(filePath, { encoding: 'utf-8' });
       fetchData.response = _.isEmpty(str) ? {} : getParsedJSON(str);
     } else if (extension === '.txt') {
-      fetchData.response = fs.readFileSync(filePath, 'utf8');
+      fetchData.response = await fsProm.readFile(filePath, { encoding: 'utf-8' });
     } else {
-      const str = fs.readFileSync(filePath, 'utf-8');
+      const str = await fsProm.readFile(filePath, { encoding: 'utf-8' });
       fetchData.response = _.isEmpty(str) ? {} : getParsedJSON(str);
     }
   } catch (err: any) {
@@ -152,6 +153,7 @@ export const getUrlData = async (request: AxiosRequestConfig): Promise<ValidType
     }
     const isImage = response.headers['content-type']?.match(/image\/(jpeg|jpg|gif|png)$/gi)?.length > 0;
     const headers = { ...(response.headers || {}) };
+
     delete headers['transfer-encoding'];
     delete headers['content-length'];
 

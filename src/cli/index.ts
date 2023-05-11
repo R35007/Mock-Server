@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import ora from 'ora';
 import * as path from 'path';
 import pleaseUpgradeNode from 'please-upgrade-node';
+import updateNotifier from 'update-notifier';
 import MockServer from '../';
 import type { LaunchServerOptions } from '../types/common.types';
 import type * as ParamTypes from '../types/param.types';
@@ -16,32 +17,14 @@ import argv from './argv';
 const pkgStr = fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8');
 const pkg = JSON.parse(pkgStr);
 
-const args = argv(pkg);
-const {
-  _: [source],
-  db = source,
-  injectors,
-  middlewares,
-  store,
-  rewriters,
-  root,
-  watch,
-  snapshots,
-  ...configArgs
-} = args;
-const config = { ...configArgs, root: path.resolve(process.cwd(), root) };
-
-global.quiet = config.quiet;
-
-const mockServer = MockServer.Create(config);
-
+updateNotifier({ pkg }).notify();
 pleaseUpgradeNode(pkg, {
   message: function (requiredVersion) {
     return chalk.red('Please upgrade Node.\n@r35007/mock-server requires at least version ' + chalk.yellow(requiredVersion) + ' of Node.');
   },
 });
 
-const getDataFromUrl = async (data?: string) => {
+const getDataFromUrl = async (root: string, data?: string) => {
   try {
     if (!data) return;
     if (data.startsWith('http')) {
@@ -56,7 +39,7 @@ const getDataFromUrl = async (data?: string) => {
         return;
       }
     } else {
-      const resolvedPath = path.resolve(config.root, data);
+      const resolvedPath = path.resolve(root, data);
       if (!fs.existsSync(resolvedPath)) {
         process.stdout.write('\n' + chalk.red('Invalid Path: ') + chalk.yellow(resolvedPath) + '\n');
         return;
@@ -82,7 +65,7 @@ const errorHandler = async (fileWatcher: watcher.FSWatcher) => {
   process.exit(1);
 };
 
-const getSnapshot = (snapshots) => {
+const getSnapshot = (mockServer: MockServer, snapshots) => {
   process.stdout.write('\n' + chalk.gray('Type s + enter at any time to create a snapshot of the database') + '\n');
   process.stdin.on('data', (chunk) => {
     try {
@@ -98,7 +81,7 @@ const getSnapshot = (snapshots) => {
   });
 };
 
-const startServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
+const startServer = async (mockServer: MockServer, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions) => {
   try {
     const server = await mockServer.launchServer(db, launchServerOptions);
     return server;
@@ -107,11 +90,11 @@ const startServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerO
   }
 };
 
-const restartServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, changedPath: string) => {
+const restartServer = async (mockServer: MockServer, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, changedPath: string) => {
   try {
     if (!mockServer.server) return;
     process.stdout.write(chalk.yellow('\n' + path.relative(process.cwd(), changedPath)) + chalk.gray(' has changed, reloading...\n'));
-    await MockServer.Destroy(mockServer).then(() => startServer(db, launchServerOptions));
+    await MockServer.Destroy(mockServer).then(() => startServer(mockServer, db, launchServerOptions));
   } catch (err: any) {
     console.error(err.message);
     process.exit(1);
@@ -119,11 +102,30 @@ const restartServer = async (db: ParamTypes.Db, launchServerOptions: LaunchServe
 };
 
 const init = async () => {
-  const _db = await getDataFromUrl(db);
-  const _middlewares = await getDataFromUrl(middlewares);
-  const _injectors = await getDataFromUrl(injectors);
-  const _store = await getDataFromUrl(store);
-  const _rewriters = await getDataFromUrl(rewriters);
+  const args = await argv(pkg);
+  const {
+    _: [source],
+    db = source,
+    injectors,
+    middlewares,
+    store,
+    rewriters,
+    root,
+    watch,
+    snapshots,
+    ...configArgs
+  } = args;
+  const config = { ...configArgs, root: path.resolve(process.cwd(), root) };
+
+  global.quiet = config.quiet;
+
+  const mockServer = new MockServer(config);
+
+  const _db = await getDataFromUrl(config.root, db);
+  const _middlewares = await getDataFromUrl(config.root, middlewares);
+  const _injectors = await getDataFromUrl(config.root, injectors);
+  const _store = await getDataFromUrl(config.root, store);
+  const _rewriters = await getDataFromUrl(config.root, rewriters);
 
   const launchServerOptions = {
     injectors: _injectors,
@@ -132,7 +134,7 @@ const init = async () => {
     store: _store,
   };
 
-  await startServer(_db, launchServerOptions);
+  await startServer(mockServer, _db, launchServerOptions);
 
   let fileWatcher: watcher.FSWatcher;
 
@@ -142,10 +144,10 @@ const init = async () => {
       .filter((file) => typeof file === 'string')
       .filter((file) => fs.existsSync(file));
     fileWatcher = watcher.watch(filesToWatch);
-    fileWatcher.on('change', (changedPath) => restartServer(_db, launchServerOptions, changedPath));
+    fileWatcher.on('change', (changedPath) => restartServer(mockServer, _db, launchServerOptions, changedPath));
   }
 
-  getSnapshot(snapshots);
+  getSnapshot(mockServer, snapshots);
 
   process.on('uncaughtException', (error) => uncaughtException(error, fileWatcher));
   process.stdin.setEncoding('utf8');

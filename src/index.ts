@@ -11,18 +11,7 @@ import path from 'path';
 import * as pathToRegexp from 'path-to-regexp';
 import enableDestroy from 'server-destroy';
 import { GettersSetters } from './getters-setters';
-import {
-  CrudOperation,
-  Defaults,
-  Delay,
-  ErrorHandler,
-  Fetch,
-  Headers,
-  Initializer,
-  PageNotFound,
-  SendResponse,
-  StatusCode,
-} from './middlewares';
+import { Defaults, ErrorHandler, HelperMiddlewares, Initializer, PageNotFound } from './middlewares';
 import RouteConfigSetters from './route-config-setters';
 import type { LaunchServerOptions, ResourceOptions, ResourceReturns, RewriterOptions } from './types/common.types';
 import type * as ParamTypes from './types/param.types';
@@ -147,7 +136,7 @@ export class MockServer extends GettersSetters {
       log = this.config.log,
     }: ResourceOptions = {}
   ): ResourceReturns {
-    const create = (routePath: string, ...expressMiddlewares: UserTypes.Middleware_Config[]) => {
+    const create = (routePath: string, ...expressMiddlewares: UserTypes.MiddlewareConfig[]) => {
       const validRoute = getValidRoute(routePath);
       const routeConfigSetters = new RouteConfigSetters(validRoute, expressMiddlewares.flat(), dbMode);
       // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -189,14 +178,18 @@ export class MockServer extends GettersSetters {
     this.getDb()[routePath] = routeConfig;
     this.initialDb[routePath] = _.cloneDeep(routeConfig);
 
-    const middlewareList = this.#getMiddlewareList(routePath, routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
+    router.use(routePath, Initializer(routePath, this));
 
-    if (middlewareList.length === 1) {
-      if (middlewareList[0].name === 'serveStatic') return router.use(routePath, middlewareList[0]);
-      return router.all(routePath, middlewareList[0]);
+    const middlewareList = this.#getMiddlewareList(routeConfig.middlewares, validMiddlewares, routeConfig.directUse);
+
+    if (middlewareList.some((middleware) => middleware.name === 'serveStatic')) {
+      middlewareList.forEach((middleware) => {
+        if (middleware.name === 'serveStatic') return router.use(routePath, middleware);
+        return router.all(routePath, middleware);
+      });
+    } else {
+      router.all(routePath, middlewareList);
     }
-
-    router?.all(routePath, middlewareList);
 
     // if the current route ends with config id param or if the routes list has already route that ends with config id param then return
     if (
@@ -207,16 +200,18 @@ export class MockServer extends GettersSetters {
     )
       return;
 
-    router?.all(routePath + `/:${this.config.id || 'id'}`, middlewareList);
+    middlewareList.forEach((middleware) => {
+      if (middleware.name === 'serveStatic') return router.use(routePath + `/:${this.config.id || 'id'}`, middleware);
+      return router?.all(routePath + `/:${this.config.id || 'id'}`, middleware);
+    });
   };
 
   #getMiddlewareList = (
-    routePath: string,
-    routeMiddlewares?: UserTypes.Middleware_Config | UserTypes.Middleware_Config[],
+    routeMiddlewares?: UserTypes.MiddlewareConfig | UserTypes.MiddlewareConfig[],
     globalMiddlewares: ValidTypes.Middlewares = this.middlewares,
     directUse = false
   ) => {
-    const userMiddlewares = ([] as UserTypes.Middleware_Config[])
+    const userMiddlewares = ([] as UserTypes.MiddlewareConfig[])
       .concat(routeMiddlewares || [])
       .filter(Boolean)
       .map((middleware) => (_.isString(middleware) ? globalMiddlewares[middleware] : middleware))
@@ -224,21 +219,20 @@ export class MockServer extends GettersSetters {
 
     if (directUse) return userMiddlewares;
 
-    return [
-      Initializer(routePath, this.config, this.getDb, this.getStore),
-      Delay,
-      Fetch,
-      StatusCode,
-      Headers,
-      CrudOperation,
-      ...userMiddlewares,
-      Fetch,
-      StatusCode,
-      Headers,
-      CrudOperation,
-      SendResponse,
-    ];
+    return this.withHelperWrappers(userMiddlewares);
   };
+
+  withHelperWrappers = (middlewares: UserTypes.MiddlewareConfig | UserTypes.MiddlewareConfig[] = []) => [
+    HelperMiddlewares._SetDelay,
+    HelperMiddlewares._Fetch,
+    HelperMiddlewares._SetStatusCode,
+    HelperMiddlewares._SetHeaders,
+    HelperMiddlewares._CrudOperation,
+    ...([] as any).concat(middlewares),
+    HelperMiddlewares._SetStatusCode,
+    HelperMiddlewares._SetHeaders,
+    HelperMiddlewares._SendResponse,
+  ];
 
   async startServer(port?: number, host?: string): Promise<Server | undefined> {
     if (_.isInteger(port) || !_.isEmpty(host)) {

@@ -1,0 +1,92 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start Sample Server",
+      "program": "${workspaceFolder}/samples/server/index.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "console": "integratedTerminal",
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test All Files",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--collectCoverage=${input:collectCoverage}",
+        "--collectCoverageFrom=", // Provide your custom coverage path
+        "--watchAll=${input:watch}",
+        "--runInBand",
+        "--verbose=false",
+        "--noStackTrace",
+        "--no-cache",
+        "--silent",
+      ],
+      "console": "integratedTerminal",
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test Current File",
+      "program": "${workspaceFolder}\\scripts\\jest.js",
+      "args": [
+        "${relativeFileDirname}\\${fileBasename}",
+        "--collectCoverage=${input:collectCoverage}",
+        // "--collectCoverageFrom=", // Provide your custom coverage path
+        "--watch=${input:watch}",
+        "--runTestsByPath",
+        "--runInBand",
+        "--no-cache",
+        "--verbose",
+        "--silent"
+      ],
+      "console": "integratedTerminal",
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test Current Folder",
+      "program": "${workspaceFolder}\\scripts\\jest.js",
+      "args": [
+        "${relativeFileDirname}",
+        "--collectCoverage=${input:collectCoverage}",
+        // "--collectCoverageFrom=", // Provide your custom coverage path
+        "--watch=${input:watch}",
+        "--runInBand",
+        "--no-cache",
+        "--verbose",
+        "--silent"
+      ],
+      "console": "integratedTerminal",
+    },
+  ],
+  "inputs": [
+    {
+      "type": "pickString",
+      "id": "collectCoverage",
+      "description": "Should collect Coverage ?",
+      "options": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    },
+    {
+      "type": "pickString",
+      "id": "watch",
+      "description": "Should watch for changes ?",
+      "options": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    }
+  ]
+}

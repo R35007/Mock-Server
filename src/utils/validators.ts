@@ -138,7 +138,8 @@ export const getValidDb = (
 };
 
 export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbMode = Defaults.Config.dbMode): ValidTypes.RouteConfig => {
-  if (_.isFunction(routeConfig))
+  // If the given value is a function or array of function then directly use that function without helper middlewares
+  if (_.isFunction(routeConfig) || (_.isArray(routeConfig) && routeConfig.every(_.isFunction)))
     return { _config: true, directUse: true, id: toBase64(route), middlewares: [routeConfig as express.RequestHandler] };
 
   // if db mode is config then strictly expect an config object
@@ -156,7 +157,7 @@ export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbM
   routeConfig.id = `${routeConfig.id || ''}` || toBase64(route);
 
   if (routeConfig.middlewares) {
-    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat((routeConfig.middlewares as UserTypes.Middleware_Config) || []);
+    routeConfig.middlewares = ([] as UserTypes.MiddlewareConfig[]).concat((routeConfig.middlewares as UserTypes.MiddlewareConfig) || []);
     if (!routeConfig.middlewares.length) delete routeConfig.middlewares;
   }
   return routeConfig as ValidTypes.RouteConfig;
@@ -165,7 +166,7 @@ export const getValidRouteConfig = (route: string, routeConfig: any, dbMode: DbM
 export const getValidInjectorConfig = (routeConfig: UserTypes.InjectorConfig): ValidTypes.InjectorConfig => {
   routeConfig.routes = ([] as string[]).concat(routeConfig.routes as string).map(getValidRoute);
   if (routeConfig.middlewares) {
-    routeConfig.middlewares = ([] as UserTypes.Middleware_Config[]).concat((routeConfig.middlewares as UserTypes.Middleware_Config) || []);
+    routeConfig.middlewares = ([] as UserTypes.MiddlewareConfig[]).concat((routeConfig.middlewares as UserTypes.MiddlewareConfig) || []);
   }
   return routeConfig as ValidTypes.InjectorConfig;
 };

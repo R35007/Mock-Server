@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import type { Locals } from '../types/common.types';
-import { interpolate } from '../utils';
+import * as _ from 'lodash';
+import type { Locals } from '../../types/common.types';
+import { interpolate } from '../../utils';
 
-export default async (req, res) => {
+export const _SendResponse = async (req, res) => {
   if (res.headersSent) return; // return if response is already sent
 
   const locals = <Locals>res.locals;

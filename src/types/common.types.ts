@@ -1,5 +1,5 @@
 import type * as express from 'express';
-import type HelperMiddlewares from '../middlewares';
+import type { HelperMiddlewares } from '../middlewares';
 import type RouteConfigSetters from '../route-config-setters';
 import type * as ParamTypes from './param.types';
 import type * as UserTypes from './user.types';
@@ -166,5 +166,5 @@ export type ResourceOptions = {
 
 export type ResourceReturns = {
   router: express.Router;
-  create: (routePath: string, ...middlewares: UserTypes.Middleware_Config[]) => RouteConfigSetters;
+  create: (routePath: string, ...middlewares: UserTypes.MiddlewareConfig[]) => RouteConfigSetters;
 };

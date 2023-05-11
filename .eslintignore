@@ -10,3 +10,8 @@ samples
 public
 scripts
 tests
+
+# configs
+.eslintrc.cjs
+jest.config.js
+.prettierrc.cjs

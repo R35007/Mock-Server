@@ -1,6 +1,6 @@
-import type { Locals } from '../types/common.types';
+import type { Locals } from '../../types/common.types';
 
-export default (req, res, next) => {
+export const _SetStatusCode = (req, res, next) => {
   const locals = (res.locals as Locals) || {};
 
   const statusCode = locals.statusCode || locals.routeConfig?.statusCode || [].concat(req.query?._statusCode || 0)[0];

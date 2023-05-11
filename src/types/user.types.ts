@@ -14,7 +14,7 @@ export type FetchData = {
 };
 
 export type Middlewares = Partial<DefaultMiddlewares & GlobalMiddlweares & UserMiddlweares>;
-export type Middleware_Config = express.RequestHandler | MiddlewareNames | string;
+export type MiddlewareConfig = express.RequestHandler | MiddlewareNames | string;
 
 export type RouteConfig = {
   _config: boolean;
@@ -29,7 +29,7 @@ export type RouteConfig = {
   fetchCount?: number;
   skipFetchError?: boolean;
   mockFirst?: boolean;
-  middlewares?: Middleware_Config | Middleware_Config[];
+  middlewares?: MiddlewareConfig | MiddlewareConfig[];
   directUse?: boolean;
   headers?: { [key: string]: any };
 };

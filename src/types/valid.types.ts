@@ -35,7 +35,7 @@ export type FetchData = UserTypes.FetchData;
 
 export type RouteConfig = UserTypes.RouteConfig & {
   id: string;
-  middlewares?: UserTypes.Middleware_Config[];
+  middlewares?: UserTypes.MiddlewareConfig[];
   fetchData?: FetchData;
 
   // fetchData Utils

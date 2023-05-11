@@ -7,6 +7,10 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 </META>
 
 ## Table of contents
+
+<details>
+  <summary>Details</summary>
+
 - [Getting started](#getting-started)
 - [CLI Usage](#cli-usage)
 - [Using JS Module](#using-js-module)
@@ -17,26 +21,24 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 - [Rewriters](#rewriters)
 - [Helper Middlewares](#helper-middlewares)
 - [Route Config](#route-config)
+- [Set Custom Delay](#set-custom-delay)
+- [Set Custom StatusCode](#set-custom-statuscode)
+- <details style="margin-bottom: 10px">
+      <summary><a href="#fetch-file-or-url">Fetch File or Url</a></summary>
+      <ul>
+        <li> <a href="#fetch-file">Fetch File</a> </li>
+        <li> <a href="#fetch-data-from-url">Fetch Data From URL</a> </li>
+        <li> <a href="#axios-fetch-request">Axios Fetch Request</a> </li>
+        <li> <a href="#fetch-count">Fetch Count</a> </li>
+        <li> <a href="#skip-fetch-error">Skip Fetch Error</a> </li>
+      </ul>
+  </details>
 
-  - [Set Custom Delay](#set-custom-delay)
-  - [Set Custom StatusCode](#set-custom-statuscode)
-  - <details>
-        <summary><a href="#fetch-file-or-url">Fetch File or Url</a></summary>
-        <ul>
-          <li> <a href="#fetch-file">Fetch File</a> </li>
-          <li> <a href="#fetch-data-from-url">Fetch Data From URL</a> </li>
-          <li> <a href="#axios-fetch-request">Axios Fetch Request</a> </li>
-          <li> <a href="#fetch-count">Fetch Count</a> </li>
-          <li> <a href="#skip-fetch-error">Skip Fetch Error</a> </li>
-        </ul>
-    </details>
-
-  - [Specific Middlewares](#specific-middlewares)
-
-- [App Config](#app-config)
+- [Specific Middlewares](#specific-middlewares)
+- [App Configuration](#app-configuration)
 - [Locals](#locals)
 - [Home Page Routes](#home-page-routes)
-- <details>
+- <details style="margin-bottom: 10px">
       <summary><a href="#api">API</a></summary>
       <ul>
         <li> <a href="#mockserver">MockServer</a> </li>
@@ -63,6 +65,7 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 - [VS Code Extension](#vs-code-extension)
 - [Author](#author)
 - [License](#license)
+</details>
 
 ## Getting started
 
@@ -107,11 +110,11 @@ Options:
   -r, --root                Set root directory.                   [string]  [default: "./"]
   -s, --static              Set static files directory            [string]  [default: "./public"]
   -b, --base                Set base route path                   [string]  [default: ""]
-      --db                  Path to database file                 [string]  
-      --middlewares, --md   Path to middlewares file              [string]  
-      --injectors, --in     Path to Injectors file                [string]  
-      --store, --st         Path to Store file                    [string]  
-      --rewriters, --rw     Path to Rewriter file                 [string]  
+      --db                  Path to database file                 [string]
+      --middlewares, --md   Path to middlewares file              [string]
+      --injectors, --in     Path to Injectors file                [string]
+      --store, --st         Path to Store file                    [string]
+      --rewriters, --rw     Path to Rewriter file                 [string]
       --id                  Set database id property              [string]  [default: "id"]
       --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"]
       --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
@@ -148,21 +151,21 @@ npm install -g nodemon
 Create `server.js` File
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 const mockServer = MockServer.Create({ root: __dirname });
-mockServer.launchServer("./db.json");
+mockServer.launchServer('./db.json');
 ```
 
 or
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 
 const mockServer = MockServer.Create({ root: __dirname }); // Create Mock Server instance with custom config.
 
-const rewriter = mockServer.rewriter({ "/api/*": "/$1" }); // /api/posts -> /posts
+const rewriter = mockServer.rewriter({ '/api/*': '/$1' }); // /api/posts -> /posts
 const defaults = mockServer.defaults();
-const resources = mockServer.resources("./db.json");
+const resources = mockServer.resources('./db.json');
 const homePage = mockServer.homePage();
 
 const app = mockServer.app;
@@ -186,7 +189,7 @@ nodemon server.js
 
 For more api reference please click [here](#api),
 
-## **Database**
+## Database
 
 We can add the database in three ways. Using `setData`, `setDb` or `resources.`
 The easy and efficient way to add the database is using `resources`.
@@ -204,23 +207,23 @@ Create `db.json`
 Now in `server.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 
 const mockServer = MockServer.Create({ root: __dirname }); // Create Mock Server instance with custom config.
 
 const app = mockServer.app;
 
 // Adds Database and returns a new express router
-const resources = mockServer.resources("./db.json");
+const resources = mockServer.resources('./db.json');
 app.use(resources.router);
 
 // Add new database. This will be added to the existing database and will not override the existing route if exist
 const newDb = {
   users: [
-    { id: 1, name: "foo" },
-    { id: 2, name: "bar" },
+    { id: 1, name: 'foo' },
+    { id: 2, name: 'bar' },
   ],
-  profile: { name: "foo" }, // will not be added since its already exist in resource
+  profile: { name: 'foo' }, // will not be added since its already exist in resource
 };
 const newResource = mockServer.resources(newDb);
 app.use(resources.router);
@@ -235,7 +238,7 @@ We can create database with custom injectors, middlewares, dbMode etc..
 For Example: `server.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 
 const mockServer = MockServer.Create({ root: __dirname }); // Create Mock Server instance with custom config.
 
@@ -246,12 +249,12 @@ const app = mockServer.app;
 // Which means that these injectors and middleware will only be applied to todos database
 const todos = {
   todos: [
-    { id: 1, title: "Todo 1", completed: false },
-    { id: 2, title: "Todo 2", completed: false },
+    { id: 1, title: 'Todo 1', completed: false },
+    { id: 2, title: 'Todo 2', completed: false },
   ],
 };
 
-const injectors = [{ routes: "/(.*)", delay: 1000, middlewares: ["log"] }];
+const injectors = [{ routes: '/(.*)', delay: 1000, middlewares: ['log'] }];
 
 const middlewares = {
   log: (req, res) => {
@@ -310,7 +313,7 @@ All available methods to create a route.
 `server.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 const mockServer = MockServer.Create({ root: __dirname });
 const app = mockServer.app;
 const resources = mockServer.resources();
@@ -325,12 +328,12 @@ middlewares = [
 ];
 
 const db = resources
-  .create("/todos", ...middlewares) // can give n number of middlewares and names here
-  .send("My Response", mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode. alias rely
-  .id("todos")
-  .description("todos route")
-  .mock({ userId: 1, id: 1, title: "Marvel", completed: false })
-  .fetch("https://jsonplaceholder.typicode.com/todos")
+  .create('/todos', ...middlewares) // can give n number of middlewares and names here
+  .send('My Response', mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode. alias rely
+  .id('todos')
+  .description('todos route')
+  .mock({ userId: 1, id: 1, title: 'Marvel', completed: false })
+  .fetch('https://jsonplaceholder.typicode.com/todos')
   .mockFirst(false)
   .statusCode(200) // alias status(200) can also be used
   .delay(0) // delay in milliseconds
@@ -370,7 +373,7 @@ mockServer.startServer();
 
 Please check [resources](#resources) api for more custom option reference.
 
-## **Middlewares**
+## Middlewares
 
 We can use the middlewares by setting it using `setData` or `setMiddlewares`.
 
@@ -386,8 +389,8 @@ const auth = (req, res, next) => {
 
 const DataWrapper = (req, res, next) => {
   res.locals.data = {
-    status: "Success",
-    message: "Retrieved Successfully",
+    status: 'Success',
+    message: 'Retrieved Successfully',
     result: res.locals.data,
   };
   next();
@@ -408,7 +411,7 @@ module.exports = (mockServer) => {
 `server.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 
 const mockServer = MockServer.Create({ root: __dirname });
 const app = mockServer.app;
@@ -418,14 +421,14 @@ app.use(defaults);
 
 // Always set middlewares after using default middlewares.
 // These middlewares will be set to mockServer instance and can be accessed across all routes.
-mockServer.setMiddlewares("./middlewares.js");
+mockServer.setMiddlewares('./middlewares.js');
 app.use(mockServer.middlewares._globals);
 
 const resources = mockServer.resources({
-  "/fetch/users1/customMiddleware": {
+  '/fetch/users1/customMiddleware': {
     _config: true,
-    fetch: "http://jsonplaceholder.typicode.com/users",
-    middlewares: ["DataWrapper"], // Picks the DataWrapper middleware from middlewares.js
+    fetch: 'http://jsonplaceholder.typicode.com/users',
+    middlewares: ['DataWrapper'], // Picks the DataWrapper middleware from middlewares.js
   },
 });
 app.use(resources.router); // Add Database
@@ -454,7 +457,7 @@ const db = {
 
 > Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
 
-## **Injectors**
+## Injectors
 
 Here we are explicitly injecting `delay`, `middlewares`, `statusCode` to the `/posts` route.
 We can add any route configs to a specific or to a group of routes using Injectors.
@@ -474,19 +477,19 @@ For Example : `injectors.json`
 `server.js`
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 
-const mockServer = MockServer.Create({ root: __dirname, dbMode: "fetch" });
+const mockServer = MockServer.Create({ root: __dirname, dbMode: 'fetch' });
 const resources = mockServer.resources({
-  "/posts": "http://jsonplaceholder.typicode.com/posts", // have delay of 2 seconds
-  "/comments/1": "http://jsonplaceholder.typicode.com/comments/1", // sets status code of 500
-  "/comments/2": "http://jsonplaceholder.typicode.com/comments/2", // sets status code of 500
+  '/posts': 'http://jsonplaceholder.typicode.com/posts', // have delay of 2 seconds
+  '/comments/1': 'http://jsonplaceholder.typicode.com/comments/1', // sets status code of 500
+  '/comments/2': 'http://jsonplaceholder.typicode.com/comments/2', // sets status code of 500
 });
 
 const app = mockServer.app;
 
 // These injectors will be set to mockServer instance and be access across all routes
-mockServer.setInjectors("./injectors.json");
+mockServer.setInjectors('./injectors.json');
 app.use(mockServer.middlewares._globals);
 
 // Can also set injectors using setData
@@ -554,7 +557,7 @@ For example :
 
 Make sure we give `/(.*)` at the end of the `injectors.json` object to set route configs to all the routes.
 
-## **Store**
+## Store
 
 Store used to store any values which can be used later for any purpose like response manipulation or logging etc..
 
@@ -573,7 +576,7 @@ The middlewares `_IterateRoutes` and `_IterateResponse` uses the Route store to 
 Local Store helps to store and share data between routes.
 This can be accessed using `res.locals.getStore()` inside the middleware.
 
-## **Rewriters**
+## Rewriters
 
 Create a `rewriters.json` file. Pay attention to start every route with `/`.
 
@@ -596,7 +599,7 @@ Create a `rewriters.json` file. Pay attention to start every route with `/`.
 ```js
 const mockServer = MockServer.Create();
 const app = mockServer.app;
-const rewriters = mockServer.Rewriter("./rewriters.json");
+const rewriters = mockServer.Rewriter('./rewriters.json');
 app.use(rewriters); // Make sure to use it before all the resources
 ```
 
@@ -610,9 +613,32 @@ Now we can access resources using additional routes.
 /articles?id=1 # → /posts/1
 ```
 
-## **Helper Middlewares**
+## Helper Middlewares
 
 Use the helper middleware to speedup our development and for ease of access.
+By default some helper middlewares used for a route.
+
+### Default Helper middlewares
+
+```js
+const middlewares = [
+  _SetDelay, // sets the delay
+  _Fetch, // fetches the data from file or url
+  _SetStatusCode, // sets status code
+  _SetHeaders, // sets headers
+  _CrudOperation, // does CRUD operations
+  ...userMiddlewares, // Our cust user middleware will be called here
+  _SetStatusCode, // sets status code
+  _SetHeaders, // sets headers
+  _SendResponse, // sends the response
+];
+
+// or
+
+const middlewares = withHelperWrappers(userMiddlewares); // wraps the user middleware with the helper middlewares
+```
+
+Note: These helper middlewares will not be used if we set `directUse: true` in a route config.
 
 ### **IterateResponse**
 
@@ -656,88 +682,6 @@ example:
 
 Now go and hit [http://localhost:3000/middleware/example/\_IterateRoutes](http://localhost:3000/middleware/example/_IterateRoutes). For each hit the route is passed to next matching url provided in the mock list.
 
-### **AdvancedSearch**
-
-By default all route helps to filter and do the advanced search from data. Following are the operations performed by this method.
-
-#### Filter
-
-Use `.` to access deep properties
-
-```
-GET /posts?title=mock-server&author=sivaraman
-GET /posts?id=1&id=2
-GET /comments?author.name=sivaraman
-```
-
-#### Paginate
-
-Use `_page` and optionally `_limit` to paginate returned data.
-
-In the `Link` header we'll get `first`, `prev`, `next` and `last` links.
-
-```
-GET /posts?_page=7
-GET /posts?_page=7&_limit=20
-```
-
-_10 items are returned by default_
-
-#### Sort
-
-Add `_sort` and `_order` (ascending order by default)
-
-```
-GET /posts?_sort=views&_order=asc
-GET /posts/1/comments?_sort=votes&_order=asc
-```
-
-For multiple fields, use the following format:
-
-```
-GET /posts?_sort=user,views&_order=desc,asc
-```
-
-#### Slice
-
-Add `_start` and `_end` or `_limit` (an `X-Total-Count` header is included in the response)
-
-```
-GET /posts?_start=20&_end=30
-GET /posts/1/comments?_start=20&_end=30
-GET /posts/1/comments?_start=20&_limit=10
-```
-
-_Works exactly as [Array.slice](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/slice) (i.e. `_start` is inclusive and `_end` exclusive)_
-
-#### Operators
-
-Add `_gte` or `_lte` for getting a range
-
-```
-GET /posts?views_gte=10&views_lte=20
-```
-
-Add `_ne` to exclude a value
-
-```
-GET /posts?id_ne=1
-```
-
-Add `_like` to filter (RegExp supported)
-
-```
-GET /posts?title_like=server
-```
-
-#### Full text search
-
-Add `q` or `_text`
-
-```
-GET /posts?q=internet&_text=success
-```
-
 ### **CrudOperations**
 
 By default handles all the crud operations of the given data.
@@ -754,32 +698,67 @@ For example: `config.json`
 
 ### **Others**
 
+- `_Fetch` fetches data from file or url.
+- `_SetDelay` sets status code from `res.locals.delay`.
+- `_SetStatusCode` sets status code from `res.locals.statusCode`.
+- `_SetHeaaders` sets headers from `res.locals.headers`.
+- `_SendResponse` sends the response from `res.locals.data`.
 - `_FetchTillData` helps to fetch the data from url until it get a success data. Once its get the data the fetch call stops and returns the existing data for other route hit.
-- `_SetFetchDataToMock` sets every fetchData to Mock.
-  This overrides the existing mock with the `fetchData`.
-- `_SetStoreDataToMock` sets every store data to Mock data.
-  This overrides the existing mock with the `store`.
+- `_SetFetchDataToMock` sets every fetchData to Mock. This overrides the existing mock with the `fetchData`.
 - `_MockOnly` sends we only Mock data even if there is any `fetchData` or `store` data.
 - `_FetchOnly` sends we only Fetch data even if there is any `_mock` or `store` data.
 - `_ReadOnly` forbidden every Http method calls except `GET` call.
 
-## **App Config**
+## App Configuration
 
-We can provide our own config by passing the config object in the `MockServer` constructor.
+Mock Server uses `cosmiconfig` for configuration file support.
+This means you can configure `Mock Server` via (in order of precedence):
 
-For Example : `server.js` :
+- A `mock-server` key in your package.json file.
+- A `.mock-serverrc`, `.mock-serverrc.json`, `.mock-server.config.json`, `mock-server-config.json` file.
+- A `.mockserverrc`, `.mockserverrc.json`, `.mockserver.config.json`, `mockserver-config.json` file.
+- A `.mock-serverrc.<js|cjs>`, `.mock-server.config.<js|cjs>`, `mock-server-config.<js|cjs>` file that exports an object using module.exports.
+- A `.mockserverrc.<js|cjs>`, `.mockserver.config.<js|cjs>`, `mockserver-config.<js|cjs>` file that exports an object using module.exports.
+
+The configuration file will be resolved starting from the location of the file being formatted, and searching up the file tree until a config file is (or isn’t) found.
+
+Mock Server intentionally doesn’t support any kind of global configuration. This is to make sure that when a project is copied to another computer, Mock Server's behavior stays the same. Otherwise, Mock Server wouldn’t be able to guarantee that everybody in a team gets the same consistent results.
+
+The options you can use in the configuration file are
+
+JSON:
+
+```json
+{
+  "port": 3000,
+  "host": "localhost"
+}
+```
+
+JS:
 
 ```js
-// These are default config. We can provide our custom config as well.
-const path = require("path");
-const public = path.join(process.cwd(), "public");
-const config = {
+module.exports = {
+  port: 3000,
+  host: 'localhost',
+};
+```
+
+Complete Options:
+JS:
+
+```js
+// These are default config.
+const path = require('path');
+const public = path.join(process.cwd(), 'public');
+
+module.exports = {
   port: 3000, // Set Port to 0 to pick a random available port.
-  host: "localhost", // Set Host to empty string to pick the Local Ip Address.
+  host: 'localhost', // Set Host to empty string to pick the Local Ip Address.
   root: process.cwd(), // Root path of the server. All paths refereed in db data will be relative to this path
-  base: "", // Mount db on a base url
-  id: "id", // Set db id attribute.
-  dbMode: "mock", // Give one of 'multi', 'fetch', 'mock'
+  base: '', // Mount db on a base url
+  id: 'id', // Set db id attribute.
+  dbMode: 'mock', // Give one of 'multi', 'fetch', 'mock'
   static: public, // Path to host a static files. Give empty string to avoid hosting public folder by default
   reverse: false, // Generate routes in reverse order
   logger: true, // Enable api logger
@@ -791,8 +770,6 @@ const config = {
   cookieParser: true, // Enable cookie-parser
   quiet: false, // Disable console logs
 };
-
-new MockServer(config).launchServer("./db.json");
 ```
 
 #### **dbMode**
@@ -807,10 +784,10 @@ For Example :
 
 ```js
 const db = {
-  route1: "My Response", // "/route1": { _config: true, mock: "My Response" }
-  route2: { data: "My Response" }, // "/route2": { _config: true, mock: { data: "My Response" } }
+  route1: 'My Response', // "/route1": { _config: true, mock: "My Response" }
+  route2: { data: 'My Response' }, // "/route2": { _config: true, mock: { data: "My Response" } }
   route3: [], // "/route3": { _config: true, mock: [] }
-  route4: { _config: true, fetch: "path/to/file" }, // "/route4": { _config: true, fetch: "path/to/file" }
+  route4: { _config: true, fetch: 'path/to/file' }, // "/route4": { _config: true, fetch: "path/to/file" }
 };
 ```
 
@@ -818,9 +795,9 @@ const db = {
 
 ```js
 const db = {
-  route1: "path/to/file", // "/route1": { _config: true, fetch: "path/to/file"  }
-  route2: { url: "path/to/file" }, // "/route2": { _config: true, fetch: { url: "path/to/file" } }
-  route3: { _config: true, mock: "My Response" }, // "/route3": { _config: true, mock: "My Response" }
+  route1: 'path/to/file', // "/route1": { _config: true, fetch: "path/to/file"  }
+  route2: { url: 'path/to/file' }, // "/route2": { _config: true, fetch: { url: "path/to/file" } }
+  route3: { _config: true, mock: 'My Response' }, // "/route3": { _config: true, mock: "My Response" }
 };
 ```
 
@@ -828,14 +805,14 @@ const db = {
 
 ```js
 const db = {
-  route1: "path/to/file", // "/route1": { _config: true, fetch: "path/to/file"  }
-  route2: { data: "My Response" }, // "/route2": { _config: true, mock: { data: "My Response" } }
+  route1: 'path/to/file', // "/route1": { _config: true, fetch: "path/to/file"  }
+  route2: { data: 'My Response' }, // "/route2": { _config: true, mock: { data: "My Response" } }
   route3: [], // "/route3": { _config: true, mock: [] }
-  route4: { _config: true, mock: "My Response" }, // "/route4": { _config: true, mock: "My Response" }
+  route4: { _config: true, mock: 'My Response' }, // "/route4": { _config: true, mock: "My Response" }
 };
 ```
 
-## **Route Config**
+## Route Config
 
 Route config helps to define a config such as delay. statuscode to a specific route.
 Routes which as a object with `_config: true` as considered as a route config.
@@ -873,7 +850,7 @@ interface RouteConfig {
 
 > Note: Object without `_config: true` will be considered as a direct mock response. Please make sure we set `config: true` to config the route.
 
-### **Set Custom Delay**
+## Set Custom Delay
 
 `delay` helps we to set a custom delay to our routes.
 
@@ -890,7 +867,7 @@ interface RouteConfig {
 
 Now if we go to [http://localhost:3000/customDelay](http://localhost:3000/customDelay), we'll get the response in a delay of 2 seconds.
 
-### **Set Custom StatusCode**
+## Set Custom StatusCode
 
 `statusCode` helps we set a custom statusCode to our routes.
 It must be of type number and between 100 to 600.
@@ -907,12 +884,12 @@ It must be of type number and between 100 to 600.
 
 Now if we go to [http://localhost:3000/customStatusCode](http://localhost:3000/customStatusCode), we'll get the response with a `500` statusCode
 
-### **Fetch File or URL**
+## Fetch File or URL
 
 `fetch` helps we get data from url.
 The url can either be a http server or a local file.
 
-#### **Fetch File**
+### **Fetch File**
 
 Give a absolute or a relative path to fetch any file.
 
@@ -928,7 +905,7 @@ Give a absolute or a relative path to fetch any file.
 
 > Note: The given path will be relative to `config.root`.
 
-#### **Fetch Data From URL**
+### **Fetch Data From URL**
 
 ```jsonc
 {
@@ -939,7 +916,7 @@ Give a absolute or a relative path to fetch any file.
 }
 ```
 
-#### **Axios Fetch Request**
+### **Axios Fetch Request**
 
 We can also give a fetch as a axios request object with custom options.
 
@@ -966,7 +943,7 @@ reserved key words :
 - `${config}` - get all config values
 - `${req}` - get all req values
 
-#### **Fetch Count**
+### **Fetch Count**
 
 In Route Config setting `fetchCount` will helps to limit the number of fetch calls.
 By Default the `fetchCount` is set to `1`.
@@ -995,7 +972,7 @@ The fetch data will be set to `fetchData`.
 
 [http://localhost:3000/fetch/todos/fetchCount/Infinite/times](http://localhost:3000/fetch/todos/fetchCount/Infinite/times). - Makes fetch call Infinite times.
 
-#### **Skip Fetch Error**
+### **Skip Fetch Error**
 
 If `skipFetchError` is set to true, It will skip any error in fetch call and instead of returning that fetch error it gives we the mock data.
 
@@ -1012,7 +989,7 @@ If `skipFetchError` is set to true, It will skip any error in fetch call and ins
 }
 ```
 
-### **Specific Middlewares**
+## Specific Middlewares
 
 We can add n number of middleware to a route which helps we to manipulate or log the data.
 
@@ -1022,14 +999,14 @@ Please check [Middlewares](#middlewares) fro more reference.
 
 ```js
 const db = {
-  "/fetch/users1/customMiddleware": {
+  '/fetch/users1/customMiddleware': {
     _config: true,
-    fetch: "http://jsonplaceholder.typicode.com/users",
-    middlewares: ["DataWrapper"], // Picks the DataWrapper middleware from middlewares.js
+    fetch: 'http://jsonplaceholder.typicode.com/users',
+    middlewares: ['DataWrapper'], // Picks the DataWrapper middleware from middlewares.js
   },
-  "/fetch/users2/customMiddleware": {
+  '/fetch/users2/customMiddleware': {
     _config: true,
-    fetch: "http://jsonplaceholder.typicode.com/users",
+    fetch: 'http://jsonplaceholder.typicode.com/users',
     middlewares: (req, res, next) => {
       next();
     },
@@ -1037,7 +1014,7 @@ const db = {
 };
 ```
 
-## **Locals**
+## Locals
 
 `res.locals` helps to access the current route config, `fetchData`, `store` etc..
 Here are the available options in `res.locals`
@@ -1070,10 +1047,7 @@ exports._FetchTillData = (_req, res, next) => {
   if (!routeConfig.fetchData.isError) {
     // If fetchData has no error then stop fetching anymore
     routeConfig.fetchCount = 0; // setting fetchCount to zero stops fetching
-  } else if (
-    routeConfig.fetchCount !== undefined &&
-    routeConfig.fetchCount == 0
-  ) {
+  } else if (routeConfig.fetchCount !== undefined && routeConfig.fetchCount == 0) {
     // If fetchData has any error then keep on fetching
     routeConfig.fetchCount = -1; // setting fetchCount to -1 does an infinite fetch
   }
@@ -1099,8 +1073,8 @@ The above middleware helps to fetch the data from url until it gets a valid succ
 returns the instance of the mockServer.
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
-const mockServer = new MockServer("./config.json");
+const { MockServer } = require('@r35007/mock-server');
+const mockServer = new MockServer('./config.json');
 ```
 
 **`Params`**
@@ -1114,8 +1088,8 @@ const mockServer = new MockServer("./config.json");
 returns the single instance of the mockServer.
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
-const mockServer = MockServer.Create("./config.json");
+const { MockServer } = require('@r35007/mock-server');
+const mockServer = MockServer.Create('./config.json');
 ```
 
 **`Params`**
@@ -1130,7 +1104,7 @@ Destroy simply stops the server without any exception and resets the server.
 returns promise
 
 ```js
-const { MockServer } = require("@r35007/mock-server");
+const { MockServer } = require('@r35007/mock-server');
 let mockServer = MockServer.Create();
 await MockServer.Destroy(mockServer);
 ```
@@ -1146,11 +1120,11 @@ await MockServer.Destroy(mockServer);
 It validates all the params in the MockServer, loads the resources and starts the server.
 
 ```js
-mockServer.launchServer("./db.json", {
-  injectors: "./injectors.json",
-  middlewares: "./middleware.js",
-  rewriters: "./rewriters.json",
-  store: "./store.json",
+mockServer.launchServer('./db.json', {
+  injectors: './injectors.json',
+  middlewares: './middleware.js',
+  rewriters: './rewriters.json',
+  store: './store.json',
   router: express.Router(),
   log: false,
 });
@@ -1179,7 +1153,7 @@ mockServer.launchServer("./db.json", {
 Sets the route rewrites and return the router of the rewriters;
 
 ```js
-const rewriters = mockServer.rewriter("./rewriters.json", {
+const rewriters = mockServer.rewriter('./rewriters.json', {
   log: false,
   root: __dirname,
 });
@@ -1206,7 +1180,7 @@ returns the list of default middlewares.
 Also helps to host a static directory.
 
 ```js
-const defaults = mockServer.defaults({ static: "./public", readOnly: true });
+const defaults = mockServer.defaults({ static: './public', readOnly: true });
 app.use(defaults);
 ```
 
@@ -1224,7 +1198,7 @@ app.use(defaults);
 Create db resources. It uses global injectors, middlewares and config to crete db resource.
 
 ```js
-const resources = mockServer.resources("./db.json");
+const resources = mockServer.resources('./db.json');
 app.use(resources.router);
 ```
 
@@ -1303,7 +1277,7 @@ app.use(homePage);
 Returns a Promise of `Server`. - helps to start the app server externally
 
 ```js
-const server = await mockServer.startServer(3000, "localhost");
+const server = await mockServer.startServer(3000, 'localhost');
 ```
 
 **`Params`**
@@ -1404,7 +1378,7 @@ const ora = MockServer.ora // ora
 ### **Setters**
 
 ```js
-const MockServer = require("@r35007/mock-server").default;
+const MockServer = require('@r35007/mock-server').default;
 const mockServer = MockServer.Create();
 
 mockServer.setData({ db, injectors, middlewares, rewriters, store, config });
@@ -1449,7 +1423,7 @@ const {
   chalk, // chalk
   axios, // axios
   watcher, // chokidar.
-} = require("@r35007/mock-server");
+} = require('@r35007/mock-server');
 ```
 
 ### **Validators**
@@ -1465,17 +1439,17 @@ const {
   getValidConfig,
   getValidStore,
   getValidRouteConfig,
-} = require("@r35007/mock-server/dist/utils/validators");
+} = require('@r35007/mock-server/dist/utils/validators');
 
 const options = {
   reverse: true, // If true the db will be generated in reverse order
-  dbMode: "fetch", // The direct route value will be set to fetch
+  dbMode: 'fetch', // The direct route value will be set to fetch
 };
 
-const root = "./";
+const root = './';
 
 const db = getValidDb(
-  "db.json", // db or HAR
+  'db.json', // db or HAR
   { injectors, root, reverse, dbMode, mockServer }
 ); // returns valid Db combined with the given injectors. Also helps to extract a db from HAR file. internally use getValidRouteConfig
 const middleware = getValidMiddlewares(middlewares, { root, mockServer }); // returns a valid middleware along with the default middlewares

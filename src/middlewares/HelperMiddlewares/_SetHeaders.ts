@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import type { Locals } from '../types/common.types';
+import * as _ from 'lodash';
+import type { Locals } from '../../types/common.types';
 
-export default (_req, res, next) => {
+export const _SetHeaders = (_req, res, next) => {
   const locals = (res.locals as Locals) || {};
 
   const headers = locals.headers || locals.routeConfig?.headers;

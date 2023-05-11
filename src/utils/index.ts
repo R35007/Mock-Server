@@ -236,13 +236,13 @@ const setRouteRedirects = (db: object, routePath: string, currentRouteConfig: Us
 };
 
 const mergeMiddlewares = (
-  prevMiddlewares?: UserTypes.Middleware_Config[],
-  currMiddlewares?: UserTypes.Middleware_Config[]
-): UserTypes.Middleware_Config[] | undefined => {
+  prevMiddlewares?: UserTypes.MiddlewareConfig[],
+  currMiddlewares?: UserTypes.MiddlewareConfig[]
+): UserTypes.MiddlewareConfig[] | undefined => {
   if (!currMiddlewares) return prevMiddlewares;
 
   const mergedMiddlewares = currMiddlewares.reduce(
-    (result: UserTypes.Middleware_Config[], middleware) =>
+    (result: UserTypes.MiddlewareConfig[], middleware) =>
       middleware === '...' ? [...result, ...(prevMiddlewares || [])] : [...result, middleware],
     []
   );

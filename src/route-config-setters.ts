@@ -1,8 +1,8 @@
 import type { AxiosRequestConfig } from 'axios';
-import { toBase64 } from './utils';
-import type * as UserTypes from './types/user.types';
-import type { DbMode } from './types/common.types';
 import * as _ from 'lodash';
+import type { DbMode } from './types/common.types';
+import type * as UserTypes from './types/user.types';
+import { toBase64 } from './utils';
 
 interface Done {
   done: (param?: { log?: string | boolean }) => { [key: string]: UserTypes.RouteConfig };
@@ -13,7 +13,7 @@ export default class RouteConfigSetters implements Done {
   routePath: string;
   db = {};
 
-  constructor(routePath: string, routeMiddlewares: UserTypes.Middleware_Config[], dbMode: DbMode) {
+  constructor(routePath: string, routeMiddlewares: UserTypes.MiddlewareConfig[], dbMode: DbMode) {
     this.routePath = routePath;
     this.#dbMode = dbMode;
     this.db[routePath] = { _config: true, id: toBase64(routePath) };
