@@ -1,4 +1,4 @@
-/** @type {import('../dist/cli/argv').CliOptions} */
+/** @type {import('@r35007/mock-server/dist/cli/index').CliOptions} */
 module.exports = {
   db: './db.json',
   injectors: './injectors.json',
