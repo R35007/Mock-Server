@@ -36,6 +36,7 @@ export type Configs = {
 export type CliOptions = Paths &
   Configs & {
     config: string;
+    init: boolean;
     _: string[];
   };
 
@@ -75,6 +76,7 @@ export default async (pkg) => {
       homePage: { alias: 'hp', default: true, description: 'Enable Home Page', type: 'boolean' },
       host: { alias: 'H', default: 'localhost', description: 'Set host', type: 'string' },
       id: { alias: '', default: 'id', description: 'Set database id property', type: 'string' },
+      init: { alias: '', default: false, description: 'Create a sample server files', type: 'boolean' },
       injectors: { alias: 'in', description: 'Path to Injectors file', type: 'string' },
       log: { alias: 'log', default: false, description: 'Prevent setters logs', type: 'boolean' },
       logger: { alias: 'l', default: true, description: 'Enable logger', type: 'boolean' },
@@ -93,6 +95,7 @@ export default async (pkg) => {
       store: { alias: 'st', description: 'Path to Store file', type: 'string' },
       watch: { alias: 'w', default: false, description: 'Watch for changes', type: 'boolean' },
     })
+    .boolean('init')
     .boolean('reverse')
     .boolean('readOnly')
     .boolean('noCors')
@@ -107,7 +110,8 @@ export default async (pkg) => {
     .boolean('homePage')
     .help('help')
     .alias('help', 'h')
-    .example('mock-server db.json', '')
+    .example('mock-server --init', 'Create a sample server files')
+    .example('mock-server db.json', 'Run mock server with db.json file')
     .example('mock-server --watch db.json', '')
     .example('mock-server http://jsonplaceholder.typicode.com/db', '')
     .epilog('https://r35007.github.io/Mock-Server/')
