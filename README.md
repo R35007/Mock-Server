@@ -72,23 +72,19 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 Install Mock Server
 
 ```sh
-npm install -g @r35007/mock-server
+npm install -g @r35007/mock-server @r35007/mock-server-cli
 ```
 
-Create a `db.json` file with some data.
+Run init command to create sample server files.
 
-```jsonc
-{
-  "posts": [{ "id": 1, "title": "mock-server", "author": "r35007" }],
-  "comments": [{ "id": 1, "body": "some comment", "postId": 1 }],
-  "profile": { "name": "r35007" }
-}
+```sh
+mock-server --init
 ```
 
 Start Mock Server
 
 ```sh
-mock-server --watch ./db.json
+mock-server
 ```
 
 Now if we go to [http://localhost:3000/posts](http://localhost:3000/posts), we'll get
@@ -116,6 +112,7 @@ Options:
       --store, --st         Path to Store file                    [string]
       --rewriters, --rw     Path to Rewriter file                 [string]
       --id                  Set database id property              [string]  [default: "id"]
+      --init                Create a sample server files          [boolean]  [default: false]
       --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"]
       --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
       --reverse, --rv       Generate Route in revere order        [boolean] [default: false]
@@ -133,6 +130,7 @@ Options:
   -v, --version             Show version number                   [boolean]
 
 Examples:
+  mock-server --init
   mock-server db.json
   mock-server --watch db.json
   mock-server http://jsonplaceholder.typicode.com/db
@@ -142,13 +140,7 @@ https://r35007.github.io/Mock-Server/
 
 ## Using JS Module
 
-Install nodemon for watching changes
-
-```sh
-npm install -g nodemon
-```
-
-Create `server.js` File
+Create `server/index.js` File
 
 ```js
 const { MockServer } = require('@r35007/mock-server');
@@ -159,32 +151,63 @@ mockServer.launchServer('./db.json');
 or
 
 ```js
-const { MockServer } = require('@r35007/mock-server');
+const { MockServer, watcher, chalk } = require('@r35007/mock-server');
+const config = require('../.mockserverrc.js');
 
-const mockServer = MockServer.Create({ root: __dirname }); // Create Mock Server instance with custom config.
+// Create Mock Server instance with custom config.
+const mockServer = MockServer.Create(config);
 
-const rewriter = mockServer.rewriter({ '/api/*': '/$1' }); // /api/posts -> /posts
-const defaults = mockServer.defaults();
-const resources = mockServer.resources('./db.json');
-const homePage = mockServer.homePage();
+const startServer = async () => {
+  const app = mockServer.app;
 
-const app = mockServer.app;
+  // Set global middlewares, injectors and store to mock server instance
+  mockServer.setData({
+    injectors: config.injectors,
+    middlewares: config.middlewares,
+    store: config.store,
+  });
 
-app.use(rewriter); // Make sure to use this at first, before all the resources
-app.use(defaults); // Add default Middlewares.
-app.use(resources.router); // Add Database
-app.use(homePage); // Create the Mock Server Home Page
+  // Make sure to use this at first, before all the resources
+  const rewriter = mockServer.rewriter(config.rewriters);
+  app.use(rewriter); 
 
-app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
-app.use(mockServer.errorHandler); // Default Error Handler
+  // Add default Middlewares.
+  const defaultsMiddlewares = mockServer.defaults();
+  app.use(defaultsMiddlewares);
 
-mockServer.startServer();
+  // Add Database
+  const resources = mockServer.resources(config.db);
+  app.use(resources.router);
+
+  // Create the Mock Server Home Page
+  const homePage = mockServer.homePage();
+  app.use(homePage);
+
+  app.use(mockServer.pageNotFound); // Middleware to return `Page Not Found` as response if the route doesn't match
+  app.use(mockServer.errorHandler); // Error Handler
+
+  // Start server
+  await mockServer.startServer();
+};
+
+startServer().then(() => {
+  // watch for changes
+  const watch = watcher.watch(mockServer.config.root);
+
+  // Restart server on change
+  watch.on('change', async () => {
+    process.stdout.write(chalk.yellowBright(changedPath) + chalk.gray(' has changed, reloading...\n'));
+    if (!mockServer.server) return; // return if no server to stop
+    await MockServer.Destroy(mockServer).then(() => startServer()); // Stop and restart the server on changes
+  });
+});
+
 ```
 
 Now go to terminal and type the following command to start the Mock Server.
 
 ```sh
-nodemon server.js
+node server
 ```
 
 For more api reference please click [here](#api),
@@ -455,7 +478,7 @@ const db = {
 }
 ```
 
-> Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
+Note: `/fetch/users` wont work since it wont be wrapped by helper middlewares and so no other route config would work except the given middleware if provided.
 
 ## Injectors
 
@@ -530,7 +553,7 @@ For example :
 ]
 ```
 
-> Note: Use `["..."]` If we want to add the existing middlewares.
+Note: Use `["..."]` If we want to add the existing middlewares.
 
 ### **Common Route Configs**
 
@@ -686,7 +709,7 @@ Now go and hit [http://localhost:3000/middleware/example/\_IterateRoutes](http:/
 
 By default handles all the crud operations of the given data.
 
-> Note: The mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
+Note: The mock must of type Array of objects and must contain a unique value of attribute `id`. This `id` attribute can also be changes using `config.id`.
 
 For example: `config.json`
 
@@ -848,7 +871,7 @@ interface RouteConfig {
 }
 ```
 
-> Note: Object without `_config: true` will be considered as a direct mock response. Please make sure we set `config: true` to config the route.
+Note: Object without `_config: true` will be considered as a direct mock response. Please make sure we set `config: true` to config the route.
 
 ## Set Custom Delay
 
@@ -903,7 +926,7 @@ Give a absolute or a relative path to fetch any file.
 }
 ```
 
-> Note: The given path will be relative to `config.root`.
+Note: The given path will be relative to `config.root`.
 
 ### **Fetch Data From URL**
 
@@ -936,7 +959,7 @@ We can also give a fetch as a axios request object with custom options.
 
 [http://localhost:3000/fetch/posts/2](http://localhost:3000/fetch/posts/2).
 
-> Note: To pass any options from the route set the option value as `${<option Name>}`
+Note: To pass any options from the route set the option value as `${<option Name>}`
 
 reserved key words :
 

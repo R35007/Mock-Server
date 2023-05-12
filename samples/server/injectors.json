@@ -1,0 +1,4 @@
+[
+  { "routes": "/profile", "middlewares": ["DataWrapper"] },
+  { "routes": "/(.*)", "delay": 1000 }
+]

@@ -1,0 +1,19 @@
+{
+  "comments": [
+    {
+      "body": "some comment",
+      "id": 1,
+      "postId": 1
+    }
+  ],
+  "posts": [
+    {
+      "author": "r35007",
+      "id": 1,
+      "title": "mock-server"
+    }
+  ],
+  "profile": {
+    "name": "r35007"
+  }
+}

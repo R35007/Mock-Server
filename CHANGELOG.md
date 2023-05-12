@@ -1,3 +1,11 @@
+## v18.0.0
+
+- Added - `mock-server --init` - Generates sample server files
+- Added - `cosmiconfig` package which helps get use config file in different names. Now we can use `.mockserverrc<.js|.cjs|.json>`, `.mock-serverrc<.js|.cjs|.json>`, `mockserver.config<.js|.cjs|.json>` or `mock-server.config<.js|.cjs|.json>` as a config file name.
+- Added - `withHelperWrappers` method to wrap user middlewares with helper middlewares.
+- Added - `eslint` and `prettier` for code standardizations.
+- Fixed - test case issues.
+
 ## v17.1.0
 
 - Fixed - Crud Operation and Search Operation issue fixed.

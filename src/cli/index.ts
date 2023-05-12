@@ -3,10 +3,11 @@ import axios from 'axios';
 import chalk from 'chalk';
 import watcher from 'chokidar';
 import * as fs from 'fs';
+import * as fsx from 'fs-extra';
 import ora from 'ora';
 import * as path from 'path';
 import pleaseUpgradeNode from 'please-upgrade-node';
-import updateNotifier from 'update-notifier';
+import updateNotifier from 'update-notifier-cjs';
 import MockServer from '../';
 import type { LaunchServerOptions } from '../types/common.types';
 import type * as ParamTypes from '../types/param.types';
@@ -93,7 +94,7 @@ const startServer = async (mockServer: MockServer, db: ParamTypes.Db, launchServ
 const restartServer = async (mockServer: MockServer, db: ParamTypes.Db, launchServerOptions: LaunchServerOptions, changedPath: string) => {
   try {
     if (!mockServer.server) return;
-    process.stdout.write(chalk.yellow('\n' + path.relative(process.cwd(), changedPath)) + chalk.gray(' has changed, reloading...\n'));
+    process.stdout.write(chalk.yellowBright('\n' + path.relative(process.cwd(), changedPath)) + chalk.gray(' has changed, reloading...\n'));
     await MockServer.Destroy(mockServer).then(() => startServer(mockServer, db, launchServerOptions));
   } catch (err: any) {
     console.error(err.message);
@@ -103,6 +104,12 @@ const restartServer = async (mockServer: MockServer, db: ParamTypes.Db, launchSe
 
 const init = async () => {
   const args = await argv(pkg);
+
+  if (args.init) {
+    fsx.copy(path.join(__dirname, '../../samples'), path.resolve(process.cwd()));
+    return;
+  }
+
   const {
     _: [source],
     db = source,
