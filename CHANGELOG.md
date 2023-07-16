@@ -1,4 +1,4 @@
-## v18.0.0
+## v18.0.1
 
 - Added - `mock-server --init` - Generates sample server files
 - Added - `cosmiconfig` package which helps get use config file in different names. Now we can use `.mockserverrc<.js|.cjs|.json>`, `.mock-serverrc<.js|.cjs|.json>`, `mockserver.config<.js|.cjs|.json>` or `mock-server.config<.js|.cjs|.json>` as a config file name.
