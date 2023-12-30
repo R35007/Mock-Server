@@ -1,3 +1,9 @@
+## v18.1.0
+
+- Added - `/_db?_config=true` - Gives you only db route configs without any mock or fetch data.
+- Fixed - sample `server.js` throws error on file change issue fixed.
+- modified - optimized the CRUD operations on the route.
+
 ## v18.0.1
 
 - Added - `mock-server --init` - Generates sample server files
@@ -24,7 +30,7 @@
 
 - Fixed - Restarting server on file change event takes long time issue fixed.
 - Fixed - On Calling `next` method in direct use of a middleware sends empty object issue fixed.
-- Modified - CLI optimized
+- Modified - CLI optimized.
 
 ## v16.0.0
 

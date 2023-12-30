@@ -97,44 +97,43 @@ export const cleanObject = (obj: any) => {
   } catch (err: any) {}
 };
 
-export const getCleanDb = (db: ValidTypes.Db | UserTypes.Db, dbMode: DbMode = 'mock'): UserTypes.Db => {
+export const getCleanDb = (db: ValidTypes.Db, dbMode: DbMode = 'mock'): UserTypes.Db => {
   for (const routePath in db) {
-    db[routePath] = cleanRouteConfig(db[routePath] as UserTypes.RouteConfig, dbMode);
+    db[routePath] = getDataByDbMode(db[routePath], dbMode);
   }
   return db;
 };
 
-// Removes id, _config ( if only mock is available ) and all other empty values in route configs
-export const cleanRouteConfig = (
-  routeConfig: ValidTypes.RouteConfig | UserTypes.RouteConfig,
-  dbMode: DbMode = 'mock'
-): UserTypes.RouteConfig => {
-  if (!routeConfig._config) return routeConfig; // clean routeConfig only if _config is set to true
+export const getDbConfig = (db: ValidTypes.Db, dbMode: DbMode = 'mock'): UserTypes.Db => {
+  for (const routePath in db) {
+    if (!db[routePath]._config) return {};
 
-  const userTypeRouteConfig = routeConfig as any;
-  delete userTypeRouteConfig.id;
+    if (dbMode === 'multi') {
+      delete db[routePath].fetch;
+      delete db[routePath].mock;
+    } else {
+      if (dbMode === 'mock') delete db[routePath].mock;
+      if (dbMode === 'fetch') delete db[routePath].fetch;
+    }
+  }
+  return db;
+};
 
-  // Remove all empty list and objects
-  cleanObject(userTypeRouteConfig);
+const getDataByDbMode = (routeConfig, dbMode: DbMode = 'mock') => {
+  const routeConfigKeys = Object.keys(routeConfig);
 
-  const routeConfigKeys = Object.keys(userTypeRouteConfig);
+  if (!routeConfig._config) return routeConfig;
 
-  if (!routeConfigKeys.length) return userTypeRouteConfig;
-  if (!routeConfigKeys.includes('_config')) return userTypeRouteConfig;
-  if (routeConfigKeys.length === 1) return {} as UserTypes.RouteConfig;
-  if (routeConfigKeys.length > 2) return userTypeRouteConfig;
-
-  // If routeConfigKeys.length === 2 && routeConfigKeys.includes("_config")
   if (dbMode === 'multi') {
-    if (routeConfigKeys.includes('fetch') && _.isString(userTypeRouteConfig.fetch)) return userTypeRouteConfig.fetch;
-    if (routeConfigKeys.includes('fetch') && !_.isString(userTypeRouteConfig.fetch)) return userTypeRouteConfig;
-    if (routeConfigKeys.includes('mock') && _.isString(userTypeRouteConfig.mock)) return userTypeRouteConfig;
-    if (routeConfigKeys.includes('mock') && !_.isString(userTypeRouteConfig.mock)) return userTypeRouteConfig.mock;
-    return userTypeRouteConfig;
+    if (routeConfigKeys.includes('fetch') && _.isString(routeConfig.fetch)) return routeConfig.fetch;
+    if (routeConfigKeys.includes('fetch') && !_.isString(routeConfig.fetch)) return routeConfig;
+    if (routeConfigKeys.includes('mock') && _.isString(routeConfig.mock)) return routeConfig;
+    if (routeConfigKeys.includes('mock') && !_.isString(routeConfig.mock)) return routeConfig.mock;
+    return routeConfig;
   } else {
-    if (dbMode === 'mock' && routeConfigKeys.includes('mock')) return userTypeRouteConfig.mock;
-    if (dbMode === 'fetch' && routeConfigKeys.includes('fetch')) return userTypeRouteConfig.fetch;
-    return userTypeRouteConfig;
+    if (dbMode === 'mock' && routeConfigKeys.includes('mock')) return routeConfig.mock;
+    if (dbMode === 'fetch' && routeConfigKeys.includes('fetch')) return routeConfig.fetch;
+    return routeConfig;
   }
 };
 

@@ -24,7 +24,9 @@ function setHomePageRoutes(resources) {
   if (!routesList.includes('/_db'))
     resources['/_db'] = {
       id: window.btoa('/_db'),
-      description: 'Get Db snapshot. Use ?_clean=true to get a refined clean Db.',
+      description: `Get Db snapshot. <br/ >
+      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_clean=true')">${window.location}_db?_clean=true</code> to get a clean db data. <br />
+      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_config=true')">${window.location}_db?_config=true</code> to get only db route configs.`,
       _default: true,
     };
 

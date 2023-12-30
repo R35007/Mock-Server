@@ -17,7 +17,7 @@ import type { LaunchServerOptions, ResourceOptions, ResourceReturns, RewriterOpt
 import type * as ParamTypes from './types/param.types';
 import type * as UserTypes from './types/user.types';
 import type * as ValidTypes from './types/valid.types';
-import { flatQuery, getCleanDb, replaceObj } from './utils';
+import { flatQuery, getCleanDb, getDbConfig, replaceObj } from './utils';
 import { getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, getValidRoute } from './utils/validators';
 
 // Helps to require .jsonc file using require("./path/db.jsonc")
@@ -431,8 +431,10 @@ export class MockServer extends GettersSetters {
       return { [dbById![0]]: dbById![1] };
     };
     const db = id ? findById(id) : this.db;
-    const resultDb = req.query._clean ? getCleanDb(db, this.config.dbMode) : db;
-    res.send(resultDb);
+
+    if (req.query._clean) return res.send(getCleanDb(db, this.config.dbMode));
+    if (req.query._config) return res.send(getDbConfig(db, this.config.dbMode));
+    res.send(db);
   };
 
   #updateRouteConfig = (req: express.Request, res: express.Response) => {
@@ -457,6 +459,6 @@ export class MockServer extends GettersSetters {
   };
 }
 
-export { express, _ as lodash, nanoid, ora as spinner, pathToRegexp, chalk, axios, watcher };
+export { axios, chalk, express, _ as lodash, nanoid, pathToRegexp, ora as spinner, watcher };
 
 export default MockServer;

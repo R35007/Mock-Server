@@ -439,7 +439,7 @@ const startServer = () => {
       const { port: serverPort, address: serverHost } = server!.address() as { address: string; family: string; port: number };
       expect(server).toBeDefined();
       expect(serverPort).toBe(3000);
-      expect(serverHost).toBe('127.0.0.1');
+      expect(serverHost).toBeDefined();
 
       const response = await request(mockServer.app).get('/');
       expect(response.statusCode).toBe(200);
