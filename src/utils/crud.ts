@@ -9,13 +9,16 @@ lodashId.mixin(lodashIdMixin);
 
 export default class {
   static search = (req: express.Request, res: express.Response, data: any[]) => {
+    const query = req.query;
+    const params = req.params;
+
+    if (!Object.keys(query).length && !Object.keys(params).length) return data;
+
     const config = res.locals?.config || {};
     lodashId.id = config.id || 'id';
     const id = lodashId.id || config.id || 'id';
 
     let _data = _.cloneDeep(data);
-    const query = req.query;
-    const params = req.params;
 
     const ids = flatQuery(params[id] || query[id]);
     const _sort = flatQuery(query._sort);

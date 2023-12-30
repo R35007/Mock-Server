@@ -14,19 +14,19 @@ export const _CrudOperation = async (req, res, next) => {
   routeConfig.store = _.isPlainObject(routeConfig.store) ? routeConfig.store : {};
   const store = routeConfig.store || {};
 
-  if (!store[storeKey]) store[storeKey] = _.cloneDeep(locals.data);
-  const data = store[storeKey];
-
   if (method.toLowerCase() === 'get') {
-    locals.data = CRUD.search(req, res, data);
+    if (!store[storeKey]) store[storeKey] = _.cloneDeep(locals.data); // load data only on load
+    locals.data = CRUD.search(req, res, store[storeKey]);
+    if (JSON.stringify(locals.data) === JSON.stringify(store[storeKey])) delete store[storeKey];
   } else if (method.toLowerCase() === 'put') {
-    locals.data = CRUD.replace(req, res, data);
+    locals.data = CRUD.replace(req, res, locals.data);
   } else if (method.toLowerCase() === 'patch') {
-    locals.data = CRUD.update(req, res, data);
+    locals.data = CRUD.update(req, res, locals.data);
   } else if (method.toLowerCase() === 'post') {
-    locals.data = CRUD.insert(req, res, data);
+    locals.data = CRUD.insert(req, res, locals.data);
   } else if (method.toLowerCase() === 'delete') {
-    locals.data = CRUD.remove(req, res, data);
+    locals.data = CRUD.remove(req, res, locals.data);
   }
+
   next();
 };

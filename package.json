@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "18.0.1",
+  "version": "18.1.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js",
@@ -124,7 +124,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
     "jest": "^27.5.1",
-    "nodemon": "^2.0.19",
+    "nodemon": "^3.0.2",
     "prettier": "^2.8.8",
     "supertest": "^6.2.2",
     "ts-jest": "^27.1.4"

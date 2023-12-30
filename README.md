@@ -169,7 +169,7 @@ const startServer = async () => {
 
   // Make sure to use this at first, before all the resources
   const rewriter = mockServer.rewriter(config.rewriters);
-  app.use(rewriter); 
+  app.use(rewriter);
 
   // Add default Middlewares.
   const defaultsMiddlewares = mockServer.defaults();
@@ -201,7 +201,6 @@ startServer().then(() => {
     await MockServer.Destroy(mockServer).then(() => startServer()); // Stop and restart the server on changes
   });
 });
-
 ```
 
 Now go to terminal and type the following command to start the Mock Server.
@@ -1084,6 +1083,8 @@ The above middleware helps to fetch the data from url until it gets a valid succ
 
 - `Home Page` - [http://localhost:3000](http://localhost:3000)
 - `Db` - [http://localhost:3000/\_db](http://localhost:3000/_db)
+  - Use [http://localhost:3000/\_db?\_clean=true](http://localhost:3000/_db?_clean=true) to get a clean db data.
+  - Use [http://localhost:3000/\_db?\_config=true](http://localhost:3000/_db?_config=true) to get only route configs.
 - `Rewriters` - [http://localhost:3000/\_rewriters](http://localhost:3000/_rewriters)
 - `Routes` - [http://localhost:3000/\_routes](http://localhost:3000/_routes)
 - `Store` - [http://localhost:3000/\_store](http://localhost:3000/_store)

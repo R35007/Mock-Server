@@ -19,7 +19,7 @@ const startServer = async () => {
 
   // Make sure to use this at first, before all the resources
   const rewriter = mockServer.rewriter(config.rewriters);
-  app.use(rewriter); 
+  app.use(rewriter);
 
   // Add default Middlewares.
   const defaultsMiddlewares = mockServer.defaults();
@@ -45,7 +45,7 @@ startServer().then(() => {
   const watch = watcher.watch(mockServer.config.root);
 
   // Restart server on change
-  watch.on('change', async () => {
+  watch.on('change', async (changedPath) => {
     process.stdout.write(chalk.yellowBright(changedPath) + chalk.gray(' has changed, reloading...\n'));
     if (!mockServer.server) return; // return if no server to stop
     await MockServer.Destroy(mockServer).then(() => startServer()); // Stop and restart the server on changes

@@ -6,4 +6,7 @@ coverage
 *.tgz
 
 public/_assets/css/**.min.css
+!public/_assets/css/bootstrap.min.css
 public/_assets/js/**.min.js
+!public/_assets/js/bootstrap.bundle.min.js
+prepros.config
