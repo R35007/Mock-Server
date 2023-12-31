@@ -1,3 +1,8 @@
+## v18.1.1
+
+- Fixed - Home Page sample db route issue.
+- Updated - Readme file.
+
 ## v18.1.0
 
 - Added - `/_db?_config=true` - Gives you only db route configs without any mock or fetch data.
