@@ -25,8 +25,12 @@ function setHomePageRoutes(resources) {
     resources['/_db'] = {
       id: window.btoa('/_db'),
       description: `Get Db snapshot. <br/ >
-      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_clean=true')">${window.location}_db?_clean=true</code> to get a clean db data. <br />
-      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_config=true')">${window.location}_db?_config=true</code> to get only db route configs.`,
+      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_clean=true')">${getUrl(
+        '/_db'
+      )}?_clean=true</code> to get a clean db data. <br />
+      Use <code style="cursor: pointer;" onclick="setIframeData(event, this,'/_db?_config=true')">${getUrl(
+        '/_db'
+      )}?_config=true</code> to get only db route configs.`,
       _default: true,
     };
 
