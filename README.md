@@ -9,62 +9,103 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 ## Table of contents
 
 <details>
-  <summary>Details</summary>
-
-- [Getting started](#getting-started)
-- [CLI Usage](#cli-usage)
-- [Using JS Module](#using-js-module)
-- [Database](#database)
-- [Middlewares](#middlewares)
-- [Injectors](#injectors)
-- [Store](#store)
-- [Rewriters](#rewriters)
-- [Helper Middlewares](#helper-middlewares)
-- [Route Config](#route-config)
-- [Set Custom Delay](#set-custom-delay)
-- [Set Custom StatusCode](#set-custom-statuscode)
-- <details style="margin-bottom: 10px">
-      <summary><a href="#fetch-file-or-url">Fetch File or Url</a></summary>
-      <ul>
-        <li> <a href="#fetch-file">Fetch File</a> </li>
-        <li> <a href="#fetch-data-from-url">Fetch Data From URL</a> </li>
-        <li> <a href="#axios-fetch-request">Axios Fetch Request</a> </li>
-        <li> <a href="#fetch-count">Fetch Count</a> </li>
-        <li> <a href="#skip-fetch-error">Skip Fetch Error</a> </li>
-      </ul>
-  </details>
-
-- [Specific Middlewares](#specific-middlewares)
-- [App Configuration](#app-configuration)
-- [Locals](#locals)
-- [Home Page Routes](#home-page-routes)
-- <details style="margin-bottom: 10px">
-      <summary><a href="#api">API</a></summary>
-      <ul>
-        <li> <a href="#mockserver">MockServer</a> </li>
-        <li> <a href="#create">Create</a> </li>
-        <li> <a href="#destroy">Destroy</a> </li>
-        <li> <a href="#launchserver">launchServer</a> </li>
-        <li> <a href="#rewriter">rewriter</a> </li>
-        <li> <a href="#defaults">defaults</a> </li>
-        <li> <a href="#resources">resources</a> </li>
-        <li> <a href="#homepage">homePage</a> </li>
-        <li> <a href="#startserver">startServer</a> </li>
-        <li> <a href="#stopserver">stopServer</a> </li>
-        <li> <a href="#resetserver">resetServer</a> </li>
-        <li> <a href="#resetdb">resetDb</a> </li>
-        <li> <a href="#pagenotfound">pageNotFound</a> </li>
-        <li> <a href="#errorhandler">errorHandler</a> </li>
-        <li> <a href="#getters">Getters</a> </li>
-        <li> <a href="#setters">Setters</a> </li>
-        <li> <a href="#libs">Libs</a> </li>
-        <li> <a href="#validators">Validators</a> </li>
-      </ul>
-  </details>
-
-- [VS Code Extension](#vs-code-extension)
-- [Author](#author)
-- [License](#license)
+    <summary>Details</summary>
+    <ul dir="auto">
+        <li>
+            <p dir="auto"><a href="#getting-started">Getting started</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#cli-usage">CLI Usage</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#using-js-module">Using JS Module</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#database">Database</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#middlewares">Middlewares</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#injectors">Injectors</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#store">Store</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#rewriters">Rewriters</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#helper-middlewares">Helper Middlewares</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#route-config">Route Config</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#set-custom-delay">Set Custom Delay</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#set-custom-statuscode">Set Custom StatusCode</a></p>
+        </li>
+        <li>
+            <details>
+                <summary><a href="#fetch-file-or-url">Fetch File or Url</a></summary>
+                <ul dir="auto">
+                    <li> <a href="#fetch-file">Fetch File</a> </li>
+                    <li> <a href="#fetch-data-from-url">Fetch Data From URL</a> </li>
+                    <li> <a href="#axios-fetch-request">Axios Fetch Request</a> </li>
+                    <li> <a href="#fetch-count">Fetch Count</a> </li>
+                    <li> <a href="#skip-fetch-error">Skip Fetch Error</a> </li>
+                </ul>
+            </details>
+        </li>
+        <li>
+            <p dir="auto"><a href="#specific-middlewares">Specific Middlewares</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#app-configuration">App Configuration</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#locals">Locals</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#home-page-routes">Home Page Routes</a></p>
+        </li>
+        <li>
+            <details>
+                <summary><a href="#api">API</a></summary>
+                <ul dir="auto">
+                    <li> <a href="#mockserver">MockServer</a> </li>
+                    <li> <a href="#create">Create</a> </li>
+                    <li> <a href="#destroy">Destroy</a> </li>
+                    <li> <a href="#launchserver">launchServer</a> </li>
+                    <li> <a href="#rewriter">rewriter</a> </li>
+                    <li> <a href="#defaults">defaults</a> </li>
+                    <li> <a href="#resources">resources</a> </li>
+                    <li> <a href="#homepage">homePage</a> </li>
+                    <li> <a href="#startserver">startServer</a> </li>
+                    <li> <a href="#stopserver">stopServer</a> </li>
+                    <li> <a href="#resetserver">resetServer</a> </li>
+                    <li> <a href="#resetdb">resetDb</a> </li>
+                    <li> <a href="#pagenotfound">pageNotFound</a> </li>
+                    <li> <a href="#errorhandler">errorHandler</a> </li>
+                    <li> <a href="#getters">Getters</a> </li>
+                    <li> <a href="#setters">Setters</a> </li>
+                    <li> <a href="#libs">Libs</a> </li>
+                    <li> <a href="#validators">Validators</a> </li>
+                </ul>
+            </details>
+        </li>
+        <li>
+            <p dir="auto"><a href="#vs-code-extension">VS Code Extension</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#author">Author</a></p>
+        </li>
+        <li>
+            <p dir="auto"><a href="#license">License</a></p>
+        </li>
+    </ul>
 </details>
 
 ## Getting started
@@ -72,7 +113,7 @@ Now also available as a VSCodeExtension <a href="https://marketplace.visualstudi
 Install Mock Server
 
 ```sh
-npm install -g @r35007/mock-server @r35007/mock-server-cli
+npm install -g @r35007/mock-server
 ```
 
 Run init command to create sample server files.
