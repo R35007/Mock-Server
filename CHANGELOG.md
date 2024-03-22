@@ -1,3 +1,9 @@
+## v19.0.0
+
+- Modified - Optimized code.
+- Added - Added `.json5` and `.jsonc` file support.
+- Added - JSDoc
+
 ## v18.1.1
 
 - Fixed - Home Page sample db route issue.

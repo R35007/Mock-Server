@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import * as cjson from 'comment-json';
 import * as fs from 'fs';
 import * as fsProm from 'fs/promises';
+import json5 from 'json5';
 import * as _ from 'lodash';
 import * as path from 'path';
 import { getParsedJSON } from '.';
@@ -16,12 +17,15 @@ export const importJsModuleSync = (modulePath: string) => {
 };
 
 export const importJsonModuleSync = (modulePath: string) => {
+  const str = fs.readFileSync(modulePath, 'utf-8');
   try {
-    const str = fs.readFileSync(modulePath, 'utf-8');
     return JSON.parse(str);
   } catch (err) {
-    const str = fs.readFileSync(modulePath, 'utf-8');
-    return cjson.parse(str, undefined, true);
+    try {
+      return json5.parse(str);
+    } catch (err) {
+      return cjson.parse(str, undefined, true);
+    }
   }
 };
 
