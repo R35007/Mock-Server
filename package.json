@@ -1,6 +1,6 @@
 {
   "name": "@r35007/mock-server",
-  "version": "18.1.1",
+  "version": "19.0.0",
   "description": "Customize Your Own Local Mock Server",
   "bin": {
     "mock-server": "dist/cli/index.js",
@@ -17,9 +17,9 @@
     "format:fix": "prettier --loglevel silent --ignore-unknown --find-config-path --write .",
     "lint:ts": "tsc --noEmit",
     "build": "rimraf dist && tsc --build",
-    "compile": "rimraf dist && tsc --sourceMap",
+    "compile": "rimraf dist && tsc --build tsconfig.test.json",
     "clean": "rimraf node_modules package-lock.json coverage dist",
-    "test:all": "jest --collectCoverage --collectCoverageFrom=src/**/*.ts --silent --runInBand --verbose --no-cache"
+    "test": "jest --collectCoverage --collectCoverageFrom=src/**/*.ts --silent --runInBand --verbose --no-cache"
   },
   "files": [
     "dist",
@@ -75,6 +75,7 @@
     "express-urlrewrite": "^1.4.0",
     "fs-extra": "^11.1.1",
     "ip": "^1.1.5",
+    "json5": "^2.2.3",
     "jsonc-require": "^1.0.1",
     "lodash": "^4.17.21",
     "lodash-id": "^0.14.1",
@@ -82,7 +83,7 @@
     "morgan": "^1.10.0",
     "nanoid": "^3.1.23",
     "ora": "^5.4.1",
-    "path-to-regexp": "^6.2.0",
+    "path-to-regexp": "^6.2.1",
     "please-upgrade-node": "^3.2.0",
     "response-time": "^2.3.2",
     "server-destroy": "^1.0.1",
@@ -123,10 +124,11 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-sort-keys-fix": "^1.1.2",
-    "jest": "^27.5.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "prettier": "^2.8.8",
     "supertest": "^6.2.2",
-    "ts-jest": "^27.1.4"
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.3"
   }
 }

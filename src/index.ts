@@ -24,9 +24,15 @@ import { getValidDb, getValidInjectors, getValidMiddlewares, getValidRewriters, 
 require('jsonc-require');
 
 export class MockServer extends GettersSetters {
-  // eslint-disable-next-line no-use-before-define
   static #mockServer: MockServer | undefined;
 
+  /**
+   * Creates an instance of the MockServer class with the specified configuration.
+   * If an instance already exists, it updates the configuration.
+   *
+   * @param {ParamTypes.Config} [config] - The configuration for the MockServer.
+   * @returns {MockServer} - The MockServer instance.
+   */
   static Create = (config?: ParamTypes.Config) => {
     if (!MockServer.#mockServer) {
       MockServer.#mockServer = new MockServer(config);
@@ -37,6 +43,14 @@ export class MockServer extends GettersSetters {
     }
   };
 
+  /**
+   * Destroys the specified MockServer instance or the global MockServer.
+   * If a specific instance is provided, it stops the server, resets it, and returns undefined.
+   * If no instance is provided, it stops the global MockServer, resets it, and clears the reference.
+   *
+   * @param {MockServer} [mockServer] - The MockServer instance to destroy.
+   * @returns {undefined} - Always returns undefined.
+   */
   static Destroy = async (mockServer?: MockServer) => {
     if (mockServer) {
       try {
@@ -54,6 +68,13 @@ export class MockServer extends GettersSetters {
     }
   };
 
+  /**
+   * Launches the server with the specified configuration options.
+   *
+   * @param {ParamTypes.Db} [db] - The database configuration.
+   * @param {LaunchServerOptions} [options] - Additional launch options (middlewares, injectors, rewriters, store, router, app, log).
+   * @returns {Promise<Server | undefined>} - A promise that resolves to the server instance or undefined.
+   */
   async launchServer(
     db?: ParamTypes.Db,
     { middlewares, injectors, rewriters, store, router, app = this.app, log = this.config.log }: LaunchServerOptions = {}
@@ -82,6 +103,15 @@ export class MockServer extends GettersSetters {
     return await this.startServer();
   }
 
+  /**
+   * Sets default configuration options for the application.
+   *
+   * @param {UserTypes.Config} [options] - Additional configuration options.
+   * @param {object} [config] - Additional configuration parameters (root, log).
+   * @param {string} [config.root] - The root directory for the application.
+   * @param {boolean|string} [config.log] - Whether to enable logging (true/false) or provide a custom log message.
+   * @returns {express.Router[]} - An array of express routers with default configurations.
+   */
   defaults(
     options?: UserTypes.Config,
     {
@@ -99,6 +129,16 @@ export class MockServer extends GettersSetters {
 
     return Defaults(this.config);
   }
+
+  /**
+   * Rewrites the routes based on the provided rewriters.
+   * @param {ParamTypes.Rewriters} [rewriters] - An object containing the rewriters.
+   * @param {RewriterOptions} [options={}] - Options for the rewriter.
+   * @param {string} [options.root=this.config.root] - The root directory for the rewriters.
+   * @param {express.Router} [options.router=express.Router()] - The router to apply the rewriters to.
+   * @param {boolean|string} [options.log=this.config.log] - Logging option or text for the rewriters.
+   * @returns {express.Router} - The router with the rewrites applied.
+   */
 
   rewriter(
     rewriters?: ParamTypes.Rewriters,
@@ -124,6 +164,19 @@ export class MockServer extends GettersSetters {
     return router;
   }
 
+  /**
+   * Sets up resources with the given database configurations and options.
+   * @param {ParamTypes.Db} [db] - The database configurations.
+   * @param {ResourceOptions} [options={}] - The options for resource setup.
+   * @param {UserTypes.MiddlewareConfig[]} [options.middlewares] - The middlewares to be used.
+   * @param {UserTypes.InjectorConfig[]} [options.injectors] - The injectors to be used.
+   * @param {boolean} [options.reverse=this.config.reverse] - The reverse option from the configuration.
+   * @param {string} [options.root=this.config.root] - The root directory from the configuration.
+   * @param {string} [options.dbMode=this.config.dbMode] - The database mode from the configuration.
+   * @param {express.Router} [options.router=express.Router()] - The express router.
+   * @param {boolean|string} [options.log=this.config.log] - The logging option or text.
+   * @returns {ResourceReturns} - An object containing the 'create' method and the 'router'.
+   */
   resources(
     db?: ParamTypes.Db,
     {
@@ -222,6 +275,11 @@ export class MockServer extends GettersSetters {
     return this.withHelperWrappers(userMiddlewares);
   };
 
+  /**
+   * Wraps the provided middlewares with helper middleware functions.
+   * @param {UserTypes.MiddlewareConfig | UserTypes.MiddlewareConfig[]} [middlewares=[]] - The middlewares to wrap, either a single middleware config or an array of them.
+   * @returns {UserTypes.MiddlewareConfig[]} - An array of middleware functions, starting and ending with helper middlewares, and including the provided middlewares in between.
+   */
   withHelperWrappers = (middlewares: UserTypes.MiddlewareConfig | UserTypes.MiddlewareConfig[] = []) => [
     HelperMiddlewares._SetDelay,
     HelperMiddlewares._Fetch,
@@ -234,6 +292,12 @@ export class MockServer extends GettersSetters {
     HelperMiddlewares._SendResponse,
   ];
 
+  /**
+   * Starts the server with the specified port and host.
+   * @param {number} [port] - The port number to start the server on.
+   * @param {string} [host] - The host name or IP address to start the server on.
+   * @returns {Promise<Server | undefined>} - A promise that resolves to the server instance if successful, or undefined if not.
+   */
   async startServer(port?: number, host?: string): Promise<Server | undefined> {
     if (_.isInteger(port) || !_.isEmpty(host)) {
       this.setConfig({
@@ -301,6 +365,10 @@ export class MockServer extends GettersSetters {
     }
   }
 
+  /**
+   * Stops the server if it is currently running.
+   * @returns {Promise<boolean>} - A promise that resolves to true if the server is successfully stopped, otherwise it will throw an error.
+   */
   async stopServer(): Promise<boolean> {
     const spinner = ora('Stopping Server...').start();
 
@@ -336,6 +404,12 @@ export class MockServer extends GettersSetters {
     }
   }
 
+  /**
+   * Resets the server to its default state.
+   * This includes clearing the server address, creating a new Express app,
+   * and setting default configurations for the database, middlewares, injectors,
+   * store, and rewriters.
+   */
   resetServer() {
     this.clearServerAddress();
     this.createExpressApp();
@@ -346,10 +420,24 @@ export class MockServer extends GettersSetters {
     this.setDefaultRewriters();
   }
 
+  /**
+   * Represents a middleware that handles the Page Not Found error.
+   * @type {PageNotFound}
+   */
   pageNotFound = PageNotFound;
 
+  /**
+   * Represents a middleware that handles general errors.
+   * @type {ErrorHandler}
+   */
   errorHandler = ErrorHandler;
 
+  /**
+   * Resets the database to its initial state or specific routes based on provided IDs or route paths.
+   * @param {string[]} [ids=[]] - An array of IDs corresponding to the routes to reset.
+   * @param {string[]} [routePaths=[]] - An array of route paths to reset.
+   * @returns {Object} - The database object after reset, either entirely or partially for specified routes.
+   */
   resetDb(ids: string[] = [], routePaths: string[] = []) {
     if (!ids.length && !routePaths.length) {
       replaceObj(this.getDb(), _.cloneDeep(this.initialDb));
@@ -365,6 +453,12 @@ export class MockServer extends GettersSetters {
     }
   }
 
+  /**
+   * Sets up the home page routes for the server.
+   * @param {Object} [options={}] - Configuration options for the home page.
+   * @param {boolean} [options.log=this.config.log] - Determines whether to log the loading of home page resources.
+   * @returns {express.Router} - The router configured with the home page routes.
+   */
   homePage({ log = this.config.log }: { log?: boolean } = {}): express.Router {
     const spinner = !global.quiet && log && ora('Loading HomePage Resources...').start();
 

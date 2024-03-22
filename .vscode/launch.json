@@ -5,14 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start Sample Server",
-      "program": "${workspaceFolder}/samples/server/index.js",
+      "name": "Debug Server",
+      "program": "${workspaceFolder}/debug/index.js",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "type": "node",
       "console": "integratedTerminal",
+      "preLaunchTask": "npm: compile"
     },
     {
       "type": "node",
