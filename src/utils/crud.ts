@@ -18,9 +18,10 @@ export default class {
     lodashId.id = config.id || 'id';
     const id = lodashId.id || config.id || 'id';
 
-    let _data = _.cloneDeep(data);
+    let clonedData = _.cloneDeep(data);
 
     const ids = flatQuery(params[id] || query[id]);
+    const _groupBy = flatQuery(query._group)[0] as string;
     const _sort = flatQuery(query._sort);
     const _order = flatQuery(query._order);
     const _start = flatQuery(query._start, true)[0] as number;
@@ -34,6 +35,7 @@ export default class {
     const q = flatQuery(query.q);
     const isRange = _start || _end;
 
+    delete query._group;
     delete query._sort;
     delete query._order;
     delete query._start;
@@ -46,96 +48,122 @@ export default class {
     delete query._last;
     delete query.q;
 
-    // Filters By Id
-    if (ids.length) {
-      _data = ids.map((id) => lodashId.getById(_data, id)).filter(Boolean);
-    }
+    let groupList = _.values(_.groupBy(clonedData, _groupBy));
 
-    // Partial Text Search
-    const searchTexts = [..._text, ...q].filter(Boolean);
-    if (searchTexts.filter(Boolean).length) {
-      _data = _data.filter((d) =>
-        searchTexts.some(
-          (_t) =>
-            _.values(d)
-              .join(', ')
-              ?.toLowerCase()
-              .indexOf(`${_t || ''}`?.toLowerCase()) >= 0
-        )
-      );
-    }
+    groupList = groupList.map((groupData) => {
+      let _data = groupData;
 
-    // Attribute Filter -> _like, _ne, _lt, _lte, _gt, _gte
-    _data = _data.filter((item) => {
-      for (let [key, val] of _.toPairs(query)) {
-        const _val: any[] = ([] as any).concat(val).filter((v) => v !== undefined || v !== null);
-        const path = key.replace(/(_lt|_lte|_gt|_gte|_ne|_like)$/, '');
-        const itemVal = _.get(item, path);
+      // Automatically delete query parameters that can't be found in database
+      Object.keys(query).forEach((key) => {
+        for (const i in _data) {
+          const path = key.replace(/(_lt|_lte|_gt|_gte|_ne|_like)$/, '');
+          if (_.has(_data[i], path) || key === 'callback' || key === '_') return;
+        }
+        delete query[key];
+      });
 
-        const isMatched = _val.some((paramVal) => {
-          if (/_lte$/.test(key)) return parseInt(itemVal) <= parseInt(paramVal);
-          else if (/_lt$/.test(key)) return parseInt(itemVal) < parseInt(paramVal);
-          else if (/_gte$/.test(key)) return parseInt(itemVal) >= parseInt(paramVal);
-          else if (/_gt$/.test(key)) return parseInt(itemVal) > parseInt(paramVal);
-          else if (/_ne$/.test(key)) return paramVal != itemVal;
-          else if (/_like$/.test(key)) return new RegExp(paramVal, 'i').test(itemVal.toString());
-          else paramVal == itemVal;
-        });
-
-        if (!isMatched) return false;
+      // Makes query.id=1,2 to query.id=[1,2]
+      for (const key in query) {
+        query[key] = flatQuery(query[key]) as string[];
       }
-      return true;
+
+      // Filters By Id
+      if (ids.length) {
+        _data = ids.map((id) => lodashId.getById(_data, id)).filter(Boolean);
+      }
+
+      // Partial Text Search
+      const searchTexts = [..._text, ...q].filter(Boolean);
+      if (searchTexts.filter(Boolean).length) {
+        _data = _data.filter((d) =>
+          searchTexts.some(
+            (_t) =>
+              _.values(d)
+                .join(', ')
+                ?.toLowerCase()
+                .indexOf(`${_t || ''}`?.toLowerCase()) >= 0
+          )
+        );
+      }
+
+      // Attribute Filter -> _like, _ne, _lt, _lte, _gt, _gte
+      _data = _data.filter((item) => {
+        for (let [key, val] of _.toPairs(query)) {
+          const _val: any[] = ([] as any).concat(val).filter((v) => v !== undefined || v !== null);
+          const path = key.replace(/(_lt|_lte|_gt|_gte|_ne|_like)$/, '');
+          const itemVal = _.get(item, path);
+
+          const isMatched = _val.some((paramVal) => {
+            if (/_lte$/.test(key)) return parseInt(itemVal) <= parseInt(paramVal);
+            else if (/_lt$/.test(key)) return parseInt(itemVal) < parseInt(paramVal);
+            else if (/_gte$/.test(key)) return parseInt(itemVal) >= parseInt(paramVal);
+            else if (/_gt$/.test(key)) return parseInt(itemVal) > parseInt(paramVal);
+            else if (/_ne$/.test(key)) return paramVal != itemVal;
+            else if (/_like$/.test(key)) return new RegExp(paramVal, 'i').test(itemVal.toString());
+            else return paramVal == itemVal;
+          });
+
+          if (!isMatched) return false;
+        }
+        return true;
+      });
+
+      // Sort and Order
+      _data = _.orderBy(_data, _sort, _order.map((o) => `${o || ''}`.toLowerCase()) as Array<'asc' | 'desc'>);
+
+      // Ranging
+      if (isRange) {
+        const startIndex = _start ?? 0;
+        const endIndex = _end ?? _data.length;
+        _data = _data.slice(startIndex, endIndex) || [];
+      }
+
+      // Pagination
+      if (_page !== undefined) {
+        const chunks = _.chunk(_data, _per_page ?? 10);
+        const links: any = {};
+        const fullURL = `http://${req.get('host')}${req.originalUrl}`;
+
+        links.first = fullURL.replace(`_page=${_page}`, '_page=1');
+        if (_page > 1) links.prev = fullURL.replace(`_page=${_page}`, `_page=${_page - 1}`);
+        if (_page < chunks.length) links.next = fullURL.replace(`_page=${_page}`, `_page=${_page + 1}`);
+        links.last = fullURL.replace(`_page=${_page}`, `_page=${chunks.length}`);
+
+        res.links(links);
+        _data = chunks[_page - 1] || [];
+      }
+
+      // Limit
+      if (_limit !== undefined) {
+        _data = _.take(_data, _limit) || [];
+      }
+
+      // First
+      if (_first == 'true') {
+        _data = _.head(_data);
+      }
+
+      // Last
+      if (_last == 'true') {
+        _data = _.last(_data);
+      }
+
+      // Set Headers
+      if (_start || _end || _limit || _page) {
+        res.setHeader('X-Total-Count', _data.length);
+        res.setHeader('Access-Control-Expose-Headers', `X-Total-Count${_page ? ', Link' : ''}`);
+      }
+
+      if (params[id] && _.isArray(_data) && _data?.length === 0) return {};
+      if (params[id] && _.isArray(_data) && _data?.length === 1) return _data[0];
+      return _data;
     });
 
-    // Sort and Order
-    _data = _.orderBy(_data, _sort, _order.map((o) => `${o || ''}`.toLowerCase()) as Array<'asc' | 'desc'>);
+    const flattenData = _.flatten(groupList);
 
-    // Ranging
-    if (isRange) {
-      const startIndex = _start ?? 0;
-      const endIndex = _end ?? _data.length;
-      _data = _data.slice(startIndex, endIndex) || [];
-    }
-
-    // Pagination
-    if (_page !== undefined) {
-      const chunks = _.chunk(_data, _per_page ?? 10);
-      const links: any = {};
-      const fullURL = `http://${req.get('host')}${req.originalUrl}`;
-
-      links.first = fullURL.replace(`_page=${_page}`, '_page=1');
-      if (_page > 1) links.prev = fullURL.replace(`_page=${_page}`, `_page=${_page - 1}`);
-      if (_page < chunks.length) links.next = fullURL.replace(`_page=${_page}`, `_page=${_page + 1}`);
-      links.last = fullURL.replace(`_page=${_page}`, `_page=${chunks.length}`);
-
-      res.links(links);
-      _data = chunks[_page - 1] || [];
-    }
-
-    // Limit
-    if (_limit !== undefined) {
-      _data = _.take(_data, _limit) || [];
-    }
-
-    // First
-    if (_first == 'true') {
-      _data = _.head(_data);
-    }
-
-    // Last
-    if (_last == 'true') {
-      _data = _.last(_data);
-    }
-
-    // Set Headers
-    if (_start || _end || _limit || _page) {
-      res.setHeader('X-Total-Count', data.length);
-      res.setHeader('Access-Control-Expose-Headers', `X-Total-Count${_page ? ', Link' : ''}`);
-    }
-
-    if (params[id] && _.isArray(_data) && _data?.length === 0) return {};
-    if (params[id] && _.isArray(_data) && _data?.length === 1) return _data[0];
-    return _data;
+    if (params[id] && _.isArray(flattenData) && flattenData?.length === 0) return {};
+    if (params[id] && _.isArray(flattenData) && flattenData?.length === 1) return flattenData[0];
+    return flattenData;
   };
 
   static insert = (req: express.Request, res: express.Response, data: any[]) => {
