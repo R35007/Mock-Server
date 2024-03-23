@@ -1,3 +1,9 @@
+## v19.1.0
+
+- Added - Added `_group` in param. Helps to filter data list by group.
+- Fixed - Route param filter issue.
+- Updated - `README.md`
+
 ## v19.0.0
 
 - Modified - Optimized code.

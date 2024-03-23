@@ -6,13 +6,21 @@ Created with &lt;3 for front-end developers who need a quick back-end for protot
 Now also available as a VSCodeExtension <a href="https://marketplace.visualstudio.com/items?itemName=Thinker.mock-server">thinker.mock-server</a>.
 </META>
 
-## Table of contents
-
 <details>
-    <summary>Details</summary>
+    <summary><h2 style="padding:0;display: inline-block;">Table of contents</h2></summary>
     <ul dir="auto">
         <li>
             <p dir="auto"><a href="#getting-started">Getting started</a></p>
+        </li>
+        <li>
+            <details>
+                <summary><a href="#routes">Routes</a></summary>
+                <ul dir="auto">
+                    <li> <a href="#params">Params</a> </li>
+                    <li> <a href="#delete">Delete</a> </li>
+                    <li> <a href="#serving-static-files">Serving static files</a> </li>
+                </ul>
+            </details>
         </li>
         <li>
             <p dir="auto"><a href="#cli-usage">CLI Usage</a></p>
@@ -134,6 +142,119 @@ Now if we go to [http://localhost:3000/posts](http://localhost:3000/posts), we'l
 [{ "id": 1, "title": "mock-server", "author": "r35007" }]
 ```
 
+## Routes
+
+Based on the example `db.json`, you'll get the following routes:
+
+```sh
+GET    /posts
+GET    /posts/:id
+POST   /posts
+PUT    /posts/:id
+PATCH  /posts/:id
+DELETE /posts/:id
+
+# Same for comments
+```
+
+```sh
+GET   /profile
+PUT   /profile
+PATCH /profile
+```
+
+## Params
+
+### Conditions
+
+- ` ` → `==`
+- `_lt` → `<`
+- `_lte` → `<=`
+- `_gt` → `>`
+- `_gte` → `>=`
+- `_ne` → `!=`
+- `_like` → `regex match`
+
+```sh
+GET /posts?views_gt=9000
+```
+
+### Range
+
+- `_first`
+- `_last`
+- `_start`
+- `_end`
+- `_limit`
+
+```sh
+GET /posts?_start=10&_end=20
+GET /posts?_start=10&_limit=10
+```
+
+### Paginate
+
+- `_page`
+- `_per_page` (default = 10)
+
+```sh
+GET /posts?_page=1&_per_page=25
+```
+
+### Sort
+
+- `_sort`
+
+```sh
+GET /posts?_sort=id,-views
+```
+
+### Text Search
+
+- `_text`
+- `q`
+
+```sh
+GET /posts?_text=qui%20est%20esse
+GET /posts?q=qui%20est%20esse
+```
+
+### Nested and array fields
+
+- `x.y.z...`
+- `x.y.z[i]...`
+
+```sh
+GET /foo?a.b=bar
+GET /foo?x.y_lt=100
+GET /foo?arr[0]=bar
+```
+
+### Group By
+
+- `_group`
+
+```sh
+GET /posts?_group=userId&_limit=1
+GET /posts?_group=userId&userId=1,2&_limit=2
+```
+
+## Delete
+
+```sh
+DELETE /posts/1
+```
+
+## Serving static files
+
+If you create a `./public` directory, Mock Server will serve its content in addition to the REST API.
+
+You can also add custom directories using `-s/--static` option.
+
+```sh
+mock-server -s ./static
+```
+
 ## CLI Usage
 
 ```sh
@@ -141,32 +262,32 @@ $ mock-server --help
 mock-server [options] <source>
 
 Options:
-  -c, --config              Path to config file                   [string]  [default: "mock-server.json"]
-  -P, --port                Set port                              [number]  [default: 3000]
-  -H, --host                Set host                              [string]  [default: "localhost"]
-  -r, --root                Set root directory.                   [string]  [default: "./"]
-  -s, --static              Set static files directory            [string]  [default: "./public"]
-  -b, --base                Set base route path                   [string]  [default: ""]
+  -c, --config              Path to config file                   [string]   [default: "mock-server.json"]
+  -P, --port                Set port                              [number]   [default: 3000]
+  -H, --host                Set host                              [string]   [default: "localhost"]
+  -r, --root                Set root directory.                   [string]   [default: "./"]
+  -s, --static              Set static files directory            [string]   [default: "./public"]
+  -b, --base                Set base route path                   [string]   [default: ""]
       --db                  Path to database file                 [string]
       --middlewares, --md   Path to middlewares file              [string]
       --injectors, --in     Path to Injectors file                [string]
       --store, --st         Path to Store file                    [string]
       --rewriters, --rw     Path to Rewriter file                 [string]
-      --id                  Set database id property              [string]  [default: "id"]
+      --id                  Set database id property              [string]   [default: "id"]
       --init                Create a sample server files          [boolean]  [default: false]
-      --dbMode, --dm        Set Db mode                           [string]  [default: "mock"] [choices: "mock", "dev", "multi"]
-      --snapshots, --ss     Set snapshots directory               [string]  [default: "./"]
-      --reverse, --rv       Generate Route in revere order        [boolean] [default: false]
-      --readOnly, --ro      Allow only GET requests               [boolean] [default: false]
-      --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean] [default: false]
-      --noGzip, --ng        Disable GZIP Content-Encoding         [boolean] [default: false]
-      --noCache, --nch      Disable Caching                       [boolean] [default: true]
-      --bodyParser, --bp    Enable body-parser                    [boolean] [default: true]
-      --cookieParser, --cp  Enable cookie-parser                  [boolean] [default: true]
-  -l, --logger              Enable logger                         [boolean] [default: true]
-      --log                 Enable Setter Logs                    [boolean] [default: false]
-  -w, --watch               Watch for changes                     [boolean] [default: false]
-  -q, --quiet               Prevent console logs                  [boolean] [default: false]
+      --dbMode, --dm        Set Db mode                           [string]   [default: "mock"] [choices: "mock", "dev", "multi"]
+      --snapshots, --ss     Set snapshots directory               [string]   [default: "./"]
+      --reverse, --rv       Generate Route in revere order        [boolean]  [default: false]
+      --readOnly, --ro      Allow only GET requests               [boolean]  [default: false]
+      --noCors, --nc        Disable Cross-Origin Resource Sharing [boolean]  [default: false]
+      --noGzip, --ng        Disable GZIP Content-Encoding         [boolean]  [default: false]
+      --noCache, --nch      Disable Caching                       [boolean]  [default: true]
+      --bodyParser, --bp    Enable body-parser                    [boolean]  [default: true]
+      --cookieParser, --cp  Enable cookie-parser                  [boolean]  [default: true]
+  -l, --logger              Enable logger                         [boolean]  [default: true]
+      --log                 Enable Setter Logs                    [boolean]  [default: false]
+  -w, --watch               Watch for changes                     [boolean]  [default: false]
+  -q, --quiet               Prevent console logs                  [boolean]  [default: false]
   -h, --help                Show help                             [boolean]
   -v, --version             Show version number                   [boolean]
 
@@ -189,7 +310,8 @@ const mockServer = MockServer.Create({ root: __dirname });
 mockServer.launchServer('./db.json');
 ```
 
-or
+<details>
+  <summary>View detailed example</summary>
 
 ```js
 const { MockServer, watcher, chalk } = require('@r35007/mock-server');
@@ -244,6 +366,8 @@ startServer().then(() => {
 });
 ```
 
+</details>
+
 Now go to terminal and type the following command to start the Mock Server.
 
 ```sh
@@ -257,7 +381,7 @@ For more api reference please click [here](#api),
 We can add the database in three ways. Using `setData`, `setDb` or `resources.`
 The easy and efficient way to add the database is using `resources`.
 
-Create `db.json`
+Create `db.json` or `db.jsonc` or `db.json5`
 
 ```jsonc
 {
@@ -372,69 +496,75 @@ app.use(resources.router);
 mockServer.startServer();
 ```
 
-All available methods to create a route.
-`server.js`
-
+<details>
+  <summary>All available methods to create a route. `server.js`</summary>
+  
 ```js
 const { MockServer } = require('@r35007/mock-server');
-const mockServer = MockServer.Create({ root: __dirname });
+const mockServer = MockServer.Create({ root: \_\_dirname });
 const app = mockServer.app;
 const resources = mockServer.resources();
 
 middlewares = [
-  (req, res, next) => {
-    next();
-  },
-  (req, res, next) => {
-    next();
-  },
+    (req, res, next) => {
+        next();
+    },
+    (req, res, next) => {
+        next();
+    },
 ];
 
 const db = resources
-  .create('/todos', ...middlewares) // can give n number of middlewares and names here
-  .send('My Response', mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode. alias rely
-  .id('todos')
-  .description('todos route')
-  .mock({ userId: 1, id: 1, title: 'Marvel', completed: false })
-  .fetch('https://jsonplaceholder.typicode.com/todos')
-  .mockFirst(false)
-  .statusCode(200) // alias status(200) can also be used
-  .delay(0) // delay in milliseconds
-  .fetchCount(1)
-  .skipFetchError(false)
-  .directUse(false)
-  .headers({}) // Set response Headers
-  .done({ log: true }); //  Make sure to call done method to create the route.
+    .create('/todos', ...middlewares) // can give n number of middlewares and names here
+    .send('My Response', mockServer.config.dbMode) // this value will be set to `mock` or `fetch` based on dbMode. alias rely
+    .id('todos')
+    .description('todos route')
+    .mock({ userId: 1, id: 1, title: 'Marvel', completed: false })
+    .fetch('https://jsonplaceholder.typicode.com/todos')
+    .mockFirst(false)
+    .statusCode(200) // alias status(200) can also be used
+    .delay(0) // delay in milliseconds
+    .fetchCount(1)
+    .skipFetchError(false)
+    .directUse(false)
+    .headers({}) // Set response Headers
+    .done({ log: true }); // Make sure to call done method to create the route.
+    
 console.log(db);
 /* db will return the generated db object. This will not be added to the mockserver db until we call done() method
 {
-  "/todos": {
-    "id":"todos",
-    "description": "todos route",
-    "mock":{
-      "userId": 1,
-      "id": 1,
-      "title": "Marvel",
-      "completed": false
-    },
-    "fetch": "https://jsonplaceholder.typicode.com/todos",
-    "mockFirst": false,
-    "statusCode": 200,
-    "delay": 0,
-    "fetchCount": 1,
-    "skipFetchError": false,
-    "directUse": false,
-    "headers": {}
-  }
+    "/todos": {
+        "_config": true,
+        "id":"todos",
+        "description": "todos route",
+        "mock":{
+            "userId": 1,
+            "id": 1,
+            "title": "Marvel",
+            "completed": false
+        },
+        "fetch": "https://jsonplaceholder.typicode.com/todos",
+        "mockFirst": false,
+        "statusCode": 200,
+        "delay": 0,
+        "fetchCount": 1,
+        "skipFetchError": false,
+        "directUse": false,
+        "headers": {}
+    }
 }
 */
 
 app.use(resources.router);
 
 mockServer.startServer();
-```
 
+````
 Please check [resources](#resources) api for more custom option reference.
+
+</details>
+
+
 
 ## Middlewares
 
@@ -469,7 +599,7 @@ module.exports = (mockServer) => {
     DataWrapper, // This can used in as a specific route middleware using route configs
   };
 };
-```
+````
 
 `server.js`
 
